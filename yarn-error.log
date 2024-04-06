@@ -1,0 +1,74 @@
+Arguments: 
+  /usr/bin/node /home/crow/.cache/node/corepack/yarn/1.22.19/bin/yarn.js add @faker/fakerjs
+
+PATH: 
+  /home/crow/.bun/bin:/home/crow/.yarn/bin:/home/crow/.config/yarn/global/node_modules/.bin:/home/crow/.airplane/bin:/home/crow/.fly/bin:/home/crow/bin:/usr/local/bin:/home/crow/.npm-bin/bin:/home/crow/.gem/ruby/2.6.0/bin:/home/crow/go/bin:/home/crow/Desktop/scripts:/home/crow/.gem/ruby/2.7.0/bin:/home/crow/.local/bin:/home/crow/.cargo/bin:/home/crow/.deno/bin:/home/crow/scripts:/home/crow/.bun/bin:/home/crow/.yarn/bin:/home/crow/.config/yarn/global/node_modules/.bin:/home/crow/.airplane/bin:/home/crow/.fly/bin:/home/crow/bin:/usr/local/bin:/home/crow/.npm-bin/bin:/home/crow/.gem/ruby/2.6.0/bin:/home/crow/go/bin:/home/crow/Desktop/scripts:/home/crow/.gem/ruby/2.7.0/bin:/home/crow/.local/bin:/home/crow/.cargo/bin:/home/crow/.deno/bin:/home/crow/scripts:/usr/condabin:/usr/local/sbin:/usr/local/bin:/usr/bin:/usr/lib/jvm/default/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl:/usr/lib/rustup/bin:/home/crow/Android/Sdk/emulator:/home/crow/Android/Sdk/tools:/home/crow/Android/Sdk/tools/bin:/home/crow/Android/Sdk/platform-tools:/home/crow/Android/Sdk/emulator:/home/crow/Android/Sdk/tools:/home/crow/Android/Sdk/tools/bin:/home/crow/Android/Sdk/platform-tools
+
+Yarn version: 
+  1.22.19
+
+Node version: 
+  18.18.2
+
+Platform: 
+  linux x64
+
+Trace: 
+  Error: https://registry.yarnpkg.com/@faker%2ffakerjs: Not found
+      at params.callback [as _callback] (/home/crow/.cache/node/corepack/yarn/1.22.19/lib/cli.js:66145:18)
+      at self.callback (/home/crow/.cache/node/corepack/yarn/1.22.19/lib/cli.js:140890:22)
+      at Request.emit (node:events:517:28)
+      at Request.<anonymous> (/home/crow/.cache/node/corepack/yarn/1.22.19/lib/cli.js:141862:10)
+      at Request.emit (node:events:517:28)
+      at IncomingMessage.<anonymous> (/home/crow/.cache/node/corepack/yarn/1.22.19/lib/cli.js:141784:12)
+      at Object.onceWrapper (node:events:631:28)
+      at IncomingMessage.emit (node:events:529:35)
+      at endReadableNT (node:internal/streams/readable:1368:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:82:21)
+
+npm manifest: 
+  {
+  	"name": "jarurat-care-website",
+  	"version": "0.0.1",
+  	"private": true,
+  	"scripts": {
+  		"dev": "vite dev",
+  		"build": "vite build",
+  		"preview": "vite preview",
+  		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+  		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+  		"lint": "prettier --check . && eslint .",
+  		"format": "prettier --write ."
+  	},
+  	"devDependencies": {
+  		"@sveltejs/adapter-auto": "^3.0.0",
+  		"@sveltejs/kit": "^2.0.0",
+  		"@sveltejs/vite-plugin-svelte": "^3.0.0",
+  		"@types/eslint": "^8.56.0",
+  		"@typescript-eslint/eslint-plugin": "^7.0.0",
+  		"@typescript-eslint/parser": "^7.0.0",
+  		"autoprefixer": "^10.4.19",
+  		"eslint": "^8.56.0",
+  		"eslint-config-prettier": "^9.1.0",
+  		"eslint-plugin-svelte": "^2.35.1",
+  		"postcss": "^8.4.38",
+  		"prettier": "^3.1.1",
+  		"prettier-plugin-svelte": "^3.1.2",
+  		"svelte": "^4.2.7",
+  		"svelte-check": "^3.6.0",
+  		"tailwindcss": "^3.4.3",
+  		"tslib": "^2.4.1",
+  		"typescript": "^5.0.0",
+  		"vite": "^5.0.3"
+  	},
+  	"type": "module",
+  	"dependencies": {
+  		"nanoid": "^5.0.6"
+  	}
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
