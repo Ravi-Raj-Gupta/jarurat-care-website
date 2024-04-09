@@ -1,3 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --max-width: 65rem;
+  --max-width-wide: 90rem;
+}
+
+.container {
+  max-width: var(--max-width-wide);
+  @apply mx-auto;
+}
+
+* {
+  font-family: Montserrat, sans-serif;
+}

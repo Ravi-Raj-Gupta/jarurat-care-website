@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { nanoid } from 'nanoid';
+	import ChevronLeft from '$lib/components/svg/chevron-left.svelte';
 
 	export let chatId: string | undefined = undefined;
 

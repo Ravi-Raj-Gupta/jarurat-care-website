@@ -5,7 +5,7 @@
 	import ChoicesGroup from './messages/choices-group.svelte';
 	import Choice from './messages/choice.svelte';
 	import UserMessage from './messages/user-message.svelte';
-	import { nanoid } from 'nanoid';
+	import ChevronLeft from '$lib/components/svg/chevron-left.svelte';
 
 	type Message = {
 		role: 'bot' | 'user';
@@ -26,18 +26,28 @@
 	export let chatId: string;
 </script>
 
-<div class="bg-white grow flex flex-col">
-	<header class="flex flex-col p-4 border-b border-gray-200">
-		<h2 class="font-bold text-zinc-800">{chatId}</h2>
-		<small class="text-zinc-600">Ask me something about cancer</small>
+<div class="bg-white grow flex flex-col relative">
+	<header>
+		<a
+			href="/hope"
+			class="p-4 flex flex-row items-center gap-4 border-b border-gray-100 hover:bg-gray-100 transition-colors duration-400"
+		>
+			<div class={`size-[1rem] ${!chatId && 'hidden'}`}>
+				<ChevronLeft width="w-[1rem]" />
+			</div>
+			<div class="flex flex-col">
+				<strong>{chatId}</strong>
+				<small class="text-zinc-600">Ask me something about cancer</small>
+			</div>
+		</a>
 	</header>
 
 	<div class="grow" />
 
 	<div class="messages p-2 flex flex-col gap-3 pb-4">
 		<p class="px-3 py-2 bg-yellow-100 self-center rounded-md text-center leading-[1.4]">
-			This is a chatbot. It might not always give you the correct suggestions. Please
-			consult a doctor for any medical advice.
+			This is a chatbot. It might not always give you the correct suggestions. Please consult a
+			doctor for any medical advice.
 		</p>
 
 		{#each messageHistory as message}

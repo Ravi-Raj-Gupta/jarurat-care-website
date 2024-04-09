@@ -1,15 +1,15 @@
 <script lang="ts">
-	import Sidebar from '$lib/components/sidebar.svelte';
 	import ChatPanel from './chat-panel.svelte';
+	import ChatChannels from '$lib/components/chat-channels.svelte';
 
 	export let chatId: string | undefined = undefined;
 </script>
 
-<div class="md:p-2 h-screen">
+<div class="md:p-2 grow bg-[#f1f8fa]">
 	<div
-		class="mx-auto max-w-[80rem] grid grid-cols-1 md:grid-cols-one_three items-stretch overflow-hidden h-full md:rounded-md md:border-t md:border-gray-200 shadow-lg drop-shadow-md relative"
+		class="mx-auto max-w-[80rem] grid grid-cols-1 md:grid-cols-one_three items-stretch overflow-hidden h-full md:rounded-md md:border-t md:border-[#f1f8fa] shadow-lg drop-shadow-md relative"
 	>
-		<Sidebar {chatId} />
+		<ChatChannels {chatId} />
 
 		<div class="bg-red-500 flex flex-col">
 			{#if chatId}
