@@ -184,7 +184,7 @@
 			title.textContent = opts.name;
 			title.classList.add('marker-card-title');
 
-			button.innerHTML = `{{> svg/position }}` + ' Get Direction';
+			button.innerHTML = /* `{{> svg/position }}` + */ ' Get Direction';
 			button.classList.add('marker-card-button');
 			button.addEventListener('click', () => {
 				const url = `http://maps.google.com?q=${opts.latitude},${opts.longitude}`;
@@ -235,8 +235,8 @@
 					const markerCard = new Marker(markerCardEl)
 						.setLngLat([hospital.longitude, hospital.latitude])
 						.addTo(map);
-				
-						console.log(el)
+
+					console.log(el);
 				});
 
 				const marker = new Marker(el).setLngLat([hospital.longitude, hospital.latitude]).addTo(map);
@@ -247,7 +247,7 @@
 
 <Heading title="Locate Cancer Hospitals Near You" subtitle="Finding Hope, One Location at a Time" />
 
-<div class="map-wrapper"  id="locate-hospitals">
+<div class="map-wrapper" id="locate-hospitals">
 	<div class="gh-inner" style="max-width: var(--max-width); margin: auto; padding: 0 1.5rem">
 		<div class="map-location" style="max-width: var(--max-width); margin: auto;">
 			<form class="my-2">
