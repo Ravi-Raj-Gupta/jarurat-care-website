@@ -26,7 +26,8 @@
 			center: [81.9629, 22.5937], // starting position [lng, lat]
 			zoom: desktopZoom, // starting zoom
 			minZoom: window.innerWidth <= 700 ? mobileZoom : desktopZoom,
-			style: 'mapbox://styles/mapbox/light-v11'
+			style: 'mapbox://styles/mapbox/light-v11',
+			projection: { name: 'mercator' }
 		});
 
 		map.addControl(new NavigationControl());
