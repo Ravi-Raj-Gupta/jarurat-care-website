@@ -30,11 +30,10 @@
 	</script>
 
 	<meta name="description" content="Jaisi Jarurat, Vaisi Care" />
-	<link
-		rel="icon"
-		href="https://jarurat.care/content/images/size/w256h256/format/png/2024/01/logo-2.webp"
-		type="image/png"
-	/>
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+	<link rel="manifest" href="/site.webmanifest" />
 	<link rel="canonical" href="https://jarurat.care/" />
 	<meta name="referrer" content="no-referrer-when-downgrade" />
 
