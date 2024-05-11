@@ -1,6 +1,27 @@
-<script>
+<script lang="ts">
 	import { onMount } from 'svelte';
 	import Hamburger from './svg/hamburger.svelte';
+
+	let navListener: EventListenerOrEventListenerObject | undefined;
+
+	function navHandler() {
+		const navItems = document.querySelector('.nav-items');
+		const menuHandler = document.querySelector('.hamburger-menu-handler');
+
+		if (navItems && menuHandler) {
+			navListener = () => {
+				navItems.classList.toggle('open');
+			};
+		}
+
+		navListener && menuHandler?.removeEventListener('click', navListener);
+		navListener && menuHandler?.addEventListener('click', navListener);
+	}
+
+	function closeNav() {
+		const navItems = document.querySelector('.nav-items');
+		navItems?.classList.remove('open');
+	}
 
 	onMount(() => {
 		const dropdownHandles = document.querySelectorAll('.has-dropdown');
@@ -15,14 +36,7 @@
 			});
 		});
 
-		const navItems = document.querySelector('.nav-items');
-		const menuHandler = document.querySelector('.hamburger-menu-handler');
-
-		if (navItems && menuHandler) {
-			menuHandler.addEventListener('click', () => {
-				navItems.classList.toggle('open');
-			});
-		}
+		navHandler();
 	});
 
 	const navItems = [
@@ -62,12 +76,12 @@
 							<span class="has-dropdown">{label}</span>
 							<ul>
 								{#each children as child}
-									<li><a href={child.href}>{child.label}</a></li>
+									<li><a href={child.href} on:click={closeNav}>{child.label}</a></li>
 								{/each}
 							</ul>
 						</li>
 					{:else}
-						<li><a {href} class={className}>{label}</a></li>
+						<li><a {href} class={className} on:click={closeNav}>{label}</a></li>
 					{/if}
 				{/each}
 			</ul>

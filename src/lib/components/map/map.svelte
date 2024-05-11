@@ -247,7 +247,7 @@
 
 <Heading title="Locate Cancer Hospitals Near You" subtitle="Finding Hope, One Location at a Time" />
 
-<div class="map-wrapper">
+<div class="map-wrapper"  id="locate-hospitals">
 	<div class="gh-inner" style="max-width: var(--max-width); margin: auto; padding: 0 1.5rem">
 		<div class="map-location" style="max-width: var(--max-width); margin: auto;">
 			<form class="my-2">
@@ -274,7 +274,9 @@
 
 <style>
 	.map-wrapper {
-		padding-bottom: 10rem;
+		margin-top: 1rem;
+		padding-top: 1rem;
+		padding-bottom: 2rem;
 		background-color: #f1f8fa;
 	}
 

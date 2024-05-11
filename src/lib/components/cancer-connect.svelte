@@ -75,14 +75,14 @@
 	});
 </script>
 
-<Heading
+<!-- <Heading
 	title="CancerConnect: Your Caring Community"
 	subtitle="Step into a World where Hope Blossoms, Join our Community Today"
 	className="!mt-[1rem]"
-/>
+/> -->
 
 <div class="cancer-connect">
-	<div class="cancer-connect-text-wrapper">
+	<!-- <div class="cancer-connect-text-wrapper">
 		<p class="cancer-connect-text">
 			In times of uncertainty, our devoted caregivers are here to guide you. We assist with clinical
 			visits and medical needs, ensuring you never face your journey alone.
@@ -91,7 +91,7 @@
 		<p class="cancer-connect-text">
 			Join CancerConnect today and experience the support of a compassionate community.
 		</p>
-	</div>
+	</div> -->
 
 	<div class="cancer-connect-call-to-action-container">
 		<section class="cancer-connect-cta">

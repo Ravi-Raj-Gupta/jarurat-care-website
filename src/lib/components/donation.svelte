@@ -177,6 +177,7 @@
 				ev.preventDefault();
 
 				const tokenUrl = await getTokenUrl();
+				// @ts-ignore
 				window.PhonePeCheckout.transact({ tokenUrl, callback: handlePostPayment, type: 'IFRAME' });
 			});
 
@@ -185,9 +186,9 @@
 				popup?.classList.add('hidden');
 			});
 
-			const createHiddenCCField = (type) => {
-				const oldHiddenFields = cancerConnectForm.querySelectorAll('.hidden-field');
-				oldHiddenFields.forEach((field) => field.remove());
+			const createHiddenCCField = (type: string) => {
+				const oldHiddenFields = donateTime_CancerConnectForm?.querySelectorAll('.hidden-field');
+				oldHiddenFields?.forEach((field: Element) => field.remove());
 
 				const hiddenField = document.createElement('input');
 
@@ -201,6 +202,7 @@
 
 			/****** donate time and skills ******/
 			const donateTimeBtn = document.querySelector('#donate-time');
+			console.log(donateTimeBtn)
 			const donateTime_cancerConnectPopup = document.querySelector('.cancer-connect-popup');
 			const donateTime_CancerConnectForm = donateTime_cancerConnectPopup?.querySelector('form'); // the CancerConnect form
 
@@ -250,7 +252,7 @@
 		</div>
 
 		<div class="donation-btn-group">
-			<a id="donate-time" onclick="gtag('event', 'donate-time-clicked')">
+			<a id="donate-time">
 				<span class="donation-svg-container">
 					<Care size="2rem" />
 				</span>
@@ -261,7 +263,7 @@
 				</span>
 			</a>
 
-			<a id="donate-money" onclick="gtag('event', 'donate-money-clicked')">
+			<a id="donate-money">
 				<span class="donation-svg-container">
 					<Money size="2rem" />
 				</span>
@@ -334,7 +336,7 @@
 		background-size: cover;
 		background-position: center;
 		background-attachment: fixed;
-		margin-bottom: 6rem !important;
+		/* margin-bottom: 6rem !important; */
 	}
 
 	.donation {

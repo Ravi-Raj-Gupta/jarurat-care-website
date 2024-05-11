@@ -50,24 +50,24 @@ Read, watch, and listen to heartfelt accounts of strength and healing. Find comf
 		
 Visit HealBlog today – let these stories guide your path to healing.`
 	},
-	{
-		icon: Stretcher,
-		title: 'Emergency Response System',
-		description:
-			'ERS to handle critical situations promptly involving a dedicated hotline or WhatsApp/Telegram groups that allows patients or their families to request urgent assistance from caregivers in their area.'
-	},
-	{
-		icon: Cancer,
-		title: 'Community Outreach: Spreading Hope, Connecting Communities',
-		description:
-			`Our awareness campaigns reach those in need, inviting them to our supportive network. We showcase our comprehensive services and share inspiring survivor stories to keep spirits high.
+	// {
+	// 	icon: Stretcher,
+	// 	title: 'Emergency Response System',
+	// 	description:
+	// 		'ERS to handle critical situations promptly involving a dedicated hotline or WhatsApp/Telegram groups that allows patients or their families to request urgent assistance from caregivers in their area.'
+	// },
+	// 	{
+	// 		icon: Cancer,
+	// 		title: 'Community Outreach: Spreading Hope, Connecting Communities',
+	// 		description:
+	// 			`Our awareness campaigns reach those in need, inviting them to our supportive network. We showcase our comprehensive services and share inspiring survivor stories to keep spirits high.
 
-Join us in spreading hope and making a difference in the lives of those affected by rare cancers. Get involved today!`
-	},
-	{
-		icon: Microscope,
-		title: 'Research & Development',
-		description:
-			'Invest in ongoing research to keep the educational toolbox up-to-date with the latest medical information. This will ensure that patients and caregivers have access to accurate and reliable resources.'
-	}
+	// Join us in spreading hope and making a difference in the lives of those affected by rare cancers. Get involved today!`
+	// 	},
+	// {
+	// 	icon: Microscope,
+	// 	title: 'Research & Development',
+	// 	description:
+	// 		'Invest in ongoing research to keep the educational toolbox up-to-date with the latest medical information. This will ensure that patients and caregivers have access to accurate and reliable resources.'
+	// }
 ];

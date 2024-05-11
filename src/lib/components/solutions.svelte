@@ -45,7 +45,7 @@
 
 <div class="solutions-wrapper">
 	<div class="container">
-		<Heading title="How you will be helped?" />
+		<Heading title="How you will be helped?" className="!mt-[0rem]" />
 
 		<div class="solutions">
 			{#each solutions as solution}
@@ -66,13 +66,13 @@
 
 <style>
 	.solutions-wrapper {
-		padding-bottom: 5rem;
+		padding-bottom: 0.5rem;
 	}
 
 	.solutions {
 		display: grid;
 		gap: 2rem;
-		margin: 2rem auto;
+		margin: 2rem auto 0 auto;
 		max-width: var(--max-width);
 		padding: 0 1.4rem 1.4rem;
 		grid-template-columns: repeat(3, minmax(0, 1fr));

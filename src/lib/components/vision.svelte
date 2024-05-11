@@ -39,7 +39,7 @@
 	.vision {
 		width: 100%;
 		max-width: var(--max-width);
-		margin: 3rem auto;
+		margin: 1rem auto;
 		padding: 1rem 1.4rem;
 	}
 

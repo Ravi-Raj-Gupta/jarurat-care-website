@@ -4,8 +4,6 @@
 </script>
 
 <footer>
-	<div class="footer-title">&copy; Jarurat Care Foundation, 2024</div>
-
 	<div class="site-footer">
 		<nav>
 			<ul>
@@ -52,6 +50,8 @@
 			</ul>
 		</nav>
 	</div>
+
+	<div class="footer-title">&copy; Jarurat Care Foundation, 2024</div>
 </footer>
 
 <style>
@@ -88,7 +88,7 @@
 	}
 
 	.footer-title {
-		margin: 3rem auto;
+		margin: 0 auto;
 		display: flex;
 		max-width: var(--max-width);
 		font-size: 1.1em;
@@ -96,13 +96,14 @@
 		font-weight: bold;
 		padding: 2rem;
 
-		padding-bottom: 0.5rem;
-		margin-bottom: 0.5rem;
+		padding-bottom: 2rem;
+		padding-top: 0;
 	}
 
 	.site-footer {
 		font-size: 0.9em;
 		padding: 1rem 2rem;
+		padding-top: 2rem;
 		display: grid;
 		max-width: var(--max-width);
 		margin: auto;
