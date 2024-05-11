@@ -23,6 +23,16 @@
 		href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
 		rel="stylesheet"
 	/>
+
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag() {
+			dataLayer.push(arguments);
+		}
+		gtag('js', new Date());
+
+		gtag('config', 'G-QN1XGRGT6K');
+	</script>
 </svelte:head>
 
 <slot />

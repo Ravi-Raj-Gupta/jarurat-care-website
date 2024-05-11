@@ -19,15 +19,6 @@
 
 	<!-- Google tag (gtag.js) -->
 	<script async src="https://www.googletagmanager.com/gtag/js?id=G-QN1XGRGT6K"></script>
-	<script>
-		window.dataLayer = window.dataLayer || [];
-		function gtag() {
-			dataLayer.push(arguments);
-		}
-		gtag('js', new Date());
-
-		gtag('config', 'G-QN1XGRGT6K');
-	</script>
 
 	<meta name="description" content="Jaisi Jarurat, Vaisi Care" />
 	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
