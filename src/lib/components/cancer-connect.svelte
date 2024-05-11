@@ -75,11 +75,10 @@
 	});
 </script>
 
-<!-- <Heading
-	title="CancerConnect: Your Caring Community"
+<Heading
 	subtitle="Step into a World where Hope Blossoms, Join our Community Today"
 	className="!mt-[1rem]"
-/> -->
+/>
 
 <div class="cancer-connect">
 	<!-- <div class="cancer-connect-text-wrapper">
@@ -200,7 +199,7 @@
 
 	.cancer-connect-call-to-action-container {
 		gap: 2rem;
-		margin: 4rem 0;
+		margin: 2rem 0;
 		display: grid;
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}

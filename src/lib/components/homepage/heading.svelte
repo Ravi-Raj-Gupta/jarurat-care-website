@@ -1,5 +1,5 @@
 <script lang="ts">
-	export let title: string;
+	export let title: string = '';
 	export let subtitle: string = '';
 	export let center = false;
 	export let className = '';

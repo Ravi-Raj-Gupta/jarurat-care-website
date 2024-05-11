@@ -56,7 +56,7 @@
 						</div>
 					</div>
 
-					<strong class="solutions-tile-title">{solution.title}</strong>
+					<strong class="solutions-tile-title block">{@html marked(solution.title)}</strong>
 					<div class="solution-unit-overlay">{@html marked(solution.description)}</div>
 				</div>
 			{/each}

@@ -25,7 +25,7 @@ Experience the difference of compassionate, holistic cancer support.`
 	},
 	{
 		icon: Social,
-		title: 'Introducing EdTech & Social Box: Your All-in-One Patient Support Platform',
+		title: 'Introducing EdTech & Social Box:\n\nYour All-in-One Patient Support Platform',
 		description:
 			'Connect with fellow patients, caregivers, and medical experts through our interactive online community. Request assistance, share updates, raise awareness, and access a wealth of educational resources - all in one convenient place.'
 	},
