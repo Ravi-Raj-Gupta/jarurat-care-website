@@ -13,6 +13,50 @@
 	import TransparentLogo from '../assets/images/logo_head.webp';
 </script>
 
+<svelte:head>
+	<title>Jarurat Care Foundation</title>
+	<meta charset="utf-8" />
+
+	<!-- Google tag (gtag.js) -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-QN1XGRGT6K"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag() {
+			dataLayer.push(arguments);
+		}
+		gtag('js', new Date());
+
+		gtag('config', 'G-QN1XGRGT6K');
+	</script>
+
+	<meta name="description" content="Jaisi Jarurat, Vaisi Care" />
+	<link
+		rel="icon"
+		href="https://jarurat.care/content/images/size/w256h256/format/png/2024/01/logo-2.webp"
+		type="image/png"
+	/>
+	<link rel="canonical" href="https://jarurat.care/" />
+	<meta name="referrer" content="no-referrer-when-downgrade" />
+
+	<meta property="og:site_name" content="Jarurat Care Foundation" />
+	<meta property="og:type" content="website" />
+	<meta property="og:title" content="Jarurat Care Foundation" />
+	<meta property="og:description" content="Jaisi Jarurat, Vaisi Care" />
+	<meta property="og:url" content="https://jarurat.care/" />
+	<meta property="article:publisher" content="https://jarurat.care" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:title" content="Jarurat Care Foundation" />
+	<meta name="twitter:description" content="Jaisi Jarurat, Vaisi Care" />
+	<meta name="twitter:url" content="https://jarurat.care/" />
+	<!-- <meta
+		name="twitter:image"
+		content="https://static.ghost.org/v5.0.0/images/publication-cover.jpg"
+	/> -->
+	<!-- <meta name="twitter:site" content="@ghost" /> -->
+	<!-- <meta property="og:image:width" content="1200" />
+	<meta property="og:image:height" content="840" /> -->
+</svelte:head>
+
 <Navigation />
 <Hero />
 <Stats />
