@@ -3,9 +3,6 @@ import Diagnoses from '$lib/components/svg/diagnoses.svelte';
 import Social from '$lib/components/svg/social.svelte';
 import Salad from '$lib/components/svg/salad.svelte';
 import Heal from '$lib/components/svg/heal.svelte';
-import Stretcher from '$lib/components/svg/stretcher.svelte';
-import Microscope from '$lib/components/svg/microscope.svelte';
-import Cancer from '$lib/components/svg/cancer.svelte';
 
 export const solutions = [
 	{
@@ -13,9 +10,9 @@ export const solutions = [
 		icon: Brain,
 		title: 'Treatment Care Think Tank: Personalized Cancer Support',
 		description:
-			`Our expert team of oncologists, officials, nutritionists, and spiritual guides collaborate to create individualized care plans tailored to each patient's unique needs.
+			`Our expert team of oncologists, officials, nutritionists, and spiritual guides collaborate to create individualized care plans tailored to each patient's unique needs.,
 
-Experience the difference of compassionate, holistic cancer support.`
+Experience the difference of compassionate, holistic cancer support.`,
 	},
 	{
 		icon: Diagnoses,

@@ -49,7 +49,11 @@
 
 		<div class="solutions">
 			{#each solutions as solution}
-				<div class="solutions-tile solution-unit">
+				<a
+					class="solutions-tile solution-unit"
+					href="mailto:jaruratcare@gmail.com?cc=aaditya.joshi@jarurat.care,aayush@jarurat.care,partnership@jarurat.care,pyiyanka.joshi@jarurat.care"
+					target="_blank"
+				>
 					<div class="solutions-tile-icon-wrapper">
 						<div class="solutions-tile-icon">
 							<svelte:component this={solution.icon} fill="white"></svelte:component>
@@ -58,7 +62,7 @@
 
 					<strong class="solutions-tile-title block">{@html marked(solution.title)}</strong>
 					<div class="solution-unit-overlay">{@html marked(solution.description)}</div>
-				</div>
+				</a>
 			{/each}
 		</div>
 	</div>
