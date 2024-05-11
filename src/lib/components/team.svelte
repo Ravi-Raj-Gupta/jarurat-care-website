@@ -9,6 +9,20 @@
 
 <Heading title="What Drives us to Serve Better" />
 
+<div class="team-container">
+	<section id="about" class="about">
+		{#each teamMembers as member}
+			<div class="about-card">
+				<div class="about-image-container">
+					<img alt={member.name} src={member.image} class="about-image" />
+				</div>
+				<strong class="about-name">{member.name}</strong>
+				<span class="about-description text-zinc-600 mt-1">{member.role}</span>
+			</div>
+		{/each}
+	</section>
+</div>
+
 <div class="mom-container">
 	<div id="mom" class="mom">
 		<Splide
@@ -89,20 +103,6 @@
 	</div>
 </div>
 
-<div class="team-container">
-	<section id="about" class="about">
-		{#each teamMembers as member}
-			<div class="about-card">
-				<div class="about-image-container">
-					<img alt={member.name} src={member.image} class="about-image" />
-				</div>
-				<strong class="about-name">{member.name}</strong>
-				<span class="about-description text-zinc-600 mt-1">{member.role}</span>
-			</div>
-		{/each}
-	</section>
-</div>
-
 <style>
 	.mom-container {
 		display: flex;
@@ -113,7 +113,7 @@
 	}
 
 	.mom {
-		margin: 2rem auto 4rem auto;
+		margin: 2rem auto 1rem auto;
 		padding: 1.5rem;
 		max-width: 110rem;
 		width: 100%;
