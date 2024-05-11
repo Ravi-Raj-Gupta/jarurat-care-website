@@ -6,7 +6,7 @@
 	import Heading from '../homepage/heading.svelte';
 	import LogoImage from '../../../assets/images/logo-transparent.webp';
 
-	const MarkerImage = 'https://jarurat.care/assets/images/logo_head.webp';
+	const MarkerImage = 'https://i.ibb.co/JvxqXsV/logo-head.webp';
 
 	let map: mapbox.Map;
 	let hospitals: any[] = [];
