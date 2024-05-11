@@ -1,6 +1,5 @@
 <script>
 	import Heading from './homepage/heading.svelte';
-
 	import { advisors } from '$lib/data/advisory-board';
 </script>
 
@@ -19,14 +18,16 @@
 					<img
 						src={advisor.image}
 						alt={advisor.name + '- Jarurat Care Foundation'}
-						class="relative block w-full mx-auto object-cover h-full grayscale"
+						class="relative block w-full mx-auto object-cover h-full"
 					/>
 					<div class="absolute bottom-0 left-0 right-0 z-10 flex flex-col">
 						<p class="grow" />
-						<div class="bg-white flex flex-col p-4">
+						<div class="bg-white/70 flex flex-col p-4 backdrop-blur-md advisory-information">
 							<h3 class="">{advisor.name}</h3>
 							<h4 class="text-[0.9em] text-zinc-500">{advisor.subtitle}</h4>
-							<div class="max-h-0 overflow-hidden transition-all description leading-[1.3] text-[0.9em]">
+							<div
+								class="max-h-0 overflow-hidden transition-all description leading-[1.3] text-[0.9em] advisory-desc"
+							>
 								<p class="py-1 text-zinc-600">{advisor.description}</p>
 							</div>
 						</div>
@@ -56,9 +57,9 @@
 		}
 	}
 
-	@media screen and (max-width: 500px) {
+	@media screen and (max-width: 600px) {
 		.advisory-board {
-			grid-template-columns: repeat(1, minmax(0, 1fr));
+			grid-template-columns: repeat(2, minmax(0, 1fr));
 		}
 	}
 
@@ -73,8 +74,19 @@
 		overflow: hidden;
 	}
 
+	.advisory-card .advisory-information > *:not(.advisory-desc) {
+		white-space: nowrap;
+		overflow-x: hidden;
+		text-overflow: ellipsis;
+		transition: 0.3s ease all;
+	}
+
 	.advisory-card:hover .description {
 		max-height: 6rem;
 		transition-duration: 0.5s;
+	}
+
+	.advisory-card:hover .advisory-information > * {
+		white-space: wrap;
 	}
 </style>

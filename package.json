@@ -36,8 +36,10 @@
 	"type": "module",
 	"dependencies": {
 		"@splidejs/svelte-splide": "^0.2.9",
+		"@tailwindcss/typography": "^0.5.12",
 		"gsap": "^3.12.5",
 		"mapbox-gl": "^3.2.0",
+		"marked": "^12.0.2",
 		"nanoid": "^5.0.6"
 	}
 }

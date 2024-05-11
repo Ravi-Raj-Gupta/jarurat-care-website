@@ -1,19 +1,8 @@
 <script lang="ts">
-	import { nanoid } from 'nanoid';
-	import ChevronLeft from '$lib/components/svg/chevron-left.svelte';
-
+	import { chatChannels } from '$lib/data/chat-channels';
 	export let chatId: string | undefined = undefined;
 
-	const chats = [
-		{ id: nanoid(5), name: 'Liver Cancer' },
-		{ id: nanoid(5), name: 'Breast Cancer' },
-		{ id: nanoid(5), name: 'Lung Cancer' },
-		{ id: nanoid(5), name: 'Pancreatic Cancer' },
-		{ id: nanoid(5), name: 'Brain Cancer' },
-		{ id: nanoid(5), name: 'Blood Cancer' },
-		{ id: nanoid(5), name: 'Mouth Cancer' },
-		{ id: nanoid(5), name: 'Bone Cancer' }
-	];
+	const chats = Object.values(chatChannels);
 </script>
 
 <aside
@@ -32,7 +21,7 @@
 						class="text-sm text-gray-500 whitespace-nowrap overflow-hidden truncate"
 						title="description about this `chat`"
 					>
-						description about this {chat.id}
+						{chat.description || ''}
 					</span>
 				</a>
 			</li>

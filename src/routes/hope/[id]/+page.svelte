@@ -5,7 +5,7 @@
 	export let data: { chatId: string };
 </script>
 
-<div class="flex flex-col h-screen">
+<div class="flex flex-col h-screen overflow-hidden">
 	<Navigation />
 	<Chat chatId={data.chatId} />
 </div>

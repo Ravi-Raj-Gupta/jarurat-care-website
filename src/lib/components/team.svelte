@@ -97,7 +97,7 @@
 					<img alt={member.name} src={member.image} class="about-image" />
 				</div>
 				<strong class="about-name">{member.name}</strong>
-				<span class="about-description">{member.role}</span>
+				<span class="about-description text-zinc-600 mt-1">{member.role}</span>
 			</div>
 		{/each}
 	</section>
@@ -254,11 +254,10 @@
 		border-radius: 0.3rem;
 		aspect-ratio: 1/1;
 		object-fit: cover;
-		filter: grayscale(100);
 	}
 
 	.about .about-name {
-		font-size: 1.3em;
+		font-size: 1.1em;
 		font-weight: 400;
 		line-height: 1.1;
 		margin-top: 1.3rem;
@@ -266,5 +265,6 @@
 
 	.about .about-description {
 		opacity: 0.8;
+		font-size: 0.9em;
 	}
 </style>

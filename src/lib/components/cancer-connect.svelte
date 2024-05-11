@@ -76,31 +76,30 @@
 </script>
 
 <Heading
-	title="CancerConnect"
+	title="CancerConnect: Your Caring Community"
 	subtitle="Step into a World where Hope Blossoms, Join our Community Today"
+	className="!mt-[1rem]"
 />
 
 <div class="cancer-connect">
 	<div class="cancer-connect-text-wrapper">
 		<p class="cancer-connect-text">
-			CancerConnect creates personalized connections that enable one-on-one support among cancer
-			fighters, survivors and caregivers.
+			In times of uncertainty, our devoted caregivers are here to guide you. We assist with clinical
+			visits and medical needs, ensuring you never face your journey alone.
 		</p>
 
 		<p class="cancer-connect-text">
-			This peer-to-peer connection platform helps anyone touched by cancer, at any stage on their
-			journey, find a mentor to ask questions and get support from someone who has personal
-			experience with the disease.
+			Join CancerConnect today and experience the support of a compassionate community.
 		</p>
 	</div>
 
 	<div class="cancer-connect-call-to-action-container">
 		<section class="cancer-connect-cta">
 			<div class="svg">
-				<Care fill="#92c7cf" />
+				<Care fill="#92c7cf" size="6rem" />
 			</div>
 
-			<strong>REQUEST SUPPORT</strong>
+			<strong></strong>
 
 			<p>Are you a cancer fighter, survivor, or caregiver?</p>
 
@@ -111,15 +110,15 @@
 
 			<div style="flex-grow: 1"></div>
 
-			<button id="req-support-btn">Learn More</button>
+			<button id="req-support-btn">REQUEST SUPPORT</button>
 		</section>
 
 		<section class="cancer-connect-cta">
 			<div class="svg">
-				<Care fill="#92c7cf" />
+				<Care fill="#92c7cf" size="6rem" />
 			</div>
 
-			<strong>BECOME A MENTOR</strong>
+			<strong></strong>
 
 			<p>
 				Do you have personal experience with cancer? Become a mentor and join others from around the
@@ -129,7 +128,7 @@
 
 			<div style="flex-grow: 1"></div>
 
-			<button id="become-mentor-btn">Learn More</button>
+			<button id="become-mentor-btn">BECOME A MENTOR</button>
 		</section>
 	</div>
 </div>
@@ -179,11 +178,6 @@
 </div>
 
 <style>
-	.cancer-connect-heading {
-		margin: 4rem auto;
-		max-width: var(--max-width);
-	}
-
 	.cancer-connect {
 		margin: auto;
 		max-width: var(--max-width);
@@ -231,19 +225,6 @@
 		.cancer-connect-cta {
 			padding: 2rem 1rem;
 		}
-	}
-
-	.cancer-connect-cta .svg {
-		width: 100%;
-		max-width: 12rem;
-		padding: 3rem;
-		border-radius: 100%;
-		background-color: #f1f8fa;
-		border: 1px solid #92c7cf;
-	}
-
-	.cancer-connect-cta .svg svg {
-		fill: #92c7cf;
 	}
 
 	.cancer-connect-cta strong {
@@ -391,5 +372,14 @@
 	.cancer-connect-popup button[type='reset']:hover {
 		background: red;
 		border: 1px solid red;
+	}
+
+	.cancer-connect-cta .svg {
+		width: 100%;
+		max-width: 12rem;
+		padding: 3rem;
+		border-radius: 100%;
+		background-color: #f1f8fa;
+		border: 1px solid #92c7cf;
 	}
 </style>

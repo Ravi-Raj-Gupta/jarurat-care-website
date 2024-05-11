@@ -3,7 +3,7 @@
 </script>
 
 <Heading
-	title="Hope in Every Breath"
+	title="Jarurat Care: Supporting  Cancer Patients"
 	subtitle="Jarurat Care Unveils a Vision of Support and Healing"
 />
 
@@ -15,17 +15,22 @@
 
 		<div>
 			<p>
-				Jarurat Care addresses the growing challenges of rare cancers by focusing on financial,
-				knowledge, emotional well-being, research, and time management through community support.
+				Navigating cancers is challenging, but you're not alone. We're here to help with financial
+				assistance, information, emotional support, research, and time management.
 			</p>
 
 			<p>
-				We're your cherished friend or family, offering emotional and practical support when you're
-				drained. As seasoned mentors who've navigated similar paths, we empower you to manage
+				Think of us as your caring family, providing emotional and practical help when you need it
+				most. Our experienced mentors, who have faced similar journeys, empower you to manage the
 				controllable aspects of your situation.
 			</p>
 
-			<p>We are an NGO who take donations to support cancer patients.</p>
+			<p>
+				As an NGO, we rely on generous donations to support cancer patients in need. Your
+				contribution can make a world of difference.
+			</p>
+
+			<p>Join the Jarurat Care community today and let us support you every step of the way.</p>
 		</div>
 	</div>
 </div>

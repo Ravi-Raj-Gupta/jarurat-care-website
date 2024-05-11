@@ -11,7 +11,7 @@ export const advisors = [
 	{
 		isHidden: false,
 		name: 'Dr. Vinay Kapoor',
-		subtitle: 'Pro Vice Chancellor of MGUMST',
+		subtitle: 'Vice Chancellor, MGUMST',
 		description: 'MBBS (AIIMS)',
 		image: 'https://i.ibb.co/4NvzPzp/1517053896862.jpg',
 		link: 'https://www.linkedin.com/in/vinay-kapoor-384959122/'

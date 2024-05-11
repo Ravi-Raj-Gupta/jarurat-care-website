@@ -1,10 +1,11 @@
 <script lang="ts">
 	export let title: string;
-	export let subtitle: string = "";
+	export let subtitle: string = '';
 	export let center = false;
+	export let className = '';
 </script>
 
-<h2 class={`section-heading ${center ? 'center' : ''}`}>{title}</h2>
+<h2 class={`section-heading ${center ? 'center' : ''} ${className || ''}`}>{title}</h2>
 <p class={`section-subheading  ${center ? 'center' : ''}`}>{subtitle}</p>
 
 <style>

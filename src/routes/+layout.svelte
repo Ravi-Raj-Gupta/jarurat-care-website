@@ -1,6 +1,5 @@
 <script>
 	import '../app.css';
-
 	import { onNavigate } from '$app/navigation';
 
 	onNavigate((navigation) => {

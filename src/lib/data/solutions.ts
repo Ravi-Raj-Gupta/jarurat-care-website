@@ -11,54 +11,60 @@ export const solutions = [
 	{
 		id: 'Treatment Plan Navigation',
 		icon: Brain,
-		title: 'Treatment Care Think Tank!',
+		title: 'Treatment Care Think Tank: Personalized Cancer Support',
 		description:
-			'A team of exceptional oncologists, government officials, nutritionists and spiritual gurus to review individual cases in order to provide personalized care for each patient.'
+			`Our expert team of oncologists, officials, nutritionists, and spiritual guides collaborate to create individualized care plans tailored to each patient's unique needs.
+
+Experience the difference of compassionate, holistic cancer support.`
 	},
 	{
-		id: 'CancerConnect',
 		icon: Diagnoses,
 		title: 'CancerConnect',
 		description:
 			'A community of dedicated caregivers who will help you navigate in your uncertain time and assist with on ground clinical visits & other medical requirements.'
 	},
 	{
-		id: 'EdTech & Social Box',
 		icon: Social,
-		title: 'EdTech & Social Box',
+		title: 'Introducing EdTech & Social Box: Your All-in-One Patient Support Platform',
 		description:
-			'An interactive online platform that connects patients, caregivers and medical professionals used for requesting assistance, providing updates, raising awareness and accessing the educational toolbox.'
+			'Connect with fellow patients, caregivers, and medical experts through our interactive online community. Request assistance, share updates, raise awareness, and access a wealth of educational resources - all in one convenient place.'
 	},
 	{
-		id: 'Nutritional & Emotional Well-being',
 		icon: Salad,
-		title: 'Nutritional & Emotional Well-being',
+		title: 'Nutritional & Emotional Well-being: Nurturing Body and Soul',
 		description:
-			'Emphasis on the importance of nutrition via sharing a curated nutritional support plan for each patient based on their needs and active symptoms.'
+			`We provide personalized nutritional plans tailored to your unique needs, ensuring you receive the right nutrients to support healing and well-being.
+
+Our compassionate team also guides you through emotional challenges, offering unwavering support.
+			
+Experience the transformative power of holistic care for body and soul at Jarurat Care.
+			`
 	},
 	{
-		id: 'ConnectToHeal',
 		icon: Heal,
-		title: 'ConnectToHeal',
+		title: 'HealBlog: Uplifting Stories, Unbreakable Spirit',
 		description:
-			'A personal blog & content channel to share surviors stories to keep patients moral high.'
+			`Discover inspiring survivor stories that empower and keep your spirits high on your cancer journey.
+
+Read, watch, and listen to heartfelt accounts of strength and healing. Find comfort and hope in our community of survivors, patients, and supporters.
+		
+Visit HealBlog today – let these stories guide your path to healing.`
 	},
 	{
-		id: 'Emergency Response System',
 		icon: Stretcher,
 		title: 'Emergency Response System',
 		description:
 			'ERS to handle critical situations promptly involving a dedicated hotline or WhatsApp/Telegram groups that allows patients or their families to request urgent assistance from caregivers in their area.'
 	},
 	{
-		id: 'Community Outreach and Awareness',
 		icon: Cancer,
-		title: 'Community Outreach and Awareness',
+		title: 'Community Outreach: Spreading Hope, Connecting Communities',
 		description:
-			'Conduct awareness campaigns in communities to promote our services and encourage more people to join our community . Sharing survivors stories to keep patients moral high.'
+			`Our awareness campaigns reach those in need, inviting them to our supportive network. We showcase our comprehensive services and share inspiring survivor stories to keep spirits high.
+
+Join us in spreading hope and making a difference in the lives of those affected by rare cancers. Get involved today!`
 	},
 	{
-		id: 'Research & Development',
 		icon: Microscope,
 		title: 'Research & Development',
 		description:

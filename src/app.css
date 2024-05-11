@@ -3,15 +3,20 @@
 @tailwind utilities;
 
 :root {
-  --max-width: 65rem;
-  --max-width-wide: 90rem;
+	--max-width: 65rem;
+	--max-width-wide: 90rem;
 }
 
 .container {
-  max-width: var(--max-width-wide);
-  @apply mx-auto;
+	max-width: var(--max-width-wide);
+	@apply mx-auto;
 }
 
 * {
-  font-family: Montserrat, sans-serif;
+	font-family: Montserrat, sans-serif;
+}
+
+svg {
+	max-width: 100%;
+	max-height: 100%;
 }

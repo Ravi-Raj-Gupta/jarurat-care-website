@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { gsap } from 'gsap';
+	import { marked } from 'marked';
 	import { onMount } from 'svelte';
 	import { solutions } from '$lib/data/solutions';
 	import Heading from './homepage/heading.svelte';
@@ -56,7 +57,7 @@
 					</div>
 
 					<strong class="solutions-tile-title">{solution.title}</strong>
-					<div class="solution-unit-overlay">{solution.description}</div>
+					<div class="solution-unit-overlay">{@html marked(solution.description)}</div>
 				</div>
 			{/each}
 		</div>

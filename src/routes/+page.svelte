@@ -7,8 +7,10 @@
 	import Stats from '$lib/components/stats.svelte';
 	import Team from '$lib/components/team.svelte';
 	import Vision from '$lib/components/vision.svelte';
-
-	export const ssr = true;
+	import Footer from '$lib/components/footer.svelte';
+	import Map from '$lib/components/map/map.svelte';
+	import Donation from '$lib/components/donation.svelte';
+	import TransparentLogo from '../assets/images/logo_head.webp';
 </script>
 
 <Navigation />
@@ -17,6 +19,15 @@
 <Vision />
 <Solutions />
 <AdvisoryBoard />
-<!--map-->
+<Map />
 <CancerConnect />
 <Team />
+<Donation />
+<Footer />
+
+<a class="flex items-center gap-2 fixed bottom-2 right-2 z-30" href="/hope">
+	<span class="bg-yellow-400 px-2 py-1 rounded-md">Talk to Hope</span>
+	<div class="size-[3rem] p-1 rounded-full border bg-white">
+		<img src={TransparentLogo} alt="Jarurat Care Foundation" class="w-full" />
+	</div>
+</a>

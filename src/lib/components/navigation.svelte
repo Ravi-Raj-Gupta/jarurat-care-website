@@ -1,5 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
+	import Hamburger from './svg/hamburger.svelte';
 
 	onMount(() => {
 		const dropdownHandles = document.querySelectorAll('.has-dropdown');
@@ -26,7 +27,7 @@
 
 	const navItems = [
 		{ href: '/', label: 'Home', children: undefined },
-		{ href: '/#vision', label: 'Vision', children: undefined },
+		// { href: '/#vision', label: 'Vision', children: undefined },
 		{ href: '/#about', label: 'About', children: undefined },
 		// {
 		// 	href: undefined,
@@ -71,7 +72,9 @@
 				{/each}
 			</ul>
 
-			<button class="hamburger-menu-handler">ham</button>
+			<button class="hamburger-menu-handler">
+				<Hamburger />
+			</button>
 		</nav>
 	</header>
 </div>
@@ -174,15 +177,15 @@
 			align-items: flex-start;
 			flex-direction: column;
 			position: fixed;
-			border-top-left-radius: 1.5rem;
-			border-bottom-left-radius: 1.5rem;
+			/* border-top-left-radius: 1.5rem;
+			border-bottom-left-radius: 1.5rem; */
 			z-index: 100;
 			top: 0;
 			bottom: 0;
 			right: 0;
 			background-color: white;
 			padding: 2rem;
-			max-width: 20rem;
+			/* max-width: 20rem; */
 			width: 100%;
 			box-shadow:
 				0px 0px 3.6px rgba(0, 0, 0, 0.031),
@@ -219,17 +222,11 @@
 		gap: 0.5rem;
 		color: #1f8d1c;
 		border: 1px solid #1f8d1c;
-		border-radius: 1rem;
+		border-radius: 0.5rem;
 		padding: 0.5rem 1rem;
 		font-size: 0.9em;
 		font-weight: 500;
 		display: flex;
 		align-items: center;
-	}
-
-	.nav-wa-link svg {
-		width: 1em;
-		height: 1em;
-		fill: #1f8d1c;
 	}
 </style>

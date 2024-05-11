@@ -6,5 +6,5 @@ export default {
 			gridTemplateColumns: { one_three: '1fr 3fr' }
 		}
 	},
-	plugins: []
+	plugins: [require('@tailwindcss/typography')]
 };
