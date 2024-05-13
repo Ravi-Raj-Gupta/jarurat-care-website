@@ -29,7 +29,7 @@ export const advisors = [
 		name: 'Dr. Vineet G Gupta',
 		subtitle: 'Medical Oncologist',
 		description: 'Fortis Hospital, Delhi',
-		image: 'https://drvineetgovinda.com/wp-content/uploads/2018/09/DSC_6447-768x513.jpg',
+		image: 'https://i.ibb.co/HCK7TT6/dr-vineet-govinda-gupta.jpg',
 		link: 'https://drvineetgovinda.com/'
 	},
 	{
