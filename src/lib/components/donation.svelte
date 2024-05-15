@@ -337,7 +337,7 @@
 	</div>
 </div>
 
-<div class="donation-amount-popup-wrapper hidden">
+<div class="donation-amount-popup-wrapper hidden z-30">
 	<div class="donation-amount-popup">
 		<button id="reset-donation-popup" type="reset">✕</button>
 
