@@ -8,6 +8,8 @@
 	import MomImage from '../../assets/images/photos/mom.webp';
 	import { Splide, SplideSlide, SplideTrack } from '@splidejs/svelte-splide';
 
+	let donateTimeRef: HTMLElement;
+
 	onMount(() => {
 		try {
 			const script = document.createElement('script');
@@ -100,7 +102,7 @@
 			const donationResultLoading = donationResultPopup?.querySelector('.donation-result-loading');
 			const donationResultSuccess = donationResultPopup?.querySelector('.donation-result-success');
 
-			function handleDonationResultPopup(state) {
+			function handleDonationResultPopup(state: string) {
 				if (state === 'success') {
 					donationResultPopup?.classList.remove('hidden');
 
@@ -124,13 +126,15 @@
 			}
 
 			let reqCount = 1;
-			const delay = (ms) => new Promise((res) => setTimeout(res, ms));
+			const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 			const delayTime = 1000;
 			const maxReqCount = 5;
-			const genRangeRandom = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+			const genRangeRandom = (min: number, max: number) =>
+				Math.floor(Math.random() * (max - min + 1)) + min;
 
-			const verifyPayment = async () => {
+			const verifyPayment: any = async () => {
 				try {
+					// @ts-ignore
 					const txnId = form?.querySelector('.txnId')?.value;
 
 					const baseURL = `https://chat-backend-e7nr.onrender.com`;
@@ -161,6 +165,7 @@
 					return json;
 				} catch (err) {
 					console.log(err);
+					return {};
 				}
 			};
 
@@ -203,10 +208,11 @@
 				return hiddenField;
 			};
 
+			console.log(donateTimeRef);
+
 			/****** donate time and skills ******/
 			const donateTimeBtn = document.querySelector('#donate-time');
-			console.log(donateTimeBtn);
-			const donateTime_cancerConnectPopup = document.querySelector('.cancer-connect-popup');
+			const donateTime_cancerConnectPopup = donateTimeRef;
 			const donateTime_CancerConnectForm = donateTime_cancerConnectPopup?.querySelector('form'); // the CancerConnect form
 
 			donateTimeBtn?.addEventListener('click', () => {
@@ -214,6 +220,40 @@
 				const hiddenField = createHiddenCCField('Donate Time');
 				donateTime_CancerConnectForm?.appendChild(hiddenField);
 				donateTime_cancerConnectPopup?.classList.remove('hidden');
+			});
+
+			const donateTimePopupCloseBtn = donateTimeRef?.querySelector('#reset-cancer-connect-popup');
+			donateTimePopupCloseBtn?.addEventListener('click', (ev) => {
+				donateTime_cancerConnectPopup?.classList.add('hidden');
+			});
+
+			donateTime_CancerConnectForm?.addEventListener('submit', (ev) => {
+				ev.preventDefault();
+
+				const formData = new FormData(donateTime_CancerConnectForm);
+				const payload = Object.fromEntries(formData.entries());
+
+				fetch('https://chat-backend-e7nr.onrender.com/cancer-connect', {
+					method: 'POST',
+					headers: {
+						accept: 'application/json',
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify(payload)
+				})
+					.then((response) => response.json())
+					.then((response) => {
+						if (response.status === 'success') {
+							window.alert('Thank you. We will reach out to you soon.');
+							donateTime_cancerConnectPopup?.classList.add('hidden');
+						} else {
+							alert('Something went wrong. Please try again');
+						}
+					})
+					.catch((err) => {
+						console.error(err);
+						alert('Something went wrong. Please try again later.');
+					});
 			});
 		} catch (e) {
 			console.log(e);
@@ -311,7 +351,7 @@
 				</label>
 
 				<label>
-					<input type="radio" name="amount" value="1000" selected />
+					<input type="radio" name="amount" value="1000" checked />
 					<span>₹1000</span>
 				</label>
 
@@ -414,6 +454,50 @@
 				</button>
 			</div>
 		</Splide>
+	</div>
+</div>
+
+<div bind:this={donateTimeRef} class="donate-time hidden">
+	<div class="cancer-connect-popup-content">
+		<button id="reset-cancer-connect-popup" type="reset">✕</button>
+
+		<div class="cancer-connect-popup-heading">
+			<h2 class="section-heading">CancerConnect</h2>
+			<p class="section-subheading">We will reach out to you within a week</p>
+		</div>
+
+		<form class="cancer-connect-form">
+			<label>
+				<small>First Name</small>
+				<input type="text" placeholder="First" name="first_name" required />
+			</label>
+
+			<label>
+				<small>Last Name</small>
+				<input type="text" placeholder="Last" name="surname" required />
+			</label>
+
+			<label>
+				<small>Email</small>
+				<input type="email" placeholder="first@gmail.com" name="email" required />
+			</label>
+
+			<label>
+				<small>Phone</small>
+				<input type="text" placeholder="+91 7002 000 000" name="phone" required />
+			</label>
+
+			<label>
+				<p style="line-height: 1.3; font-size: 0.8em">
+					<input type="checkbox" name="consent" required />
+					Yes, I agree to receive emails from Jarurat Care Foundation to be a part of cancer community.
+				</p>
+			</label>
+
+			<div class="cancer-connect-submit">
+				<button type="submit">Join Jarurat Care</button>
+			</div>
+		</form>
 	</div>
 </div>
 
@@ -767,5 +851,139 @@
 			left: 1rem;
 			right: 1rem;
 		}
+	}
+
+	/** DONATE TIME POPUP */
+
+	.donate-time {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		padding: 1rem;
+		z-index: 100;
+		background: #000000da;
+		backdrop-filter: blur(10px);
+
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition: 0.3s ease all;
+	}
+
+	.donate-time.hidden {
+		opacity: 0;
+		visibility: collapse;
+	}
+
+	.cancer-connect-popup-content {
+		width: 100%;
+		max-width: 45rem;
+		padding: 2rem;
+		background: white;
+		border-radius: 1rem;
+		position: relative;
+		transition: 0.3s ease all;
+	}
+
+	.donate-time.hidden .cancer-connect-popup-content {
+		opacity: 0;
+		transform: translateY(100%);
+	}
+
+	.cancer-connect-popup-heading {
+		margin-bottom: 2rem;
+	}
+
+	.cancer-connect-popup-heading .section-heading {
+		margin-top: 0 !important;
+		font-size: 2em !important;
+		padding: 0;
+	}
+
+	.cancer-connect-popup-heading .section-subheading {
+		font-size: 1.3em !important;
+		padding: 0;
+		line-height: 1.2;
+	}
+
+	.cancer-connect-form {
+		gap: 1.5rem;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.cancer-connect-form label {
+		gap: 0.5rem;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.cancer-connect-form label input {
+		border: none;
+		padding: 0.8rem 1.2rem;
+		background-color: #f1f8fa;
+		border-radius: 0.5rem;
+	}
+
+	.cancer-connect-form label input:focus {
+		outline: 1px solid #92c7cf;
+	}
+
+	.cancer-connect-form label small {
+		font-weight: 500;
+		text-transform: uppercase;
+	}
+
+	.cancer-connect-form .cancer-connect-submit {
+		margin-top: 2rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.cancer-connect-form .cancer-connect-submit button {
+		cursor: pointer;
+		padding: 0.8rem 1.2rem;
+		background: #f1f8fa;
+		border-radius: 0.5rem;
+		border: 1px solid #92c7cf;
+		transition: 0.3s ease all;
+	}
+
+	.cancer-connect-form .cancer-connect-submit button:hover {
+		background-color: #92c7cf;
+	}
+
+	.donate-time button[type='reset'] {
+		width: 3rem;
+		aspect-ratio: 1;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		position: absolute;
+		top: -0.5rem;
+		right: -0.5rem;
+		border-radius: 100%;
+		border: 1px solid #fac4c4;
+		background: #fac4c4;
+		cursor: pointer;
+		font-size: 1.2em;
+		transition: 0.3s ease all;
+	}
+
+	.donate-time button[type='reset']:hover {
+		background: red;
+		border: 1px solid red;
+	}
+
+	.cancer-connect-cta .svg {
+		width: 100%;
+		max-width: 12rem;
+		padding: 3rem;
+		border-radius: 100%;
+		background-color: #f1f8fa;
+		border: 1px solid #92c7cf;
 	}
 </style>
