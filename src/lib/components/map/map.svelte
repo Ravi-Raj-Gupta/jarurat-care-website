@@ -224,7 +224,6 @@
 			for (let i = 0; i < items.length; i++) {
 				const el = document.createElement('div');
 				const hospital = items[i];
-				console.log(hospital);
 
 				el.className = 'marker';
 				el.title = hospital.name;
@@ -236,8 +235,6 @@
 					const markerCard = new Marker(markerCardEl)
 						.setLngLat([hospital.longitude, hospital.latitude])
 						.addTo(map);
-
-					console.log(el);
 				});
 
 				const marker = new Marker(el).setLngLat([hospital.longitude, hospital.latitude]).addTo(map);
