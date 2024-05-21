@@ -65,4 +65,28 @@ export const advisors = [
 		image: 'https://www.ghanshyamtiwari.org/image/profile.jpg',
 		link: 'https://www.ghanshyamtiwari.org/'
 	},
+	{
+		isHidden: false,
+		name: 'Utpal Anand',
+		subtitle: 'Surgical Gastroenterology',
+		description: 'AIIMS, Patna',
+		image: 'https://i.ibb.co/XkD7LtC/984ca91f-f440-454b-9b48-f785826fbf7f-utpal-anand.jpg',
+		link: ''
+	},
+	{
+		isHidden: false,
+		name: 'Dr Vaibhav Kumar Varshney',
+		subtitle: 'Surgical Gastroenterology',
+		description: 'All India Institute of Medical Sciences',
+		image: 'https://i.ibb.co/yqCVHTX/MM-2322-copy-Copy-Vaibhav-Varshney.jpg',
+		link: ''
+	},
+	{
+		isHidden: false,
+		name: 'Deeksha Kapoor',
+		subtitle: 'Senior Consultant',
+		description: 'BLK Max',
+		image: 'https://i.ibb.co/ypZpSMh/DK-Profile-Deeksha-Kapoor.webp',
+		link: ''
+	},
 ];

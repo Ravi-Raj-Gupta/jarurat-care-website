@@ -23,7 +23,7 @@ export const teamMembers = [
 	{ name: 'Hrithik S. Naudiyal', role: 'Social Media & PR Strategist', image: PhotoHritik },
 	{ name: 'Giftin Wilson', role: 'Fitness Strategist', image: PhotoGiftin },
 	{ name: 'Turiya Kapoor', role: 'Social Media Strategist', image: PhotoTuriya },
-	{ name: 'Priyansha Gupta', role: 'Growth & Strategy', image: PhotoPriyansha },
+	{ name: 'Priyansha', role: 'Growth & Strategy', image: PhotoPriyansha },
 	{ name: 'Sachin Sati', role: 'Social Media Strategist', image: PhotoSachin },
 	{ name: 'Shreya Jain', role: 'Growth Strategist', image: PhotoShreya },
 ];
