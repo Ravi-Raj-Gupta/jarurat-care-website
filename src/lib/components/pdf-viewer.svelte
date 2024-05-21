@@ -18,7 +18,7 @@
 
 <Heading title="From the Doctors" subtitle="" />
 
-<div class="max-w-[60rem] mx-auto">
+<div class="container">
 	<Splide
 		aria-label="Story of Rekha Joshi"
 		hasTrack={false}
@@ -26,7 +26,8 @@
 			arrows: true,
 			pagination: false,
 			autoplay: true,
-			type: 'loop'
+			type: 'loop',
+			lazyLoad: 'nearby'
 		}}
 	>
 		<SplideTrack>
