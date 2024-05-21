@@ -11,6 +11,7 @@
 	import Map from '$lib/components/map/map.svelte';
 	import Donation from '$lib/components/donation.svelte';
 	import TransparentLogo from '../assets/images/logo_head.webp';
+	import PdfViewer from '$lib/components/pdf-viewer.svelte';
 </script>
 
 <svelte:head>
@@ -49,6 +50,7 @@
 
 <Navigation />
 <Hero />
+<PdfViewer />
 <Stats />
 <Vision />
 <Solutions />

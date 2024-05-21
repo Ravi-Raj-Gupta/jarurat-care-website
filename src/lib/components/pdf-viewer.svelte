@@ -8,8 +8,8 @@
 	import Png7 from '../../assets/images/doctors-pdf/gallbladder/7.png';
 	import Png8 from '../../assets/images/doctors-pdf/gallbladder/8.png';
 	import Png9 from '../../assets/images/doctors-pdf/gallbladder/9.png';
-	import '@splidejs/splide/css';
 
+	import '@splidejs/splide/css';
 	import { Splide, SplideSlide, SplideTrack } from '@splidejs/svelte-splide';
 	import Heading from './homepage/heading.svelte';
 
@@ -17,7 +17,7 @@
 </script>
 
 <div class="max-w-[60rem] mx-auto">
-	<Heading title="Gallbladder Cancer" subtitle="PDF Slideshow" />
+	<Heading title="From the Doctors" subtitle="" />
 
 	<Splide
 		aria-label="Story of Rekha Joshi"
