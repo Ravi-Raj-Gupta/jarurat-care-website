@@ -16,9 +16,9 @@
 	const images = [Png1, Png2, Png3, Png4, Png5, Png6, Png7, Png8, Png9];
 </script>
 
-<div class="max-w-[60rem] mx-auto">
-	<Heading title="From the Doctors" subtitle="" />
+<Heading title="From the Doctors" subtitle="" />
 
+<div class="max-w-[60rem] mx-auto">
 	<Splide
 		aria-label="Story of Rekha Joshi"
 		hasTrack={false}
