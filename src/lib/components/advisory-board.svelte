@@ -3,8 +3,8 @@
 	import { advisors } from '$lib/data/advisory-board';
 </script>
 
-<div class="advisory-wrapper" id="advisory-board">
-	<Heading title="Meet Our Super Heroes" />
+<div class="advisory-wrapper pt-[3rem]" id="advisory-board">
+	<Heading title="Meet Our Super Heroes" className="!mt-0" />
 
 	<div class="advisory-board" style="padding: 1rem">
 		{#each advisors as advisor}

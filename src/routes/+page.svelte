@@ -12,6 +12,7 @@
 	import Donation from '$lib/components/donation.svelte';
 	import TransparentLogo from '../assets/images/logo_head.webp';
 	import PdfViewer from '$lib/components/pdf-viewer.svelte';
+	import Mom from '$lib/components/mom.svelte';
 </script>
 
 <svelte:head>
@@ -54,11 +55,12 @@
 <Stats />
 <Vision />
 <Solutions />
+<Donation />
 <AdvisoryBoard />
 <Map />
 <CancerConnect />
 <Team />
-<Donation />
+<Mom />
 <Footer />
 
 <a class="flex items-center gap-2 fixed bottom-2 right-2 z-30" href="/hope">
