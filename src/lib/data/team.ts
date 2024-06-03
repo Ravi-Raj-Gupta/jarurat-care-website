@@ -16,7 +16,7 @@ export const teamMembers = [
 	{ name: 'Priyanka Joshi', role: 'Chairman/Co-Founder', image: PhotoPriyanka },
 	{ name: 'Mahesh Joshi', role: 'Co-Founder', image: PhotoMahesh },
 	{ name: 'Aaditya Joshi', role: 'Co-Founder', image: PhotoAaditya },
-	{ name: 'Aayush Anand', role: 'Evangelist', image: PhotoAayush },
+	// { name: 'Aayush Anand', role: 'Evangelist', image: PhotoAayush },
 	{ name: 'Abdus Azad', role: 'Tech Evangelist', image: PhotoAbdus },
 	{ name: 'Sumedha Upadhyay', role: 'Growth & Strategy Lead', image: PhotoSumedha },
 	{ name: 'Sonali Bhatnagar', role: 'Mental Health Expert', image: PhotoSonali },
