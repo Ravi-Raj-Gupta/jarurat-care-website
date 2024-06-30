@@ -1,5 +1,5 @@
 <script lang="ts">
-	import TransparentLogo from '../../assets/images/logo-transparent.webp';
+	import TransparentLogo from '../../assets/images/Designer__3_-removebg-preview.png';
 </script>
 
 <div class="hero">
