@@ -65,7 +65,7 @@
 	}
 
 	.hero-inner .hero-description {
-		opacity: 0.5;
+		opacity: 0.9;
 		font-size: 1.4em;
 		font-weight: 300;
 		line-height: 1.3;
@@ -81,7 +81,7 @@
 		font-size: 1.2em;
 		column-gap: 0.5rem;
 		background-color: transparent;
-		color: white;
+		color: black;
 		border: none;
 		background-color: #92c7cf;
 		border-radius: 3rem;
@@ -95,7 +95,7 @@
 	}
 
 	.hero-inner svg {
-		stroke: white;
+		stroke: black;
 		/*fill: red;*/
 	}
 

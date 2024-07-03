@@ -255,9 +255,10 @@
 					id="location-search-box"
 					class="border rounded-md"
 				/>
-				<button type="button" id="location-locate-auto">
+				<button type="button" id="location-locate-auto" aria-label="Locate Automatically">
 					<Crosshair className="w-[1rem] h-[1rem]" />
 				</button>
+				
 			</form>
 
 			<div class="map-search-suggestions"></div>
