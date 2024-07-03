@@ -15,18 +15,21 @@ export const solutions = [
 Experience the difference of compassionate, holistic cancer support.`,
 	},
 	{
+		id: 'Cancer Connect',
 		icon: Diagnoses,
 		title: 'CancerConnect',
 		description:
 			'A community of dedicated caregivers who will help you navigate in your uncertain time and assist with on ground clinical visits & other medical requirements.'
 	},
 	{
+		id: 'Edtech Social Box',
 		icon: Social,
 		title: 'Introducing EdTech & Social Box:\n\nYour All-in-One Patient Support Platform',
 		description:
 			'Connect with fellow patients, caregivers, and medical experts through our interactive online community. Request assistance, share updates, raise awareness, and access a wealth of educational resources - all in one convenient place.'
 	},
 	{
+		id: 'Nutritional Emotional Wellbeing',
 		icon: Salad,
 		title: 'Nutritional & Emotional Well-being: Nurturing Body and Soul',
 		description:
@@ -38,6 +41,7 @@ Experience the transformative power of holistic care for body and soul at Jarura
 			`
 	},
 	{
+		id: 'HealBlog',
 		icon: Heal,
 		title: 'HealBlog: Uplifting Stories, Unbreakable Spirit',
 		description:

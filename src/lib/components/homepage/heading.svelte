@@ -20,7 +20,7 @@
 	}
 
 	.section-subheading {
-		color: #aaa;
+		color: #575757;
 		margin: auto;
 		padding: 0 1.4rem;
 		font-size: 1.6em;

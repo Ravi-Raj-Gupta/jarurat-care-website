@@ -53,6 +53,8 @@
 					class="solutions-tile solution-unit"
 					href="mailto:jaruratcare@gmail.com?cc=aaditya.joshi@jarurat.care,aayush@jarurat.care,partnership@jarurat.care,pyiyanka.joshi@jarurat.care"
 					target="_blank"
+					aria-labelledby="solution-{solution.id}-title"
+					aria-describedby="solution-{solution.id}-description"
 				>
 					<div class="solutions-tile-icon-wrapper">
 						<div class="solutions-tile-icon">
@@ -60,8 +62,8 @@
 						</div>
 					</div>
 
-					<strong class="solutions-tile-title block">{@html marked(solution.title)}</strong>
-					<div class="solution-unit-overlay">{@html marked(solution.description)}</div>
+					<strong id="solution-{solution.id}-title" class="solutions-tile-title block">{@html marked(solution.title)}</strong>
+					<div id="solution-{solution.id}-description" class="solution-unit-overlay">{@html marked(solution.description)}</div>
 				</a>
 			{/each}
 		</div>
@@ -118,7 +120,7 @@
 		padding: 0 1rem;
 		font-size: 1em;
 		line-height: 1.5;
-		color: #aaa;
+		color: #575757;
 	}
 
 	@media screen and (max-width: 900px) {

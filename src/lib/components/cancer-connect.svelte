@@ -235,7 +235,7 @@
 		margin-top: 1rem;
 		border: 3px solid #92c7cf;
 		padding: 0.8rem 2.3rem;
-		color: white;
+		color: black;
 		background: #92c7cf;
 		font-weight: 500;
 		border-radius: 0.3rem;
