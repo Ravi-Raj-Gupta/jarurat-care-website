@@ -1,16 +1,28 @@
-<script>
-	import AdvisoryBoard from '$lib/components/advisory-board.svelte';
-	import CancerConnect from '$lib/components/cancer-connect.svelte';
-	import Hero from '$lib/components/hero.svelte';
-	import Navigation from '$lib/components/navigation.svelte';
-	import Solutions from '$lib/components/solutions.svelte';
-	import Stats from '$lib/components/stats.svelte';
-	import Team from '$lib/components/team.svelte';
-	import Vision from '$lib/components/vision.svelte';
-	import Footer from '$lib/components/footer.svelte';
-	import Map from '$lib/components/map/map.svelte';
-	import Donation from '$lib/components/donation.svelte';
-	import TransparentLogo from '../../assets/images/logo_head.webp';
+<script lang="ts">
+	import type { SvelteComponent } from 'svelte';
+
+	let Navigation: typeof SvelteComponent | null = null;
+	let Donation: typeof SvelteComponent | null = null;
+	let Footer: typeof SvelteComponent | null = null;
+	let Hero: typeof SvelteComponent | null = null;
+	let TransparentLogo:typeof SvelteComponent | null = null;
+
+	let loading = true;
+
+	(async () => {
+		const navigationModule = await import('$lib/components/navigation.svelte');
+		const donationModule = await import('$lib/components/donation.svelte');
+		const footerModule = await import('$lib/components/footer.svelte');
+		const heroModule = await import('$lib/components/hero.svelte');
+		const TransparentModule = await import('../../assets/images/logo_head.webp');
+
+		Navigation = navigationModule.default;
+		Donation = donationModule.default;
+		Footer = footerModule.default;
+		Hero = heroModule.default;
+      TransparentLogo=TransparentModule.default;
+		loading = false;
+	})();
 </script>
 
 <svelte:head>
@@ -38,19 +50,16 @@
 	<meta name="twitter:title" content="Jarurat Care Foundation" />
 	<meta name="twitter:description" content="Jaisi Jarurat, Vaisi Care" />
 	<meta name="twitter:url" content="https://jarurat.care/" />
-	<!-- <meta
-		name="twitter:image"
-		content="https://static.ghost.org/v5.0.0/images/publication-cover.jpg"
-	/> -->
-	<!-- <meta name="twitter:site" content="@ghost" /> -->
-	<!-- <meta property="og:image:width" content="1200" />
-	<meta property="og:image:height" content="840" /> -->
 </svelte:head>
 
-<Navigation />
-<Hero />
-<Donation />
-<Footer />
+{#if !loading && Navigation && Hero && Donation && Footer}
+	<svelte:component this={Navigation} />
+	<svelte:component this={Hero} />
+	<svelte:component this={Donation} />
+	<svelte:component this={Footer} />
+{:else}
+	<p>Loading...</p>
+{/if}
 
 <a class="flex items-center gap-2 fixed bottom-2 right-2 z-30" href="/hope">
 	<span class="bg-yellow-400 px-2 py-1 rounded-md">Talk to Hope</span>

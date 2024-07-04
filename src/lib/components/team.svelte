@@ -12,7 +12,7 @@
 		{#each teamMembers as member}
 			<div class="about-card">
 				<div class="about-image-container">
-					<img alt={member.name} src={member.image} class="about-image" />
+					<img   loading="lazy" alt={member.name} src={member.image} class="about-image" />
 				</div>
 				<strong class="about-name">{member.name}</strong>
 				<span class="about-description text-zinc-600 mt-1">{member.role}</span>

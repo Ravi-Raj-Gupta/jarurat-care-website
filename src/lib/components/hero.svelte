@@ -33,7 +33,7 @@
 		</section>
 
 		<aside class="hero-image-container">
-			<img class="hero-image" src={TransparentLogo} alt="Jarurat Care" />
+			<img fetchpriority="high" class="hero-image" src={TransparentLogo} alt="Jarurat Care" />
 		</aside>
 	</div>
 </div>
