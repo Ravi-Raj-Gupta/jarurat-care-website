@@ -32,7 +32,7 @@
 	>
 		<SplideTrack>
 			{#each images as image}
-				<SplideSlide class="flex items-center">
+				<SplideSlide class="flex items-center" role="group" aria-roledescription="slide">
 					<img src={image} alt="Jarurat Care" class=" rounded-md overflow-hidden" />
 				</SplideSlide>
 			{/each}
