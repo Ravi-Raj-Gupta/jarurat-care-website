@@ -9,7 +9,7 @@
 	role="img"
 	style="transform: translate(393px, 542px) translate(-50%, -50%) translate(0px); opacity: 1; pointer-events: auto;"
 >
-	<button class="marker-card-close-button">X</button>
+	<button class="marker-card-close-button" aria-label="Close">X</button>
 	<strong class="marker-card-title"> Mandhaniya Cancer Hospital and Research Institute </strong>
 
 	<div class="marker-card-review-container">
@@ -17,7 +17,7 @@
 		<div class="marker-card-total-review"></div>
 	</div>
 
-	<button class="marker-card-button">
+	<button class="marker-card-button" aria-label="Get directions">
 		<svg
 			version="1.1"
 			xmlns="http://www.w3.org/2000/svg"
