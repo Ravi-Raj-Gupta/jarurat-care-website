@@ -76,9 +76,9 @@
 				{/each}
 			</ul>
 
-			<button class="hamburger-menu-handler">
+			<button class="hamburger-menu-handler" aria-label="Open menu">
 				<Hamburger />
-			</button>
+			</button>			
 		</nav>
 	</header>
 </div>
@@ -224,8 +224,8 @@
 
 	.nav-wa-link {
 		gap: 0.5rem;
-		color: #1f8d1c;
-		border: 1px solid #1f8d1c;
+		color: #166713;
+		border: 1px solid #166713;
 		border-radius: 0.5rem;
 		padding: 0.5rem 1rem;
 		font-size: 0.9em;

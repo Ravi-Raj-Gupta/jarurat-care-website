@@ -16,7 +16,7 @@
 			}}
 		>
 			<SplideTrack>
-				<SplideSlide class="flex items-center">
+				<SplideSlide class="flex items-center" role="group" aria-roledescription="slide">
 					<p class="our-story">
 						Our story commenced in December 2023, marking a pivotal moment in our lives. It was then
 						that we faced the profound loss of our cherished mother, who bravely battled
@@ -27,7 +27,7 @@
 					</p>
 				</SplideSlide>
 
-				<SplideSlide>
+				<SplideSlide role="group" aria-roledescription="slide">
 					<div class="mom-image-wrapper">
 						<div class="mom-text-image">
 							<img loading="lazy" alt="Mom" src={MomImage} class="mom-image" />
