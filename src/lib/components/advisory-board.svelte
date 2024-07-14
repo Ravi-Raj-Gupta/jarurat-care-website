@@ -16,6 +16,7 @@
 					class="advisory-card border border-zinc-100 rounded-md relative aspect-[9/13] border border-red-500 overflow-hidden"
 				>
 					<img
+					   loading="lazy"
 						src={advisor.image}
 						alt={advisor.name + '- Jarurat Care Foundation'}
 						class="relative block w-full mx-auto object-cover h-full"

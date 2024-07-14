@@ -10,7 +10,7 @@
 <div class="gh-inner vision">
 	<div class="vision-background">
 		<div>
-			<img src="https://i.ibb.co/1GZDfrm/vision.webp" alt="Jarurat Care Foundation" />
+			<img   loading="lazy" src="https://i.ibb.co/1GZDfrm/vision.webp" alt="Jarurat Care Foundation" />
 		</div>
 
 		<div>

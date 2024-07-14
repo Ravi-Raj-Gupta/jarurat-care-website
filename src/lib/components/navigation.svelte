@@ -43,16 +43,6 @@
 		{ href: '/', label: 'Home', children: undefined },
 		// { href: '/#vision', label: 'Vision', children: undefined },
 		{ href: '/#about', label: 'About', children: undefined },
-		// {
-		// 	href: undefined,
-		// 	label: 'Donate',
-		// 	children: [
-		// 		{ href: '/#donate', label: 'Time', children: undefined },
-		// 		{ href: '/#donate', label: 'SKills', children: undefined },
-		// 		{ href: '/#donate', label: 'Trust', children: undefined },
-		// 		{ href: '/#donate', label: 'Money', children: undefined }
-		// 	]
-		// },
 		{ href: '/#advisory-board', label: 'Advisory Board', children: undefined },
 		{ href: '/hope', label: 'Talk to Hope', children: undefined },
 		{

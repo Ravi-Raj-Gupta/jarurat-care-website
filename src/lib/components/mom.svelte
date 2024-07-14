@@ -30,7 +30,7 @@
 				<SplideSlide role="group" aria-roledescription="slide">
 					<div class="mom-image-wrapper">
 						<div class="mom-text-image">
-							<img alt="Mom" src={MomImage} class="mom-image" />
+							<img loading="lazy" alt="Mom" src={MomImage} class="mom-image" />
 
 							<p class="mom-text">
 								Rekha’s last trip before she started her battle with Cholangiocarcinoma and

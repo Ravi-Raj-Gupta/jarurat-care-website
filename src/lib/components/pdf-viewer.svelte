@@ -1,13 +1,13 @@
 <script lang="ts">
-	import Png1 from '../../assets/images/doctors-pdf/gallbladder/1.png';
-	import Png2 from '../../assets/images/doctors-pdf/gallbladder/2.png';
-	import Png3 from '../../assets/images/doctors-pdf/gallbladder/3.png';
-	import Png4 from '../../assets/images/doctors-pdf/gallbladder/4.png';
-	import Png5 from '../../assets/images/doctors-pdf/gallbladder/5.png';
-	import Png6 from '../../assets/images/doctors-pdf/gallbladder/6.png';
-	import Png7 from '../../assets/images/doctors-pdf/gallbladder/7.png';
-	import Png8 from '../../assets/images/doctors-pdf/gallbladder/8.png';
-	import Png9 from '../../assets/images/doctors-pdf/gallbladder/9.png';
+	import Png1 from '../../assets/images/doctors-pdf/gallbladder/1.avif';
+	import Png2 from '../../assets/images/doctors-pdf/gallbladder/2.avif';
+	import Png3 from '../../assets/images/doctors-pdf/gallbladder/3.avif';
+	import Png4 from '../../assets/images/doctors-pdf/gallbladder/4.avif';
+	import Png5 from '../../assets/images/doctors-pdf/gallbladder/5.avif';
+	import Png6 from '../../assets/images/doctors-pdf/gallbladder/6.avif';
+	import Png7 from '../../assets/images/doctors-pdf/gallbladder/7.avif';
+	import Png8 from '../../assets/images/doctors-pdf/gallbladder/8.avif';
+	import Png9 from '../../assets/images/doctors-pdf/gallbladder/9.avif';
 
 	import '@splidejs/splide/css';
 	import { Splide, SplideSlide, SplideTrack } from '@splidejs/svelte-splide';
