@@ -4,22 +4,19 @@
 	import Header from './ui/header.svelte';
 	import Button from './ui/button.svelte';
 	import testimonials from '$lib/data/testimonials.json';
+	import InstagramEmbed from './ui/instagram-embed.svelte';
+	import instaReels from '$lib/data/insta-reels-for-testimonials.json';
 	import { ChevronLeft, ChevronRight, QuoteIcon } from 'lucide-svelte';
 	import { Splide, SplideSlide, SplideTrack } from '@splidejs/svelte-splide';
 
 	let innerWidth = writable(0);
-
-	const videos = [
-		{ title: '', url: '' },
-		{ title: '', url: '' },
-		{ title: '', url: '' }
-	];
+	let isInstaEmbedOpen = false;
+	let selectedInstaReelUrl = '';
 
 	onMount(() => {
 		innerWidth.set(window.innerWidth);
 		window.addEventListener('resize', () => {
 			innerWidth.set(window.innerWidth);
-			console.log('resized...');
 		});
 	});
 </script>
@@ -90,15 +87,20 @@
 	>
 		<div class="custom-wrapper">
 			<SplideTrack>
-				{#each videos as video}
+				{#each instaReels as reel}
 					<SplideSlide class="p-1 pl-2 max-w-[90%]">
-						<div
-							class="bg-white text-[#0D2561] w-full aspect-video rounded-2xl shadow border border-gray-100"
+						<button
+							class="bg-white text-[#0D2561] w-full aspect-video rounded-2xl shadow object-cover bg-center overflow-hidden"
+							style="background-image: url('{reel.thumbnailSrc ||
+								'https://placehold.jp/30/dd6699/ffffff/700x400.png?text=placeholder+image'}');"
+							on:click={() => {
+								isInstaEmbedOpen = false; // reset
+								isInstaEmbedOpen = true;
+								selectedInstaReelUrl = reel.reelUrl;
+							}}
 						>
-							<div class="p-4">
-								{video.title || 'video goes here'}
-							</div>
-						</div>
+							<div class="p-4 bg-black/20 text-white size-full">{reel.title}</div>
+						</button>
 					</SplideSlide>
 				{/each}
 			</SplideTrack>
@@ -125,3 +127,7 @@
 		></div>
 	</div>
 </div>
+
+{#if selectedInstaReelUrl}
+	<InstagramEmbed reelUrl={selectedInstaReelUrl} isOpen={isInstaEmbedOpen} />
+{/if}
