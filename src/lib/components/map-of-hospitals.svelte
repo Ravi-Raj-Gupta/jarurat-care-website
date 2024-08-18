@@ -56,7 +56,7 @@
 
 			filteredHospitals.set(
 				data.default.filter((hospital) => {
-					return hospital.components.state_code === $stateCode;
+					return hospital.address.state_code === $stateCode;
 				})
 			);
 		});
@@ -66,7 +66,7 @@
 		filteredHospitals.set(
 			$hospitals.filter((hospital) => {
 				console.log(value);
-				return hospital.components.state_code === value;
+				return hospital.address.state_code === value;
 			})
 		);
 	});
@@ -113,19 +113,20 @@
 					{#each $filteredHospitals as hospital}
 						<div class="flex items-center justify-between gap-4 w-full mx-auto">
 							<article class="max-w-[80%] w-full">
-								<h4 class="leading-[1] font-semibold truncate">
-									{hospital.components.hospital ||
-										hospital.components.neighbourhood ||
-										hospital.components.city}
-								</h4>
+								<h4 class="leading-[1] font-semibold truncate">{hospital.name}</h4>
 								<small class="text-[#868B93] truncate block">
-									{hospital.components.city}, {hospital.components.postcode}
+									{hospital.address.state_district || hospital.city}, {hospital.address.state} - {hospital
+										.address.postcode}
 								</small>
 							</article>
 
-							<div class="w-[10%] text-right">
+							<a
+								class="block w-[10%] text-right"
+								target="_blank"
+								href={`https://www.google.com/maps/search/${hospital.name?.replaceAll(' ', '+')}/@${hospital.location.coordinates[1]},${hospital.location.coordinates[0]},25z`}
+							>
 								<Direction />
-							</div>
+							</a>
 						</div>
 					{/each}
 				</div>
