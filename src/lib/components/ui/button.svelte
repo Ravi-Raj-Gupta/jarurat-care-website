@@ -1,12 +1,20 @@
-<script>
+<script lang="ts">
 	import { cn } from '$lib/utils';
+	import { createEventDispatcher } from 'svelte';
 
 	let className = '';
 
 	export { className as class };
+
+	const dispatch = createEventDispatcher();
+
+	function onClick(ev: MouseEvent & { currentTarget: EventTarget & HTMLButtonElement }) {
+		dispatch('click', ev);
+	}
 </script>
 
 <button
+	on:click={onClick}
 	class={cn(
 		'py-3 px-6 text-[#F9FFF2] rounded-full font-semibold inline-block',
 		'relative overflow-hidden',

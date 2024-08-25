@@ -48,7 +48,7 @@
 				{#each testimonials as testimonial}
 					<SplideSlide class="p-1 pl-2 max-w-[90%]">
 						<div
-							class="h-full flex sm:flex-col items-center sm:items-start flex-wrap gap-2 sm:gap-4 rounded-2xl p-4 md:p-8 bg-white text-[#0D2561] shadow border border-gray-100"
+							class="h-full flex sm:flex-col items-center sm:items-start flex-wrap gap-2 sm:gap-4 rounded-2xl p-4 md:p-8 bg-white text-[#0D2561] drop-shadow-sm border"
 						>
 							<div class="w-12 sm:w-20 aspect-square border rounded-full"></div>
 
@@ -56,7 +56,9 @@
 								<h3 class="text-[#0D2561] font-medium font-rubik text-[1.1em]">
 									{testimonial.name}
 								</h3>
-								<h4 class="text-[0.8em] text-[#576171]">{testimonial.description}</h4>
+								<h4 class="text-[0.8em] text-[#576171]">
+									{testimonial.description}, {testimonial.location}
+								</h4>
 							</div>
 
 							<div class="flex gap-2 w-full">
@@ -91,8 +93,7 @@
 					<SplideSlide class="p-1 pl-2 max-w-[90%]">
 						<button
 							class="bg-white text-[#0D2561] w-full aspect-video rounded-2xl shadow object-cover bg-center overflow-hidden"
-							style="background-image: url('{reel.thumbnailSrc ||
-								'https://placehold.jp/30/dd6699/ffffff/700x400.png?text=placeholder+image'}');"
+							style="background-image: url('{reel.thumbnailSrc}');"
 							on:click={() => {
 								isInstaEmbedOpen = false; // reset
 								isInstaEmbedOpen = true;

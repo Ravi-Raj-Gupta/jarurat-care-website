@@ -23,7 +23,8 @@
 			title: 'Donate',
 			description:
 				'One Life at a Time "Donate today and be the light that brings hope and healing to cancer patients.',
-			ctaText: 'Donate Now'
+			ctaText: 'Donate Now',
+			href: '/donate'
 		},
 		{
 			icon: Hand,
@@ -129,9 +130,9 @@
 			<p class="max-w-[15rem] w-full text-center sm:text-left sm:text-sm mt-4">
 				{card.description}
 			</p>
-			<div class="mt-12">
+			<a class="mt-12 block" href={card.href}>
 				<Button>{card.ctaText}</Button>
-			</div>
+			</a>
 		</div>
 	{/each}
 </div>
