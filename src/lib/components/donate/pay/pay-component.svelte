@@ -20,9 +20,7 @@
 		transactionId.set('');
 		isLoading.set(true);
 		const resp = await fetch(`/api/payment/get-pay-page-url?amount=${amount}`, {
-			headers: {
-				'Content-Type': 'application/json'
-			}
+			headers: { 'Content-Type': 'application/json' }
 		}).then((resp) => resp.json());
 
 		const txnId = resp?.data?.txnId || '';
@@ -50,7 +48,7 @@
 			const data = json.data || {};
 			const state = data.state ? data.state.toLowerCase() : 'error';
 
-			if ((state != 'success' || state != 'error') && reqCount < maxReqCount) {
+			if ((state != 'completed' || state != 'error') && reqCount < maxReqCount) {
 				isLoading.set(true);
 
 				const delta = genRangeRandom(1000, 4_000);
