@@ -4,7 +4,7 @@
 	import Button from './ui/button.svelte';
 </script>
 
-<div class="bg-[#0D2561] text-white p-4 sm:p-12 flex flex-col gap-8">
+<div class="bg-[#0D2561] text-white p-4 pt-24 sm:p-12 sm:pt-32 flex flex-col gap-8">
 	<div class="flex items-center">
 		<LogoSquare class="max-w-[2.5em] sm:max-w-[3.5em] w-full" />
 		<div class="flex flex-col gap-1 leading-[1] text-[1.2em] md:text-[2em] ml-4">
@@ -15,8 +15,10 @@
 		<div class="grow"></div>
 
 		<div class="relative z-10 text-[0.9em] gap-2 hidden sm:flex">
-			<Button>Donate Now</Button>
-			<Button>Seek Support</Button>
+			<a href="/donate"><Button>Donate Now</Button></a>
+			<a href="mailto:jaruratcare@gmail.com?subject=Seek%20Support%20For%20Cancer">
+				<Button>Seek Support</Button>
+			</a>
 		</div>
 	</div>
 

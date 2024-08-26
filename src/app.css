@@ -4,6 +4,7 @@
 
 html {
     font-size: 14pt;
+    scroll-behavior: smooth;
 }
 
 .font-manrope {

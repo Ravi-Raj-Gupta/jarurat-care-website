@@ -109,7 +109,7 @@
 					{states[$stateCode]}
 				</h2>
 
-				<div class="gap-6 flex flex-col py-4 h-full max-h-[30rem] overflow-auto">
+				<div class="gap-6 flex flex-col py-4 h-full max-h-[30rem] overflow-auto max-w-[90vw]">
 					{#each $filteredHospitals as hospital}
 						<div class="flex items-center justify-between gap-4 w-full mx-auto">
 							<article class="max-w-[80%] w-full">

@@ -2,7 +2,12 @@
 	import { cn } from '$lib/utils';
 	import Button from './ui/button.svelte';
 	import Header from './ui/header.svelte';
-	import PaperPlane from '$lib/svg/paper-plane.svelte';
+	import Advocasy from '$lib/svg/advocasy.svelte';
+	import Treatment from '$lib/svg/treatment.svelte';
+	import Education from '$lib/svg/education.svelte';
+	import Food from '$lib/svg/food.svelte';
+	import Team from '$lib/svg/team.svelte';
+	import ImgBgHowWeSupport from '$lib/svg/bg/how-we-support.svelte';
 
 	const cards = [
 		{
@@ -10,48 +15,48 @@
 			description:
 				'We stand by your side, helping navigate treatment options and healthcare systems.',
 			services: ['Insurance Assistance', 'Legal Support', 'Healthcare Navigation'],
-			class: 'ring-[#B0DFF9]'
+			class: 'ring-[#B0DFF9]',
+			icon: Advocasy
 		},
 		{
 			title: 'Access To Treatment',
 			description:
 				'We stand by your side, helping navigate treatment options and healthcare systems.',
 			services: ['Individual Counseling', 'Support Groups', '24/7 Helpline'],
-			class: 'ring-[#E4CFFF]'
+			class: 'ring-[#E4CFFF]',
+			icon: Treatment
 		},
 		{
 			title: 'Holistic Care Options',
 			description:
 				'We stand by your side, helping navigate treatment options and healthcare systems.',
 			services: ['Nutrition Counseling', 'Stress Management', 'Wellness Programs'],
-			class: 'ring-[#96f3d7]'
+			class: 'ring-[#96f3d7]',
+			icon: Food
 		},
 		{
-			title: 'Patient Advocacy',
-			description:
-				'We stand by your side, helping navigate treatment options and healthcare systems.',
-			services: ['Insurance Assistance', 'Legal Support', 'Healthcare Navigation'],
-			class: 'ring-[#FFC1F6]'
+			title: 'Educational Resources',
+			description: 'We offer information and workshops to help you understand cancer',
+			services: ['Informational Workshops', 'Patient Guides', 'Online Learning'],
+			class: 'ring-[#FFC1F6]',
+			icon: Education
 		},
 		{
-			title: 'Access To Treatment',
+			title: 'Community Connection',
 			description:
-				'We stand by your side, helping navigate treatment options and healthcare systems.',
-			services: ['Individual Counseling', 'Support Groups', '24/7 Helpline'],
-			class: 'ring-[#E4CFFF]'
-		},
-		{
-			title: 'Holistic Care Options',
-			description:
-				'We stand by your side, helping navigate treatment options and healthcare systems.',
-			services: ['Nutrition Counseling', 'Stress Management', 'Wellness Programs'],
-			class: 'ring-[#FFC1F6]'
+				'We create a network of support by connecting you with others who are going through similar experiences, so you never feel alone.',
+			services: ['Peer Mentorship', 'Online Forums'],
+			class: 'ring-[#E4CFFF]',
+			icon: Team
 		}
 	];
 </script>
 
-<div class="py-12 sm:py-28 flex flex-col relative overflow-hidden">
-	<div class="absolute inset-x-0 top-0 z-0">
+<div class="py-12 sm:py-28 flex flex-col relative overflow-hidden bg-cover bg-center">
+	<div
+		class="absolute inset-x-0 top-0 z-0 bg-cover bg-center"
+		style="background-image: url('{ImgBgHowWeSupport}');"
+	>
 		<div
 			class="w-full aspect-square -translate-y-[90%] scale-[4] sm:scale-[1.4] rounded-full bg-[#DCF2FF]"
 			style="opacity: 0.75;"
@@ -71,10 +76,10 @@
 			<div class="flex flex-col max-w-[80%] sm:max-w-fit mx-auto">
 				<div class="w-full h-[2rem] sm:h-[2.5rem] relative z-10 flex items-center justify-center">
 					<div
-						class="aspect-square w-[4rem] sm:w-[5rem] translate-y-1/4 rounded-full bg-gradient-to-br from-[#A4D9FB] to-[#F6FCFF] p-[0.1rem]"
+						class="aspect-square w-[4rem] sm:w-[5rem] translate-y-1/4 rounded-full p-[0.1rem] bg-white border"
 					>
 						<div class="size-full bg-white flex items-center justify-center rounded-full">
-							<PaperPlane class="size-12 text-[#2C72B9]" />
+							<svelte:component this={card.icon} />
 						</div>
 					</div>
 				</div>
@@ -109,7 +114,10 @@
 		{/each}
 	</div>
 
-	<a href="/" class="inline-block mx-auto underline"><Button>Seek Support</Button></a>
+	<a
+		href="mailto:jaruratcare@gmail.com?subject=Seek%20Support%20For%20Cancer"
+		class="inline-block mx-auto underline"><Button>Seek Support</Button></a
+	>
 </div>
 
 <div class="rounded-xl"></div>

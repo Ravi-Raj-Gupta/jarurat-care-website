@@ -39,7 +39,7 @@
 </script>
 
 <SingleWave fill="#d2f1fc" />
-<div class="py-10 sm:py-20 relative px-4 bg-[#dbeffe]">
+<div class="py-10 sm:py-20 relative px-4 bg-[#dbeffe]" id="news">
 	<Header title="News and Blogs" />
 
 	<Splide
@@ -76,8 +76,8 @@
 								{blog.excerpt.trim().substring(0, 100) + '...'}
 							</p>
 
-							<div class="px-4 sm:px-8 pb-4 sm:pb-8">
-								<Button class="mt-4 px-4 py-1 self-start text-sm">Know More</Button>
+							<div class="px-4 sm:px-8 pb-4 sm:pb-8 relative z-10">
+								<Button class="mt-4 px-4 py-1 self-start text-sm bg-[#0155bd]">Know More</Button>
 							</div>
 						</div>
 					</SplideSlide>
@@ -86,4 +86,5 @@
 		</div>
 	</Splide>
 </div>
+
 <SingleWave fill="#d2f1fc" class="rotate-180" />

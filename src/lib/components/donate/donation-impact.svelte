@@ -18,7 +18,9 @@
 
 <div class="py-8 sm:py-24">
 	<div class="max-w-[70rem] mx-auto px-5 sm:px-10">
-		<h2 class="text-[1.5em] sm:text-[2em] font-bold text-[#0155BD] leading-tight">Impact Of Your Donation</h2>
+		<h2 class="text-[1.5em] sm:text-[2em] font-bold text-[#0155BD] leading-tight">
+			Impact Of Your Donation
+		</h2>
 		<p class="text-[#676E77] leading-snug text-[0.9em] sm:text-[1em]">
 			Supporting the physical and emotional needs of a cancer patient empowers them to contribute
 			positively to society, turning them into a source of strength rather than burden.
@@ -42,7 +44,9 @@
 							></div>
 
 							<div class="p-4 bg-white max-w-[80%] mx-auto rounded-xl -mt-20 border">
-								<small class="block uppercase text-[#37393D] font-bold leading-snug">{item.title}</small>
+								<small class="block uppercase text-[#37393D] font-bold leading-snug"
+									>{item.title}</small
+								>
 								<p class="text-[0.8em] text-[#5D5F64] leading-snug">{item.content}</p>
 							</div>
 						</div>
@@ -61,5 +65,7 @@
 		</div>
 	</Splide>
 
-	<Button class="flex gap-2 mx-auto mt-8 sm:mt-16">Make a Donation <ArrowRight /></Button>
+	<a href="#donate">
+		<Button class="flex gap-2 mx-auto mt-8 sm:mt-16">Make a Donation <ArrowRight /></Button>
+	</a>
 </div>

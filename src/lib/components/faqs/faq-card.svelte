@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { marked } from 'marked';
 	import { Plus } from 'lucide-svelte';
 	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
@@ -30,6 +31,6 @@
 		style="height: {$isOpen ? contentHeight : 0}px"
 		class="overflow-hidden transition-all text-gray-700 text-[0.8em]"
 	>
-		<p class="mt-2 pt-2 border-t">{answer}</p>
+		<p class="mt-2 px-2 pt-2 border-t prose">{@html marked(answer)}</p>
 	</div>
 </div>

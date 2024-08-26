@@ -21,10 +21,10 @@
 	const pathname = $page.url.pathname;
 	const navItems = [
 		{ title: 'Home', href: '/' },
-		{ title: 'About Us', href: '#' },
-		{ title: 'Get Involved', href: '#' },
-		{ title: 'News & Blogs', href: '#' },
-		{ title: 'Contact Us', href: '#' }
+		{ title: 'About Us', href: '/#about' },
+		{ title: 'Get Involved', href: '/#get-involved' },
+		{ title: 'News & Blogs', href: '/#news' },
+		{ title: 'Contact Us', href: 'mailto:jaruratcare@gmail.com' }
 	];
 </script>
 
@@ -58,9 +58,9 @@
 			{/each}
 		</ul>
 
-		<div class="text-[0.8em] hidden md:block">
+		<a href="/donate" class="text-[0.8em] hidden md:block">
 			<Button>Donate Now</Button>
-		</div>
+		</a>
 	</nav>
 
 	<button

@@ -6,7 +6,7 @@
 	import testimonials from '$lib/data/testimonials.json';
 	import InstagramEmbed from './ui/instagram-embed.svelte';
 	import instaReels from '$lib/data/insta-reels-for-testimonials.json';
-	import { ChevronLeft, ChevronRight, QuoteIcon } from 'lucide-svelte';
+	import { ChevronLeft, ChevronRight, PlayIcon, QuoteIcon } from 'lucide-svelte';
 	import { Splide, SplideSlide, SplideTrack } from '@splidejs/svelte-splide';
 
 	let innerWidth = writable(0);
@@ -92,7 +92,7 @@
 				{#each instaReels as reel}
 					<SplideSlide class="p-1 pl-2 max-w-[90%]">
 						<button
-							class="bg-white text-[#0D2561] w-full aspect-video rounded-2xl shadow object-cover bg-center overflow-hidden"
+							class="bg-white text-[#0D2561] w-full aspect-video rounded-2xl shadow object-cover bg-center overflow-hidden relative"
 							style="background-image: url('{reel.thumbnailSrc}');"
 							on:click={() => {
 								isInstaEmbedOpen = false; // reset
@@ -100,6 +100,15 @@
 								selectedInstaReelUrl = reel.reelUrl;
 							}}
 						>
+							<div
+								class="absolute inset-0 size-full flex items-center justify-center bg-[#0d2561]/40"
+							>
+								<div
+									class="aspect-square rounded-full border-4 border-white/40 w-[4rem] flex items-center justify-center"
+								>
+									<PlayIcon class="size-[2em] text-white/70" />
+								</div>
+							</div>
 							<div class="p-4 bg-black/20 text-white size-full">{reel.title}</div>
 						</button>
 					</SplideSlide>
@@ -117,9 +126,13 @@
 		</div>
 	</Splide>
 
-	<div class="mt-8 flex items-center justify-center z-10 relative">
+	<a
+		class="mt-8 flex items-center justify-center z-10 relative"
+		href="mailto:jaruratcare@gmail.com?subject=Submit%20Your%20Story"
+		target="_blank"
+	>
 		<Button>Submit a Story</Button>
-	</div>
+	</a>
 
 	<div class="absolute inset-x-0 top-0 z-0">
 		<div

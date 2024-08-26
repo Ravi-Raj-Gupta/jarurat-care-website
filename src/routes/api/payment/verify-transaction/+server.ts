@@ -3,7 +3,7 @@ import { verifyTxn } from "../utils"
 /** @type {import('./$types').RequestHandler} */
 export async function GET({ url }) {
     const query = new URLSearchParams(url.search)
-    const txnId = (query.get('amount')?.toString())
+    const txnId = (query.get('txn-id')?.toString())
 
     const payPageUrl = await verifyTxn(txnId)
 

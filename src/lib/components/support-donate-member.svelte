@@ -16,7 +16,8 @@
 			title: 'Seek Support',
 			description:
 				'Our NGO is here to help you through your cancer journey. Reach out to us today.',
-			ctaText: 'Seek Support'
+			ctaText: 'Seek Support',
+			href: 'mailto:jaruratcare@gmail.com?subject=Seek%20Support%20For%20Cancer'
 		},
 		{
 			icon: HandPlatterHeart,
@@ -31,7 +32,8 @@
 			title: 'Become a Member',
 			description:
 				'Be a hero . Volunteer with us and provide support and hope to those affected by cancer.',
-			ctaText: 'Get Started'
+			ctaText: 'Get Started',
+			href: 'mailto:jaruratcare@gmail.com?subject=Become%20A%20Member%20at%20JaruratCare'
 		}
 	];
 
@@ -111,6 +113,7 @@
 </div>
 
 <div
+	id="get-involved"
 	class="relative flex flex-col sm:flex-row bg-[#effafd] sm:bg-white overflow-hidden rounded-t-3xl"
 >
 	<div class="absolute inset-x-0 top-0 z-0 hidden sm:block">
@@ -138,7 +141,7 @@
 </div>
 
 <!-- Where it all Started -->
-<div class="py-8 sm:py-32 bg-[#fefefe] max-w-[60rem] mx-auto">
+<div id="about" class="py-8 sm:py-32 bg-[#fefefe] max-w-[60rem] mx-auto">
 	<Splide hasTrack={false} options={{ perPage: 1, type: 'loop', gap: '2rem', pagination: true }}>
 		<div
 			class="splide__arrows items-center justify-between gap-2 absolute -inset-x-12 h-full hidden xl:flex"
