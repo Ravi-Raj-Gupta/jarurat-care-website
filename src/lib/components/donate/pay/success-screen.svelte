@@ -1,9 +1,9 @@
 <script>
-	import { ArrowRight, MailIcon } from 'lucide-svelte';
-	import Button from '$lib/components/ui/button.svelte';
-	import Checkbox from '$lib/components/ui/checkbox.svelte';
-	import Input from '$lib/components/ui/input.svelte';
+	import { MailIcon } from 'lucide-svelte';
 	import PaymentSuccessIcon from '$lib/svg/payment-success-icon.svelte';
+
+	export let txnId;
+	export let amount;
 </script>
 
 <div
@@ -21,11 +21,11 @@
 		<div
 			class="my-4 border w-[90%] mx-auto leading-tight text-center p-4 flex flex-col gap-2 font-[0.8em] text-[#0d2561] rounded-xl"
 		>
-			<p>Your donation of ₹200 has been successfully processed.</p>
-			<p>Transaction ID : <strong>DUF3878327238</strong></p>
+			<p>Your donation of ₹{amount} has been successfully processed.</p>
+			<p>Transaction ID : <strong>{txnId}</strong></p>
 
 			<p
-				class="bg-[#D3F2FC] flex items-center gap-2 text-[0.7em] self-center px-2 py-1 rounded-r-sm mt-2 text-[#0155BD] border-l-2 border-[#0155BD]"
+				class="bg-[#D3F2FC] flex items-center gap-2 text-[0.7em] self-center px-2 py-1 rounded-r-sm mt-2 text-[#0155BD] border-l-2 border-[#0155BD] hidden"
 			>
 				<MailIcon />
 				A receipt has been sent to your email

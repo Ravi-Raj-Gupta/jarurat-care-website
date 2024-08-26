@@ -59,7 +59,7 @@
 				return paymentCallback();
 			}
 
-			if (data.state === 'completed') {
+			if (state === 'completed') {
 				isLoading.set(false);
 				currentScreen = 'success';
 			} else alert('Failed to make the transaction');
@@ -142,7 +142,7 @@
 						}}
 					/>
 				{:else}
-					<SuccessScreen />
+					<SuccessScreen txnId={$transactionId} amount={$paymentData.amount} />
 				{/if}
 			</div>
 		</div>
