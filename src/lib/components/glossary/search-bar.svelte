@@ -1,5 +1,6 @@
 <script>
-	import Search from "$lib/svg/search.svelte";
+	import RightArrow from "$lib/svg/right-arrow.svelte";
+import Search from "$lib/svg/search.svelte";
 </script>
 
 <!-- <div  class="relative h-[35rem] z-10 bg-gradient-to-b from-[#FEFFF8] via-[#F6EFFF] to-[#D6B7FF] flex flex-col items-center justify-center p-4 text-center">
@@ -18,7 +19,13 @@
         </div>
     </div>
 </div> -->
-<div class="md:h-[590px] h-[242px]  mx-auto relative bg-gradient-to-b from-[#FEFFF8] via-[#F6EFFF] to-[#D6B7FF] flex flex-col items-center gap-[40px] ">
+
+<div class="md:h-[590px] h-[242px] relative   bg-gradient-to-b from-[#FEFFF8] via-[#F6EFFF] to-[#D6B7FF] flex flex-col items-center gap-[40px] ">
+<div class="absolute top-20 left-20 flex gap-[8px]">
+    <h1 class=" text-[20px] font-[400] z-30 text-[#0D2460] ">Home</h1>
+   <p class="my-auto"> <RightArrow /></p>
+    <h1 class=" text-[20px] font-[400] z-30 text-[#0155BD] ">FAQs</h1>
+</div>
   <div class="md:mt-[197px] w-[222px] md:w-full mt-[62px]  max-w-[65rem] flex flex-col gap-[10px] text-center">
     <h1 class="md:text-[56px] sm:text-[28px] font-bold  text-[#310F71]">
       Glossary of Cancer Terms
