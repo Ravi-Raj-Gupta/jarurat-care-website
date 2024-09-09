@@ -7,7 +7,7 @@
 
 </script>
 
-<div class="flex flex-col items-center md:flex-row md:items-center justify-center mx-auto gap-12 md:my-36 my-16">
+<div class="flex sm:px-16  lg:px-0 flex-col items-center md:flex-row md:items-center justify-center mx-auto gap-12 md:my-36 my-16">
   <!-- Card 1 -->
   <div class="relative w-[350px] h-[240.7px]">
     <div class="absolute z-0 w-full h-full bg-[#0D2460] rounded-[15px] rotate-[-1.74deg] left-[-23.93px] top-[23.88px]">

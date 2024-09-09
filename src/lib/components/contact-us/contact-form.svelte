@@ -35,13 +35,13 @@
 
           <div class="col-span-2 mt-4 md:mt-0">
             <p class="text-sm mb-2   text-[#3B3E43]">Message</p>
-            <textarea
-              class=" text-[#0155BD] hover:border-[#0155BD] focus:outline-none focus:border-[#0155BD] md:bg-[#E8EBF1] bg-white w-full md:h-40 h-28 rounded-xl p-4 borderresize-none"
+            <textarea placeholder="What's on your Mind"
+              class=" text-[#0155BD]  hover:border-[#0155BD] focus:outline-none focus:border-[#0155BD] md:bg-[#E8EBF1] bg-white w-full md:h-40 h-28 rounded-xl p-4 borderresize-none"
               
             ></textarea>
           </div>
            <div class=" col-span-2 flex gap-2 mt-4 md:mt-0">
-        <input class="h-8 w-8 mx-2 col-span-1 my-auto rounded-2xl" type="checkbox" name="" id="">
+        <input class="h-4 w-4 mx-2 col-span-1 my-auto rounded-2xl" type="checkbox" name="" id="">
         <p class="text-[15px] my-auto text-[#24272A]" >Your information will remain confidential and be used to provide you with personalized support.</p>
       </div>
         <div class="col-span-2 text-center mt-4 md:mt-0">
