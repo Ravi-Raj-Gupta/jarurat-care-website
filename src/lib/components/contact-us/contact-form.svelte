@@ -3,7 +3,7 @@
   import ContactNumber from "../contact-number.svelte";
   import FormInput from "../form-input.svelte";
   import RoleSelector from "../ui/RoleSelector.svelte";
-  import Image from "./image.png";
+  import BgImage from "./image.png";
 
   // Define variables for each piece of text
   let talk = "TALK ";
@@ -24,7 +24,7 @@
 </style>
 
 <!-- Main Banner Section -->
-<div class="bg-cover h-[60vh] w-full md:items-center flex items-end  md:justify-center bg-center relative" style="background-image: url({Image});">
+<div class="bg-cover h-[60vh] w-full md:items-center flex items-end  md:justify-center bg-center relative" style="background-image: url({BgImage});">
  <h1 class="text-white tracking-wider font-[600] z-20 text-[1.5rem] p-8  sm:text-[2.5rem] md:text-[5.25rem] md:p-0 md:font-[600]">{talk}<span class=" text-[#FFBA41] md:text-white" >{to}</span> <span class=" text-[#78C520] md:text-white" >{us}</span></h1>
 </div>
 
