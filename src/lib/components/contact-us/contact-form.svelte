@@ -52,7 +52,7 @@
           <div class="col-span-2 mt-4 md:mt-0">
             <p class="text-sm mb-2 text-[#3B3E43]">{messageLabel}</p>
             <textarea
-              placeholder="{messagePlaceholder}"
+              placeholder={messagePlaceholder}
               class="text-[#0155BD] hover:border-[#0155BD] focus:outline-none focus:border-[#0155BD] md:bg-[#E8EBF1] bg-white w-full md:h-40 h-28 rounded-xl p-4 border resize-none"
             ></textarea>
           </div>
