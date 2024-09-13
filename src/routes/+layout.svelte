@@ -14,5 +14,5 @@
 
 <main class="font-manrope">
 	<slot />
-	<!-- <Footer /> -->
+	<Footer />
 </main>
