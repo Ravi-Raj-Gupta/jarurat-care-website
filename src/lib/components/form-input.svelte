@@ -47,6 +47,6 @@
     required={data.required}
     placeholder={data.placeholder}
     type={data.type}
-    class={`w-full text-[#0155BD]  h-12 md:bg-[#E8EBF1]  rounded-lg px-4 ${showIcon ? 'pr-12' : ''} border-2 border-transparent text-base transition-all duration-300 ease-in-out hover:border-[#0155BD] focus:outline-none focus:border-[#0155BD]`}
+    class={`w-full text-[#0155BD] md:text-[1rem] text-[1.25rem]  h-12 md:bg-[#E8EBF1]  rounded-lg px-4 ${showIcon ? 'pr-12' : ''} border-2 border-transparent text-base transition-all duration-300 ease-in-out hover:border-[#0155BD] focus:outline-none focus:border-[#0155BD]`}
   />
 </div>

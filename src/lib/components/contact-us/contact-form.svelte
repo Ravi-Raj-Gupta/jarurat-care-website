@@ -44,7 +44,7 @@
       <div class="md:bg-white w-full md:mx-8 mx-0 p-4 rounded-xl">
         <p class="text-[#24272A] text-[1.25rem] text-left hidden md:block mb-4 mt-2">{fillDetailsNote}</p>
         <div class="md:grid md:grid-cols-2 gap-4">
-          <FormInput data={{ name: "Full Name", placeholder: "Enter your full name", type: "text" }} />
+          <FormInput data={{ name: "Full Name", placeholder: "Enter your full name", type: "text" ,required: true}} />
           <RoleSelector />
           <FormInput data={{ name: "Email", placeholder: "Enter your Email", type: "email", required: true }} />
           <ContactNumber />

@@ -23,7 +23,8 @@
             <label class="text-[#3B3E43] text-sm mb-1 ">
                 Phone number
             </label>
+             <span class="text-red-500 ml-1">*</span>
             <div class="relative  text-[#3B3E43]">
-                <input type="contact" placeholder="+91 9876543210" class="w-full pl-[0.5rem] pr-3 py-[0.75rem] appearance-none md:bg-[#E8EBF1] bg-white outline-none border focus:border-slate-600 shadow-sm rounded-lg">
+                <input  type="tel"  placeholder="Enter Your Phone Number" class="w-full pl-[0.5rem] pr-3 py-[0.75rem] md:text-[1rem] text-[1.25rem] appearance-none md:bg-[#E8EBF1] bg-white outline-none border focus:border-slate-600 shadow-sm rounded-lg">
             </div>
         </div>
