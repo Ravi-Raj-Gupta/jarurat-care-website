@@ -11,7 +11,7 @@
 
 	onMount(() => {
 		const listener = () => {
-			isMobileScreen = window.innerWidth <= 768;
+			isMobileScreen = window.innerWidth <= 1024;
 		};
 
 		listener();
@@ -29,7 +29,7 @@
 	];
 </script>
 
-<div class="fixed inset-x-0 z-50 text-[0.9em] bg-white flex items-center justify-between">
+<div class=" inset-x-0 z-50 text-[0.9em] bg-white flex items-center justify-between">
 	<nav class="flex items-center font-rubik text-[#0D2561] px-2 md:px-4 py-2 grow">
 		<span class="inline-block w-[8rem] sm:w-[10rem]">
 			<Logo />
@@ -69,7 +69,7 @@
               </p>
 
         </button>
-		<a href="/donate" class="text-[0.8em] hidden lg:block">
+		<a href="/donate" class="text-[0.8em] hidden lg:block z-50">
 			<Button>Donate Now</Button>
 		</a>
 	</nav>
