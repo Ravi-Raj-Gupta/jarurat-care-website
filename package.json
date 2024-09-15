@@ -44,6 +44,7 @@
 		"lucide-svelte": "^0.416.0",
 		"marked": "^14.0.0",
 		"nanoid": "^5.0.7",
+		"svelte-carousel": "^1.0.25",
 		"tailwind-merge": "^2.4.0",
 		"zod": "^3.23.8"
 	},

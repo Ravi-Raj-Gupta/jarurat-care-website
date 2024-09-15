@@ -1,6 +1,9 @@
 <script>
 	import OurValueItem from "./our-value-item.svelte";
 	import ReachIcon from "$lib/svg/reach-icon.svelte";
+	import Envolve from "$lib/svg/about/envolve.svelte";
+	import Sustain from "$lib/svg/about/sustain.svelte";
+	import Impact from "$lib/svg/about/impact.svelte";
     
     const items = [
 		{
@@ -9,34 +12,19 @@
             about:"We actively connect with cancer patients, caregivers, and communities across India, ensuring that our support is accessible to those who need it most."
 		},
 		{
-			icon: ReachIcon,
-			title: 'Reach',
-            about:"We actively connect with cancer patients, caregivers, and communities across India, ensuring that our support is accessible to those who need it most."
+			icon: Impact,
+			title: 'Impact',
+            about:"We focus on delivering meaningful interventions that make a real difference in the lives of those affected by cancer, from emotional support to practical care."
 		},
 		{
-			icon: ReachIcon,
-			title: 'Reach',
-            about:"We actively connect with cancer patients, caregivers, and communities across India, ensuring that our support is accessible to those who need it most."
+			icon: Sustain,
+			title: 'Sustain',
+            about:"We are committed to providing ongoing assistance, ensuring that our programs and services offer continuous care and stability throughout the cancer journey."
 		},
 		{
-			icon: ReachIcon,
-			title: 'Reach',
-            about:"We actively connect with cancer patients, caregivers, and communities across India, ensuring that our support is accessible to those who need it most."
-		},
-		{
-			icon: ReachIcon,
-			title: 'Reach',
-            about:"We actively connect with cancer patients, caregivers, and communities across India, ensuring that our support is accessible to those who need it most."
-		},
-		{
-			icon: ReachIcon,
-			title: 'Reach',
-            about:"We actively connect with cancer patients, caregivers, and communities across India, ensuring that our support is accessible to those who need it most."
-		},
-		{
-			icon: ReachIcon,
-			title: 'Reach',
-            about:"We actively connect with cancer patients, caregivers, and communities across India, ensuring that our support is accessible to those who need it most."
+			icon: Envolve,
+			title: 'Evolve',
+            about:"We adapt and grow to meet the changing needs of the cancer community, always striving to improve our services and expand our reach."
 		},
 	];
 </script>
@@ -49,5 +37,3 @@
 	{/each}
 	</div>
 </div>
-
-

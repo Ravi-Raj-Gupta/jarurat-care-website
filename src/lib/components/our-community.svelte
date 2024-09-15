@@ -28,11 +28,11 @@ import OurCommunityItem from "./our-community-item.svelte";
 	];
 </script>
 
-<div class="mx-auto mt-16 w-[1420px]">
+<div class="mx-auto mt-16 w-[30rem]">
     <div class="text-primaryBlue text-center  font-extrabold text-xl">OUR COMMUNITY </div>
     <div class="mb-24 text-center font-extrabold text-xl">BACKED SERVICES</div>
     
-    <div class="flex gap-3 justify-center">
+    <div class="flex lg:gap-3 justify-center">
         {#each items as item}
         <OurCommunityItem icon={item.icon} about={item.about} title={item.title}/>
         {/each}

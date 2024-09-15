@@ -7,6 +7,11 @@
 	import priyanka from '$lib/assets/team-members/priyanka.webp';
 	import priyankaWhiteBackgound from '$lib/assets/team-members/priyanka-whiteBackgound.png';
 	import ayush from '$lib/assets/team-members/ayush.png';
+	import member from '$lib/assets/community-member/member-example.png';
+	import ComunityCard from './comunity-card.svelte';
+	import PreviousIcon from '$lib/svg/previous-icon.svelte';
+	import NextIcon from '$lib/svg/next-icon.svelte';
+	import WaveUnion from '$lib/svg/about/wave-union.svelte';
 
 	const items = [
 		{
@@ -51,6 +56,29 @@
 		{ image: priyankaWhiteBackgound, name: 'Priyanka Joshi' },
 		{ image: ayush, name: 'Ayush Anand' }
 	];
+
+	const comunityMember = [
+		{
+			image: member,
+			name: 'Neha M.',
+			position: 'Member',
+			about: 'Being a member of Jarurat Care feels like being part of a caring family.'
+		},
+		{
+			image: member,
+			name: 'Neha M.',
+			position: 'Member',
+			about: 'Being a member of Jarurat Care feels like being part of a caring family.'
+		},
+		{
+			image: member,
+			name: 'Neha M.',
+			position: 'Member',
+			about: 'Being a member of Jarurat Care feels like being part of a caring family.'
+		}
+	];
+
+
 </script>
 
 <div class="bg-[#D3F2FC] mt-64 relative">
@@ -76,18 +104,21 @@
 				the best care and staying updated on treatment advances, helping us make a real difference.
 			</div>
 		</div>
-		<div class="cards flex gap-5 w-1/2 bg-red-500 relative">
-			<div class="back-arrow absolute bg-red-500 w-5 h-5 rounded-full -left-2 top-[45%]"></div>
-			<div class="front-arrow absolute bg-red-500 w-5 h-5 rounded-full -right-2 top-[45%]"></div>
+		<div class="cards flex gap-5 w-1/2  relative">
+			<div class="back-arrow absolute w-8 h-8 cursor-pointer rounded-full p-2 bg-[#CFD6DF] -left-3 top-[45%]"><PreviousIcon/> </div>
+			<div class="front-arrow absolute w-8 h-8 cursor-pointer rounded-full p-2 bg-[#CFD6DF] -right-3 top-[45%]"> <NextIcon/> </div>
 			{#each cards as card}
 				<Cards image={card.image} name={card.name} about={card.about} />
 			{/each}
 		</div>
 	</div>
 
+    <!-- background wave -->
+    <div class="absolute bottom-[28rem] right-0 w-full rotate-6 z-10"><WaveUnion/></div>
+
 	<!-- pioneers of our foundation -->
-	<div class="bg-[#FFFFFF] w-2/3 mx-auto px-16 py-10 mt-20 rounded-3xl z-10 relative">
-		<div class="text-center">
+	<div class="bg-[#FFFFFF] w-2/3 mx-auto  pt-10 mt-20 rounded-3xl z-10 relative">
+		<div class="text-center px-16">
 			<div class="mb-5">
 				<div class="text-primaryBlue font-extrabold text-2xl">Pioneers Of</div>
 				<div class="font-extrabold text-2xl">Our Foundation</div>
@@ -99,13 +130,15 @@
 			</div>
 		</div>
 
-		<div class="cards flex justify-center gap-10 mt-9 mb-5">
+		<div class="cards flex justify-center gap-10 pt-9 pb-16 rounded-b-3xl px-16 bg-gradient-to-b from-white to-[#D3F2FC] ">
 			{#each founders as item}
-				<div class="card relative">
+				<div class="card relative z-30 ">
 					<div class="back bg-primaryBlue w-60 h-[20rem] -rotate-2"></div>
-					<div class="front w-60 h-[20rem] absolute  top-0">
-						<div class="image h-[20rem]"><img class="h-[20rem]" src={item.image} alt="" /></div>
-						<div class="about bg-white flex flex-col justify-center items-center py-4 absolute w-full bottom-[1px]">
+					<div class="front w-60 h-[20rem] absolute top-0">
+						<div class="image h-[20rem]"><img class="h-[20rem] relative z-30" src={item.image} alt="" /></div>
+						<div
+							class="about bg-white flex flex-col justify-center items-center py-4 absolute w-full bottom-[1px]"
+						>
 							<div class="text-[#0D2460]">{item.name}</div>
 							<div class="text-primaryBlue">Co- Founder</div>
 						</div>
@@ -113,26 +146,66 @@
 				</div>
 			{/each}
 		</div>
-
 	</div>
 
-    <!-- our team -->
-    <div class=" bg-primaryBlue flex justify-center  py-24 gap-6 relative bottom-11">
+	<!-- our team -->
+	<div class=" bg-primaryBlue flex justify-center py-24 gap-6 relative bottom-11">
 		<div class="w-[332px] mr-12">
-			<div class="font-extrabold text-xl">
+			<div class="font-extrabold text-xl relative z-30">
 				<span class="text-white">Our </span> <span class="text-[#FFBA41]">Team</span>
 			</div>
 			<div class="text-white text-sm mt-2">
-				Our Advisory Board features top oncologists and cancer experts. They guide us in providing the best care and staying updated on treatment advances, helping us make a real difference.
+				Our Advisory Board features top oncologists and cancer experts. They guide us in providing
+				the best care and staying updated on treatment advances, helping us make a real difference.
 			</div>
 		</div>
-		<div class="cards flex gap-5 w-1/2 bg-red-500 relative">
-			<div class="back-arrow absolute bg-red-500 w-5 h-5 rounded-full -left-2 top-[45%]"></div>
-			<div class="front-arrow absolute bg-red-500 w-5 h-5 rounded-full -right-2 top-[45%]"></div>
+		<div class="cards flex gap-5 w-1/2 relative z-30">
+			<div class="back-arrow absolute w-8 h-8 cursor-pointer rounded-full p-2 bg-[#CFD6DF] -left-3 top-[45%]"><PreviousIcon/> </div>
+			<div class="front-arrow absolute w-8 h-8 cursor-pointer rounded-full p-2 bg-[#CFD6DF] -right-3 top-[45%]"> <NextIcon/> </div>
 			{#each cards as card}
 				<Cards image={card.image} name={card.name} about={card.about} />
 			{/each}
 		</div>
 	</div>
 
+
+
+
+</div>
+
+<div class="bg-[#F8FCFF] pt-5 pl-10">
+	<div class="flex justify-between mb-9">
+		<div class="text-[#0D2460] font-extrabold">Hear from our community</div>
+		<div class="flex gap-6 pr-7">
+			<div class="bakward w-8 h-8 cursor-pointer rounded-full p-2 bg-[#CFD6DF]" >
+				<PreviousIcon />
+			</div>
+			<div class="upward w-8 h-8 cursor-pointer rounded-full p-2 bg-[#CFD6DF]"><NextIcon /></div>
+		</div>
+	</div>
+	<div class="cards overflow-x-hidden" >
+		<div class="card flex gap-11">
+			{#each comunityMember as member}
+				<ComunityCard
+					name={member.name}
+					image={member.image}
+					about={member.about}
+					position={member.position}
+				/>
+			{/each}
+		</div>
+	</div>
+
+	<div class="showcase flex justify-center py-20">
+		<div class="bg-[#D9D9D9] h-[20rem] w-[38rem] rounded-xl relative">
+			<div class="w-8 h-8 cursor-pointer rounded-full p-2 bg-[#CFD6DF] absolute -left-28 top-[40%]">
+				<PreviousIcon />
+			</div>
+			<div
+				class="w-8 h-8 cursor-pointer rounded-full p-2 bg-[#CFD6DF] absolute -right-28 top-[40%]"
+			>
+				<NextIcon />
+			</div>
+		</div>
+	</div>
 </div>
