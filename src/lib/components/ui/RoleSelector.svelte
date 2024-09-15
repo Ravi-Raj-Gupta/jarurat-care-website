@@ -1,6 +1,5 @@
 <script>
   import DropDownArrow from "$lib/svg/drop-down-arrow.svelte";
-
 </script>
 
 <style>
@@ -26,7 +25,9 @@
 </style>
 
 <div class="rounded-lg">
-  <label class="text-white text-sm mb-1">
+  <label class="text-gray-600 text-sm mb-1">
+    Select Your Role
+  </label>
   <div class="select-wrapper text-gray-500 ">
     <select class="  hover:border-[#0155BD] focus:outline-none focus:border-[#0155BD] relative w-full h-12 text-sm font-[600] bg-[white] md:bg-[#E8EBF1] text-[#0155BD] outline-none rounded-lg pl-4 pr-10">
       <option>ABC</option>
