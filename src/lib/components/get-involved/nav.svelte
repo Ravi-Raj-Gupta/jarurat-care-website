@@ -11,7 +11,7 @@
 
 	onMount(() => {
 		const listener = () => {
-			isMobileScreen = window.innerWidth <= 1024;
+			isMobileScreen = window.innerWidth <= 768;
 		};
 
 		listener();
@@ -31,7 +31,7 @@
 
 <div class="inset-x-0 z-50 text-[0.9em] bg-white flex items-center justify-between">
 	<nav class="flex items-center text-[#0D2561] px-1 md:px-4 py-2 grow">
-		<span class="inline-block w-[8rem] sm:w-[10rem]">
+		<span class="inline-block w-[6rem] sm:w-[8rem]">
 			<Logo />
 		</span>
 
@@ -60,7 +60,7 @@
 				</li>
 			{/each}
 		</ul>
-        <button class="mx-5 border border-solid border-gray-300 hover:bg-[#0155BD] hover:text-white py-3 px-6 rounded-full hidden lg:block">
+        <button class="mx-5 border border-solid border-gray-300 hover:text-white py-3 px-6 rounded-full hidden lg:block">
              <!-- Language switcher -->
               <p class='flex justify-center items-center text-[#0155BD]'>
                 English<span class="material-symbols-outlined">
@@ -75,7 +75,7 @@
 	</nav>
 
 	<button
-		class="block lg:hidden z-50 px-4"
+		class="block md:hidden z-50 px-4"
 		on:click={() => {
 			isMenuOpen = !isMenuOpen;
 		}}
