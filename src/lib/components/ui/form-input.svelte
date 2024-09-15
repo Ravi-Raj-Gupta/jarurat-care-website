@@ -1,5 +1,12 @@
 <script>
-  export let data;
+  export let data = {
+    name: '',
+    color: '',
+    required: false,
+    placeholder: '',
+    type: 'text',
+    value: ''
+  };
 
   // Determine if we should show the SVG icon
   let showIcon = data.name === "Address line 2";
@@ -8,12 +15,11 @@
 <style>
   .input-group:hover .label,
   .input:focus {
-   background-color: #D3F2FC;
-   border: 1px solid #0155BD;
+    background-color: #D3F2FC;
+    border: 1px solid #0155BD;
   }
   
   input::placeholder {
-
     font-weight: 600;
   }
   
@@ -36,7 +42,10 @@
 </style>
 
 <div class="relative my-4 md:my-0">
-  <label for="name" style="color: {data.color}" class="block mb-1 text-sm font-[400] transition-colors duration-300 ease-in-out">
+  <label 
+    for="name" 
+    style="color: {data.color}" 
+    class="block mb-1 text-sm font-[400] transition-colors duration-300 ease-in-out">
     {data.name}
     {#if data.required}
       <span class="text-red-500 ml-1">*</span>
@@ -44,7 +53,7 @@
   </label>
   <input
     id="name"
-    value={data.value ? data.value : ''}
+    value={data.value || ''}  
     required={data.required}
     placeholder={data.placeholder}
     type={data.type}

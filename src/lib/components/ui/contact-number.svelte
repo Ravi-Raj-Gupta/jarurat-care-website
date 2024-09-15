@@ -27,6 +27,6 @@
                 Phone number
             </label>
             <div class="relative  text-[#3B3E43]">
-                <input type="contact" placeholder="+91 9876543210" class="w-full pl-[0.5rem] pr-3 py-[12px] appearance-none md:bg-[#E8EBF1] bg-white outline-none border focus:border-slate-600 shadow-sm rounded-lg">
+                <input type="tel" placeholder="+91 9876543210" class="w-full pl-[0.5rem] pr-3 py-[12px] appearance-none md:bg-[#E8EBF1] bg-white outline-none border focus:border-slate-600 shadow-sm rounded-lg">
             </div>
         </div>

@@ -58,7 +58,7 @@
             <p class="w-full text-[0.75rem] font-[500] text-center text-[#0D2561]">Get the latest updates, inspiring stories, and important news delivered right to your inbox.</p>
         </div>
        <div class="mt-12 flex flex-col gap-4">
-			<input class="w-full p-4 h-12 bg-[#FFF1D2]" placeholder="Enter your email address" type="text">
+			<input class="w-full p-4 h-12 bg-[#FFF1D2]" placeholder="Enter your email address" type="email">
 			 <button class="h-12 p-6 mx-auto  text-white  bg-[#0155BD] rounded-3xl flex items-center justify-center">
                 Submit
             </button>

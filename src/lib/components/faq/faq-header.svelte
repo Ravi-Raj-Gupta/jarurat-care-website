@@ -77,6 +77,9 @@
   function handleClick(val) {
     goto(`/faq/${val}`);
   }
+   $: if (searchInput === "") {
+    isSearchReady = false;
+  }
   
 </script>
 
@@ -114,10 +117,11 @@
   </div>
 
   <div class=" md:mt-[12rem] col-span-2 relative max-w-[35rem] w-full  bg-opacity-[35%] bg-transparent  rounded-[0.6rem] flex items-center justify-center gap-[0.5rem] ">
-    <input bind:value={searchInput}
+    <input  bind:value={searchInput}
       type="text"
       placeholder="Search Your Query"
       class=" w-11/12 p-4 rounded-tl-[0.5rem] rounded-bl-[0.5rem] rounded-br-[0rem] rounded-tr-[0rem] border border-gray-300"
+      on:keydown={(e) => e.key === 'Enter' && handleSearch()}
     >
     <!-- <p class="absolute right-[15%] top-1/2 transform -translate-y-1/2">
       <Search />
@@ -145,6 +149,7 @@
       type="text"
       placeholder="Search Your Query"
       class=" w-11/12 p-4 rounded-tl-[0.5rem] rounded-bl-[0.5rem] rounded-br-[0rem] rounded-tr-[0rem] border border-gray-300"
+      on:keydown={(e) => e.key === 'Enter' && handleSearch()}
     >
     <p on:click={handleSearch} class="absolute right-[15%] top-1/2 transform -translate-y-1/2">
       <Search />

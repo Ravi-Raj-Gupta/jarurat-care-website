@@ -4,6 +4,7 @@
 	import DownArrow from '$lib/svg/down-arrow.svelte';
 	import DropDownArrow from '$lib/svg/drop-down-arrow.svelte';
   import RightArrow from '$lib/svg/right-arrow.svelte';
+  import { goto } from "$app/navigation";
 
   // Reactive statement to get the `id` from the page parameters
   $: id = $page.params.id;
