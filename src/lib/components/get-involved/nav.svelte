@@ -29,8 +29,8 @@
 	];
 </script>
 
-<div class=" inset-x-0 z-50 text-[0.9em] bg-white flex items-center justify-between">
-	<nav class="flex items-center font-rubik text-[#0D2561] px-2 md:px-4 py-2 grow">
+<div class="inset-x-0 z-50 text-[0.9em] bg-white flex items-center justify-between">
+	<nav class="flex items-center text-[#0D2561] px-1 md:px-4 py-2 grow">
 		<span class="inline-block w-[8rem] sm:w-[10rem]">
 			<Logo />
 		</span>
@@ -60,9 +60,9 @@
 				</li>
 			{/each}
 		</ul>
-        <button class="mx-5 border border-solid py-3 px-6 rounded-full hidden lg:block">
+        <button class="mx-5 border border-solid border-gray-300 hover:bg-[#0155BD] hover:text-white py-3 px-6 rounded-full hidden lg:block">
              <!-- Language switcher -->
-              <p class='flex justify-center items-center'>
+              <p class='flex justify-center items-center text-[#0155BD]'>
                 English<span class="material-symbols-outlined">
                     keyboard_arrow_down
                     </span>
