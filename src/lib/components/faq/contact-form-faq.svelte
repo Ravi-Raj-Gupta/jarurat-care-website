@@ -36,7 +36,7 @@
         <p class="text-white text-[1rem] text-left hidden md:block mb-4 mt-2">{formDes}</p>
         <div class=" md:my-0  md:grid md:grid-cols-2 gap-4">
           <FormInput data={{ name: "Full Name", placeholder: "Enter your full name", type: "text" ,color:"white"}} />
-          <RoleSelector color="white" />
+          <RoleSelector />
           <FormInput data={{ name: "Email", placeholder: "Enter your Email", type: "email", required: true,color:"white" }} />
           <ContactNumber color="white" />
 
