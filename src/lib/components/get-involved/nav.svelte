@@ -1,7 +1,7 @@
 <script>
 	import Logo from '$lib/svg/logo.svelte';
 	import { page } from '$app/stores';
-	import Button from './ui/button.svelte';
+	import Button from '../ui/button.svelte';
 	import { MenuIcon } from 'lucide-svelte';
 	import { cn } from '$lib/utils';
 	import { onMount } from 'svelte';
@@ -23,6 +23,7 @@
 		{ title: 'Home', href: '/' },
 		{ title: 'About Us', href: '/#about' },
 		{ title: 'Get Involved', href: '/get-involved' },
+		{ title: 'Cancer Info', href: '/' },
 		{ title: 'News & Blogs', href: '/#news' },
 		{ title: 'Contact Us', href: 'mailto:jaruratcare@gmail.com' }
 	];
@@ -47,7 +48,9 @@
 			)}
 		>
 			{#each navItems as item}
-				<li class:font-bold={pathname === item.href}>
+				<li 
+                    class:font-bold={pathname === item.href}
+                >
 					<a
 						href={item.href}
 						on:click={() => {
@@ -57,14 +60,22 @@
 				</li>
 			{/each}
 		</ul>
+        <button class="mx-5 border border-solid py-3 px-6 rounded-full hidden lg:block">
+             <!-- Language switcher -->
+              <p class='flex justify-center items-center'>
+                English<span class="material-symbols-outlined">
+                    keyboard_arrow_down
+                    </span>
+              </p>
 
-		<a href="/donate" class="text-[0.8em] hidden md:block">
+        </button>
+		<a href="/donate" class="text-[0.8em] hidden lg:block">
 			<Button>Donate Now</Button>
 		</a>
 	</nav>
 
 	<button
-		class="block md:hidden z-50 px-4"
+		class="block lg:hidden z-50 px-4"
 		on:click={() => {
 			isMenuOpen = !isMenuOpen;
 		}}
