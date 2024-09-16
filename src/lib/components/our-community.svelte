@@ -3,6 +3,27 @@
 	import Resources from "$lib/svg/resources.svelte";
 	import SingleWave from "$lib/svg/single-wave.svelte";
 import OurCommunityItem from "./our-community-item.svelte";
+// import Carousel from 'svelte-carousel'
+	import { onMount } from "svelte";
+    let particlesToShow = 4;
+
+const updateParticlesToShow = () => {
+  if (window.innerWidth < 768) {
+	particlesToShow = 1;
+  } else {
+	particlesToShow = 4;
+  }
+};
+
+onMount(() => {
+  updateParticlesToShow();  // Set initial value based on window size
+  window.addEventListener('resize', updateParticlesToShow);
+
+  return () => {
+	window.removeEventListener('resize', updateParticlesToShow);  // Cleanup on component destruction
+  };
+});
+
 
     const items = [
 		{
@@ -28,14 +49,16 @@ import OurCommunityItem from "./our-community-item.svelte";
 	];
 </script>
 
-<div class="mx-auto mt-16 w-[30rem]">
+<div class="mx-auto mt-16 lg:w-[28rem]">
     <div class="text-primaryBlue text-center  font-extrabold text-xl">OUR COMMUNITY </div>
     <div class="mb-24 text-center font-extrabold text-xl">BACKED SERVICES</div>
     
     <div class="flex lg:gap-3 justify-center">
+        <!-- <Carousel  particlesToShow={particlesToShow} particlesToScroll={1}> -->
         {#each items as item}
         <OurCommunityItem icon={item.icon} about={item.about} title={item.title}/>
         {/each}
+        <!-- </Carousel> -->
     </div>
 </div>
 

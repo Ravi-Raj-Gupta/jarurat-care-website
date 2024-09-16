@@ -1,7 +1,7 @@
 <script>
 	import background from '$lib/assets/our-vison-image.png';
 	import OurVisionCard from './our-vision-card.svelte';
-	import Carousel from 'svelte-carousel'
+	// import Carousel from 'svelte-carousel';
 	import { onMount } from "svelte";
 
 	let particlesToShow = 3;
@@ -46,11 +46,11 @@ onMount(() => {
 		</div>
 
 		<div class="cards flex pl-5 gap-4 mt-8 justify-center  items-center">
-			<!-- <Carousel  particlesToShow={particlesToShow} particlesToScroll={1}> -->
+			<!-- <Carousel itemsToShow={particlesToShow} >  -->
 				{#each cards as item}
 					<OurVisionCard content={item} />
 				{/each}
-			<!-- </Carousel> -->
+			 <!-- </Carousel> -->
 		</div>
 	</div>
 </div>
