@@ -13,8 +13,6 @@
     
     onMount(() => {
         const width = window.innerWidth;
-        console.log(`Width on mount: ${width}`);
-        
         if(width<800){
             mainAlphabet = [
             'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
@@ -33,7 +31,7 @@
 
     // Function to handle button clicks
     function handleClick(letter) {
-        selectedLetter = selectedLetter === letter ? null : letter;
+        selectedLetter = letter
     }
 </script>
 
