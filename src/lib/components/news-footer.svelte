@@ -1,15 +1,32 @@
+
 <script>
     import DoubleArrow from "$lib/svg/double-arrow.svelte";
 
     // Static text stored in variables
     let email = "";
-    let supportText="Support Us"
+    let supportText = "Support Us";
     let newsText = "Subscribe to our Newsletter";
-    let newsDes= "Get the latest updates, inspiring stories, and important news delivered right to your inbox.";
+    let newsDes = "Get the latest updates, inspiring stories, and important news delivered right to your inbox.";
     let collaborateText = "Collaborate With Us";
     let collaborateDes = "Our mission thrives through the support of compassionate corporates, individuals, and organizations. You can be a part of this journey too—join us in making a difference.";
     let confirmationMessage = "Enter your email to subscribe"; // Predefined message, no interaction
-    let taxDes="All donations to JaruratCare Foundation are eligible for 50% tax exemption under section 80G of the Income Tax Act."
+    let taxDes = "All donations to JaruratCare Foundation are eligible for 50% tax exemption under section 80G of the Income Tax Act.";
+    
+    // Function to validate email
+    function validateEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(String(email).toLowerCase());
+    }
+
+    // Function to handle form submission
+    function handleSubmit() {
+        if (validateEmail(email)) {
+            confirmationMessage = "Thank you for subscribing!";
+            // You can trigger further actions here (e.g., send the email to a server)
+        } else {
+            confirmationMessage = "Please enter a valid email address.";
+        }
+    }
 </script>
 
 <div class="hidden md:grid grid-cols-2 h-full">
@@ -19,7 +36,7 @@
             <p class="text-[#3B3E43]">{newsDes}</p>
             <div class="absolute bottom-0 grid pr-4 grid-cols-5 w-full gap-[1rem] mt-16">
                 <input class="col-span-3 h-12 px-4" bind:value={email} placeholder="Enter your email address" type="email">
-                <button class="h-[3rem] col-span-2 md:h-[3.5rem] bg-transparent mx-auto w-full border-2 border-[#0155BD] text-[#0155BD] bg-[white] rounded-3xl flex items-center justify-center">
+                <button on:click={handleSubmit} class="h-[3rem] col-span-2 md:h-[3.5rem] bg-transparent mx-auto w-full border-2 border-[#0155BD] text-[#0155BD] bg-[white] rounded-3xl flex items-center justify-center">
                     Submit
                 </button>
             </div>
@@ -59,10 +76,9 @@
         </div>
         <div class="mt-12 flex flex-col gap-4">
             <input class="w-full p-4 h-12 bg-[#FFF1D2]" bind:value={email} placeholder="Enter your email address" type="text">
-            <button class="h-12 p-6 mx-auto text-white bg-[#0155BD] rounded-3xl flex items-center justify-center">
+            <button on:click={handleSubmit} class="h-12 p-6 mx-auto text-white bg-[#0155BD] rounded-3xl flex items-center justify-center">
                 Submit
             </button>
         </div>
-       
     </div>
 </div>

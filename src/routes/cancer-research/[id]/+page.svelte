@@ -1,16 +1,10 @@
  <script>
-	import Banner from "$lib/components/cancer-research/banner.svelte";
    import Nav from "$lib/components/nav.svelte";
 	import NewsFooter from "$lib/components/news-footer.svelte";
-	import Download from "$lib/svg/download.svelte";
-	import RightArrow from "$lib/svg/right-arrow.svelte";
-	import Save from "$lib/svg/save.svelte";
-	import Share from "$lib/svg/share.svelte";
-   import { page } from '$app/stores';
 	import Search from "$lib/svg/search.svelte";
 	import Research from "$lib/components/cancer-research/research.svelte";
 	import Abstract from "$lib/components/cancer-research/abstract.svelte";
-	import NotFound from "$lib/components/cancer-research/not-found.svelte";
+
    let advice ="Advicory Board"
   let support="Seek Support"
   let help ="Help"
@@ -18,10 +12,9 @@
 
   
 
-    $: id = $page.params.id;
-    let subDes="All of the information has been summarized by Jururat Care from PubMed so that it is easy to use. Further links to the full article are provided."
-    let homeBreadCrum="Home"
-    let cancerResearchBreadCrum="Read the Latest in Cancer Research"
+
+
+
     let title="Discover The latest In Cancer Science"
     $: searchInput = "";
    

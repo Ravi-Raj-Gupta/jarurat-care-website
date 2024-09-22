@@ -1,14 +1,14 @@
 <script>
 	import { page } from "$app/stores";
 	import Download from "$lib/svg/download.svelte";
- let subDes="All of the information has been summarized by Jururat Care from PubMed so that it is easy to use. Further links to the full article are provided."
-  $: id = $page.params.id;
+ 
 	import RightArrow from "$lib/svg/right-arrow.svelte";
 	import Save from "$lib/svg/save.svelte";
 	import Share from "$lib/svg/share.svelte";
-	import Research from "./research.svelte";
     let homeBreadCrum="Home"
     let cancerResearchBreadCrum="Read the Latest in Cancer Research"
+    let subDes="All of the information has been summarized by Jururat Care from PubMed so that it is easy to use. Further links to the full article are provided."
+  $: id = $page.params.id;
 </script>
 
     <div class="  md:ml-20 mx-8 mt-4  md:flex hidden gap-2 items-center">
@@ -30,8 +30,8 @@
     <div class="absolute right-8 hidden lg:block" >
       <p>Full Citation Link</p>
       <div class="mt-4 flex flex-col gap-[0.5rem]">
-          <button class="bg-[#0155BD]  rounded-xl p-2  text-white text-center">Read Full Citation</button>
-  <button class="bg-[#0155BD] rounded-xl p-2 px-8  text-white text-center inline-flex items-center space-x-2">
+          <button class="bg-[#0155BD]   rounded-xl p-2  text-white text-center">Read Full Citation</button>
+          <button class="bg-[#0155BD]   rounded-xl p-2 px-8  text-white text-center inline-flex items-center space-x-2">
   Download 
   <Download />
 </button>
@@ -58,8 +58,8 @@
      <p class="text-[#0155BD]" >Pubmed Disclaimer</p>
 </div>
 <div class="mt-4 md:block flex flex-col gap-[0.5rem]">
-          <button class="bg-[#0155BD]  rounded-xl p-2  text-white text-center">Read Full Citation</button>
-  <button class="bg-[#0155BD] rounded-xl p-2 md:px-4 px-20 text-white text-center inline-flex items-center space-x-2">
+          <button class="bg-[#0155BD] max-w-[18rem]  rounded-xl p-2  text-white text-center">Read Full Citation</button>
+  <button class="bg-[#0155BD] rounded-xl p-2 max-w-[18rem] md:px-4 px-20 text-white text-center inline-flex items-center space-x-2">
   Download 
   <Download />
 </button>

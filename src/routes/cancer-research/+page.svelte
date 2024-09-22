@@ -76,7 +76,7 @@
     <h1 class="text-[1.25rem] font-[400] z-30 text-[#0155BD]">{cancerBreadCrum}</h1>
   </div>
 
-  {#if searchInput !=='' && isSearchReady===true}
+  {#if searchInput !=='' && isSearchReady}
    
 
    <div class=" hidden lg:grid grid-cols-4 pl-20 pr-12 gap-8">

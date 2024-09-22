@@ -32,19 +32,19 @@ import Faq from "../faqs/faq.svelte";
 
    
 </style>
-<div class="  py-8 md:mx-8 my-16  flex items-center ">
+<div class="   py-8 md:mx-8 my-16  flex items-center ">
      <div class=" w-full min-h-[30vh]  relative md:mx-16 mx-0 text-white bg-image rounded-2xl  md:pl-16   p-8">
-      <h1 class="lg:text-[2.5rem] md:text-[2rem] sm:text-[1.5rem] hidden md:block  lg:w-[50%] md:w-[70%] text-white">{bannerhead1} <span class="text-[#FFBA41]">{bannerhead2} </span> {bannerhead3}  </h1>
-      <h1 class="text-[1.75rem] block md:hidden text-white">{bannerheadSmall1} <span class="text-[#FFBA41]">{bannerheadSmall2} </span> {bannerheadSmall3}  </h1>
-      <p class=" hidden md:block mt-[0.5rem] w-[70%]">{des}</p>
-      <p class=" mt-[0.5rem] w-[70%]">{secondaryDes}</p>
+      <h1 class=" break-words lg:text-[2.5rem] md:text-[2rem] sm:text-[1.5rem] hidden md:block  lg:w-[50%] md:w-[70%] text-white">{bannerhead1} <span class="text-[#FFBA41]">{bannerhead2} </span> {bannerhead3}  </h1>
+      <h1 class="break-words text-[1.75rem] block md:hidden text-white">{bannerheadSmall1} <span class="text-[#FFBA41]">{bannerheadSmall2} </span> {bannerheadSmall3}  </h1>
+      <p class=" break-words hidden md:block mt-[0.5rem] w-[70%]">{des}</p>
+      <p class=" break-words mt-[0.5rem] w-[70%]">{secondaryDes}</p>
    <button class=" mt-32 md:mt-4 w-[10rem] h-10  rounded-[1.5rem] text-white bg-[#FFBA41]">Read more</button>
      </div>
 </div>
 <div class="block md:hidden bg-[#F8FCFF]">
      	<Header
 		title="Frequently asked question"
-		subtitle="Look through some of oue frequently answered questions"
+		subtitle="Look through some of our frequently answered questions"
 	/>
   <div class="my-8  grid gap-[0.5rem]">
     {#each arr as item }
