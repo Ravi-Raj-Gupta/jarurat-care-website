@@ -29,7 +29,7 @@
     });
 
     // Reactive variable to track selected button
-    let selectedLetter = "A";
+    let selectedLetter = mainAlphabet[0];
 
     // Function to handle button clicks
     function handleClick(letter) {
@@ -37,8 +37,8 @@
     }
 </script>
 
-<div class="h-[172px] mx-auto max-w-[65rem] flex justify-center mt-12 mb-[120px] px-[20px] md:p-0">
-    <div class="grid gap-[10px] md:gap-[20px]  grid-cols-[repeat(7,minmax(0,1fr))] lg:grid-cols-[repeat(11,minmax(0,1fr))]">
+<div class=" mx-auto max-w-[65rem] flex justify-center mt-12 mb-[6.5rem] px-[1.5rem] md:p-0">
+    <div class="grid gap-[0.5rem] md:gap-[1.5rem]  grid-cols-[repeat(7,minmax(0,1fr))] lg:grid-cols-[repeat(11,minmax(0,1fr))]">
         {#each mainAlphabet as letter}
             <button 
                 class={`h-10 w-10 flex items-center justify-center rounded-full 
@@ -63,13 +63,13 @@
     </div>
 </div>
 
-<div class="lg:w-[52rem] px-8  w-full  h-full xl:ml-[130px] lg:ml-[130px] mb-[158px] flex flex-col gap-[50px]">
+<div class=" px-16  w-full  h-full  mb-[8rem] flex flex-col gap-[3rem]">
     <div class="relative ">
-        <h1 class="md:text-[128px] py-2 border-b-2 md:border-0 border-[#CFD6DF] font-[400] text-[48px] leading-none text-[#0155BD]">
+        <h1 class="md:text-[8rem] py-2 border-b-2 md:border-0 border-[#CFD6DF] font-[400] text-[48px] leading-none text-[#0155BD]">
             {selectedLetter}{selectedLetter.toLocaleLowerCase()}
         </h1>
     </div>
-    <div class="h-full flex flex-col gap-[24px]">
+    <div class="h-full flex flex-col gap-[2.5rem]">
         <SearchResult />
         <SearchResult />
         <SearchResult />
