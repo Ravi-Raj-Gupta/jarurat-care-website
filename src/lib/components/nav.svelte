@@ -22,7 +22,8 @@
 	const navItems = [
 		{ title: 'Home', href: '/' },
 		{ title: 'About Us', href: '/#about' },
-		{ title: 'Get Involved', href: '/#get-involved' },
+		{ title: 'Get Involved', href: '/get-involved' },
+
 		{ title: 'News & Blogs', href: '/#news' },
 		{ title: 'Contact Us', href: 'mailto:jaruratcare@gmail.com' }
 	];
