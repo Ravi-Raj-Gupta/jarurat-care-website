@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+
 html {
     font-size: 14pt;
     scroll-behavior: smooth;
@@ -20,6 +21,6 @@ html {
 }
 
 
-.scroll-container{
+.scroll-container {
     scrollbar-width: none;
 }
