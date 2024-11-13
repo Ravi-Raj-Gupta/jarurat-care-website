@@ -51,16 +51,16 @@
 			name: 'Priyanka',
 			about: 'Medical Oncologist'
 		},
-		{
-			image: priyanka,
-			name: 'Priyanka',
-			about: 'Medical Oncologist'
-		},
-		{
-			image: priyanka,
-			name: 'Priyanka',
-			about: 'Medical Oncologist'
-		}
+		// {
+		// 	image: priyanka,
+		// 	name: 'Priyanka',
+		// 	about: 'Medical Oncologist'
+		// },
+		// {
+		// 	image: priyanka,
+		// 	name: 'Priyanka',
+		// 	about: 'Medical Oncologist'
+		// }
 	];
 
 	const founders = [
@@ -233,18 +233,18 @@
 		</div>
 	</div>
 
-	<div class="showcase justify-center py-20 hidden md:flex">
-		<div class="bg-[#D9D9D9] lg:h-[20rem] lg:w-[38rem] h-[18rem] w-[28rem] rounded-xl relative">
-			<div
-				class="w-8 h-8 cursor-pointer rounded-full p-2 bg-[#CFD6DF] absolute lg:-left-28 -left-16 top-[40%]"
-			>
-				<PreviousIcon />
-			</div>
-			<div
-				class="w-8 h-8 cursor-pointer rounded-full p-2 bg-[#CFD6DF] absolute lg:-right-28 -right-16 top-[40%]"
-			>
-				<NextIcon />
-			</div>
-		</div>
-	</div>
+<!--	<div class="showcase justify-center py-20 hidden md:flex">-->
+<!--		<div class="bg-[#D9D9D9] lg:h-[20rem] lg:w-[38rem] h-[18rem] w-[28rem] rounded-xl relative">-->
+<!--			<div-->
+<!--				class="w-8 h-8 cursor-pointer rounded-full p-2 bg-[#CFD6DF] absolute lg:-left-28 -left-16 top-[40%]"-->
+<!--			>-->
+<!--				<PreviousIcon />-->
+<!--			</div>-->
+<!--			<div-->
+<!--				class="w-8 h-8 cursor-pointer rounded-full p-2 bg-[#CFD6DF] absolute lg:-right-28 -right-16 top-[40%]"-->
+<!--			>-->
+<!--				<NextIcon />-->
+<!--			</div>-->
+<!--		</div>-->
+<!--	</div>-->
 </div>
