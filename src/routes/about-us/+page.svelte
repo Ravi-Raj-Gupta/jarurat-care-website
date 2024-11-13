@@ -1,5 +1,4 @@
 <script>
-    export let name = "About Us";
 	import AboutHeroSection from "$lib/components/about-hero-section.svelte";
 	import AboutUsSection from "$lib/components/about-us-section.svelte";
 	import CaregivingSolution from "$lib/components/caregiving-solution.svelte";
