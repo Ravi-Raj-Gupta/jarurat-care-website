@@ -1,3 +1,11 @@
+<script>
+	import volunteerImg from '$lib/assets/get-involved/volunteer.png';
+	import joinTeamImg from '$lib/assets/get-involved/join.png';
+	import partnershipImg from '$lib/assets/get-involved/partnership.png';
+</script>
+
+<img src={volunteerImg} alt="volunteerImg" class="bg-cover absolute bottom-0 w-[5rem] md:w-[12rem] md:h-auto md:mr-5">
+
 <div class="flex flex-col justify-center items-center p-5 md:p-40 bg-blue-50 w-screen md:w-full">
 	<!-- Volunteer/Internship Card -->
 	<div
@@ -27,7 +35,7 @@
 		<!-- Image Section -->
 		<div class="img_container flex items-end justify-end md:w-1/3 w-full">
 			<img
-				src="src/lib/assets/get-involved/volunteer.png"
+				src={volunteerImg}
 				alt="volunteerImg"
 				class="bg-cover absolute bottom-0 w-[5rem] md:w-[12rem] md:h-auto md:mr-5"
 			/>
@@ -61,7 +69,7 @@
 		<!-- Image Section -->
 		<div class="img_container relative flex items-center justify-end md:w-1/3 w-full">
 			<img
-				src="src/lib/assets/get-involved/join.png"
+				src={joinTeamImg}
 				alt="joinTeamImg"
 				class="bg-cover absolute -right-12 w-[7rem] md:w-[12rem] md:h-auto md:mr-20"
 			/>
@@ -96,7 +104,7 @@
 		<!-- Image Section -->
 		<div class="img_container relative flex items-center justify-end md:w-1/3 w-full">
 			<img
-				src="src/lib/assets/get-involved/partnership.png"
+				src={partnershipImg}
 				alt="partnershipImg"
 				class="bg-cover w-[5rem] md:w-[12rem] md:h-auto md:mr-5"
 			/>
