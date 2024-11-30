@@ -7,36 +7,28 @@
     import OurJounery from "$lib/components/our-jounery.svelte";
     import OurValue from "$lib/components/our-value.svelte";
     import OurVision from "$lib/components/our-vision.svelte";
+    import {onMount} from "svelte";
+    import {goto} from "$app/navigation";
+    import Hero from '$lib/components/get-involved/hero.svelte';
+
+    let isMenuOpen = false;
+
+    onMount(() => {
+        goto('/about-us');
+    });
+
+    const toggleMenu = () => {
+        isMenuOpen = !isMenuOpen;  // Function to toggle the menu state
+    };
 </script>
 
-<div class="min-h-screen bg-[#F8FCFF]">
-    <!-- Navigation -->
-    <Nav/>
+<Nav {isMenuOpen} on:toggleMenu={toggleMenu} />
+<Hero {isMenuOpen} />
+<AboutUsSection />
+<OurVision />
+<OurValue />
+<OurJounery />
+<CaregivingSolution />
+<NewletterCollabrate />
 
-    <!-- Hero Section with overflow hidden to prevent scrollbars -->
-    <div class="w-full overflow-hidden"> <!-- Prevent scroll for HeroSection -->
-        <AboutHeroSection />
-    </div>
 
-    <!-- Other sections -->
-    <div class="px-4 md:px-0">
-        <AboutUsSection />
-    </div>
-    <div class="px-4 md:px-0">
-        <OurVision />
-    </div>
-    <div class="px-4 md:px-0">
-        <OurValue />
-    </div>
-    <div class="px-4 md:px-0">
-        <OurJounery />
-    </div>
-    <!-- Uncomment when needed -->
-    <!-- <OurCommunity /> -->
-    <div class="px-4 md:px-0">
-        <CaregivingSolution />
-    </div>
-    <div class="px-4 md:px-0">
-        <NewletterCollabrate />
-    </div>
-</div>

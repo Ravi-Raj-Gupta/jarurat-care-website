@@ -167,8 +167,8 @@
 	</div>
 
 	<!-- Pioneers Section -->
-	<div class="bg-[#FFFFFF] w-2/3 mx-auto pt-10 mt-20 rounded-3xl z-10 relative">
-		<div class="md:text-center text-start px-16">
+	<div class="bg-[#FFFFFF] w-11/12 sm:w-2/3 mx-auto pt-10 mt-20 rounded-3xl z-10 relative">
+		<div class="md:text-center text-start px-6 sm:px-16">
 			<div class="mb-5">
 				<div class="text-primaryBlue font-extrabold text-2xl">Pioneers Of</div>
 				<div class="font-extrabold text-2xl">Our Foundation</div>
@@ -177,7 +177,8 @@
 				The heart behind our foundation is someone who personally knows the challenges of battling cancer. Driven by a deep desire to help others, they started Jarurat Care to offer support, hope, and a community to those facing this difficult journey.
 			</div>
 		</div>
-		<div class="cards flex justify-center gap-10 pt-9 pb-16 rounded-b-3xl lg:px-16 bg-gradient-to-b from-white to-[#D3F2FC]">
+
+		<div class="cards flex flex-wrap justify-center gap-6 pt-9 pb-16 rounded-b-3xl lg:px-16 bg-gradient-to-b from-white to-[#D3F2FC]">
 			{#each founders as founder}
 				<div class="card relative z-30">
 					<div class="back bg-primaryBlue w-60 h-[20rem] -rotate-2"></div>
@@ -192,6 +193,7 @@
 			{/each}
 		</div>
 	</div>
+
 </div>
 
 
