@@ -9,38 +9,33 @@
     import OurVision from "$lib/components/our-vision.svelte";
 </script>
 
+<div class="min-h-screen bg-[#F8FCFF]">
+    <!-- Navigation -->
+    <Nav/>
 
-
-<Nav/>
-
-<div class="w-full min-h-screen bg-[#F8FCFF] flex flex-col">
-
-    <div class="flex-1 flex flex-col">
-        <div class="md:mb-36 mb-16">
-            <AboutHeroSection />
-        </div>
-        <div class="px-4 md:px-0">
-            <AboutUsSection />
-        </div>
-        <div class="px-4 md:px-0">
-            <OurVision />
-        </div>
-        <div class="px-4 md:px-0">
-            <OurValue />
-        </div>
+    <!-- Hero Section with overflow hidden to prevent scrollbars -->
+    <div class="w-full overflow-hidden"> <!-- Prevent scroll for HeroSection -->
+        <AboutHeroSection />
     </div>
 
+    <!-- Other sections -->
+    <div class="px-4 md:px-0">
+        <AboutUsSection />
+    </div>
+    <div class="px-4 md:px-0">
+        <OurVision />
+    </div>
+    <div class="px-4 md:px-0">
+        <OurValue />
+    </div>
     <div class="px-4 md:px-0">
         <OurJounery />
     </div>
-
     <!-- Uncomment when needed -->
     <!-- <OurCommunity /> -->
-
     <div class="px-4 md:px-0">
         <CaregivingSolution />
     </div>
-
     <div class="px-4 md:px-0">
         <NewletterCollabrate />
     </div>

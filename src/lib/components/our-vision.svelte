@@ -45,7 +45,7 @@ onMount(() => {
 			</div>
 		</div>
 
-		<div class="cards flex pl-3 gap-2 mt-4 justify-center  items-center">
+		<div class="cards flex pl-3 gap-0 mt-5 justify-center  items-center">
 			<!-- <Carousel itemsToShow={particlesToShow} >  -->
 				{#each cards as item}
 					<OurVisionCard content={item} />
