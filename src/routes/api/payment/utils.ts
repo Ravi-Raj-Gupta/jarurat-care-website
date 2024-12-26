@@ -92,7 +92,7 @@ export async function verifyTxn(txnId?: string, name?: string, email?: string,am
 
 		const json = await resp.json();
 		const data = (json || {}).data;
-		if (data?.status?.toLowerCase() === 'success'||1<2) {
+		if (data?.status?.toLowerCase() === 'success') {
             console.log("sending...");
 			await fetch('http://localhost:3001/JC/sendMail/', {
 				method: 'POST',
