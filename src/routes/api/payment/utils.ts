@@ -94,7 +94,7 @@ export async function verifyTxn(txnId?: string, name?: string, email?: string,am
 		const data = (json || {}).data;
 		if (data?.status?.toLowerCase() === 'success') {
             console.log("sending...");
-			await fetch('http://localhost:3001/JC/sendMail/', {
+			await fetch('https://jarurat-care-email-service.onrender.com/jarurat-care/sendMail/', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
