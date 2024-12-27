@@ -13,7 +13,7 @@
 	}
 
 	// Writable store to hold payment data
-	let paymentData = writable({ amount: 1, 'payment-type': 'subscription', email: '' });
+	let paymentData = writable({ amount: 200, 'payment-type': 'subscription', email: '' });
 
 	let currentScreen = 'billing';
 	let isLoading = writable(false);
