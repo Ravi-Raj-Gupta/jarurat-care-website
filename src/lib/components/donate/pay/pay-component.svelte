@@ -6,87 +6,120 @@
 	import ImgHeroBg from '$lib/assets/donate/hero-img.webp';
 	import { billingSchema, personalDetailsSchema } from './schema';
 
+	// Function to update payment data
 	function updatePaymentData(data: Record<string, string | number>) {
-		paymentData.set({ ...$paymentData, ...data })
+		paymentData.set({ ...$paymentData, ...data });
 		return $paymentData;
 	}
 
-
-	let paymentData = writable({ amount: 1, 'payment-type': 'subscription' });
+	// Writable store to hold payment data
+	let paymentData = writable({ amount: 1, 'payment-type': 'subscription', email: '' });
 
 	let currentScreen = 'billing';
 	let isLoading = writable(false);
 	let transactionId = writable<string>('');
 
+	// Function to get payment token URL
 	async function getTokenUrl(amount: number) {
-    transactionId.set('');
-    isLoading.set(true);
-    const resp = await fetch(`/api/payment/get-pay-page-url?amount=${amount}`, {
-        headers: { 'Content-Type': 'application/json' }
-    }).then((resp) => resp.json());
+		transactionId.set('');
+		isLoading.set(true);
+		const resp = await fetch(`/api/payment/get-pay-page-url?amount=${amount}`, {
+			headers: { 'Content-Type': 'application/json' }
+		}).then((resp) => resp.json());
 
-    const txnId = resp?.data?.txnId || '';
-    transactionId.set(txnId);
+		const txnId = resp?.data?.txnId || '';
+		transactionId.set(txnId);
 
-    return resp?.data?.url || '';
-}
+		return resp?.data?.url || '';
+	}
 
-
+	// Retry logic for payment status verification with exponential backoff
 	let reqCount = 1;
 	const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 	const delayTime = 1000;
 	const maxReqCount = 5;
 	const genRangeRandom = (min: number, max: number) =>
-		Math.floor(Math.random() * (max - min + 1)) + min;
+			Math.floor(Math.random() * (max - min + 1)) + min;
 
+	// Payment callback function to verify transaction
 	async function paymentCallback() {
 		isLoading.set(true);
 		window.document.body.style.overflow = 'auto';
+
+		const maxRetries = 5;
+		let retryCount = 0;
+		let backoffTime = 1000;
+
 		try {
-		   const amount = $paymentData.amount;
-         const name = $paymentData['full-name']; // Use bracket notation for properties with special characters
-         const email = $paymentData.email;
-			const response = await fetch(`/api/payment/verify-transaction?txn-id=${$transactionId}&name=${name}&email=${email}&amount=${amount}`, {
-				headers: { 'Content-Type': 'application/json' }
-			});
-			const json = await response.json();
-			const data = json.data || {};
-			const state = data.state ? data.state.toLowerCase() : 'error';
+			const fetchTransactionStatus = async () => {
+				const response = await fetch(`/api/payment/verify-transaction?txn-id=${$transactionId}`, {
+					headers: { 'Content-Type': 'application/json' }
+				});
 
-			if ((state != 'completed' || state != 'error') && reqCount < maxReqCount) {
-				isLoading.set(true);
+				const json = await response.json();
+				const data = json.data || {};
+				const state = data.state ? data.state.toLowerCase() : 'error';
 
-				const delta = genRangeRandom(1000, 4_000);
-				const totalDelay = delayTime * reqCount + delta;
-				await delay(totalDelay);
-				reqCount++;
+				return { state, data };
+			};
 
-				return paymentCallback();
+			while (retryCount < maxRetries) {
+				const { state, data } = await fetchTransactionStatus();
+
+				if (state === 'completed') {
+					// Transaction successful
+					currentScreen = 'success';
+					isLoading.set(false);
+
+					// Send email with payment details (name, amount, email)
+					await fetch('https://jarurat-care-email-service.onrender.com/jarurat-care/sendMail/', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify({
+							name: $paymentData['full-name'],
+							amount: $paymentData.amount,
+							email: $paymentData.email
+						})
+					});
+
+					return { status: 'success', data };
+				}
+
+				if (state === 'error') {
+					// Transaction failed
+					alert('Failed to make the transaction');
+					isLoading.set(false);
+					return { status: 'error', data };
+				}
+
+				// If state is still processing/pending, retry with exponential backoff
+				retryCount++;
+				backoffTime *= 2;
+				console.log(`Retrying... Attempt ${retryCount} with ${backoffTime}ms delay`);
+
+				await new Promise(resolve => setTimeout(resolve, backoffTime));
 			}
 
-			if (state === 'completed') {
-				isLoading.set(false);
-				currentScreen = 'success';
-			} else alert('Failed to make the transaction');
-
-			return json;
-		} catch (err) {
-			2;
-			console.log(err);
-			return {};
-		} finally {
-			// finally
+			// If max retries are exhausted, show an alert
+			alert('Max retries reached. Please try again later.');
 			isLoading.set(false);
+			return { status: 'error', data: null };
+
+		} catch (err) {
+			console.error('Error in payment callback:', err);
+			isLoading.set(false);
+			return { status: 'error', data: null };
 		}
 	}
 </script>
 
 <div id="donate" class="md:p-2 bg-[#D3F2FC]">
 	<div
-		style="background-image: url('{ImgHeroBg}');"
-		class="py-8 px-4 md:my-16 max-w-[66rem] mx-auto md:rounded-xl bg-cover bg-center relative overflow-hidden"
+			style="background-image: url('{ImgHeroBg}');"
+			class="py-8 px-4 md:my-16 max-w-[66rem] mx-auto md:rounded-xl bg-cover bg-center relative overflow-hidden"
 	>
-		<!-- overlay -->
 		<div class="bg-[#D3F2FC] sm:bg-[#797e8a]/80 absolute inset-0"></div>
 
 		<div class="grid md:grid-cols-3 relative z-10">
@@ -101,7 +134,7 @@
 						ensuring no one faces their cancer journey alone.
 					</p>
 					<p
-						class="bg-green-400 text-[0.8em] leading-tight p-2 rounded-r-md border-l-2 border-black"
+							class="bg-green-400 text-[0.8em] leading-tight p-2 rounded-r-md border-l-2 border-black"
 					>
 						All donations to JaruratCare Foundation are eligible for 50% tax exemption under section
 						80G of the Income Tax Act.
@@ -112,8 +145,8 @@
 			<div class="z-10">
 				{#if currentScreen === 'billing'}
 					<BillingOptions
-						on:data={(ev) => updatePaymentData(ev.detail)}
-						on:submit={() => {
+							on:data={(ev) => updatePaymentData(ev.detail)}
+							on:submit={() => {
 							const resp = billingSchema.safeParse($paymentData);
 
 							if (resp.success) {
@@ -123,9 +156,9 @@
 					/>
 				{:else if currentScreen === 'details'}
 					<PersonalDetails
-						isLoading={$isLoading}
-						on:data={(ev) => updatePaymentData(ev.detail)}
-						on:submit={async () => {
+							isLoading={$isLoading}
+							on:data={(ev) => updatePaymentData(ev.detail)}
+							on:submit={async () => {
 							const billingDetails = billingSchema.parse($paymentData);
 							const personalDetails = personalDetailsSchema.safeParse($paymentData);
 						
