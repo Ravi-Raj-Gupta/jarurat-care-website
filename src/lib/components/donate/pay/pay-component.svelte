@@ -12,7 +12,7 @@
 	}
 
 
-	let paymentData = writable({ amount: 200, 'payment-type': 'subscription' });
+	let paymentData = writable({ amount: 1, 'payment-type': 'subscription' });
 
 	let currentScreen = 'billing';
 	let isLoading = writable(false);
