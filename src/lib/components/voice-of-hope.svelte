@@ -128,7 +128,7 @@
 
 	<a
 		class="mt-8 flex items-center justify-center z-10 relative"
-		href="mailto:jaruratcare@gmail.com?subject=Submit%20Your%20Story"
+		href="mailto:Priyanka.joshi@jarurat.care?subject=Submit%20Your%20Story"
 		target="_blank"
 	>
 		<Button>Submit a Story</Button>
