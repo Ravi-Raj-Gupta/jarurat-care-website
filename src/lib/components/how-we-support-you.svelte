@@ -115,7 +115,7 @@
 	</div>
 
 	<a
-		href="mailto:jaruratcare@gmail.com?subject=Seek%20Support%20For%20Cancer"
+		href="mailto:Priyanka.joshi@jarurat.care?subject=Seek%20Support%20For%20Cancer"
 		class="inline-block mx-auto underline"><Button>Seek Support</Button></a
 	>
 </div>

@@ -21,7 +21,7 @@
 
 			<div class="relative z-10 text-[0.9em] gap-2 hidden sm:flex">
 				<a href="/donate"><Button>Donate Now</Button></a>
-				<a href="mailto:jaruratcare@gmail.com?subject=Seek%20Support%20For%20Cancer">
+				<a href="mailto:Priyanka.joshi@jarurat.care?subject=Seek%20Support%20For%20Cancer">
 					<Button>Seek Support</Button>
 				</a>
 			</div>
