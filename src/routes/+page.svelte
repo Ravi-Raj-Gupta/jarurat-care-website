@@ -44,5 +44,6 @@
 <svelte:head>
     <title>Gallbladder Cancer & Biliary Tract Support | Jarurat Care</title>
     <meta name="description" content="Jarurat Care provides export support for gallbladder cancer, biliary tract cancer, and cholangiocarcinoma. Get medical assistance, awareness, and caregiving support today." />
+    <meta name="google-site-verification" content="xDv73z-GY61YZvbewsGFO9UqbnMbPTKLy7UGfcMe_D0" />
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-SR1C89YNC3"></script>
 </svelte:head>
