@@ -23,9 +23,9 @@
 		{ title: 'Home', href: '/' },
 		{ title: 'About Us', href: '/about-us' },
 		{ title: 'Get Involved', href: '/get-involved' },
-
 		{ title: 'News & Blogs', href: '/#news' },
-		{ title: 'Contact Us', href: 'mailto:Priyanka.joshi@jarurat.care' }
+		
+		{ title: 'Contact Us', href: 'contact-us' }
 	];
 </script>
 
