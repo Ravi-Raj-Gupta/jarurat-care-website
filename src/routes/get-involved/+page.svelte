@@ -1,6 +1,4 @@
 <script>
-    import { onMount } from 'svelte';
-    import { goto } from '$app/navigation';
     import Nav from '$lib/components/nav.svelte';
     import Hero from '$lib/components/get-involved/hero.svelte';
     import Help from '$lib/components/get-involved/help.svelte';
@@ -10,16 +8,11 @@
 
     let isMenuOpen = false;
 
-    onMount(() => {
-        goto('/get-involved');
-    });
-
     const toggleMenu = () => {
-        isMenuOpen = !isMenuOpen;  // Function to toggle the menu state
+        isMenuOpen = !isMenuOpen;
     };
 </script>
 
-<!-- Pass isMenuOpen and toggleMenu to the Nav and Hero components -->
 <Nav {isMenuOpen} on:toggleMenu={toggleMenu} />
 <Hero {isMenuOpen} />
 <Help />

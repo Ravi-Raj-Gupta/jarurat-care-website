@@ -1,113 +1,116 @@
 <script>
+	import { goto } from '$app/navigation';
+	import { onMount, onDestroy } from 'svelte';
 	import volunteerImg from '$lib/assets/get-involved/volunteer.png';
 	import joinTeamImg from '$lib/assets/get-involved/join.png';
 	import partnershipImg from '$lib/assets/get-involved/partnership.png';
+
+	let current = 0;
+	let interval;
+
+	const slides = [
+		{
+			title1: "FOR PATIENTS &",
+			title2: "CAREGIVERS",
+			desc: "Personalized guidance. Trusted resources. Compassionate continuity through every stage of the cancer journey.",
+			img: volunteerImg,
+			btn: "Access Support",
+			action: () => goto('/patients-caregivers')
+		},
+		{
+			title1: "FOR ONCOLOGY",
+			title2: "PROFESSIONALS",
+			desc: "Partner with us to enhance patient pathways, strengthen care ecosystems, and drive measurable impact.",
+			img: joinTeamImg,
+			btn: "Collaborate With Us",
+			action: () => goto('/oncologists-physicians')
+		},
+		{
+			title1: "STRATEGIC",
+			title2: "PARTNERSHIPS",
+			desc: "Build responsible collaborations that expand access, elevate awareness, and advance oncology outcomes.",
+			img: partnershipImg,
+			btn: "Explore Partnership",
+			action: () => goto('/pharma-partners')
+		}
+	];
+
+	onMount(() => {
+		interval = setInterval(() => {
+			current = (current + 1) % slides.length;
+		}, 5000);
+	});
+
+	onDestroy(() => {
+		clearInterval(interval);
+	});
 </script>
 
-<img src={volunteerImg} alt="volunteerImg" class="bg-cover absolute bottom-0 w-[5rem] md:w-[12rem] md:h-auto md:mr-5">
+<div class="flex justify-center items-center p-5 md:p-32 bg-blue-50 w-screen md:w-full">
 
-<div class="flex flex-col justify-center items-center p-5 md:p-40 bg-blue-50 w-screen md:w-full">
-	<!-- Volunteer/Internship Card -->
-	<div
-		class="card relative flex flex-col md:flex-row my-10 p-5 bg-white shadow-md rounded-xl md:p-9 md:w-auto w-full flex-grow"
-	>
-		<!-- Text Section -->
-		<div class="container_1 flex flex-col justify-center items-start m-1 md:w-2/3 flex-grow">
-			<h3
-				class="font-extrabold text-[#FFBA41] text-left text-sm sm:text-3xl md:text-2xl lg:text-3xl"
-			>
-				VOLUNTEER/
-				<span class="text-[#0155BD]">INTERNSHIP</span>
-			</h3>
-			<p class="text-left text-xs sm:text-sm md:text-base lg:font-normal my-3">
-				Your time and energy can change lives. Whether you’re providing support to caregivers,
-				assisting with events, or spreading awareness, volunteering with Jarurat Care Foundation is
-				a powerful way to give back. Every bit of help makes a difference, and we’re here to support
-				you as you make an impact.
-			</p>
-			<button
-				class="bg-[#9CCB44] text-white py-2 px-4 my-3 border-[2px] border-double border-[#c2ec8b] rounded-full"
-			>
-				<p class="text-sm md:text-base">Register</p>
-			</button>
+	<div class="relative w-full md:w-[85%] overflow-hidden">
+
+		<!-- Slider Track -->
+		<div
+			class="flex transition-transform duration-[1000ms] ease-[cubic-bezier(0.65,0,0.35,1)]"
+			style="transform: translateX(-{current * 100}%);"
+		>
+
+			{#each slides as slide}
+				<div class="w-full flex-shrink-0 px-3">
+
+					<!-- Clean Card (No Shadow) -->
+					<div class="relative flex flex-col md:flex-row items-center justify-between bg-white rounded-3xl px-10 md:px-16 py-12 md:py-16 w-full min-h-[340px] md:min-h-[380px] transition-all duration-500">
+
+						<!-- Text -->
+						<div class="flex flex-col justify-center md:w-2/3 text-left space-y-5">
+
+							<h3 class="font-extrabold text-[#FFBA41] text-xl sm:text-2xl md:text-3xl">
+								{slide.title1}
+								<span class="text-[#0155BD]"> {slide.title2}</span>
+							</h3>
+
+							<p class="text-gray-600 text-sm md:text-base leading-relaxed max-w-xl">
+								{slide.desc}
+							</p>
+
+							<button
+								on:click={slide.action}
+								class="w-fit bg-[#9CCB44] text-white py-3 px-8 rounded-full border border-[#c2ec8b] transition-all duration-300 hover:opacity-90"
+							>
+								<span class="text-sm md:text-base font-medium tracking-wide">
+									{slide.btn}
+								</span>
+							</button>
+
+						</div>
+
+						<!-- Image -->
+						<div class="flex justify-center md:justify-end items-center md:w-1/3 mt-8 md:mt-0">
+							<img
+								src={slide.img}
+								alt="slide-image"
+								class="w-[120px] md:w-[190px] object-contain"
+							/>
+						</div>
+
+					</div>
+
+				</div>
+			{/each}
+
 		</div>
 
-		<!-- Image Section -->
-		<div class="img_container flex items-end justify-end md:w-1/3 w-full">
-			<img
-				src={volunteerImg}
-				alt="volunteerImg"
-				class="bg-cover absolute bottom-0 w-[5rem] md:w-[12rem] md:h-auto md:mr-5"
-			/>
-		</div>
-	</div>
-
-	<!-- Join Our Team Card -->
-	<div
-		class="card relative flex flex-col md:flex-row my-10 p-5 bg-white shadow-md rounded-xl md:p-9 md:w-auto w-full overflow-hidden flex-grow"
-	>
-		<!-- Text Section -->
-		<div class="container_1 flex flex-col justify-center items-start m-1 md:w-2/3 flex-grow">
-			<h3
-				class="font-extrabold text-[#FFBA41] text-left text-sm sm:text-3xl md:text-2xl lg:text-3xl"
-			>
-				JOIN OUR TEAM
-			</h3>
-			<p class="text-left text-xs sm:text-sm md:text-base lg:font-normal my-3">
-				Be part of a passionate team making a real difference in the lives of cancer patients and
-				their families. At Jarurat Care Foundation, we’re always looking for dedicated professionals
-				who are committed to our mission. If you’re driven, compassionate, and want to contribute
-				your skills to a meaningful cause, we’d love to hear from you.
-			</p>
-			<button
-				class="bg-[#9CCB44] text-white py-2 px-4 my-3 border-[2px] border-double border-[#c2ec8b] rounded-full"
-			>
-				<p class="text-sm md:text-base">Register</p>
-			</button>
+		<!-- Minimal Dots -->
+		<div class="flex justify-center mt-10 space-x-3">
+			{#each slides as _, i}
+				<div
+					on:click={() => current = i}
+					class="w-2.5 h-2.5 rounded-full cursor-pointer transition-all duration-500
+					{current === i ? 'bg-[#0155BD] scale-125' : 'bg-gray-300'}"
+				></div>
+			{/each}
 		</div>
 
-		<!-- Image Section -->
-		<div class="img_container relative flex items-center justify-end md:w-1/3 w-full">
-			<img
-				src={joinTeamImg}
-				alt="joinTeamImg"
-				class="bg-cover absolute -right-12 w-[7rem] md:w-[12rem] md:h-auto md:mr-20"
-			/>
-		</div>
-	</div>
-
-	<!-- Corporate Partnerships Card -->
-	<div
-		class="card flex flex-col md:flex-row my-10 p-5 bg-white shadow-md rounded-xl md:p-9 md:w-auto w-full flex-grow"
-	>
-		<!-- Text Section -->
-		<div class="container_1 flex flex-col justify-center items-start m-1 md:w-2/3 flex-grow">
-			<h3
-				class="font-extrabold text-[#FFBA41] text-left text-sm sm:text-3xl md:text-2xl lg:text-3xl"
-			>
-				CORPORATE
-				<span class="text-[#0155BD]">PARTNERSHIPS</span>
-			</h3>
-			<p class="text-left text-xs sm:text-sm md:text-base lg:font-normal my-3">
-				Partnering with Jarurat Care Foundation aligns your brand with a cause that truly matters.
-				Together, we can create impactful CSR initiatives that benefit cancer patients and their
-				families. From sponsorships to employee engagement programs, there are many ways for your
-				company to get involved and make a lasting difference.
-			</p>
-			<button
-				class="bg-[#9CCB44] text-white py-2 px-4 my-3 border-[2px] border-double border-[#c2ec8b] rounded-full"
-			>
-				<p class="text-sm md:text-base">Let's Collaborate</p>
-			</button>
-		</div>
-
-		<!-- Image Section -->
-		<div class="img_container relative flex items-center justify-end md:w-1/3 w-full">
-			<img
-				src={partnershipImg}
-				alt="partnershipImg"
-				class="bg-cover w-[5rem] md:w-[12rem] md:h-auto md:mr-5"
-			/>
-		</div>
 	</div>
 </div>
