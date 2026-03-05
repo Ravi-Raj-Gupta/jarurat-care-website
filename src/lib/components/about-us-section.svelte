@@ -1,4 +1,5 @@
 <script>
+
 </script>
 
 <div class=" flex  gap-14 w-full md:px-16 items-center max-h-[483px] my-12">
