@@ -11,7 +11,7 @@
 	}
 </script>
 
-<footer class="bg-[#EFFAFD] text-[#0D2561]">
+<footer class="bg-[#D6ECFF] text-[#0D2561]">
 	<div class="max-w-7xl mx-auto px-6 sm:px-8 py-12">
 
 		<!-- Top Row: Logo + CTA Buttons -->
@@ -81,7 +81,7 @@
 				<p class="font-semibold mb-3">Contact</p>
 				<div class="text-sm text-[#475569] space-y-1">
 					<div>Email: <a href="mailto:Priyanka.joshi@jarurat.care" class="hover:text-[#1E40AF] transition-colors">Priyanka.joshi@jarurat.care</a></div>
-					<div>Phone: <a href="tel:+911234567890" class="hover:text-[#1E40AF] transition-colors">+91 12345 67890</a></div>
+					<div>Phone: <a href="tel:+91 99402 63931" class="hover:text-[#1E40AF] transition-colors">+91 99402 63931</a></div>
 				</div>
 			</div>
 		</div>

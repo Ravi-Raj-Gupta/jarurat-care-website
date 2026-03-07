@@ -42,9 +42,15 @@ hover:bg-[#1E40AF] hover:text-white transition-colors duration-300">
           <img src={patient} alt="Jarurat Care Foundation" class="w-full h-full object-cover" />
 
           <div
-            class="absolute top-0 left-0 h-full w-1/2 pointer-events-none"
-            style="background: linear-gradient(to right, #F4F8FF 0%, rgba(244,248,255,0.95) 25%, rgba(244,248,255,0.7) 50%, rgba(244,248,255,0) 100%);">
-          </div>
+  class="absolute inset-0 pointer-events-none"
+  style="
+    background:
+      linear-gradient(to right, #F4F8FF 0%, rgba(244,248,255,0) 10%),
+      linear-gradient(to left, #F4F8FF 0%, rgba(244,248,255,0) 10%),
+      linear-gradient(to bottom, #F4F8FF 0%, rgba(244,248,255,0) 30%),
+      linear-gradient(to top, #F4F8FF 0%, rgba(244,248,255,0) 8%);
+  ">
+</div>
         </div>
       </div>
 
