@@ -1,127 +1,147 @@
 <script>
-	import { onMount, onDestroy } from 'svelte';
-	import triptiImage from '$lib/assets/get-involved/tripti.png';
-	import shreyaImage from '$lib/assets/get-involved/shreya.png';
-	import adityaImage from '$lib/assets/get-involved/aditya.png';
-	import communityBackground from '$lib/assets/get-involved/community.png';
-	import quoteImage from '$lib/assets/get-involved/quote.png';
+  import { onMount, onDestroy } from "svelte";
 
-	let members = [
-		{
-			name: 'Tripti',
-			role: 'Social Media POD Lead',
-			feedback:
-				'Being part of Jarurat Care Foundation has been a deeply meaningful experience. The team is collaborative and committed to creating awareness around cancer care.',
-			image: triptiImage
-		},
-		{
-			name: 'Shreya',
-			role: 'Content & Research',
-			feedback:
-				'An open and supportive environment where ideas are valued and impact is prioritized.',
-			image: shreyaImage
-		},
-		{
-			name: 'Aditya Nalawade',
-			role: 'Video Editor',
-			feedback:
-				'The culture encourages creativity and responsibility while supporting families navigating cancer.',
-			image: adityaImage
-		}
-	];
+  let advisoryBoard = [
+    { name: "Dr. Milind Javle", role: "Department of Gastrointestinal Medical Oncology" },
+    { name: "Dr. Sangeeta Goswami", role: "Associate Professor, MD Anderson Cancer Center" },
+    { name: "Dr. Vikas Ostwal", role: "GI Oncology, Tata Memorial Cancer Center, Mumbai" },
+    { name: "Dr. Bhawna Sirohi", role: "Medical Director, Balco Medical Centre, Raipur" },
+    { name: "Dr. Vinay Kapoor", role: "Pro Vice Chancellor, MGUMST" },
+    { name: "Dr. Sewanti Limaye", role: "Director Medical & Precision Oncology, Sir HN Reliance Hospital" },
+    { name: "Prof. Usha Dutta", role: "Professor & HOD, Gastroenterology, PGIMER, Chandigarh" },
+    { name: "Dr. Darshit Shah", role: "Medical Oncology, Sir H. N. Reliance Foundation Hospital" }
+  ];
 
-	let currentIndex = 0;
-	let interval;
+  function getInitials(name) {
+    let parts = name.replace("Dr. ", "").replace("Prof. ", "").split(" ");
+    return parts.length > 1 ? (parts[0][0] + parts[1][0]).toUpperCase() : parts[0][0].toUpperCase();
+  }
 
-	function nextSlide() {
-		currentIndex = (currentIndex + 1) % members.length;
-	}
+  let scrollContainer;
+  let autoScroll;
 
-	function prevSlide() {
-		currentIndex =
-			(currentIndex - 1 + members.length) % members.length;
-	}
+  const scroll = (direction) => {
+    const scrollAmount = 320;
+    scrollContainer.scrollBy({
+      left: direction === "next" ? scrollAmount : -scrollAmount,
+      behavior: "smooth"
+    });
+  };
 
-	onMount(() => {
-		interval = setInterval(nextSlide, 4000);
-	});
+  onMount(() => {
+    autoScroll = setInterval(() => {
+      if (scrollContainer) {
+        scrollContainer.scrollBy({ left: 320, behavior: "smooth" });
 
-	onDestroy(() => {
-		clearInterval(interval);
-	});
+        if (
+          scrollContainer.scrollLeft + scrollContainer.clientWidth >=
+          scrollContainer.scrollWidth
+        ) {
+          scrollContainer.scrollTo({ left: 0, behavior: "smooth" });
+        }
+      }
+    }, 3000);
+  });
+
+  onDestroy(() => {
+    clearInterval(autoScroll);
+  });
 </script>
 
-<div
-	class="w-full md:h-[850px] h-[650px] bg-cover bg-no-repeat bg-blue-50 relative flex items-center justify-center"
-	style="background-image: url({communityBackground});"
+<section class="py-20 px-6 bg-[#F4F8FF]">
+
+  <div class="max-w-7xl mx-auto">
+
+    <!-- Heading -->
+    <div class="text-center mb-14">
+
+      <h2 class="text-3xl md:text-4xl font-bold text-[#0D2561]">
+        Advisory <span class="text-[#2563EB]">Board</span>
+      </h2>
+
+      <p class="text-slate-500 text-sm mt-3">
+        Leading experts in Oncology & Gastroenterology
+      </p>
+
+    </div>
+
+    <!-- Slider Controls -->
+    <div class="flex justify-end gap-3 mb-6">
+
+      <button
+        on:click={() => scroll("prev")}
+        class="p-3 border border-[#0D2561]/20 rounded-full hover:bg-[#0D2561] hover:text-white transition-all"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+      </button>
+
+      <button
+        on:click={() => scroll("next")}
+        class="p-3 border border-[#0D2561]/20 rounded-full hover:bg-[#0D2561] hover:text-white transition-all"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </button>
+
+    </div>
+
+    <!-- Slider -->
+    <div
+  bind:this={scrollContainer}
+  class="flex gap-8 overflow-x-auto snap-x snap-mandatory pb-14 pt-4 no-scrollbar"
 >
-	<div class="w-full max-w-3xl mx-auto px-6">
 
-		<h2 class="text-left md:text-center text-2xl md:text-3xl font-extrabold text-[#0D2460] mb-10">
-			Hear From <span class="text-[#0155BD]">Our Community</span>
-		</h2>
+      {#each advisoryBoard as doctor}
 
-		<div class="relative overflow-hidden">
+      <div class="min-w-[340px] md:min-w-[360px] snap-start">
 
-			<!-- Track -->
-			<div
-				class="flex transition-transform duration-700 ease-in-out"
-				style="transform: translateX(-{currentIndex * 100}%);"
-			>
-				{#each members as member}
-					<div class="w-full flex-shrink-0 px-4">
+        <div class="bg-white border border-slate-100 rounded-2xl p-10 h-[250px] flex flex-col justify-between transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
 
-						<div class="bg-white rounded-2xl p-6 flex flex-col md:flex-row gap-6 shadow-md">
+          <!-- Avatar -->
+          <div class="w-16 h-16 rounded-full border-[3px] border-[#0D2561] flex items-center justify-center bg-[#F4F8FF] text-[#0D2561] font-bold text-lg">
+            {getInitials(doctor.name)}
+          </div>
 
-							<img
-								src={member.image}
-								alt={member.name}
-								class="w-[120px] h-[120px] md:w-[200px] md:h-[200px] object-cover rounded-xl"
-							/>
+          <!-- Name -->
+          <h3 class="text-[#0D2561] font-bold text-lg mt-4">
+            {doctor.name}
+          </h3>
 
-							<div class="flex flex-col justify-center">
+          <!-- Role -->
+          <p class="text-xs text-slate-500 leading-relaxed uppercase tracking-wide border-t border-slate-100 pt-3">
+            {doctor.role}
+          </p>
 
-								<h3 class="text-xl font-bold text-[#0155BD]">
-									{member.name}
-								</h3>
+        </div>
 
-								<p class="text-sm text-gray-500 mb-3">
-									{member.role}
-								</p>
+      </div>
 
-								<img
-									src={quoteImage}
-									alt="quote"
-									class="w-6 h-6 mb-2"
-								/>
+      {/each}
 
-								<p class="text-sm text-gray-600 leading-relaxed">
-									{member.feedback}
-								</p>
+    </div>
 
-							</div>
+    <!-- CTA -->
+    <div class="mt-12 text-center">
 
-						</div>
+      <a
+        href="/leadership"
+        class="inline-flex items-center gap-2 text-[#0D2561] font-bold hover:text-[#2563EB] transition-colors text-sm uppercase tracking-[0.2em] group"
+      >
+        View Full Leadership
+        <span class="transform group-hover:translate-x-2 transition-transform">→</span>
+      </a>
 
-					</div>
-				{/each}
-			</div>
+    </div>
 
-			<!-- Arrows -->
-			<button
-				on:click={prevSlide}
-				class="absolute left-0 top-1/2 -translate-y-1/2 bg-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-[#FFBA41] transition"
-			>
-				&lt;
-			</button>
+  </div>
 
-			<button
-				on:click={nextSlide}
-				class="absolute right-0 top-1/2 -translate-y-1/2 bg-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-[#FFBA41] transition"
-			>
-				&gt;
-			</button>
+</section>
 
-		</div>
-	</div>
-</div>
+<style>
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+</style>

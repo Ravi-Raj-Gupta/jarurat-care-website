@@ -1,116 +1,97 @@
 <script>
-	import { goto } from '$app/navigation';
-	import { onMount, onDestroy } from 'svelte';
-	import volunteerImg from '$lib/assets/get-involved/volunteer.png';
-	import joinTeamImg from '$lib/assets/get-involved/join.png';
-	import partnershipImg from '$lib/assets/get-involved/partnership.png';
+  import { Instagram, Linkedin, Globe } from 'lucide-svelte';
 
-	let current = 0;
-	let interval;
-
-	const slides = [
-		{
-			title1: "FOR PATIENTS &",
-			title2: "CAREGIVERS",
-			desc: "Personalized guidance. Trusted resources. Compassionate continuity through every stage of the cancer journey.",
-			img: volunteerImg,
-			btn: "Access Support",
-			action: () => goto('/patients-caregivers')
-		},
-		{
-			title1: "FOR ONCOLOGY",
-			title2: "PROFESSIONALS",
-			desc: "Partner with us to enhance patient pathways, strengthen care ecosystems, and drive measurable impact.",
-			img: joinTeamImg,
-			btn: "Collaborate With Us",
-			action: () => goto('/oncologists-physicians')
-		},
-		{
-			title1: "STRATEGIC",
-			title2: "PARTNERSHIPS",
-			desc: "Build responsible collaborations that expand access, elevate awareness, and advance oncology outcomes.",
-			img: partnershipImg,
-			btn: "Explore Partnership",
-			action: () => goto('/pharma-partners')
-		}
-	];
-
-	onMount(() => {
-		interval = setInterval(() => {
-			current = (current + 1) % slides.length;
-		}, 5000);
-	});
-
-	onDestroy(() => {
-		clearInterval(interval);
-	});
+  const socialLinks = {
+    instagram: "https://www.instagram.com/jaruratcare",
+    linkedin: "https://www.linkedin.com/company/jarurat-care-foundation",
+    website: "https://jaruratcare.org"
+  };
 </script>
 
-<div class="flex justify-center items-center p-5 md:p-32 bg-blue-50 w-screen md:w-full">
+<section class="w-full min-h-[80vh] bg-[linear-gradient(180deg,#FFFFFF_0%,#F4F8FF_100%)] flex items-center justify-center px-4 py-20 border-t border-blue-50">
+  
+  <div class="max-w-6xl w-full">
 
-	<div class="relative w-full md:w-[85%] overflow-hidden">
+    <div class="flex justify-center mb-20">
+  <div class="bg-white/90 border-y border-[#2563EB]/20 px-12 py-4 shadow-md relative">
+    
+    <div class="absolute left-0 top-0 h-full w-[2px] bg-[#2563EB]"></div>
+    <div class="absolute right-0 top-0 h-full w-[2px] bg-[#2563EB]"></div>
 
-		<!-- Slider Track -->
-		<div
-			class="flex transition-transform duration-[1000ms] ease-[cubic-bezier(0.65,0,0.35,1)]"
-			style="transform: translateX(-{current * 100}%);"
-		>
+    <h2 class="text-[#0D2561] text-[13px] md:text-[15px] font-extrabold tracking-[0.32em] text-center uppercase">
+      RE-WRITING THE NARRATIVE,
+      <span class="italic font-semibold opacity-90 normal-case ml-2 text-[#2563EB]">
+        one life at a time.
+      </span>
+    </h2>
 
-			{#each slides as slide}
-				<div class="w-full flex-shrink-0 px-3">
-
-					<!-- Clean Card (No Shadow) -->
-					<div class="relative flex flex-col md:flex-row items-center justify-between bg-white rounded-3xl px-10 md:px-16 py-12 md:py-16 w-full min-h-[340px] md:min-h-[380px] transition-all duration-500">
-
-						<!-- Text -->
-						<div class="flex flex-col justify-center md:w-2/3 text-left space-y-5">
-
-							<h3 class="font-extrabold text-[#FFBA41] text-xl sm:text-2xl md:text-3xl">
-								{slide.title1}
-								<span class="text-[#0155BD]"> {slide.title2}</span>
-							</h3>
-
-							<p class="text-gray-600 text-sm md:text-base leading-relaxed max-w-xl">
-								{slide.desc}
-							</p>
-
-							<button
-								on:click={slide.action}
-								class="w-fit bg-[#9CCB44] text-white py-3 px-8 rounded-full border border-[#c2ec8b] transition-all duration-300 hover:opacity-90"
-							>
-								<span class="text-sm md:text-base font-medium tracking-wide">
-									{slide.btn}
-								</span>
-							</button>
-
-						</div>
-
-						<!-- Image -->
-						<div class="flex justify-center md:justify-end items-center md:w-1/3 mt-8 md:mt-0">
-							<img
-								src={slide.img}
-								alt="slide-image"
-								class="w-[120px] md:w-[190px] object-contain"
-							/>
-						</div>
-
-					</div>
-
-				</div>
-			{/each}
-
-		</div>
-
-		<!-- Minimal Dots -->
-		<div class="flex justify-center mt-10 space-x-3">
-			{#each slides as _, i}
-				<div
-					on:click={() => current = i}
-					class="w-2.5 h-2.5 rounded-full cursor-pointer transition-all duration-500
-					{current === i ? 'bg-[#0155BD] scale-125' : 'bg-gray-300'}"
-				></div>
-			{/each}
-		</div>
-
-	</div>
+  </div>
 </div>
+
+    <div class="relative bg-white/40 backdrop-blur-md p-12 md:p-20 rounded-[4rem] border border-white shadow-2xl overflow-hidden mb-16">
+      
+      <div class="absolute top-8 left-12 opacity-5">
+        <svg width="120" height="120" viewBox="0 0 45 34" fill="#2563EB">
+          <path d="M12.5 0C5.6 0 0 5.6 0 12.5C0 25.3 10.1 33.1 19.3 33.1V26.2C13.5 26.2 9.4 21.6 8.8 15.9H19.3V0H12.5ZM38.2 0C31.3 0 25.7 5.6 25.7 12.5C25.7 25.3 35.8 33.1 45 33.1V26.2C39.2 26.2 35.1 21.6 34.5 15.9H45V0H38.2Z"/>
+        </svg>
+      </div>
+
+      <div class="relative z-10 text-center space-y-10">
+        <p class="text-xl md:text-2xl font-medium italic leading-[1.6] text-[#0D2561] max-w-2xl mx-auto tracking-tight">
+          “Alone we can do so little, <br/> 
+          <span class="text-[#2563EB] not-italic font-bold">together</span> we can do so much.”
+        </p>
+
+        <div class="flex flex-col items-center">
+          <div class="w-8 h-[2px] bg-[#2563EB] mb-4 opacity-50"></div>
+          <p class="font-bold text-sm text-[#0D2561] uppercase tracking-[0.2em]">Priyanka Joshi</p>
+          <p class="text-slate-400 text-[9px] font-bold uppercase tracking-[0.3em] mt-2">
+            Founder, Jarurat Care Foundation
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-col md:flex-row justify-between items-center gap-8 px-6">
+
+  <!-- Social Section -->
+  <div class="flex items-center gap-8">
+    
+    <!-- Connect Text -->
+    <span class="text-[15px] font-extrabold text-[#0D2561] uppercase tracking-[0.25em] hidden sm:block">
+      Connect
+    </span>
+
+    <!-- Social Icons -->
+    <div class="flex gap-4">
+      {#each [
+        { link: socialLinks.instagram, icon: Instagram },
+        { link: socialLinks.linkedin, icon: Linkedin },
+        { link: socialLinks.website, icon: Globe }
+      ] as social}
+        <a
+          href={social.link}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="w-11 h-11 rounded-full bg-white text-[#0D2561] flex items-center justify-center hover:bg-[#2563EB] hover:text-white transition-all duration-500 border border-slate-200 shadow-md hover:scale-110"
+        >
+          <svelte:component this={social.icon} size={18} strokeWidth={1.8} />
+        </a>
+      {/each}
+    </div>
+
+  </div>
+
+  <!-- Button -->
+  <a href="/contact-us" class="group">
+    <button
+      class="bg-[#0D2561] text-white px-12 py-5 rounded-full text-[12px] font-bold shadow-xl group-hover:bg-[#2563EB] group-hover:-translate-y-1 transition-all duration-500 uppercase tracking-[0.25em]"
+    >
+      Join Our Advisory Board
+    </button>
+  </a>
+
+</div>
+
+  </div>
+</section>
