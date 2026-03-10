@@ -2,9 +2,9 @@ import { nanoid } from 'nanoid'
 import { Buffer } from 'buffer'
 import { createHash } from 'crypto'
 
-const PHONEPE_MARCHENT_ID = "M227ARX0TN68N";
-const SALT_KEY = "aa69b0a6-d1d2-475a-a6f8-9f172d86bd2e";
-const SALT_INDEX = "1";
+const PHONEPE_MARCHENT_ID = process.env.PHONEPE_MARCHENT_ID;
+const SALT_KEY = process.env.PHONEPE_SALT_KEY;
+const SALT_INDEX = process.env.PHONEPE_SALT_INDEX;
 
 export async function getPayPageUrl(marchentUserId: string, amount: number) {
     try {
