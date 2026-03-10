@@ -2,14 +2,30 @@
   import { onMount, onDestroy } from "svelte";
 
   let advisoryBoard = [
-    { name: "Dr. Milind Javle", role: "Department of Gastrointestinal Medical Oncology" },
-    { name: "Dr. Sangeeta Goswami", role: "Associate Professor, MD Anderson Cancer Center" },
-    { name: "Dr. Vikas Ostwal", role: "GI Oncology, Tata Memorial Cancer Center, Mumbai" },
-    { name: "Dr. Bhawna Sirohi", role: "Medical Director, Balco Medical Centre, Raipur" },
-    { name: "Dr. Vinay Kapoor", role: "Pro Vice Chancellor, MGUMST" },
-    { name: "Dr. Sewanti Limaye", role: "Director Medical & Precision Oncology, Sir HN Reliance Hospital" },
-    { name: "Prof. Usha Dutta", role: "Professor & HOD, Gastroenterology, PGIMER, Chandigarh" },
-    { name: "Dr. Darshit Shah", role: "Medical Oncology, Sir H. N. Reliance Foundation Hospital" }
+    { name: "Dr. Milind Javle", 
+      role: "Department of Gastrointestinal Medical Oncology" 
+    },
+    { name: "Dr. Sangeeta Goswami", 
+      role: "Associate Professor, MD Anderson Cancer Center" 
+    },
+    { name: "Dr. Vikas Ostwal", 
+      role: "GI Oncology, Tata Memorial Cancer Center, Mumbai" 
+    },
+    { name: "Dr. Bhawna Sirohi", 
+    role: "Medical Director, Balco Medical Centre, Raipur" 
+  },
+    { name: "Dr. Vinay Kapoor", 
+      role: "Pro Vice Chancellor, MGUMST" 
+    },
+    { name: "Dr. Sewanti Limaye", 
+      role: "Director Medical & Precision Oncology, Sir HN Reliance Hospital" 
+    },
+    { name: "Prof. Usha Dutta", 
+      role: "Professor & HOD, Gastroenterology, PGIMER, Chandigarh" 
+    },
+    { name: "Dr. Darshit Shah", 
+      role: "Medical Oncology, Sir H. N. Reliance Foundation Hospital" 
+    }
   ];
 
   function getInitials(name) {
