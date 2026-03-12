@@ -23,7 +23,7 @@
 			description:
 				'Healing Hearts – Our community is here to guide, comfort, and stand beside those facing cancer.',
 			ctaText: 'Join Here',
-			href: '/donate'
+			href: '/get-involved'
 		},
 		{
 			icon: Hand,
@@ -31,7 +31,7 @@
 			description:
 				'Our AI assistant is here to provide clarity and support during your cancer journey. Try it today.',
 			ctaText: 'Visit Here',
-			href: '#'
+			href: 'https://wa.me/919389529263?text=Hi'
 		}
 	];
 
