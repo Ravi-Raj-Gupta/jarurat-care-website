@@ -23,7 +23,7 @@
 </script>
 
 <Nav {isMenuOpen} on:toggleMenu={toggleMenu} />
-<Hero {isMenuOpen} />
+<AboutHeroSection/>
 <AboutUsSection />
 <OurVision />
 <OurValue />

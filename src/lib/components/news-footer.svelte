@@ -64,9 +64,11 @@
             <h1 class="w-auto h-[2rem] text-center font-rubik text-[1.75rem] text-[#0155BD] font-medium leading-[2rem]">{supportText}</h1>
             <p class="w-2/3 text-[0.75rem] font-[500] text-center text-[#0D2561]">{taxDes}</p>
         </div>
-        <button class="mx-auto mt-12 h-[3rem] w-2/3 text-white py-[1rem] bg-[#FFBA41] rounded-3xl flex items-center justify-center">
-            Seek Support
-        </button>
+        <a href="/donate">
+            <button class="mx-auto mt-12 h-[3rem] w-2/3 text-white py-[1rem] bg-[#FFBA41] rounded-3xl flex items-center justify-center" >
+                Donate
+            </button>
+        </a>
     </div>
 
     <div class="max-w-[65rem] flex flex-col h-full p-[1.25rem] bg-white rounded-[0.5rem] shadow-[0px_0px_10px_2px_rgba(1,85,189,0.12)] mt-[6rem]">

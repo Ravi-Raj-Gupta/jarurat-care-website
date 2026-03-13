@@ -89,7 +89,7 @@
 			<SplideTrack>
 				{#each sliderTop as slide}
 					<SplideSlide>
-						<div class="bg-white p-6 md:p-10 rounded-3xl md:rounded-4xl shadow-2xl text-center min-h-[240px] md:min-h-[280px] flex flex-col justify-center">
+						<div class="bg-white p-6 md:p-10 rounded-3xl md:rounded-4xl shadow-lg text-center min-h-[240px] md:min-h-[280px] flex flex-col justify-center">
 							<h3 class="text-xl md:text-3xl font-bold text-[#0D2561] mb-3 md:mb-4">
 								{slide.title}
 							</h3>

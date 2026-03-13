@@ -28,7 +28,7 @@
 <Popup 
 	title="Get Help via WhatsApp"
 message="Chat with our dedicated WhatsApp bot for guidance on cancer support, treatment options, and related queries. Quick, easy, and confidential assistance at your fingertips."
-gotoLink="https://wa.me/14155238886"
+gotoLink="https://wa.me/919389529263?text=Hi"
 />
 <Nav />
 <Hero />

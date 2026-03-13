@@ -95,9 +95,9 @@
 </script>
 
 <!-- Caregiving Section -->
-<div class="bg-[#D3F2FC] mt-64 relative">
+<div class="bg-[#D3F2FC] mt-64 relative"> 
 	<div class="h-[411px]">
-		<div class="lg:px-16 px-8 py-16 bg-[#0D2561] absolute -top-44 md:left-[5%] left-0 rounded-3xl">
+		<div class="lg:px-16 px-8 py-16 bg-[#0D2561] absolute -top-44 left-5 right-5 mx-auto w-fit rounded-3xl">
 			<div class="text-xl text-start md:text-center font-extrabold mb-8">
 				<span class="text-white">CAREGIVING</span> <span class="text-[#FFBA41]">Solution</span>
 			</div>
