@@ -24,8 +24,22 @@
 </style>
 
 <!-- Main Banner Section -->
-<div class="bg-cover h-[60vh] w-full md:items-center flex items-end  md:justify-center bg-center relative" style="background-image: url({BgImage});">
- <h1 class="text-white tracking-wider font-[600] z-20 text-[1.5rem] p-8  sm:text-[2.5rem] md:text-[5.25rem] md:p-0 md:font-[600]">{talk}<span class=" text-[#FFBA41] md:text-white" >{to}</span> <span class=" text-[#78C520] md:text-white" >{us}</span></h1>
+<div
+  class="bg-cover bg-center w-full flex items-end md:items-center md:justify-center relative
+         h-[40vh] sm:h-[50vh] md:h-[60vh]"
+  style={`background-image: url(${BgImage})`}
+>
+  <h1
+    class="text-white tracking-wider font-semibold z-20
+           text-xl sm:text-3xl md:text-6xl
+           px-6 pb-8 md:p-0
+           text-left md:text-center
+           max-w-[90%] md:max-w-none"
+  >
+    {talk}
+    <span class="text-[#FFBA41] md:text-white">{to}</span>
+    <span class="text-[#78C520] md:text-white">{us}</span>
+  </h1>
 </div>
 
 <!-- Wave and Form Section -->
