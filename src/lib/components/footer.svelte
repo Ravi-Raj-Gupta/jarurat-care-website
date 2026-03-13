@@ -56,8 +56,8 @@
 				<p class="font-semibold mb-3">Resources</p>
 				<ul class="space-y-2 text-sm">
 					<li><a class="hover:text-[#1E40AF] transition-colors" href="/about-us">About Us</a></li>
-					<li><a class="hover:text-[#1E40AF] transition-colors" href="/">Blogs</a></li>
-					<li><a class="hover:text-[#1E40AF] transition-colors" href="/">News</a></li>
+					<li><a class="hover:text-[#1E40AF] transition-colors" href="/get-involved">Get involved</a></li>
+					
 					<li><a class="hover:text-[#1E40AF] transition-colors" href="/contact-us">Contact Us</a></li>
 				</ul>
 			</div>
@@ -71,7 +71,7 @@
 					<a href="https://twitter.com/jarurat_care" target="_blank" rel="noopener" aria-label="Twitter">
 						<Icon icon={twitterIcon} class="w-6 h-6 text-[#1E40AF] hover:text-[#1D3A7A]" />
 					</a>
-					<a href="https://facebook.com/yourprofile" target="_blank" rel="noopener" aria-label="Facebook">
+					<a href="https://facebook.com/share/1DpQCLVLdM/" target="_blank" rel="noopener" aria-label="Facebook">
 						<Icon icon={facebookIcon} class="w-6 h-6 text-[#1E40AF] hover:text-[#1D3A7A]" />
 					</a>
 				</div>

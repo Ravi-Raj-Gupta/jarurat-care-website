@@ -8,8 +8,6 @@
 	import { Splide, SplideSlide, SplideTrack } from '@splidejs/svelte-splide';
 	import { ChevronLeft, ChevronRight } from 'lucide-svelte';
 
-	/* ------------------ CARDS ------------------ */
-
 	const cards = [
 		{
 			icon: HandPlatterPlus,
@@ -25,7 +23,7 @@
 			description:
 				'Healing Hearts – Our community is here to guide, comfort, and stand beside those facing cancer.',
 			ctaText: 'Join Here',
-			href: '/donate'
+			href: '/get-involved'
 		},
 		{
 			icon: Hand,
@@ -33,11 +31,9 @@
 			description:
 				'Our AI assistant is here to provide clarity and support during your cancer journey. Try it today.',
 			ctaText: 'Visit Here',
-			href: '#'
+			href: 'https://wa.me/919389529263?text=Hi'
 		}
 	];
-
-	/* ------------------ TOP SLIDER ------------------ */
 
 	const sliderTop = [
 		{
@@ -56,8 +52,6 @@
 				'Join us because together, we can do so much more. By collaborating, we pool our strengths and resources to bring greater support to those fighting cancer. Your partnership helps us reach more people and make a bigger impact. Let’s work hand in hand to change lives.'
 		}
 	];
-
-	/* ------------------ BOTTOM STORY SLIDER ------------------ */
 
 	const sliderBottom = [
 		{
@@ -78,8 +72,8 @@
 
 <!-- ================= TOP SLIDER ================= -->
 
-<section class="py-16 bg-[#EFFAFD]">
-	<div class="max-w-6xl mx-auto px-4 relative">
+<section class="py-12 md:py-16 bg-[#EFFAFD]">
+	<div class="max-w-6xl mx-auto px-4 md:px-6 relative">
 		<Splide
 			hasTrack={false}
 			options={{
@@ -95,11 +89,11 @@
 			<SplideTrack>
 				{#each sliderTop as slide}
 					<SplideSlide>
-						<div class="bg-white p-10 rounded-4xl shadow-2xl text-center min-h-[280px] flex flex-col justify-center">
-							<h3 class="text-2xl md:text-3xl font-bold text-[#0D2561] mb-4">
+						<div class="bg-white p-6 md:p-10 rounded-3xl md:rounded-4xl shadow-2xl text-center min-h-[240px] md:min-h-[280px] flex flex-col justify-center">
+							<h3 class="text-xl md:text-3xl font-bold text-[#0D2561] mb-3 md:mb-4">
 								{slide.title}
 							</h3>
-							<p class="text-[#475569] leading-relaxed">
+							<p class="text-[#475569] leading-relaxed text-sm md:text-base">
 								{slide.content}
 							</p>
 						</div>
@@ -107,13 +101,12 @@
 				{/each}
 			</SplideTrack>
 
-			<!-- Arrows -->
-			<div class="splide__arrows absolute inset-x-0 flex justify-between top-1/2 -translate-y-1/2 px-4">
-				<Button class="splide__arrow splide__arrow--prev bg-white rounded-full shadow-md p-2 -ml-4">
-					<ChevronLeft class="w-6 h-6 text-[#1E40AF]" />
+			<div class="splide__arrows absolute inset-x-0 flex justify-between top-1/2 -translate-y-1/2 px-2 md:px-4">
+				<Button class="splide__arrow splide__arrow--prev bg-white rounded-full shadow-md p-2 md:-ml-4">
+					<ChevronLeft class="w-5 h-5 md:w-6 md:h-6 text-[#1E40AF]" />
 				</Button>
-				<Button class="splide__arrow splide__arrow--next bg-white rounded-full shadow-md p-2 -mr-4">
-					<ChevronRight class="w-6 h-6 text-[#1E40AF]" />
+				<Button class="splide__arrow splide__arrow--next bg-white rounded-full shadow-md p-2 md:-mr-4">
+					<ChevronRight class="w-5 h-5 md:w-6 md:h-6 text-[#1E40AF]" />
 				</Button>
 			</div>
 		</Splide>
@@ -122,19 +115,19 @@
 
 <!-- ================= CARDS ================= -->
 
-<section class="relative py-12 px-4 bg-[#F4F8FF]">
+<section class="relative py-10 md:py-12 px-4 bg-[#F4F8FF]">
 	<div class="max-w-7xl mx-auto">
-		<h2 class="text-3xl md:text-4xl font-bold text-[#0D2561] text-center mb-10">
+		<h2 class="text-2xl md:text-4xl font-bold text-[#0D2561] text-center mb-8 md:mb-10">
 			Our Support Services
 		</h2>
 
-		<div class="grid sm:grid-cols-3 gap-8">
+		<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
 			{#each cards as card}
-				<div class="bg-white rounded-3xl shadow-lg p-8 text-center hover:scale-105 transition duration-300">
+				<div class="bg-white rounded-3xl shadow-lg p-6 md:p-8 text-center hover:scale-105 transition duration-300">
 					<div class="w-14 h-14 mx-auto flex items-center justify-center bg-[#E5ECFF] rounded-full mb-4">
 						<svelte:component this={card.icon} class="w-7 h-7 text-[#1E40AF]" />
 					</div>
-					<h3 class="text-xl font-semibold text-[#0D2561] mb-2">
+					<h3 class="text-lg md:text-xl font-semibold text-[#0D2561] mb-2">
 						{card.title}
 					</h3>
 					<p class="text-[#475569] text-sm mb-4">
@@ -152,8 +145,8 @@
 </section>
 
 <!-- ================= BOTTOM STORY SLIDER ================= -->
-<section class="py-16 bg-white">
-	<div class="max-w-5xl mx-auto px-4 relative">
+<section class="py-12 md:py-16 bg-white">
+	<div class="max-w-5xl mx-auto px-4 md:px-6 relative">
 		<Splide
 			hasTrack={false}
 			options={{
@@ -173,16 +166,15 @@
 								<img
 									src={slide.img}
 									alt={slide.title}
-									class="w-full h-[360px] object-cover"
+									class="w-full h-[260px] md:h-[360px] object-cover"
 								/>
 
-								<!-- Overlay Content -->
 								<div class="absolute inset-0 bg-[#002944]/60 flex items-end">
-									<div class="p-8 text-white">
-										<h3 class="text-3xl font-bold mb-2">
+									<div class="p-5 md:p-8 text-white">
+										<h3 class="text-xl md:text-3xl font-bold mb-2">
 											{slide.title}
 										</h3>
-										<p class="opacity-90 max-w-xl">
+										<p class="opacity-90 max-w-xl text-sm md:text-base">
 											{slide.caption}
 										</p>
 									</div>
@@ -191,13 +183,12 @@
 
 						{:else}
 
-							<!-- Text Slide -->
-							<div class="bg-[#F8FAFC] p-12 rounded-3xl shadow-xl text-center min-h-[300px] flex flex-col justify-center">
-								<h3 class="text-3xl font-bold text-[#0D2561] mb-4">
+							<div class="bg-[#F8FAFC] p-6 md:p-12 rounded-3xl shadow-xl text-center min-h-[240px] md:min-h-[300px] flex flex-col justify-center">
+								<h3 class="text-xl md:text-3xl font-bold text-[#0D2561] mb-4">
 									{slide.title}
 								</h3>
 
-								<p class="text-[#475569] leading-relaxed max-w-2xl mx-auto">
+								<p class="text-[#475569] leading-relaxed max-w-2xl mx-auto text-sm md:text-base">
 									{slide.content}
 								</p>
 
@@ -211,14 +202,13 @@
 				{/each}
 			</SplideTrack>
 
-			<!-- ARROWS -->
-			<div class="splide__arrows absolute inset-x-0 flex justify-between top-1/2 -translate-y-1/2 px-4">
+			<div class="splide__arrows absolute inset-x-0 flex justify-between top-1/2 -translate-y-1/2 px-2 md:px-4">
 				<button class="splide__arrow splide__arrow--prev bg-white rounded-full shadow-md p-2">
-					<ChevronLeft class="w-6 h-6 text-[#1E40AF]" />
+					<ChevronLeft class="w-5 h-5 md:w-6 md:h-6 text-[#1E40AF]" />
 				</button>
 
 				<button class="splide__arrow splide__arrow--next bg-white rounded-full shadow-md p-2">
-					<ChevronRight class="w-6 h-6 text-[#1E40AF]" />
+					<ChevronRight class="w-5 h-5 md:w-6 md:h-6 text-[#1E40AF]" />
 				</button>
 			</div>
 
