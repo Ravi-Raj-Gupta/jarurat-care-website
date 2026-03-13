@@ -62,7 +62,7 @@
       <div class="inline-block px-3 py-1 bg-blue-100 text-blue-600 text-[10px] font-bold uppercase tracking-widest rounded-full mb-3">
         Expert Network
       </div>
-      <h2 class="text-3xl md:text-5xl font-black text-[#0D2561] tracking-tight">
+      <h2 class="text-2xl md:text-4xl font-black text-[#0D2561] tracking-tight">
         Advisory <span class="text-blue-600">Board</span>
       </h2>
       <p class="text-slate-500 text-sm md:text-base mt-3 font-medium opacity-80 max-w-2xl mx-auto">
