@@ -23,7 +23,7 @@
 			description:
 				'Healing Hearts – Our community is here to guide, comfort, and stand beside those facing cancer.',
 			ctaText: 'Join Here',
-			href: '/get-involved'
+			href: 'https://chat.whatsapp.com/I95f9ycybYSDQIbOW4e0bY'
 		},
 		{
 			icon: Hand,

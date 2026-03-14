@@ -72,6 +72,8 @@
 				<div class="flex items-center justify-center sm:justify-start gap-4">
 					<a href="https://wa.me/919940263931" target="_blank" rel="noopener" aria-label="Whatsapp">
 	<Icon icon={whatsappIcon} class="w-6 h-6 text-[#1E40AF] hover:text-[#1D3A7A]" />
+</a><a href="https://www.instagram.com/carcinome.in?igsh=eWs5aG54OHpkamVs" target="_blank" rel="noopener" aria-label="Instagram">
+	<Icon icon={instagramIcon} class="w-6 h-6 text-[#1E40AF] hover:text-[#1D3A7A]" />
 </a>
 
 					<a href="https://twitter.com/jarurat_care" target="_blank" rel="noopener" aria-label="Twitter">
