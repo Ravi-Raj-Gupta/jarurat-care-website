@@ -14,8 +14,8 @@
   <Help />
 </section>
 
-<section class="w-full">
-    <Community />
+<section id="community" class="w-full">
+  <Community />
 </section>
 
 <section class="w-full">
