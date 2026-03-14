@@ -52,7 +52,7 @@
 				<p class="font-semibold mb-3">Quick Links</p>
 				<ul class="space-y-2 text-sm">
 					<li><a class="hover:text-[#1E40AF] transition-colors" href="/">Home</a></li>
-					<li><a class="hover:text-[#1E40AF] transition-colors" href="/join-us">Volunteer</a></li>
+					<li><a class="hover:text-[#1E40AF] transition-colors" href="/join-us" on:click={() => window.scrollTo(0,0)}>Volunteer</a></li>
 					<li><a class="hover:text-[#1E40AF] transition-colors" href="/get-involved#community">Network</a></li>
 					<li><a href="/mission" class="text-sm hover:underline">Mission</a></li>
 				</ul>
