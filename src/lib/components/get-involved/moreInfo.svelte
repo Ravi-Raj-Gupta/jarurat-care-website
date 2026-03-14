@@ -1,10 +1,10 @@
 <script>
-  import { Instagram, Linkedin, Globe } from 'lucide-svelte';
+  import { Instagram, Linkedin, Twitter } from 'lucide-svelte';
 
   const socialLinks = {
-    instagram: "https://www.instagram.com/jaruratcare",
-    linkedin: "https://www.linkedin.com/company/jarurat-care-foundation",
-    website: "https://jaruratcare.org"
+    instagram: "#",
+    linkedin: "https://www.linkedin.com/company/jaruratcare/",
+    twitter: "https://x.com/JaruratCare?s=20"
   };
 </script>
 
@@ -13,20 +13,20 @@
   <div class="max-w-6xl w-full">
 
     <div class="flex justify-center mb-20">
-  <div class="bg-white/90 border-y border-[#2563EB]/20 px-12 py-4 shadow-md relative">
-    
-    <div class="absolute left-0 top-0 h-full w-[2px] bg-[#2563EB]"></div>
-    <div class="absolute right-0 top-0 h-full w-[2px] bg-[#2563EB]"></div>
+      <div class="bg-white/90 border-y border-[#2563EB]/20 px-12 py-4 shadow-md relative">
+        
+        <div class="absolute left-0 top-0 h-full w-[2px] bg-[#2563EB]"></div>
+        <div class="absolute right-0 top-0 h-full w-[2px] bg-[#2563EB]"></div>
 
-    <h2 class="text-[#0D2561] text-[13px] md:text-[15px] font-extrabold tracking-[0.32em] text-center uppercase">
-      RE-WRITING THE NARRATIVE,
-      <span class="italic font-semibold opacity-90 normal-case ml-2 text-[#2563EB]">
-        one life at a time.
-      </span>
-    </h2>
+        <h2 class="text-[#0D2561] text-[13px] md:text-[15px] font-extrabold tracking-[0.32em] text-center uppercase">
+          RE-WRITING THE NARRATIVE,
+          <span class="italic font-semibold opacity-90 normal-case ml-2 text-[#2563EB]">
+            one life at a time.
+          </span>
+        </h2>
 
-  </div>
-</div>
+      </div>
+    </div>
 
     <div class="relative bg-white/40 backdrop-blur-md p-12 md:p-20 rounded-[4rem] border border-white shadow-2xl overflow-hidden mb-16">
       
@@ -54,44 +54,40 @@
 
     <div class="flex flex-col md:flex-row justify-between items-center gap-8 px-6">
 
-  <!-- Social Section -->
-  <div class="flex items-center gap-8">
-    
-    <!-- Connect Text -->
-    <span class="text-[15px] font-extrabold text-[#0D2561] uppercase tracking-[0.25em] hidden sm:block">
-      Connect
-    </span>
+      <div class="flex items-center gap-8">
+        
+        <span class="text-[15px] font-extrabold text-[#0D2561] uppercase tracking-[0.25em] hidden sm:block">
+          Connect
+        </span>
 
-    <!-- Social Icons -->
-    <div class="flex gap-4">
-      {#each [
-        { link: socialLinks.instagram, icon: Instagram },
-        { link: socialLinks.linkedin, icon: Linkedin },
-        { link: socialLinks.website, icon: Globe }
-      ] as social}
-        <a
-          href={social.link}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="w-11 h-11 rounded-full bg-white text-[#0D2561] flex items-center justify-center hover:bg-[#2563EB] hover:text-white transition-all duration-500 border border-slate-200 shadow-md hover:scale-110"
+        <div class="flex gap-4">
+          {#each [
+            { link: socialLinks.instagram, icon: Instagram },
+            { link: socialLinks.linkedin, icon: Linkedin },
+            { link: socialLinks.twitter, icon: Twitter }
+          ] as social}
+            <a
+              href={social.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="w-11 h-11 rounded-full bg-white text-[#0D2561] flex items-center justify-center hover:bg-[#2563EB] hover:text-white transition-all duration-500 border border-slate-200 shadow-md hover:scale-110"
+            >
+              <svelte:component this={social.icon} size={18} strokeWidth={1.8} />
+            </a>
+          {/each}
+        </div>
+
+      </div>
+
+      <a href="/contact-us" class="group">
+        <button
+          class="bg-[#0D2561] text-white px-12 py-5 rounded-full text-[12px] font-bold shadow-xl group-hover:bg-[#2563EB] group-hover:-translate-y-1 transition-all duration-500 uppercase tracking-[0.25em]"
         >
-          <svelte:component this={social.icon} size={18} strokeWidth={1.8} />
-        </a>
-      {/each}
+          Join Our Advisory Board
+        </button>
+      </a>
+
     </div>
-
-  </div>
-
-  <!-- Button -->
-  <a href="/contact-us" class="group">
-    <button
-      class="bg-[#0D2561] text-white px-12 py-5 rounded-full text-[12px] font-bold shadow-xl group-hover:bg-[#2563EB] group-hover:-translate-y-1 transition-all duration-500 uppercase tracking-[0.25em]"
-    >
-      Join Our Advisory Board
-    </button>
-  </a>
-
-</div>
 
   </div>
 </section>
