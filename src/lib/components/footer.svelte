@@ -54,6 +54,7 @@
 					<li><a class="hover:text-[#1E40AF] transition-colors" href="/">Home</a></li>
 					<li><a class="hover:text-[#1E40AF] transition-colors" href="/get-involved">Volunteer</a></li>
 					<li><a class="hover:text-[#1E40AF] transition-colors" href="/get-involved#community">Network</a></li>
+					<li><a href="/mission" class="text-sm hover:underline">Mission</a></li>
 				</ul>
 			</div>
 
