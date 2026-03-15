@@ -21,61 +21,151 @@
 
 				<h2>1. Introduction</h2>
 				<p>
-					These Terms & Conditions govern your use of the website and services
-					provided by Jarurat Care Foundation. By accessing or using our site
-					you agree to these terms. If you do not agree, please do not use our services.
+					Welcome to the website of Jarurat Care Foundation. These Terms & Conditions
+					govern your access to and use of our website, services, and resources.
+					By accessing or using this website, you agree to comply with these Terms.
+					If you do not agree with any part of these Terms, please discontinue
+					use of the website immediately.
 				</p>
 
-				<h2>2. About the Service</h2>
+				<h2>2. About the Organization</h2>
 				<p>
-					Jarurat Care Foundation provides information, community support and
-					access to resources for cancer patients, caregivers and medical
-					professionals. The content on this site is educational and supportive
-					in nature and is not a substitute for professional medical advice.
+					Jarurat Care Foundation is a nonprofit organization dedicated to
+					supporting cancer patients, caregivers, and healthcare communities.
+					Our platform provides educational information, support resources,
+					and awareness initiatives related to cancer care and patient support.
 				</p>
 
-				<h2>3. Use of Content</h2>
+				<h2>3. Medical Disclaimer</h2>
+				<p>
+					The information available on this website is intended solely for
+					educational and informational purposes. It should not be considered
+					a substitute for professional medical advice, diagnosis, or treatment.
+				</p>
+
 				<ul>
-					<li>The content provided on this site is for informational purposes only.</li>
-					<li>Users must not rely solely on the site for medical decisions.</li>
-					<li>Reproduction or redistribution of site content requires prior written permission.</li>
+					<li>Always consult a qualified medical professional for health-related concerns.</li>
+					<li>Do not ignore professional medical advice because of information found on this website.</li>
+					<li>Jarurat Care Foundation does not provide direct medical treatment or diagnosis.</li>
 				</ul>
 
-				<h2>4. User Conduct</h2>
+				<h2>4. Eligibility</h2>
 				<p>
-					You agree not to post unlawful, abusive, libellous, or infringing
-					material. Jarurat Care reserves the right to remove content that
-					violates our policies or is harmful to the community.
+					By using this website you confirm that you are at least 18 years of age
+					or are accessing the website under the supervision of a parent or guardian.
 				</p>
 
-				<h2>5. Limitation of Liability</h2>
+				<h2>5. Acceptable Use</h2>
+				<p>Users agree not to:</p>
+
+				<ul>
+					<li>Use the website for any unlawful or fraudulent activity.</li>
+					<li>Post or transmit abusive, defamatory, misleading, or harmful content.</li>
+					<li>Attempt to gain unauthorized access to systems or user data.</li>
+					<li>Upload malware, viruses, or malicious software.</li>
+					<li>Impersonate another individual or organization.</li>
+				</ul>
+
+				<h2>6. User Content</h2>
 				<p>
-					To the maximum extent permitted by law, Jarurat Care Foundation will not
-					be liable for any indirect, incidental or consequential damages arising
-					from the use of the website.
+					If you submit messages, feedback, or other content through the website,
+					you grant Jarurat Care Foundation a non-exclusive, worldwide,
+					royalty-free license to use, display, and distribute such content
+					for the purpose of operating and improving the platform.
 				</p>
 
-				<h2>6. External Links</h2>
 				<p>
-					Our site may contain links to third-party resources. We are not
-					responsible for the content or practices of these external sites.
+					We reserve the right to remove or restrict content that violates
+					these Terms or is harmful to users or the community.
 				</p>
 
-				<h2>7. Changes to Terms</h2>
+				<h2>7. Donations</h2>
 				<p>
-					We may modify these Terms at any time. Significant changes will be
-					notified on this page with an updated "Last updated" date.
+					If donations are made through the website, they are voluntary
+					contributions supporting the mission and programs of Jarurat Care Foundation.
+					Payments are processed through secure third-party payment providers.
 				</p>
 
-				<h2>8. Governing Law</h2>
 				<p>
-					These Terms shall be governed by the laws of India. Any disputes will
-					be subject to the exclusive jurisdiction of the competent courts in India.
+					Refunds, if applicable, will be reviewed and handled on a case-by-case basis.
 				</p>
 
-				<h2>9. Contact</h2>
+				<h2>8. Intellectual Property</h2>
 				<p>
-					Questions about these Terms can be sent to:
+					All content on this website, including text, images, graphics,
+					logos, and design elements, is the property of Jarurat Care Foundation
+					unless otherwise stated.
+				</p>
+
+				<ul>
+					<li>Users may access and share content for personal and educational use.</li>
+					<li>Commercial use, reproduction, or redistribution requires written permission.</li>
+				</ul>
+
+				<h2>9. Privacy</h2>
+				<p>
+					Your use of this website is also governed by our Privacy Policy,
+					which explains how personal data is collected, processed,
+					and protected in accordance with applicable regulations,
+					including the Digital Personal Data Protection Act, 2023.
+				</p>
+
+				<h2>10. Third-Party Links</h2>
+				<p>
+					The website may include links to third-party platforms such as
+					social media pages, payment services, or informational resources.
+					Jarurat Care Foundation is not responsible for the content,
+					policies, or practices of these external websites.
+				</p>
+
+				<h2>11. Service Availability</h2>
+				<p>
+					We strive to maintain uninterrupted access to the website,
+					but we cannot guarantee that services will always be available.
+					The website may be temporarily unavailable due to maintenance,
+					technical issues, or updates.
+				</p>
+
+				<h2>12. Limitation of Liability</h2>
+				<p>
+					To the maximum extent permitted by law, Jarurat Care Foundation
+					and its affiliates shall not be liable for any indirect,
+					incidental, or consequential damages resulting from
+					the use or inability to use this website.
+				</p>
+
+				<h2>13. Indemnification</h2>
+				<p>
+					You agree to indemnify and hold harmless Jarurat Care Foundation,
+					its volunteers, partners, and affiliates from any claims,
+					damages, or liabilities resulting from your misuse of the website
+					or violation of these Terms.
+				</p>
+
+				<h2>14. Termination of Access</h2>
+				<p>
+					We reserve the right to restrict or terminate access to the website
+					if a user violates these Terms or engages in harmful activity.
+				</p>
+
+				<h2>15. Changes to Terms</h2>
+				<p>
+					These Terms may be updated periodically. Any updates will be posted
+					on this page with a revised “Last updated” date.
+					Continued use of the website indicates acceptance of the updated Terms.
+				</p>
+
+				<h2>16. Governing Law</h2>
+				<p>
+					These Terms shall be governed by and interpreted in accordance
+					with the laws of India. Any disputes relating to the website
+					shall fall under the jurisdiction of the competent courts in India.
+				</p>
+
+				<h2>17. Contact</h2>
+				<p>
+					If you have any questions regarding these Terms & Conditions,
+					please contact us at:
 					<a
 						href="mailto:Priyanka.joshi@jarurat.care"
 						class="text-[#1E40AF] hover:underline"
