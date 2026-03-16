@@ -46,6 +46,7 @@
 		"@splidejs/svelte-splide": "^0.2.9",
 		"buffer": "^6.0.3",
 		"clsx": "^2.1.1",
+		"firebase": "^12.10.0",
 		"lucide-svelte": "^0.416.0",
 		"marked": "^14.0.0",
 		"nanoid": "^5.0.7",

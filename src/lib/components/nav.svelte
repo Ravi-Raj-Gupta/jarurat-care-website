@@ -12,7 +12,7 @@
 		{ title: 'Home', href: '/' },
 		{ title: 'About Us', href: '/about-us' },
 		{ title: 'Get Involved', href: '/get-involved' },
-		{ title: 'News & Blogs', href: '/#news' },
+		{ title: 'News & Blogs', href: '/articles' },
 		{ title: 'Contact Us', href: '/contact-us' }
 	];
 </script>
