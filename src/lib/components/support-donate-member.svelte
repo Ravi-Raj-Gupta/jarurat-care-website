@@ -143,7 +143,6 @@
 		</div>
 	</div>
 </section>
-
 <!-- ================= BOTTOM STORY SLIDER ================= -->
 <section class="py-12 md:py-16 bg-white">
 	<div class="max-w-5xl mx-auto px-4 md:px-6 relative">
@@ -158,7 +157,8 @@
 				pauseOnHover: true
 			}}
 		>
-			<SplideTrack>
+			<!-- added leading-none here -->
+			<SplideTrack class="leading-none">
 				{#each sliderBottom as slide}
 					<SplideSlide>
 						{#if slide.type === 'image'}
@@ -166,7 +166,7 @@
 								<img
 									src={slide.img}
 									alt={slide.title}
-									class="w-full h-[260px] md:h-[360px] object-cover"
+									class="w-full h-[250px] md:h-[360px] object-cover block"
 								/>
 
 								<div class="absolute inset-0 bg-[#002944]/60 flex items-end">
