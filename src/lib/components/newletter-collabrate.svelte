@@ -64,22 +64,30 @@
 
 				<div class="flex gap-3 items-center">
 					<div class="w-4 h-4 flex gap-[1px]"><NextIcon /><NextIcon /></div>
-					<div class="text-sm">Join Jarurat Care Team</div>
+					<div class="text-sm">
+						<a href="/join-us">Join Jarurat Care Team</a>
+					</div>
 				</div>
 
 				<div class="flex gap-3 items-center">
 					<div class="w-4 h-4 flex gap-[1px]"><NextIcon /><NextIcon /></div>
-					<div class="text-sm">Become a Caregiver</div>
+					<div class="text-sm">
+						<a href="/contact-us">Become a Caregiver</a>
+					</div>
 				</div>
 
 				<div class="flex gap-3 items-center">
 					<div class="w-4 h-4 flex gap-[1px]"><NextIcon /><NextIcon /></div>
-					<div class="text-sm">Become a Mentor</div>
+					<div class="text-sm">
+						<a href="/contact-us">Become a Mentor</a>
+					</div>
 				</div>
 
 				<div class="flex gap-3 items-center">
 					<div class="w-4 h-4 flex gap-[1px]"><NextIcon /><NextIcon /></div>
-					<div class="text-sm">Donate Money</div>
+					<div class="text-sm">
+						<a href="/donate">Donate Money
+					</div>
 				</div>
 
 			</div>
