@@ -44,45 +44,6 @@
 
         </div>
 
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
-
-            {#if internships.length > 0}
-
-                {#each internships as job}
-
-                    <div class="bg-white rounded-2xl shadow-md p-6">
-
-                        <h3 class="font-bold text-lg text-primaryBlue">
-                            {job.title}
-                        </h3>
-
-                        <p class="mt-2 text-sm text-gray-600">
-                            {job.description}
-                        </p>
-
-                    </div>
-
-                {/each}
-
-            {:else}
-
-                <div class="bg-white rounded-2xl shadow-md p-6">
-
-                    <h3 class="font-bold text-lg text-primaryBlue">
-                        No Current Openings
-                    </h3>
-
-                    <p class="mt-2 text-sm text-gray-600">
-                        There are currently no internship opportunities available.
-                        Please check our Internshala page for future openings.
-                    </p>
-
-                </div>
-
-            {/if}
-
-        </div>
-
     </div>
 
 </section>

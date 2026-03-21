@@ -10,9 +10,9 @@
     >
 
         <!-- Gradient overlay for readability -->
-        <div class="absolute inset-0 bg-gradient-to-r from-white/95 via-white/80 to-transparent"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-white/50 via-white/25 to-transparent md:from-black/20 md:via-black/10 md:to-transparent"></div>
 
-        <div class="font-extrabold text-3xl text-white md:hidden flex justify-center items-center h-full relative">
+        <div class="font-extrabold text-3xl text-primaryBlue md:hidden flex justify-start items-end h-full relative px-6 pb-6">
             Join Us
         </div>
 
