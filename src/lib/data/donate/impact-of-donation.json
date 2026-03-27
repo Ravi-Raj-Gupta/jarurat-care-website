@@ -2,16 +2,16 @@
     {
         "title": "Provides emotional support",
         "content": "Your donation creates a safe, supportive space for cancer patients, offering comfort and connection.",
-        "imgSrc": "src/lib/assets/first.jpeg"
+        "imgSrc": "/first.jpeg"
     },
     {
         "title": "Access to expert care",
         "content": "Empowering patients with access to top medical advice ensures better treatment outcomes and helps shield them from misinformation.",
-        "imgSrc": "src/lib/assets/second.jpeg"
+        "imgSrc": "/second.jpeg"
     },
     {
         "title": "Makes a lasting impact",
         "content": "Nurturing cancer patients and their families will break the cycle of despair and help them navigate their journey with resilience and hope.",
-        "imgSrc": "src/lib/assets/third.jpeg"
+        "imgSrc": "/third.jpeg"
     }
 ]
