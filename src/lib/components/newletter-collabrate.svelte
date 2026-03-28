@@ -11,7 +11,7 @@
 
 			<div class="mb-8">
 				<h2 class="text-[#0D2460] font-bold text-xl md:text-2xl mb-3">
-					Subscribe to our Newsletter
+					Subscribe to our Nesletter
 				</h2>
 
 				<p class="text-sm text-[#0D2460]">
