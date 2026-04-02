@@ -210,7 +210,7 @@
 	<div class="max-w-7xl mx-auto px-6 mb-10">
 		<div class="flex items-end justify-between flex-wrap gap-4 pb-6 border-b-2 border-[#0155BD]">
 			<div>
-				<p class="text-[10px] font-black uppercase tracking-[0.3em] text-[#0155BD] mb-1">Jarurat Care</p>
+				<p class="text-[10px] font-black uppercase tracking-[0.3em] text-[#78C520] mb-1">Jarurat Care</p>
 				<h1
 					class="text-5xl md:text-6xl font-black text-[#0D2460] leading-none tracking-tight"
 					style="font-family:'DM Serif Display',serif;"
