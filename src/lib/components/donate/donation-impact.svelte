@@ -10,6 +10,7 @@
 	let autoplayTimer;
 
 	onMount(() => {
+	const startAutoplay = () => {
 		autoplayTimer = setInterval(() => {
 			const nextButton = sliderRoot?.querySelector('.splide__arrow--next');
 
@@ -17,13 +18,28 @@
 				nextButton.click();
 			}
 		}, 2500);
-	});
+	};
+
+	const stopAutoplay = () => {
+		if (autoplayTimer) {
+			clearInterval(autoplayTimer);
+		}
+	};
+
+	startAutoplay();
+
+	sliderRoot?.addEventListener('mouseenter', stopAutoplay);
+	sliderRoot?.addEventListener('mouseleave', startAutoplay);
+});
+
+
 
 	onDestroy(() => {
 		if (autoplayTimer) {
 			clearInterval(autoplayTimer);
 		}
 	});
+	
 
 	const splideOptions = {
 		type: 'loop',
