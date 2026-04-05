@@ -1,7 +1,9 @@
 <script>
 import { auth } from '$lib/firebase';
 import { createUserWithEmailAndPassword } from "firebase/auth";
+import { supabase } from '$lib/supabase';
 import Nav from "$lib/components/nav.svelte";
+
 let email = "";
 let password = "";
 let message = "";
@@ -31,7 +33,22 @@ return;
 
 try {
 
-await createUserWithEmailAndPassword(auth, email, password);
+const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
+
+// 🔹 Insert email into Supabase
+const { data, error } = await supabase
+  .from('user')
+  .insert([
+    {
+      email: email,
+      role: null
+    }
+  ])
+
+if (error) {
+  throw error
+}
 
 message = "Account created successfully!";
 

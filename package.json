@@ -45,6 +45,7 @@
 		"@iconify/svelte": "^4.0.2",
 		"@splidejs/splide": "^4.1.4",
 		"@splidejs/svelte-splide": "^0.2.9",
+		"@supabase/supabase-js": "^2.101.1",
 		"buffer": "^6.0.3",
 		"clsx": "^2.1.1",
 		"firebase": "^12.11.0",
