@@ -8,7 +8,6 @@
 	import { onMount } from "svelte";
 	import { Splide, SplideSlide } from "@splidejs/svelte-splide";
 	import priyankaWhiteBackgound from '$lib/assets/team-members/priyanka-whiteBackgound.png';
-	import ayush from '$lib/assets/team-members/ayush.png';
 
 	const items = [
 		{
@@ -32,8 +31,7 @@
 	];
 
 	const founders = [
-		{ image: priyankaWhiteBackgound, name: 'Priyanka Joshi' },
-		{ image: ayush, name: 'Ayush Anand' }
+		{ image: priyankaWhiteBackgound, name: 'Priyanka Joshi' }
 	];
 
 	let advisoryBoard = [];
@@ -116,19 +114,24 @@
 				options={{
 					type: 'loop',
 					perPage: 3,
-					gap: '1.5rem',
+					gap: '2rem',
 					autoplay: true,
-					interval: 2000,
+					interval: 3000,
 					pauseOnHover: true,
-					speed: 1000,
+					speed: 800,
 					arrows: false,
 					pagination: true,
+					padding: '1rem',
 					breakpoints: {
 						1024: {
-							perPage: 2
+							perPage: 2,
+							gap: '1.5rem',
+							padding: '0.5rem'
 						},
 						768: {
-							perPage: 1
+							perPage: 1,
+							gap: '1rem',
+							padding: '0'
 						}
 					}
 				}}
@@ -185,7 +188,7 @@
 
 	</div>
 
-	<div class="flex flex-col sm:flex-row justify-center items-center gap-10">
+	<div class="flex flex-col items-center justify-center gap-10">
 
 		{#each founders as founder}
 
