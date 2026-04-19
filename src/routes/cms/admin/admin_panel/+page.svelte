@@ -28,7 +28,7 @@ async function loadUsers() {
   loading = false;
 }
 
-// Select user (no redirect)
+// Select user
 function openUser(user) {
   selectedUser = user;
 }
@@ -46,6 +46,25 @@ async function saveRole(email) {
     alert("Error updating role");
   } else {
     alert("Updated successfully");
+    loadUsers();
+  }
+}
+
+// Delete user
+async function deleteUser(email) {
+  const confirmDelete = confirm("Are you sure you want to delete this user?");
+  if (!confirmDelete) return;
+
+  const { error } = await supabase
+    .from("user")
+    .delete()
+    .eq("email", email);
+
+  if (error) {
+    alert("Error deleting user");
+  } else {
+    alert("User deleted successfully");
+    selectedUser = null;
     loadUsers();
   }
 }
@@ -89,7 +108,7 @@ onMount(loadUsers);
     {/if}
   </div>
 
-  <!-- RIGHT SIDE (DETAIL VIEW) -->
+  <!-- RIGHT SIDE -->
   <div class="user-detail">
 
     {#if selectedUser}
@@ -115,6 +134,10 @@ onMount(loadUsers);
 
           <button on:click={() => saveRole(selectedUser.email)}>
             Save Role
+          </button>
+
+          <button class="delete" on:click={() => deleteUser(selectedUser.email)}>
+            Delete User
           </button>
         </div>
 
@@ -224,6 +247,15 @@ button {
 
 button:hover {
   background: #013e8a;
+}
+
+/* DELETE BUTTON */
+.delete {
+  background: #d93025;
+}
+
+.delete:hover {
+  background: #b3261e;
 }
 
 /* EMPTY STATE */
