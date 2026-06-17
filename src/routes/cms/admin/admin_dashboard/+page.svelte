@@ -1,637 +1,874 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { supabase } from '$lib/supabase';
-	import { RefreshCw, CheckCircle2, Trash2, Eye, Plus, Upload, X } from 'lucide-svelte';
+	import { goto } from '$app/navigation';
+	import Nav from '$lib/components/nav.svelte';
+	import { cmsSupabase } from '$lib/cmsSupabase';
+
+	type AuthorRequest = {
+		id: number;
+		user_id: string;
+		qualification: string;
+		research_area: string;
+		reason: string;
+		status: string;
+		created_at: string;
+		profiles?: {
+			full_name: string;
+			email: string;
+		};
+	};
 
 	type Article = {
 		id: number;
+		user_id: string;
+
+		title: string;
+		subtitle: string;
+
+		abstract: string;
+		keywords: string;
+
+		introduction: string;
+		methods: string;
+		results: string;
+		discussion: string;
+		conclusion: string;
+
+		funding: string;
+		ethics_statement: string;
+		acknowledgements: string;
+
+		status: string;
 		created_at: string;
-		title: string | null;
-		content: string | null;
-		image: string | null;
-		status: string | null;
-	};
+		updated_at: string;
 
-	let user = {
-		name: '',
-		email: '',
-		role: 'Admin'
-	};
-  let selectedArticle: Article | null = null;
-	let articles: Article[] = [];
-	let loading = true;
-	let savingId: number | null = null;
-	let errorMsg = '';
-	let activeFilter: 'all' | 'pending' | 'approved' = 'pending';
-
-	// form fields
-	let title = '';
-	let content = '';
-	let imageFile: File | null = null;
-	let previewUrl = '';
-	let submitting = false;
-	let formMessage = '';
-
-	async function loadUser() {
-		const { data, error } = await supabase.auth.getUser();
-
-		if (error || !data?.user) return;
-
-		const authUser = data.user;
-		user = {
-			name: authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'Admin',
-			email: authUser.email || '',
-			role: authUser.user_metadata?.role || 'Admin'
+		profiles?: {
+			full_name: string;
+			email: string;
 		};
-	}
- async function openArticle(article:     Article) {
-	selectedArticle = article;
-}
-	async function loadArticles() {
-		loading = true;
-		errorMsg = '';
+	};
 
-		const query = supabase
-			.from('articles')
-			.select('*')
-			.order('created_at', { ascending: false });
+	let user: any = null;
 
-		const { data, error } =
-			activeFilter === 'all'
-				? await query
-				: await query.eq('status', activeFilter);
+	let loading = true;
 
-		if (error) {
-			console.error(error);
-			errorMsg = error.message;
-			articles = [];
-		} else {
-			articles = data ?? [];
-		}
+	let activeTab = 'authors';
 
-		loading = false;
-	}
+	let authorRequests: AuthorRequest[] = [];
+	let articles: Article[] = [];
 
-	function handleImageChange(event: Event) {
-		const input = event.target as HTMLInputElement;
-		const file = input.files?.[0] ?? null;
+	let selectedArticle: Article | null = null;
 
-		imageFile = file;
+	onMount(async () => {
 
-		if (previewUrl) {
-			URL.revokeObjectURL(previewUrl);
-			previewUrl = '';
-		}
+		const {
+			data: { user: authUser }
+		} = await cmsSupabase.auth.getUser();
 
-		if (file) {
-			previewUrl = URL.createObjectURL(file);
-		}
-	}
-
-	async function uploadImage(file: File) {
-		const fileName = `${Date.now()}-${file.name}`;
-
-		const { error: uploadError } = await supabase.storage
-			.from('articles')
-			.upload(fileName, file);
-
-		if (uploadError) {
-			throw new Error(uploadError.message);
-		}
-
-		const { data } = supabase.storage.from('articles').getPublicUrl(fileName);
-		return data.publicUrl;
-	}
-
-	async function createArticle() {
-		formMessage = '';
-
-		if (!title.trim() || !content.trim()) {
-			formMessage = 'Title and content are required.';
+		if (!authUser) {
+			goto('/cms/login');
 			return;
 		}
 
-		submitting = true;
+		user = authUser;
 
-		try {
-			let imageUrl = null;
+		const { data: profile } = await cmsSupabase
+			.from('profiles')
+			.select('role')
+			.eq('id', authUser.id)
+			.single();
 
-			if (imageFile) {
-				imageUrl = await uploadImage(imageFile);
-			}
-
-			const { error } = await supabase.from('articles').insert([
-				{
-					title: title.trim(),
-					content: content.trim(),
-					image: imageUrl,
-					status: 'pending'
-				}
-			]);
-
-			if (error) throw error;
-
-			formMessage = 'Article added successfully.';
-			title = '';
-			content = '';
-			imageFile = null;
-
-			if (previewUrl) {
-				URL.revokeObjectURL(previewUrl);
-				previewUrl = '';
-			}
-
-			await loadArticles();
-		} catch (err: any) {
-			console.error(err);
-			formMessage = err.message || 'Failed to add article.';
-		} finally {
-			submitting = false;
+		if (profile?.role !== 'admin') {
+			goto('/cms/login');
+			return;
 		}
-	}
 
-	async function approveArticle(id: number) {
-		savingId = id;
-		const { error } = await supabase.from('articles').update({ status: 'approved' }).eq('id', id);
-
-		if (error) {
-			alert(error.message);
-		} else {
-			await loadArticles();
-		}
-		savingId = null;
-	}
-
-	async function deleteArticle(id: number) {
-		const ok = confirm('Delete this article permanently?');
-		if (!ok) return;
-
-		savingId = id;
-		const { error } = await supabase.from('articles').delete().eq('id', id);
-
-		if (error) {
-			alert(error.message);
-		} else {
-			await loadArticles();
-		}
-		savingId = null;
-	}
-
-	function formatDate(value: string | null | undefined) {
-		if (!value) return '';
-		return new Intl.DateTimeFormat('en-IN', {
-			day: 'numeric',
-			month: 'short',
-			year: 'numeric'
-		}).format(new Date(value));
-	}
-
-	onMount(async () => {
-		await loadUser();
+		await loadAuthorRequests();
 		await loadArticles();
+
+		loading = false;
+
 	});
+
+	async function loadAuthorRequests() {
+
+		const { data } = await cmsSupabase
+
+			.from('author_requests')
+
+			.select(`
+				*,
+				profiles:user_id(
+					full_name,
+					email
+				)
+			`)
+
+			.eq('status', 'pending')
+
+			.order('created_at', {
+				ascending: false
+			});
+
+		authorRequests = data ?? [];
+
+	}
+
+	async function loadArticles() {
+
+		const { data } = await cmsSupabase
+
+			.from('research_articles')
+
+			.select(`
+				*,
+				profiles:user_id(
+					full_name,
+					email
+				)
+			`)
+
+			.eq('status', 'submitted')
+
+			.order('created_at', {
+				ascending: false
+			});
+
+		articles = data ?? [];
+
+	}
+
+	async function approveAuthor(request: AuthorRequest) {
+
+		await cmsSupabase
+
+			.from('profiles')
+
+			.update({
+				role: 'author'
+			})
+
+			.eq('id', request.user_id);
+
+		await cmsSupabase
+
+			.from('author_requests')
+
+			.update({
+				status: 'approved'
+			})
+
+			.eq('id', request.id);
+
+		await loadAuthorRequests();
+
+	}
+
+	async function rejectAuthor(request: AuthorRequest) {
+
+		await cmsSupabase
+
+			.from('author_requests')
+
+			.update({
+				status: 'rejected'
+			})
+
+			.eq('id', request.id);
+
+		await loadAuthorRequests();
+
+	}
+
+	async function approveArticle(article: Article) {
+
+		await cmsSupabase
+
+			.from('research_articles')
+
+			.update({
+
+				status: 'published',
+
+				updated_at: new Date().toISOString()
+
+			})
+
+			.eq('id', article.id);
+
+		await loadArticles();
+
+		selectedArticle = null;
+
+	}
+
+	async function rejectArticle(article: Article) {
+
+		await cmsSupabase
+
+			.from('research_articles')
+
+			.update({
+
+				status: 'rejected',
+
+				updated_at: new Date().toISOString()
+
+			})
+
+			.eq('id', article.id);
+
+		await loadArticles();
+
+		selectedArticle = null;
+
+	}
+
+	async function requestChanges(article: Article) {
+
+		await cmsSupabase
+
+			.from('research_articles')
+
+			.update({
+
+				status: 'changes_requested',
+
+				updated_at: new Date().toISOString()
+
+			})
+
+			.eq('id', article.id);
+
+		await loadArticles();
+
+		selectedArticle = null;
+
+	}
+
+	function openArticle(article: Article) {
+
+		selectedArticle = article;
+
+	}
+
+	function formatDate(date: string) {
+
+		return new Date(date).toLocaleDateString(
+			'en-IN',
+			{
+				day: 'numeric',
+				month: 'short',
+				year: 'numeric'
+			}
+		);
+
+	}
+
+	async function logout() {
+
+		await cmsSupabase.auth.signOut();
+
+		goto('/cms/login');
+
+	}
 </script>
 
+<Nav />
+
 <div class="dashboard">
+
 	<div class="topbar">
+
 		<div>
 			<h1>Admin Dashboard</h1>
-			<p>Approve, add, review, and delete articles from Supabase.</p>
+			<p class="welcome">
+				Welcome, {user?.email?.split("@")[0]}
+			</p>
 		</div>
 
-		<button class="refresh" on:click={loadArticles}>
-			<RefreshCw size={16} />
-			Refresh
+		<div style="display:flex;gap:12px;align-items:center;">
+
+			<div class="pill">
+				Author Requests : {authorRequests.length}
+			</div>
+
+			<div class="pill">
+				Articles : {articles.length}
+			</div>
+
+			<button
+				class="btn-logout"
+				on:click={logout}
+			>
+				Logout
+			</button>
+
+		</div>
+
+	</div>
+
+	<div class="tabs">
+
+		<button
+			class:active={activeTab==="authors"}
+			on:click={() => activeTab="authors"}
+		>
+			Author Requests
 		</button>
+
+		<button
+			class:active={activeTab==="articles"}
+			on:click={() => activeTab="articles"}
+		>
+			Article Review
+		</button>
+
 	</div>
 
-	<div class="card user-card">
-		<h3>Logged in as</h3>
-		<p><strong>Name:</strong> {user.name || 'Loading...'}</p>
-		<p><strong>Email:</strong> {user.email || '-'}</p>
-		<p><strong>Role:</strong> {user.role}</p>
-	</div>
+	<div class="layout">
 
-	<div class="card">
-		<h3>Add Article</h3>
+		<!-- LEFT PANEL -->
 
-		<div class="form-grid">
-			<div class="field">
-				<label>Title</label>
-				<input bind:value={title} placeholder="Article title" />
-			</div>
+		<section>
 
-			<div class="field full">
-				<label>Description</label>
-				<textarea bind:value={content} rows="6" placeholder="Write the article content..."></textarea>
-			</div>
+			{#if loading}
 
-			<div class="field full">
-				<label>Image</label>
-				<input type="file" accept="image/*" on:change={handleImageChange} />
-			</div>
-
-			{#if previewUrl}
-				<div class="preview-wrap full">
-					<img src={previewUrl} alt="Preview" class="preview" />
-					<button class="remove-preview" on:click={() => { imageFile = null; URL.revokeObjectURL(previewUrl); previewUrl = ''; }}>
-						<X size={14} />
-						Remove
-					</button>
+				<div class="card">
+					Loading...
 				</div>
-			{/if}
-		</div>
 
-		<button class="submit" on:click={createArticle} disabled={submitting}>
-			<Plus size={16} />
-			{submitting ? 'Adding...' : 'Add Article'}
-		</button>
+			{:else if activeTab==="authors"}
 
-		{#if formMessage}
-			<p class="message">{formMessage}</p>
-		{/if}
-	</div>
+				<h3 class="heading">
+					Pending Author Requests
+				</h3>
 
-	<div class="filters">
-		<button class:active={activeFilter === 'pending'} on:click={() => { activeFilter = 'pending'; loadArticles(); }}>
-			Pending
-		</button>
-		<button class:active={activeFilter === 'approved'} on:click={() => { activeFilter = 'approved'; loadArticles(); }}>
-			Approved
-		</button>
-		<button class:active={activeFilter === 'all'} on:click={() => { activeFilter = 'all'; loadArticles(); }}>
-			All
-		</button>
-	</div>
+				{#if authorRequests.length===0}
 
-	{#if loading}
-		<div class="card">Loading articles…</div>
-	{:else if errorMsg}
-		<div class="card error">{errorMsg}</div>
-	{:else if articles.length === 0}
-		<div class="card">No articles found.</div>
-	{:else}
-		<div class="grid">
-			{#each articles as article}
-				<div class="article-card">
-					{#if article.image}
-						<img src={article.image} alt={article.title ?? 'Article image'} class="thumb" />
-					{/if}
+					<div class="card">
+						No pending requests.
+					</div>
 
-					<div class="content">
-						<div class="meta">
-							<span class="status {article.status ?? 'pending'}">{article.status ?? 'pending'}</span>
-							<span>{formatDate(article.created_at)}</span>
-						</div>
+				{:else}
 
-						<h3>{article.title ?? 'Untitled article'}</h3>
-						<p>{article.content ? article.content.slice(0, 180) : 'No content available.'}</p>
+					{#each authorRequests as request}
 
-						<div class="actions">
-							{#if article.status !== 'approved'}
+						<div class="card request-card">
+
+							<h3>
+								{request.profiles?.full_name}
+							</h3>
+
+							<p>
+								<strong>Email :</strong>
+								{request.profiles?.email}
+							</p>
+
+							<p>
+								<strong>Qualification :</strong>
+								{request.qualification}
+							</p>
+
+							<p>
+								<strong>Research Area :</strong>
+								{request.research_area}
+							</p>
+
+							<p class="reason">
+								{request.reason}
+							</p>
+
+							<div class="actions">
+
 								<button
 									class="approve"
-									disabled={savingId === article.id}
-									on:click={() => approveArticle(article.id)}
+									on:click={() => approveAuthor(request)}
 								>
-									<CheckCircle2 size={16} />
 									Approve
 								</button>
-							{/if}
 
-							<button class="view" on:click={() => openArticle(article)}>
-	<Eye size={16} />
-	View
-</button>
+								<button
+									class="reject"
+									on:click={() => rejectAuthor(request)}
+								>
+									Reject
+								</button>
 
-							<button
-								class="delete"
-								disabled={savingId === article.id}
-								on:click={() => deleteArticle(article.id)}
-							>
-								<Trash2 size={16} />
-								Delete
-							</button>
+							</div>
+
 						</div>
+
+					{/each}
+
+				{/if}
+
+			{:else}
+
+				<h3 class="heading">
+					Submitted Articles
+				</h3>
+
+				{#if articles.length===0}
+
+					<div class="card">
+						No submitted articles.
 					</div>
+
+				{:else}
+
+					{#each articles as article}
+
+						<div
+							class="card article-card"
+							on:click={() => openArticle(article)}
+						>
+
+							<h3>
+								{article.title}
+							</h3>
+
+							<p>
+
+								<strong>Author :</strong>
+
+								{article.profiles?.full_name}
+
+							</p>
+
+							<p>
+
+								<strong>Date :</strong>
+
+								{formatDate(article.created_at)}
+
+							</p>
+
+							<span class="status">
+								{article.status}
+							</span>
+
+						</div>
+
+					{/each}
+
+				{/if}
+
+			{/if}
+
+		</section>
+
+		<!-- RIGHT PANEL -->
+
+		<section class="card preview">
+
+			{#if activeTab==="articles"}
+
+				{#if selectedArticle}
+
+					<h2>
+
+						{selectedArticle.title}
+
+					</h2>
+
+					{#if selectedArticle.subtitle}
+
+						<p class="subtitle">
+
+							{selectedArticle.subtitle}
+
+						</p>
+
+					{/if}
+
+					<div class="section">
+
+						<h4>Abstract</h4>
+
+						<p>
+							{selectedArticle.abstract}
+						</p>
+
+					</div>
+
+					<div class="section">
+
+						<h4>Introduction</h4>
+
+						<p>
+							{selectedArticle.introduction}
+						</p>
+
+					</div>
+
+					<div class="section">
+
+						<h4>Methods</h4>
+
+						<p>
+							{selectedArticle.methods}
+						</p>
+
+					</div>
+
+					<div class="section">
+
+						<h4>Results</h4>
+
+						<p>
+							{selectedArticle.results}
+						</p>
+
+					</div>
+
+					<div class="section">
+
+						<h4>Discussion</h4>
+
+						<p>
+							{selectedArticle.discussion}
+						</p>
+
+					</div>
+
+					<div class="section">
+
+						<h4>Conclusion</h4>
+
+						<p>
+							{selectedArticle.conclusion}
+						</p>
+
+					</div>
+
+					<div class="review-actions">
+
+						<button
+							class="approve"
+							on:click={() => approveArticle(selectedArticle)}
+						>
+							Publish
+						</button>
+
+						<button
+							class="changes"
+							on:click={() => requestChanges(selectedArticle)}
+						>
+							Request Changes
+						</button>
+
+						<button
+							class="reject"
+							on:click={() => rejectArticle(selectedArticle)}
+						>
+							Reject
+						</button>
+
+					</div>
+
+				{:else}
+
+					<div class="empty">
+
+						<h3>
+							Select an article
+						</h3>
+
+						<p>
+							Choose an article from the left.
+						</p>
+
+					</div>
+
+				{/if}
+
+			{:else}
+
+				<div class="empty">
+
+					<h3>
+						Author Requests
+					</h3>
+
+					<p>
+
+						Approve or reject requests from the left panel.
+
+					</p>
+
 				</div>
-			{/each}
-		</div>
-	{/if}
-</div>
-{#if selectedArticle}
-	<div class="card" style="margin-top:20px;">
-		<div style="display:flex; justify-content:space-between; align-items:center;">
-			<h3>{selectedArticle.title}</h3>
-			<button
-				class="remove-preview"
-				on:click={() => (selectedArticle = null)}
-			>
-				<X size={14} />
-				Close
-			</button>
-		</div>
 
-		<p style="color:#6b7280; font-size:12px;">
-			{formatDate(selectedArticle.created_at)}
-		</p>
+			{/if}
 
-		{#if selectedArticle.image}
-			<img
-				src={selectedArticle.image}
-				alt="preview"
-				style="width:100%; max-height:350px; object-fit:cover; border-radius:12px; margin:10px 0;"
-			/>
-		{/if}
+		</section>
 
-		<p style="white-space:pre-line; line-height:1.8; color:#444;">
-			{selectedArticle.content}
-		</p>
 	</div>
-{/if}
+
+</div>
+
 <style>
 	.dashboard {
 		padding: 40px;
-		font-family: Arial, sans-serif;
-		background: #f6f9ff;
+		background: #f4f9ff;
 		min-height: 100vh;
+		font-family: "DM Sans", sans-serif;
 	}
-
 	.topbar {
 		display: flex;
 		justify-content: space-between;
-		align-items: center;
-		gap: 16px;
-		margin-bottom: 20px;
+		align-items: flex-end;
+		margin-bottom: 24px;
 	}
-
 	h1 {
-		color: #2c3e50;
-		margin: 0 0 8px;
-	}
-
-	p {
 		margin: 0;
-		color: #5b6472;
+		font-size: 30px;
+		font-weight: 900;
+		color: #0d2460;
 	}
-
+	.welcome {
+		color: #64748b;
+		margin-top: 6px;
+	}
+	.tabs {
+		display: flex;
+		gap: 12px;
+		margin-bottom: 24px;
+	}
+	.tabs button {
+		background: white;
+		border: 1px solid #d8e8fa;
+		padding: 12px 20px;
+		border-radius: 10px;
+		cursor: pointer;
+		font-weight: 700;
+		color: #0155bd;
+		transition: .2s;
+	}
+	.tabs button.active {
+		background: #0155bd;
+		color: white;
+	}
+	.layout {
+		display: grid;
+		grid-template-columns: 420px 1fr;
+		gap: 24px;
+		align-items: start;
+	}
 	.card {
 		background: white;
+		border-radius: 18px;
 		padding: 20px;
-		margin-bottom: 20px;
-		border-radius: 12px;
-		box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+		border: 1px solid #e8eef7;
+		box-shadow: 0 8px 24px rgba(0,0,0,.05);
 	}
-
-	.user-card {
-		max-width: 420px;
-	}
-
-	.refresh,
-	.filters button,
-	.actions button,
-	.submit,
-	.remove-preview {
-		border: none;
-		cursor: pointer;
-		border-radius: 10px;
-		font-weight: 700;
-		transition: 0.2s ease;
-		display: inline-flex;
-		align-items: center;
-		gap: 8px;
-	}
-
-	.refresh {
-		background: #0155bd;
-		color: white;
-		padding: 10px 16px;
-	}
-
-	.refresh:hover {
-		background: #0d2460;
-	}
-
-	.filters {
-		display: flex;
-		gap: 10px;
-		margin-bottom: 20px;
-		flex-wrap: wrap;
-	}
-
-	.filters button {
-		background: white;
+	.heading {
+		margin-bottom: 18px;
+		font-size: 22px;
 		color: #0d2460;
-		padding: 10px 16px;
-		border: 1px solid #d8e8fa;
 	}
-
-	.filters button.active {
-		background: #0155bd;
-		color: white;
+	.request-card,
+	.article-card {
+		margin-bottom: 18px;
+		cursor: pointer;
+		transition: .2s;
+	}
+	.request-card:hover,
+	.article-card:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 12px 28px rgba(1,85,189,.12);
 		border-color: #0155bd;
 	}
-
-	.form-grid {
-		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: 16px;
-		margin-top: 14px;
-	}
-
-	.field {
-		display: flex;
-		flex-direction: column;
-		gap: 6px;
-	}
-
-	.field.full,
-	.preview-wrap.full {
-		grid-column: 1 / -1;
-	}
-
-	label {
-		font-size: 13px;
-		font-weight: 700;
+	.request-card h3,
+	.article-card h3 {
+		margin: 0 0 12px;
 		color: #0d2460;
+		font-size: 20px;
 	}
-
-	input,
-	textarea {
-		width: 100%;
-		padding: 12px 14px;
-		border: 1px solid #d8e8fa;
-		border-radius: 10px;
-		font: inherit;
-		background: #fff;
-	}
-
-	textarea {
-		resize: vertical;
-		min-height: 140px;
-	}
-
-	.submit {
-		margin-top: 16px;
-		background: #0155bd;
-		color: white;
-		padding: 12px 18px;
-	}
-
-	.submit:hover {
-		background: #0d2460;
-	}
-
-	.submit:disabled {
-		opacity: 0.7;
-		cursor: not-allowed;
-	}
-
-	.message {
-		margin-top: 12px;
-		font-weight: 700;
-		color: #0d2460;
-	}
-
-	.preview-wrap {
-		position: relative;
-	}
-
-	.preview {
-		width: 100%;
-		max-height: 260px;
-		object-fit: cover;
-		border-radius: 12px;
-		border: 1px solid #d8e8fa;
-	}
-
-	.remove-preview {
-		position: absolute;
-		top: 12px;
-		right: 12px;
-		background: rgba(13, 36, 96, 0.9);
-		color: white;
-		padding: 8px 12px;
-	}
-
-	.grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-		gap: 20px;
-	}
-
-	.article-card {
-		background: white;
-		border-radius: 16px;
-		overflow: hidden;
-		box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
-		border: 1px solid #e8eef7;
-	}
-
-	.thumb {
-		width: 100%;
-		height: 200px;
-		object-fit: cover;
-		display: block;
-	}
-
-	.content {
-		padding: 18px;
-	}
-
-	.meta {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		gap: 10px;
-		font-size: 12px;
-		color: #6b7280;
-		margin-bottom: 10px;
-	}
-
-	.status {
-		padding: 4px 10px;
-		border-radius: 999px;
-		font-size: 11px;
-		font-weight: 800;
-		text-transform: uppercase;
-	}
-
-	.status.pending {
-		background: #fff4cc;
-		color: #8a6500;
-	}
-
-	.status.approved {
-		background: #e6f8e9;
-		color: #167a33;
-	}
-
-	h3 {
-		margin: 0 0 10px;
-		color: #0d2460;
-		font-size: 18px;
-	}
-
-	.content p {
+	.request-card p,
+	.article-card p {
+		margin: 8px 0;
 		line-height: 1.6;
-		color: #444;
+		color: #475569;
 	}
-
+	.reason {
+		margin-top: 14px;
+		background: #f8fbff;
+		padding: 14px;
+		border-radius: 10px;
+		border-left: 4px solid #0155bd;
+	}
 	.actions {
 		display: flex;
-		flex-wrap: wrap;
 		gap: 10px;
-		margin-top: 16px;
+		margin-top: 20px;
+		flex-wrap: wrap;
 	}
-
-	.actions button {
-		padding: 10px 14px;
+	.status {
+		display: inline-block;
+		margin-top: 12px;
+		padding: 6px 12px;
+		border-radius: 999px;
+		background: #dbeafe;
+		color: #1d4ed8;
+		font-size: 12px;
+		font-weight: 700;
+		text-transform: uppercase;
+	}
+	.preview {
+		position: sticky;
+		top: 24px;
+		min-height: 650px;
+	}
+	.preview h2 {
+		margin: 0;
+		font-size: 28px;
+		color: #0d2460;
+	}
+	.subtitle {
+		margin-top: 8px;
+		color: #64748b;
+		font-style: italic;
+	}
+	.section {
+		margin-top: 28px;
+		padding-top: 20px;
+		border-top: 1px solid #edf2f7;
+	}
+	.section:first-of-type {
+		border-top: none;
+		padding-top: 0;
+		margin-top: 24px;
+	}
+	.section h4 {
+		margin: 0 0 10px;
+		font-size: 18px;
+		font-weight: 800;
+		color: #0d2460;
+	}
+	.section p {
+		margin: 0;
+		color: #475569;
+		line-height: 1.8;
+		white-space: pre-wrap;
+	}
+	.review-actions {
+		display: flex;
+		gap: 12px;
+		margin-top: 30px;
+		flex-wrap: wrap;
+	}
+	.approve,
+	.reject,
+	.changes,
+	.btn-logout {
+		border: none;
+		border-radius: 10px;
+		padding: 12px 18px;
+		font-size: 14px;
+		font-weight: 700;
+		cursor: pointer;
+		transition: .2s;
+	}
+	.approve {
+		background: #16a34a;
 		color: white;
 	}
-
-	.approve {
-		background: #22a06b;
-	}
-
 	.approve:hover {
-		background: #1b855a;
+		background: #15803d;
 	}
-
-	.view {
-		background: #0155bd;
-	}
-
-	.view:hover {
-		background: #0d2460;
-	}
-
-	.delete {
+	.reject {
 		background: #dc2626;
+		color: white;
 	}
-
-	.delete:hover {
+	.reject:hover {
 		background: #b91c1c;
 	}
-
-	.error {
-		color: #b91c1c;
-		background: #fff1f1;
-		border: 1px solid #fecaca;
+	.changes {
+		background: #f59e0b;
+		color: white;
 	}
-
+	.changes:hover {
+		background: #d97706;
+	}
+	.btn-logout {
+		background: #f1f5f9;
+		color: #374151;
+		border: 1px solid #e2e8f0;
+	}
+	.btn-logout:hover {
+		background: #e2e8f0;
+	}
+	.pill {
+		background: white;
+		border: 1px solid #d8e8fa;
+		padding: 10px 14px;
+		border-radius: 999px;
+		color: #0155bd;
+		font-weight: 700;
+	}
+	.empty {
+		min-height: 500px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-direction: column;
+		text-align: center;
+		color: #64748b;
+	}
+	.empty h3 {
+		margin-bottom: 8px;
+		color: #0d2460;
+		font-size: 24px;
+	}
+	.empty p {
+		max-width: 300px;
+		line-height: 1.7;
+	}
+	::-webkit-scrollbar {
+		width: 8px;
+	}
+	::-webkit-scrollbar-thumb {
+		background: #cbd5e1;
+		border-radius: 10px;
+	}
+	::-webkit-scrollbar-thumb:hover {
+		background: #94a3b8;
+	}
+	@media (max-width: 1100px) {
+		.layout {
+			grid-template-columns: 1fr;
+		}
+		.preview {
+			position: static;
+			min-height: auto;
+		}
+	}
 	@media (max-width: 700px) {
 		.dashboard {
 			padding: 20px;
 		}
-
 		.topbar {
 			flex-direction: column;
 			align-items: flex-start;
+			gap: 16px;
 		}
-
-		.form-grid {
-			grid-template-columns: 1fr;
+		.tabs {
+			flex-wrap: wrap;
+		}
+		.review-actions,
+		.actions {
+			flex-direction: column;
+		}
+		.review-actions button,
+		.actions button {
+			width: 100%;
+		}
+		.preview h2 {
+			font-size: 22px;
+		}
+		h1 {
+			font-size: 26px;
 		}
 	}
 </style>

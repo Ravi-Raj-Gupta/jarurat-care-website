@@ -1,40 +1,68 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { supabase } from '$lib/supabase';
+	import { cmsSupabase } from '$lib/cmsSupabase';
+	import { goto } from '$app/navigation';
+	import Nav from '$lib/components/nav.svelte';
 
 	type Article = {
-		id: number;
+		id: string;
 		title: string;
-		content: string;
-		image: string | null;
-		status: string | null;
+		subtitle: string | null;
+		abstract: string | null;
+		introduction: string | null;
+		status: string;
 		created_at: string;
 	};
 
 	let user: any = null;
 	let articles: Article[] = [];
 	let loading = true;
-
 	let selectedArticle: Article | null = null;
 
+	// Form fields
 	let title = '';
-	let content = '';
-	let imageFile: File | null = null;
-	let previewUrl = '';
+	let subtitle = '';
+	let abstract = '';
+	let introduction = '';
+	let methods = '';
+	let results = '';
+	let discussion = '';
+	let conclusion = '';
 	let submitting = false;
 	let message = '';
+	let showForm = false;
 
-	async function loadUser() {
-		const { data } = await supabase.auth.getUser();
-		user = data.user;
-	}
+	onMount(async () => {
+		const { data: { user: u } } = await cmsSupabase.auth.getUser();
+
+		if (!u) {
+			goto('/cms/login');
+			return;
+		}
+
+		// Role check
+		const { data: profile } = await cmsSupabase
+			.from('profiles')
+			.select('role')
+			.eq('id', u.id)
+			.single();
+
+		if (profile?.role !== 'author') {
+			goto('/cms/pending');
+			return;
+		}
+
+		user = u;
+		await loadArticles();
+	});
 
 	async function loadArticles() {
 		loading = true;
 
-		const { data, error } = await supabase
-			.from('articles')
+		const { data, error } = await cmsSupabase
+			.from('research_articles')
 			.select('*')
+			.eq('user_id', user.id)
 			.order('created_at', { ascending: false });
 
 		if (error) {
@@ -50,92 +78,83 @@
 		loading = false;
 	}
 
-	function handleImage(e: Event) {
-		const file = (e.target as HTMLInputElement).files?.[0];
-		imageFile = file || null;
-
-		if (previewUrl) URL.revokeObjectURL(previewUrl);
-		if (file) previewUrl = URL.createObjectURL(file);
-	}
-
-	async function uploadImage(file: File) {
-		const fileName = `${Date.now()}-${file.name}`;
-
-		const { error } = await supabase.storage
-			.from('articles')
-			.upload(fileName, file);
-
-		if (error) throw error;
-
-		const { data } = supabase.storage.from('articles').getPublicUrl(fileName);
-		return data.publicUrl;
-	}
-
-	async function addArticle() {
-		if (!title.trim() || !content.trim()) {
-			message = 'Title and content are required';
+	async function saveDraft() {
+		if (!title.trim()) {
+			message = 'Title is required';
+			return;
+		}
+		if (!abstract.trim()) {
+			message = 'Abstract is required';
 			return;
 		}
 
 		submitting = true;
 		message = '';
 
-		try {
-			let imageUrl = null;
-
-			if (imageFile) {
-				imageUrl = await uploadImage(imageFile);
-			}
-
-			const { error } = await supabase.from('articles').insert([
-				{
-					title: title.trim(),
-					content: content.trim(),
-					image: imageUrl,
-					status: 'pending'
-				}
-			]);
-
-			if (error) throw error;
-
-			message = 'Submitted for approval';
-			title = '';
-			content = '';
-			imageFile = null;
-
-			if (previewUrl) {
-				URL.revokeObjectURL(previewUrl);
-				previewUrl = '';
-			}
-
-			await loadArticles();
-		} catch (err: any) {
-			message = err.message || 'Something went wrong';
-		}
+		const { error } = await cmsSupabase.from('research_articles').insert([{
+			user_id: user.id,
+			title: title.trim(),
+			subtitle: subtitle.trim() || null,
+			abstract: abstract.trim(),
+			introduction: introduction.trim() || null,
+			methods: methods.trim() || null,
+			results: results.trim() || null,
+			discussion: discussion.trim() || null,
+			conclusion: conclusion.trim() || null,
+			status: 'draft'
+		}]);
 
 		submitting = false;
+
+		if (error) {
+			message = error.message;
+			return;
+		}
+
+		message = '✅ Draft saved!';
+		title = '';
+		subtitle = '';
+		abstract = '';
+		introduction = '';
+		methods = '';
+		results = '';
+		discussion = '';
+		conclusion = '';
+		showForm = false;
+		await loadArticles();
 	}
 
-	function openArticle(article: Article) {
-		selectedArticle = article;
-		window.scrollTo({ top: 0, behavior: 'smooth' });
+	async function submitArticle(id: string) {
+		if (!confirm('Submit this article for review?')) return;
+
+		const { error } = await cmsSupabase
+			.from('research_articles')
+			.update({ status: 'submitted', updated_at: new Date().toISOString() })
+			.eq('id', id);
+
+		if (error) {
+			alert(error.message);
+			return;
+		}
+
+		await loadArticles();
 	}
 
-	function deleteArticle(id: number) {
+	async function deleteArticle(id: string) {
 		if (!confirm('Delete this article?')) return;
 
-		supabase
-			.from('articles')
+		const { error } = await cmsSupabase
+			.from('research_articles')
 			.delete()
-			.eq('id', id)
-			.then(({ error }) => {
-				if (error) {
-					alert(error.message);
-				} else {
-					loadArticles();
-					if (selectedArticle?.id === id) selectedArticle = articles[0] ?? null;
-				}
-			});
+			.eq('id', id);
+
+		if (error) {
+			alert(error.message);
+			return;
+		}
+
+		if (selectedArticle?.id === id) selectedArticle = null;
+		await loadArticles();
 	}
 
 	function formatDate(date: string) {
@@ -146,11 +165,25 @@
 		});
 	}
 
-	onMount(async () => {
-		await loadUser();
-		await loadArticles();
-	});
+	function getStatusColor(status: string) {
+		switch (status) {
+			case 'draft': return 'status-draft';
+			case 'submitted': return 'status-submitted';
+			case 'under_review': return 'status-review';
+			case 'changes_requested': return 'status-changes';
+			case 'published': return 'status-published';
+			case 'rejected': return 'status-rejected';
+			default: return '';
+		}
+	}
+
+	async function logout() {
+		await cmsSupabase.auth.signOut();
+		goto('/cms/login');
+	}
 </script>
+
+<Nav />
 
 <div class="dashboard">
 	<div class="topbar">
@@ -158,74 +191,114 @@
 			<h1>Author Dashboard</h1>
 			<p class="welcome">Welcome, {user?.email?.split('@')[0] || '...'}</p>
 		</div>
-		<div class="pill">Articles: {articles.length}</div>
+		<div style="display:flex;gap:12px;align-items:center;">
+			<div class="pill">Articles: {articles.length}</div>
+			<button class="btn-logout" on:click={logout}>Logout</button>
+		</div>
 	</div>
 
-	<div class="layout">
-		<!-- LEFT: CREATE FORM -->
-		<section class="card form-card">
-			<h3>Create Article</h3>
+	<!-- New Article Button -->
+	<div style="margin-bottom:20px;">
+		<button class="btn-new" on:click={() => showForm = !showForm}>
+			{showForm ? '✕ Cancel' : '+ New Article'}
+		</button>
+	</div>
 
+	<!-- Create Form -->
+	{#if showForm}
+		<div class="card form-card" style="margin-bottom:24px;">
+			<h3>Create Research Article</h3>
+
+			<label>Title *</label>
 			<input placeholder="Article title" bind:value={title} />
-			<textarea rows="7" placeholder="Write your content..." bind:value={content}></textarea>
-			<input type="file" accept="image/*" on:change={handleImage} />
 
-			{#if previewUrl}
-				<img src={previewUrl} class="preview" alt="Preview" />
-			{/if}
+			<label>Subtitle</label>
+			<input placeholder="Subtitle (optional)" bind:value={subtitle} />
 
-			<button on:click={addArticle} disabled={submitting}>
-				{submitting ? 'Publishing...' : 'Publish'}
+			<label>Abstract *</label>
+			<textarea rows="4" placeholder="Abstract..." bind:value={abstract}></textarea>
+
+			<label>Introduction</label>
+			<textarea rows="4" placeholder="Introduction..." bind:value={introduction}></textarea>
+
+			<label>Methods</label>
+			<textarea rows="4" placeholder="Methods..." bind:value={methods}></textarea>
+
+			<label>Results</label>
+			<textarea rows="4" placeholder="Results..." bind:value={results}></textarea>
+
+			<label>Discussion</label>
+			<textarea rows="4" placeholder="Discussion..." bind:value={discussion}></textarea>
+
+			<label>Conclusion</label>
+			<textarea rows="4" placeholder="Conclusion..." bind:value={conclusion}></textarea>
+
+			<button on:click={saveDraft} disabled={submitting} style="margin-top:12px;">
+				{submitting ? 'Saving...' : 'Save Draft'}
 			</button>
 
 			{#if message}
 				<p class="msg">{message}</p>
 			{/if}
-		</section>
+		</div>
+	{/if}
 
-		<!-- MIDDLE: ARTICLES LIST -->
-		<section class="articles">
-			<div class="section-head">
-				<h3>Your Articles</h3>
-				<p>Click any card to open it in the preview panel.</p>
-			</div>
+	<div class="layout">
+		<!-- Articles List -->
+		<section class="articles-section">
+			<h3>My Articles</h3>
 
 			{#if loading}
 				<div class="card small">Loading...</div>
 			{:else if articles.length === 0}
-				<div class="card small">No articles yet.</div>
+				<div class="card small">
+					<p>No articles yet.</p>
+					<button on:click={() => showForm = true} style="margin-top:12px;">Create your first article</button>
+				</div>
 			{:else}
 				<div class="grid">
 					{#each articles as article}
 						<article
 							class="card article-card {selectedArticle?.id === article.id ? 'active' : ''}"
-							on:click={() => openArticle(article)}
+							on:click={() => selectedArticle = article}
 							role="button"
 							tabindex="0"
-							on:keydown={(e) => e.key === 'Enter' && openArticle(article)}
+							on:keydown={(e) => e.key === 'Enter' && (selectedArticle = article)}
 						>
-							<img
-								src={article.image || 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=1200&q=80'}
-								class="thumb"
-								alt={article.title}
-							/>
-
 							<div class="body">
 								<div class="row">
 									<h4>{article.title}</h4>
-									<span class="status {article.status}">{article.status || 'pending'}</span>
+									<span class="status {getStatusColor(article.status)}">
+										{article.status.replace('_', ' ')}
+									</span>
 								</div>
 
 								<p class="date">{formatDate(article.created_at)}</p>
-								<p class="preview-text">{article.content.slice(0, 110)}...</p>
+
+								{#if article.abstract}
+									<p class="preview-text">
+										{article.abstract.replace(/<[^>]*>/g, '').slice(0, 100)}...
+									</p>
+								{/if}
 
 								<div class="actions">
-									<button
-										class="delete"
-										on:click|stopPropagation={() => deleteArticle(article.id)}
-									>
-										Delete
-									</button>
+									{#if article.status === 'draft' || article.status === 'changes_requested'}
+										<button
+											class="btn-submit"
+											on:click|stopPropagation={() => submitArticle(article.id)}
+										>
+											Submit
+										</button>
+									{/if}
+
+									{#if article.status === 'draft'}
+										<button
+											class="btn-delete"
+											on:click|stopPropagation={() => deleteArticle(article.id)}
+										>
+											Delete
+										</button>
+									{/if}
 								</div>
 							</div>
 						</article>
@@ -234,34 +307,40 @@
 			{/if}
 		</section>
 
-		<!-- RIGHT: BIG ARTICLE PREVIEW -->
+		<!-- Article Preview -->
 		<section class="card reader">
 			{#if selectedArticle}
 				<div class="reader-head">
-					<div>
-						<p class="reader-label">{selectedArticle.status || 'pending'}</p>
-						<h2>{selectedArticle.title}</h2>
-						<p class="reader-meta">
-							{formatDate(selectedArticle.created_at)} · {user?.email?.split('@')[0] || 'author'}
-						</p>
-					</div>
+					<span class="status {getStatusColor(selectedArticle.status)}">
+						{selectedArticle.status.replace('_', ' ')}
+					</span>
+					<h2>{selectedArticle.title}</h2>
+					{#if selectedArticle.subtitle}
+						<p class="subtitle-text">{selectedArticle.subtitle}</p>
+					{/if}
+					<p class="reader-meta">
+						{formatDate(selectedArticle.created_at)}
+					</p>
 				</div>
 
-				{#if selectedArticle.image}
-					<img
-						src={selectedArticle.image}
-						class="hero"
-						alt={selectedArticle.title}
-					/>
-				{/if}
-
 				<div class="reader-content">
-					{selectedArticle.content}
+					{#if selectedArticle.abstract}
+						<div class="section">
+							<h4>Abstract</h4>
+							<div>{@html selectedArticle.abstract}</div>
+						</div>
+					{/if}
+					{#if selectedArticle.introduction}
+						<div class="section">
+							<h4>Introduction</h4>
+							<div>{@html selectedArticle.introduction}</div>
+						</div>
+					{/if}
 				</div>
 			{:else}
 				<div class="empty">
 					<h3>No article selected</h3>
-					<p>Click an article card to read it here.</p>
+					<p>Click an article to preview it here.</p>
 				</div>
 			{/if}
 		</section>
@@ -280,21 +359,11 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: flex-end;
-		gap: 16px;
 		margin-bottom: 24px;
 	}
 
-	h1 {
-		font-size: 30px;
-		font-weight: 900;
-		color: #0d2460;
-		margin: 0;
-	}
-
-	.welcome {
-		color: #5b6780;
-		margin-top: 6px;
-	}
+	h1 { font-size: 30px; font-weight: 900; color: #0d2460; margin: 0; }
+	.welcome { color: #5b6780; margin-top: 6px; }
 
 	.pill {
 		background: white;
@@ -305,9 +374,30 @@
 		border-radius: 999px;
 	}
 
+	.btn-new {
+		background: #0155bd;
+		color: white;
+		padding: 10px 20px;
+		border-radius: 10px;
+		border: none;
+		cursor: pointer;
+		font-weight: 700;
+		font-size: 15px;
+	}
+
+	.btn-logout {
+		background: #f1f5f9;
+		color: #374151;
+		padding: 10px 16px;
+		border-radius: 10px;
+		border: 1px solid #e2e8f0;
+		cursor: pointer;
+		font-weight: 600;
+	}
+
 	.layout {
 		display: grid;
-		grid-template-columns: 340px minmax(0, 1.1fr) minmax(340px, 1fr);
+		grid-template-columns: minmax(0, 1.2fr) minmax(340px, 1fr);
 		gap: 24px;
 		align-items: start;
 	}
@@ -316,26 +406,32 @@
 		background: white;
 		border-radius: 18px;
 		padding: 20px;
-		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+		box-shadow: 0 8px 24px rgba(0,0,0,0.05);
 		border: 1px solid #e8eef7;
+	}
+
+	label {
+		display: block;
+		font-size: 13px;
+		font-weight: 600;
+		color: #374151;
+		margin: 10px 0 4px;
 	}
 
 	.form-card input,
 	.form-card textarea {
 		width: 100%;
-		margin: 10px 0;
 		padding: 12px 14px;
 		border-radius: 10px;
 		border: 1px solid #d9e3f0;
 		outline: none;
 		font: inherit;
 		background: #fff;
+		box-sizing: border-box;
 	}
 
 	.form-card input:focus,
-	.form-card textarea:focus {
-		border-color: #0155bd;
-	}
+	.form-card textarea:focus { border-color: #0155bd; }
 
 	button {
 		background: #0155bd;
@@ -347,37 +443,11 @@
 		font-weight: 700;
 	}
 
-	button:disabled {
-		opacity: 0.65;
-		cursor: not-allowed;
-	}
+	button:disabled { opacity: 0.65; cursor: not-allowed; }
 
-	.preview {
-		width: 100%;
-		border-radius: 12px;
-		margin-top: 10px;
-		max-height: 220px;
-		object-fit: cover;
-		border: 1px solid #e8eef7;
-	}
+	.msg { color: #167a33; font-weight: 700; margin-top: 12px; }
 
-	.msg {
-		color: #167a33;
-		font-weight: 700;
-		margin-top: 12px;
-	}
-
-	.articles h3,
-	.form-card h3 {
-		margin: 0 0 10px;
-		color: #0d2460;
-		font-size: 20px;
-	}
-
-	.section-head p {
-		color: #6b7280;
-		margin-bottom: 16px;
-	}
+	.articles-section h3 { margin: 0 0 16px; color: #0d2460; font-size: 20px; }
 
 	.grid {
 		display: grid;
@@ -389,26 +459,17 @@
 		padding: 0;
 		overflow: hidden;
 		cursor: pointer;
-		transition: transform 0.2s ease, box-shadow 0.2s ease;
+		transition: transform 0.2s, box-shadow 0.2s;
 	}
 
 	.article-card:hover,
 	.article-card.active {
 		transform: translateY(-2px);
-		box-shadow: 0 14px 30px rgba(1, 85, 189, 0.12);
+		box-shadow: 0 14px 30px rgba(1,85,189,0.12);
 		border-color: #0155bd;
 	}
 
-	.thumb {
-		width: 100%;
-		height: 160px;
-		object-fit: cover;
-		display: block;
-	}
-
-	.body {
-		padding: 14px;
-	}
+	.body { padding: 14px; }
 
 	.row {
 		display: flex;
@@ -417,18 +478,9 @@
 		gap: 10px;
 	}
 
-	h4 {
-		margin: 0;
-		font-size: 16px;
-		line-height: 1.35;
-		color: #0d2460;
-	}
+	h4 { margin: 0; font-size: 15px; color: #0d2460; line-height: 1.35; }
 
-	.date {
-		font-size: 12px;
-		color: #7a7a7a;
-		margin: 6px 0 8px;
-	}
+	.date { font-size: 12px; color: #7a7a7a; margin: 6px 0 8px; }
 
 	.status {
 		font-size: 10px;
@@ -439,90 +491,33 @@
 		white-space: nowrap;
 	}
 
-	.status.pending {
-		background: #fff4cc;
-		color: #8a6500;
-	}
+	.status-draft { background: #f1f5f9; color: #475569; }
+	.status-submitted { background: #dbeafe; color: #1d4ed8; }
+	.status-review { background: #fef3c7; color: #92400e; }
+	.status-changes { background: #ffedd5; color: #c2410c; }
+	.status-published { background: #dcfce7; color: #166534; }
+	.status-rejected { background: #fee2e2; color: #991b1b; }
 
-	.status.approved {
-		background: #e6f8e9;
-		color: #167a33;
-	}
+	.preview-text { font-size: 13px; color: #374151; line-height: 1.65; margin-bottom: 12px; }
 
-	.preview-text {
-		font-size: 13px;
-		line-height: 1.65;
-		color: #374151;
-		margin-bottom: 12px;
-	}
+	.actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
-	.actions {
-		display: flex;
-		gap: 8px;
-		flex-wrap: wrap;
-	}
+	.btn-submit { background: #16a34a; font-size: 13px; padding: 6px 12px; }
+	.btn-delete { background: #dc2626; font-size: 13px; padding: 6px 12px; }
 
-	.delete {
-		background: #dc2626;
-	}
+	.reader { min-height: 540px; position: sticky; top: 24px; }
 
-	.reader {
-		min-height: 540px;
-		position: sticky;
-		top: 24px;
-	}
+	.reader-head { margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #eef2f7; }
+	.reader-head h2 { margin: 8px 0 0; font-size: 24px; color: #0d2460; }
+	.subtitle-text { color: #6b7280; font-style: italic; margin: 6px 0; }
+	.reader-meta { color: #6b7280; font-size: 13px; margin-top: 8px; }
 
-	.reader-head {
-		margin-bottom: 16px;
-		padding-bottom: 16px;
-		border-bottom: 1px solid #eef2f7;
-	}
+	.reader-content { line-height: 1.9; font-size: 1rem; color: #374151; }
 
-	.reader-label {
-		display: inline-block;
-		margin: 0 0 10px;
-		font-size: 10px;
-		font-weight: 900;
-		text-transform: uppercase;
-		letter-spacing: 0.2em;
-		color: #0155bd;
-		background: #eef6ff;
-		padding: 6px 10px;
-		border-radius: 999px;
-	}
-
-	.reader h2 {
-		margin: 0;
-		font-size: 28px;
-		line-height: 1.2;
-		color: #0d2460;
-	}
-
-	.reader-meta {
-		margin-top: 10px;
-		color: #6b7280;
-		font-size: 13px;
-	}
-
-	.hero {
-		width: 100%;
-		height: 260px;
-		object-fit: cover;
-		border-radius: 14px;
-		margin-bottom: 18px;
-		border: 1px solid #e8eef7;
-	}
-
-	.reader-content {
-		white-space: pre-line;
-		line-height: 1.9;
-		font-size: 1.02rem;
-		color: #374151;
-		padding-right: 4px;
-	}
+	.section { margin-bottom: 20px; }
+	.section h4 { font-size: 16px; color: #0d2460; margin-bottom: 8px; border-bottom: 1px solid #e8eef7; padding-bottom: 6px; }
 
 	.empty {
-		height: 100%;
 		min-height: 420px;
 		display: flex;
 		align-items: center;
@@ -533,28 +528,15 @@
 		gap: 8px;
 	}
 
-	.small {
-		text-align: center;
-	}
+	.small { text-align: center; padding: 30px; }
 
-	@media (max-width: 1200px) {
-		.layout {
-			grid-template-columns: 1fr;
-		}
-
-		.reader {
-			position: static;
-		}
+	@media (max-width: 1100px) {
+		.layout { grid-template-columns: 1fr; }
+		.reader { position: static; }
 	}
 
 	@media (max-width: 700px) {
-		.dashboard {
-			padding: 20px;
-		}
-
-		.topbar {
-			flex-direction: column;
-			align-items: flex-start;
-		}
+		.dashboard { padding: 20px; }
+		.topbar { flex-direction: column; align-items: flex-start; }
 	}
 </style>

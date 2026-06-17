@@ -4,6 +4,7 @@
 	import NewsFooter from '$lib/components/news-footer.svelte';
 	import { Search, LayoutGrid, List, ChevronRight, Tag, X, ArrowLeft } from 'lucide-svelte';
 	import { supabase } from '$lib/supabase';
+	import { cmsSupabase } from '$lib/cmsSupabase';
 
 	type ViewMode = 'grid' | 'list';
 
@@ -24,9 +25,10 @@
 	}
 
 	interface ArticleDoc {
-		id: number;
+		id: number | string;
 		slug: string;
 		title: string;
+		subtitle: string;
 		content: string;
 		excerpt: string;
 		thumbnail: string;
@@ -37,6 +39,16 @@
 		readTime: number;
 		isFeatured: boolean;
 		hidden: boolean;
+		source: 'jcf' | 'cms';
+		abstract?: string;
+		introduction?: string;
+		methods?: string;
+		results?: string;
+		discussion?: string;
+		conclusion?: string;
+		funding?: string;
+		ethics_statement?: string;
+		acknowledgements?: string;
 	}
 
 	let articles: ArticleDoc[] = [];
@@ -58,8 +70,9 @@
 	}
 
 	function makeExcerpt(content: string | null | undefined, fallback = '') {
-		const text = safeText(content, fallback).replace(/\s+/g, ' ');
-		return text.length > 180 ? `${text.slice(0, 180)}…` : text;
+		const raw = safeText(content, fallback);
+		const plain = raw.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+		return plain.length > 180 ? `${plain.slice(0, 180)}…` : plain;
 	}
 
 	function formatDate(dateValue: string | null | undefined) {
@@ -85,22 +98,21 @@
 		errorMsg = '';
 
 		try {
-			const { data, error } = await supabase
+			const { data: jcfData, error: jcfError } = await supabase
 				.from('articles')
 				.select('*')
 				.eq('status', 'approved')
 				.order('created_at', { ascending: false });
 
-			if (error) throw error;
+			if (jcfError) throw jcfError;
 
-			const rows = (data ?? []) as ArticleRow[];
-
-			articles = rows
+			const jcfArticles: ArticleDoc[] = ((jcfData ?? []) as ArticleRow[])
 				.filter((row) => !row.hidden)
 				.map((row) => ({
 					id: row.id,
 					slug: row.slug?.trim() || String(row.id),
 					title: safeText(row.title, 'Untitled Article'),
+					subtitle: '',
 					content: safeText(row.content, ''),
 					excerpt: makeExcerpt(row.content),
 					thumbnail:
@@ -112,8 +124,49 @@
 					date: formatDate(row.created_at),
 					readTime: Number(row.read_time) > 0 ? Number(row.read_time) : 3,
 					isFeatured: Boolean(row.is_featured),
-					hidden: Boolean(row.hidden)
+					hidden: Boolean(row.hidden),
+					source: 'jcf' as const
 				}));
+
+			const { data: cmsData, error: cmsError } = await cmsSupabase
+				.from('research_articles')
+				.select('*')
+				.eq('status', 'published')
+				.order('created_at', { ascending: false });
+
+			const cmsArticles: ArticleDoc[] = cmsError
+				? []
+				: ((cmsData ?? []) as any[]).map((row) => ({
+						id: row.id,
+						slug: row.id,
+						title: safeText(row.title, 'Untitled Article'),
+						subtitle: safeText(row.subtitle, ''),
+						content: safeText(row.abstract, ''),
+						excerpt: makeExcerpt(row.abstract),
+						thumbnail:
+							'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=1200&q=80',
+						category: 'Research',
+						tags: [],
+						author: 'Research Team',
+						date: formatDate(row.created_at),
+						readTime: 5,
+						isFeatured: false,
+						hidden: false,
+						source: 'cms' as const,
+						abstract: row.abstract,
+						introduction: row.introduction,
+						methods: row.methods,
+						results: row.results,
+						discussion: row.discussion,
+						conclusion: row.conclusion,
+						funding: row.funding,
+						ethics_statement: row.ethics_statement,
+						acknowledgements: row.acknowledgements
+					}));
+
+			articles = [...jcfArticles, ...cmsArticles].sort(
+				(a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+			);
 		} catch (err) {
 			console.error(err);
 			errorMsg = 'Error loading articles';
@@ -204,6 +257,11 @@
 							<span class="rounded-full bg-[#FFF0C2] px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-[#7A5C00]">
 								{selectedArticle.readTime} min read
 							</span>
+							{#if selectedArticle.source === 'cms'}
+								<span class="rounded-full bg-blue-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-blue-700">
+									Research
+								</span>
+							{/if}
 						</div>
 
 						<h1
@@ -212,6 +270,10 @@
 						>
 							{selectedArticle.title}
 						</h1>
+
+						{#if selectedArticle.subtitle}
+							<p class="mt-3 text-lg text-gray-500 italic">{selectedArticle.subtitle}</p>
+						{/if}
 
 						<div class="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-[#6B7280]">
 							<p class="font-bold text-[#0D2460]">{selectedArticle.author}</p>
@@ -238,11 +300,70 @@
 						/>
 
 						<div class="mx-auto max-w-3xl">
-							{#each formatBody(selectedArticle.content) as paragraph}
-								<p class="mb-5 text-[1.05rem] leading-8 text-[#374151] sm:text-[1.12rem]">
-									{paragraph}
-								</p>
-							{/each}
+							{#if selectedArticle.source === 'cms'}
+								<div class="space-y-8">
+									{#if selectedArticle.abstract}
+										<div>
+											<h2 class="text-xl font-bold text-[#0D2460] mb-3 pb-2 border-b border-[#E8F0FB]">Abstract</h2>
+											<div class="prose max-w-none text-[#374151] leading-8">{@html selectedArticle.abstract}</div>
+										</div>
+									{/if}
+									{#if selectedArticle.introduction}
+										<div>
+											<h2 class="text-xl font-bold text-[#0D2460] mb-3 pb-2 border-b border-[#E8F0FB]">Introduction</h2>
+											<div class="prose max-w-none text-[#374151] leading-8">{@html selectedArticle.introduction}</div>
+										</div>
+									{/if}
+									{#if selectedArticle.methods}
+										<div>
+											<h2 class="text-xl font-bold text-[#0D2460] mb-3 pb-2 border-b border-[#E8F0FB]">Methods</h2>
+											<div class="prose max-w-none text-[#374151] leading-8">{@html selectedArticle.methods}</div>
+										</div>
+									{/if}
+									{#if selectedArticle.results}
+										<div>
+											<h2 class="text-xl font-bold text-[#0D2460] mb-3 pb-2 border-b border-[#E8F0FB]">Results</h2>
+											<div class="prose max-w-none text-[#374151] leading-8">{@html selectedArticle.results}</div>
+										</div>
+									{/if}
+									{#if selectedArticle.discussion}
+										<div>
+											<h2 class="text-xl font-bold text-[#0D2460] mb-3 pb-2 border-b border-[#E8F0FB]">Discussion</h2>
+											<div class="prose max-w-none text-[#374151] leading-8">{@html selectedArticle.discussion}</div>
+										</div>
+									{/if}
+									{#if selectedArticle.conclusion}
+										<div>
+											<h2 class="text-xl font-bold text-[#0D2460] mb-3 pb-2 border-b border-[#E8F0FB]">Conclusion</h2>
+											<div class="prose max-w-none text-[#374151] leading-8">{@html selectedArticle.conclusion}</div>
+										</div>
+									{/if}
+									{#if selectedArticle.funding}
+										<div>
+											<h2 class="text-xl font-bold text-[#0D2460] mb-3 pb-2 border-b border-[#E8F0FB]">Funding</h2>
+											<div class="prose max-w-none text-[#374151] leading-8">{@html selectedArticle.funding}</div>
+										</div>
+									{/if}
+									{#if selectedArticle.ethics_statement}
+										<div>
+											<h2 class="text-xl font-bold text-[#0D2460] mb-3 pb-2 border-b border-[#E8F0FB]">Ethics Statement</h2>
+											<div class="prose max-w-none text-[#374151] leading-8">{@html selectedArticle.ethics_statement}</div>
+										</div>
+									{/if}
+									{#if selectedArticle.acknowledgements}
+										<div>
+											<h2 class="text-xl font-bold text-[#0D2460] mb-3 pb-2 border-b border-[#E8F0FB]">Acknowledgements</h2>
+											<div class="prose max-w-none text-[#374151] leading-8">{@html selectedArticle.acknowledgements}</div>
+										</div>
+									{/if}
+								</div>
+							{:else}
+								{#each formatBody(selectedArticle.content) as paragraph}
+									<p class="mb-5 text-[1.05rem] leading-8 text-[#374151] sm:text-[1.12rem]">
+										{paragraph}
+									</p>
+								{/each}
+							{/if}
 						</div>
 					</div>
 				</article>
@@ -427,10 +548,15 @@
 												alt={item.title}
 												class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
 											/>
-											<div class="absolute left-3 top-3">
+											<div class="absolute left-3 top-3 flex gap-2">
 												<span class="rounded-full bg-[#0155BD] px-2 py-1 text-[8px] font-black uppercase tracking-widest text-white shadow-sm">
 													{item.category}
 												</span>
+												{#if item.source === 'cms'}
+													<span class="rounded-full bg-blue-600 px-2 py-1 text-[8px] font-black uppercase tracking-widest text-white shadow-sm">
+														Research
+													</span>
+												{/if}
 											</div>
 										</div>
 
@@ -481,9 +607,16 @@
 										</div>
 
 										<div class="min-w-0 flex-1">
-											<span class="mb-1 inline-block text-[9px] font-black uppercase tracking-widest text-[#0155BD]">
-												{item.category}
-											</span>
+											<div class="flex items-center gap-2 mb-1">
+												<span class="inline-block text-[9px] font-black uppercase tracking-widest text-[#0155BD]">
+													{item.category}
+												</span>
+												{#if item.source === 'cms'}
+													<span class="rounded-full bg-blue-100 px-2 py-0.5 text-[8px] font-black uppercase text-blue-700">
+														Research
+													</span>
+												{/if}
+											</div>
 											<h3
 												class="line-clamp-2 text-sm font-black text-[#0D2460] transition-colors group-hover:text-[#0155BD]"
 												style="font-family:'DM Serif Display',serif;"
@@ -582,7 +715,7 @@
 							Live from Supabase
 						</p>
 						<p class="text-sm leading-relaxed text-[#3B3E43]">
-							This page shows only approved articles stored in the <strong>articles</strong> table. Images are loaded from the image URL saved in the same row.
+							This page shows approved articles from Jarurat Care and published research articles from our CMS platform.
 						</p>
 					</div>
 				</aside>
@@ -607,50 +740,60 @@
 		box-sizing: border-box;
 	}
 
-	:global(.article-body p) {
-		font-size: 1.08rem;
-		line-height: 1.9;
-		color: #374151;
-		margin-bottom: 1.25rem;
-	}
-
-	:global(.article-body h2) {
-		font-family: 'DM Serif Display', serif;
-		font-size: 1.8rem;
-		font-weight: 900;
-		color: #0d2460;
-		margin: 2.25rem 0 1rem;
-	}
-
-	:global(.article-body h3) {
-		font-family: 'DM Serif Display', serif;
-		font-size: 1.35rem;
-		font-weight: 900;
-		color: #0155bd;
-		margin: 1.75rem 0 0.75rem;
-	}
-
-	:global(.article-body ul, .article-body ol) {
-		margin: 0 0 1.25rem 1.5rem;
-		color: #374151;
-	}
-
-	:global(.article-body li) {
+	:global(.prose h1) {
+		font-size: 1.875rem;
+		font-weight: 700;
+		margin-top: 1rem;
 		margin-bottom: 0.5rem;
-		font-size: 1.02rem;
 	}
 
-	:global(.article-body blockquote) {
-		border-left: 3px solid #0155bd;
-		background: #fbfdff;
-		padding: 1rem 1.25rem;
-		margin: 1.5rem 0;
+	:global(.prose h2) {
+		font-size: 1.5rem;
+		font-weight: 700;
+		margin-top: 1rem;
+		margin-bottom: 0.5rem;
+	}
+
+	:global(.prose h3) {
+		font-size: 1.25rem;
+		font-weight: 600;
+		margin-top: 1rem;
+		margin-bottom: 0.5rem;
+	}
+
+	:global(.prose ul) {
+		list-style-type: disc;
+		padding-left: 1.5rem;
+		margin: 0.5rem 0;
+	}
+
+	:global(.prose ol) {
+		list-style-type: decimal;
+		padding-left: 1.5rem;
+		margin: 0.5rem 0;
+	}
+
+	:global(.prose li) {
+		margin: 0.25rem 0;
+	}
+
+	:global(.prose blockquote) {
+		border-left: 4px solid #0155bd;
+		padding-left: 1rem;
+		margin: 1rem 0;
+		color: #6b7280;
 		font-style: italic;
-		border-radius: 0.75rem;
 	}
 
-	:global(.article-body img) {
-		border-radius: 1rem;
-		margin: 1.5rem 0;
+	:global(.prose p) {
+		margin: 0.5rem 0;
+	}
+
+	:global(.prose strong) {
+		font-weight: 700;
+	}
+
+	:global(.prose em) {
+		font-style: italic;
 	}
 </style>
