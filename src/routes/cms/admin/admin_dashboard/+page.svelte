@@ -77,7 +77,7 @@
 	let cmsContents: CMSContent[] = [];
 	let users: UserProfile[] = [];
 	let selectedArticle: Article | null = null;
-	let selectedContent: CMSContent | null = null;
+	let editingContent: CMSContent | null = null;
 
 	// CMS Content form
 	let showContentForm = false;
@@ -94,19 +94,20 @@
 	let seoDescription = '';
 	let publishDate = '';
 	let savingContent = false;
-	$: if (contentTitle) {
-	contentSlug = contentTitle
-		.toLowerCase()
-		.trim()
-		.replace(/[^a-z0-9\s-]/g, "")
-		.replace(/\s+/g, "-");
-}
+
+	$: if (contentTitle && !editingContent) {
+		contentSlug = contentTitle
+			.toLowerCase()
+			.trim()
+			.replace(/[^a-z0-9\s-]/g, '')
+			.replace(/\s+/g, '-');
+	}
 
 	// User management
 	let userSearch = '';
 	let roleFilter = 'all';
 
-	const CONTENT_TYPES = ['blog', 'news', 'event', 'faq', 'campaign', 'testimonials'];
+	const CONTENT_TYPES = ['blog', 'news', 'event', 'faq', 'campaign', 'testimonial'];
 	const ROLES = ['user', 'author', 'cms_admin', 'super_admin'];
 
 	onMount(async () => {
@@ -230,95 +231,127 @@
 		selectedArticle = null;
 	}
 
-	async function saveContent() {
-	if (!contentTitle.trim() || !contentBody.trim()) {
-		alert('Title and content are required');
-		return;
+	function openArticle(article: Article) {
+		selectedArticle = article;
 	}
 
-	savingContent = true;
+	function resetContentForm() {
+		editingContent = null;
+		showContentForm = false;
+		contentTitle = '';
+		contentSlug = '';
+		contentExcerpt = '';
+		contentBody = '';
+		contentCategory = '';
+		contentTags = '';
+		seoTitle = '';
+		seoDescription = '';
+		publishDate = '';
+		featuredImage = null;
+		contentType = 'blog';
+		contentStatus = 'draft';
+		showContentForm = true;
 
-	const slug = contentTitle
-		.toLowerCase()
-		.trim()
-		.replace(/[^a-z0-9\s-]/g, '')
-		.replace(/\s+/g, '-');
-	let imageUrl = null;
+	}
 
-	if (featuredImage) {
-		const fileName = `${Date.now()}-${featuredImage.name}`;
+	function startEdit(content: CMSContent) {
+		editingContent = content;
+		showContentForm = true;
+		contentType = content.content_type;
+		contentTitle = content.title;
+		contentSlug = content.slug;
+		contentBody = content.content;
+		contentCategory = content.category ?? '';
+		contentStatus = content.status;
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+	}
 
-		const { error: uploadError } = await cmsSupabase.storage
-			.from('cms-images')
-			.upload(fileName, featuredImage);
+	async function togglePublish(content: CMSContent) {
+		const newStatus = content.status === 'published' ? 'draft' : 'published';
+		const { error } = await cmsSupabase
+			.from('cms_content')
+			.update({ status: newStatus })
+			.eq('id', content.id);
+		if (error) { alert(error.message); return; }
+		await loadCMSContent();
+		await loadAnalytics();
+	}
 
-		if (uploadError) {
-			alert(uploadError.message);
-			savingContent = false;
+	async function saveContent() {
+		if (!contentTitle.trim() || !contentBody.trim()) {
+			alert('Title and content are required');
 			return;
 		}
+		savingContent = true;
 
-		const { data } = cmsSupabase.storage
-			.from('cms-images')
-			.getPublicUrl(fileName);
+		let imageUrl = null;
+		if (featuredImage) {
+			const fileName = `${Date.now()}-${featuredImage.name}`;
+			const { error: uploadError } = await cmsSupabase.storage
+				.from('cms-images')
+				.upload(fileName, featuredImage);
+			if (uploadError) {
+				alert(uploadError.message);
+				savingContent = false;
+				return;
+			}
+			const { data } = cmsSupabase.storage.from('cms-images').getPublicUrl(fileName);
+			imageUrl = data.publicUrl;
+		}
 
-		imageUrl = data.publicUrl;
+		const { error } = await cmsSupabase.from('cms_content').insert([{
+			content_type: contentType,
+			title: contentTitle,
+			slug: contentSlug,
+			excerpt: contentExcerpt,
+			content: contentBody,
+			category: contentCategory || null,
+			tags: contentTags ? contentTags.split(',').map(t => t.trim()) : [],
+			featured_image: imageUrl,
+			seo_title: seoTitle || null,
+			seo_description: seoDescription || null,
+			published_at: publishDate || null,
+			status: contentStatus
+		}]);
+
+		savingContent = false;
+		if (error) { alert(error.message); return; }
+
+		alert('✅ Content saved successfully!');
+		resetContentForm();
+		await loadCMSContent();
+		await loadAnalytics();
 	}
-	const { data: sessionData } = await cmsSupabase.auth.getSession();
-	console.log("SESSION", sessionData);
 
-	const { data: userData } = await cmsSupabase.auth.getUser();
-	console.log("USER", userData);
+	async function updateContent() {
+		if (!contentTitle.trim() || !contentBody.trim()) {
+			alert('Title and content are required');
+			return;
+		}
+		if (!editingContent) return;
+		savingContent = true;
 
-	const { error } = await cmsSupabase
-		.from('cms_content')
-		.insert([
-			{
+		const { error } = await cmsSupabase
+			.from('cms_content')
+			.update({
 				content_type: contentType,
 				title: contentTitle,
-				slug,
-				excerpt: contentExcerpt,
+				slug: contentSlug,
 				content: contentBody,
 				category: contentCategory || null,
-				tags: contentTags
-	? contentTags.split(",").map(tag => tag.trim())
-	: [],
-				featured_image: imageUrl,
-				seo_title: seoTitle || null,
-				seo_description: seoDescription || null,
-				published_at: publishDate || null,
-				status: contentStatus
-			}
-		]);
+				status: contentStatus,
+				updated_at: new Date().toISOString()
+			})
+			.eq('id', editingContent.id);
 
-	savingContent = false;
+		savingContent = false;
+		if (error) { alert(error.message); return; }
 
-	if (error) {
-		alert(error.message);
-		return;
+		alert('✅ Content updated!');
+		resetContentForm();
+		await loadCMSContent();
+		await loadAnalytics();
 	}
-
-	alert('✅ Content saved successfully!');
-
-	showContentForm = false;
-
-	contentTitle = '';
-	contentSlug = '';
-	contentExcerpt = '';
-	contentBody = '';
-	contentCategory = '';
-	contentTags = '';
-	seoTitle = '';
-	seoDescription = '';
-	publishDate = '';
-	featuredImage = null;
-
-	contentType = 'blog';
-	contentStatus = 'draft';
-
-	await loadCMSContent();
-	await loadAnalytics();
-}
 
 	async function deleteContent(id: string) {
 		if (!confirm('Delete this content?')) return;
@@ -347,9 +380,6 @@
 		});
 	}
 
-	function openArticle(article: Article) {
-	selectedArticle = article;
-	}
 	async function logout() {
 		await cmsSupabase.auth.signOut();
 		goto('/cms/login');
@@ -373,7 +403,6 @@
 
 <div class="dashboard">
 
-	<!-- TOPBAR -->
 	<div class="topbar">
 		<div>
 			<h1>Admin Dashboard</h1>
@@ -382,7 +411,6 @@
 		<button class="btn-logout" on:click={logout}>Logout</button>
 	</div>
 
-	<!-- TABS -->
 	<div class="tabs">
 		<button class:active={activeTab === 'analytics'} on:click={() => activeTab = 'analytics'}>
 			📊 Analytics
@@ -405,7 +433,6 @@
 		<div class="card" style="text-align:center;padding:60px;">Loading...</div>
 	{:else}
 
-		<!-- ANALYTICS TAB -->
 		{#if activeTab === 'analytics'}
 			<div class="analytics-grid">
 				<div class="stat-card blue">
@@ -450,7 +477,6 @@
 				</div>
 			</div>
 
-		<!-- AUTHOR REQUESTS TAB -->
 		{:else if activeTab === 'authors'}
 			<h3 class="heading">Pending Author Requests</h3>
 			{#if authorRequests.length === 0}
@@ -471,7 +497,6 @@
 				{/each}
 			{/if}
 
-		<!-- ARTICLES TAB -->
 		{:else if activeTab === 'articles'}
 			<div class="layout">
 				<section>
@@ -532,24 +557,27 @@
 				</section>
 			</div>
 
-		<!-- CMS CONTENT TAB -->
 		{:else if activeTab === 'content'}
 			<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-				<h3 class="heading" style="margin:0;">CMS Content</h3>
-				<button class="approve" on:click={() => showContentForm = !showContentForm}>
+				<h3 class="heading" style="margin:0;">
+					{editingContent ? '✏️ Edit Content' : '🗂 CMS Content'}
+				</h3>
+				<button class="approve" on:click={resetContentForm}>
 					{showContentForm ? '✕ Cancel' : '+ Create Content'}
 				</button>
 			</div>
 
 			{#if showContentForm}
 				<div class="card" style="margin-bottom:24px;">
-					<h3 style="margin:0 0 20px;color:#0d2460;">Create New Content</h3>
+					<h3 style="margin:0 0 20px;color:#0d2460;">
+						{editingContent ? 'Edit Content' : 'Create New Content'}
+					</h3>
 
 					<div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
 						{#each CONTENT_TYPES as type}
 							<button
 								on:click={() => contentType = type}
-								style="padding:8px 16px;border-radius:20px;border:2px solid {contentType === type ? typeColors[type] : '#e2e8f0'};background:{contentType === type ? typeColors[type] : 'white'};color:{contentType === type ? 'white' : '#374151'};font-weight:700;cursor:pointer;capitalize:true;text-transform:capitalize;"
+								style="padding:8px 16px;border-radius:20px;border:2px solid {contentType === type ? typeColors[type] : '#e2e8f0'};background:{contentType === type ? typeColors[type] : 'white'};color:{contentType === type ? 'white' : '#374151'};font-weight:700;cursor:pointer;text-transform:capitalize;"
 							>
 								{type}
 							</button>
@@ -561,27 +589,15 @@
 						placeholder="Title *"
 						style="width:100%;padding:12px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:12px;font-size:15px;"
 					/>
-					
-						<input
-						bind:value={contentTitle}
-						placeholder="Title *"
-						style="width:100%;padding:12px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:12px;font-size:15px;"
-					/>
 
 					<div style="margin-bottom:16px;">
-
-						<label>Slug *</label>
-
+						<label style="display:block;margin-bottom:6px;font-weight:600;font-size:14px;">Slug *</label>
 						<input
 							bind:value={contentSlug}
 							placeholder="auto-generated-from-title"
-							style="width:100%;padding:12px;border:1px solid #e2e8f0;border-radius:10px;"
+							style="width:100%;padding:12px;border:1px solid #e2e8f0;border-radius:10px;font-size:15px;"
 						/>
-
-						<small style="color:#64748b;">
-							URL: /{contentType}/{contentSlug}
-						</small>
-
+						<small style="color:#64748b;">URL: /{contentType}/{contentSlug}</small>
 					</div>
 
 					<input
@@ -589,77 +605,61 @@
 						placeholder="Category (optional)"
 						style="width:100%;padding:12px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:12px;font-size:15px;"
 					/>
+
 					<div style="margin-bottom:16px;">
-
-						<label style="display:block;margin-bottom:8px;font-weight:600;">
-							Short Description / Excerpt
-						</label>
-
+						<label style="display:block;margin-bottom:6px;font-weight:600;font-size:14px;">Short Description / Excerpt</label>
 						<textarea
 							bind:value={contentExcerpt}
 							rows="3"
-							placeholder="Write a short summary of this content..."
+							placeholder="Write a short summary..."
 							style="width:100%;padding:12px;border:1px solid #e2e8f0;border-radius:10px;font-size:15px;resize:vertical;"
 						></textarea>
-
 					</div>
 
 					<div style="margin-bottom:16px;">
-
-						<label style="display:block;margin-bottom:8px;font-weight:600;">
-							Tags
-						</label>
-
+						<label style="display:block;margin-bottom:6px;font-weight:600;font-size:14px;">Tags</label>
 						<input
 							bind:value={contentTags}
 							placeholder="cancer, awareness, health"
 							style="width:100%;padding:12px;border:1px solid #e2e8f0;border-radius:10px;font-size:15px;"
 						/>
-
 					</div>
-					<textarea
-						bind:value={contentBody}
-						placeholder="Content *"
-						rows="8"
-						style="width:100%;padding:12px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:12px;font-size:15px;resize:vertical;"
-					></textarea>
+
 					<div style="margin-bottom:16px;">
-
-						<label style="display:block;margin-bottom:8px;font-weight:600;">
-							Featured Image
-						</label>
-
-						<input
-							type="file"
-							accept="image/*"
-							on:change={(e) => featuredImage = e.currentTarget.files?.[0] ?? null}
-							style="width:100%;padding:10px;border:1px solid #e2e8f0;border-radius:10px;"
-						/>
-
-						{#if featuredImage}
-							<p style="margin-top:8px;color:#16a34a;font-size:14px;">
-								Selected: {featuredImage.name}
-							</p>
-						{/if}
-
-					</div>
-					<div style="margin-bottom:16px;">
-
-						<label style="display:block;margin-bottom:8px;font-weight:600;">
-							Publish Date
-						</label>
-
-						<input
-							type="datetime-local"
-							bind:value={publishDate}
-							style="width:100%;padding:12px;border:1px solid #e2e8f0;border-radius:10px;font-size:15px;"
-						/>
-
+						<label style="display:block;margin-bottom:6px;font-weight:600;font-size:14px;">Content *</label>
+						<textarea
+							bind:value={contentBody}
+							placeholder="Write your content here..."
+							rows="8"
+							style="width:100%;padding:12px;border:1px solid #e2e8f0;border-radius:10px;font-size:15px;resize:vertical;"
+						></textarea>
 					</div>
 
-					<h3 style="margin-top:30px;margin-bottom:15px;color:#0d2460;">
-						SEO Settings
-					</h3>
+					{#if !editingContent}
+						<div style="margin-bottom:16px;">
+							<label style="display:block;margin-bottom:6px;font-weight:600;font-size:14px;">Featured Image</label>
+							<input
+								type="file"
+								accept="image/*"
+								on:change={(e) => featuredImage = e.currentTarget.files?.[0] ?? null}
+								style="width:100%;padding:10px;border:1px solid #e2e8f0;border-radius:10px;"
+							/>
+							{#if featuredImage}
+								<p style="margin-top:8px;color:#16a34a;font-size:14px;">Selected: {featuredImage.name}</p>
+							{/if}
+						</div>
+
+						<div style="margin-bottom:16px;">
+							<label style="display:block;margin-bottom:6px;font-weight:600;font-size:14px;">Publish Date</label>
+							<input
+								type="datetime-local"
+								bind:value={publishDate}
+								style="width:100%;padding:12px;border:1px solid #e2e8f0;border-radius:10px;font-size:15px;"
+							/>
+						</div>
+					{/if}
+
+					<h3 style="margin-top:24px;margin-bottom:12px;color:#0d2460;font-size:18px;">SEO Settings</h3>
 
 					<input
 						bind:value={seoTitle}
@@ -669,12 +669,12 @@
 
 					<textarea
 						bind:value={seoDescription}
-						rows="4"
+						rows="3"
 						placeholder="SEO Description"
 						style="width:100%;padding:12px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:16px;font-size:15px;resize:vertical;"
 					></textarea>
 
-					<div style="display:flex;gap:12px;margin-bottom:16px;">
+					<div style="display:flex;gap:12px;margin-bottom:20px;">
 						<button
 							on:click={() => contentStatus = 'draft'}
 							style="padding:10px 20px;border-radius:10px;border:none;background:{contentStatus === 'draft' ? '#374151' : '#f1f5f9'};color:{contentStatus === 'draft' ? 'white' : '#374151'};font-weight:700;cursor:pointer;"
@@ -689,8 +689,12 @@
 						</button>
 					</div>
 
-					<button class="approve" on:click={saveContent} disabled={savingContent}>
-						{savingContent ? 'Saving...' : 'Save Content'}
+					<button
+						class="approve"
+						on:click={editingContent ? updateContent : saveContent}
+						disabled={savingContent}
+					>
+						{savingContent ? 'Saving...' : editingContent ? 'Update Content' : 'Save Content'}
 					</button>
 				</div>
 			{/if}
@@ -699,25 +703,46 @@
 				<div class="card empty-card">No content yet. Create some!</div>
 			{:else}
 				{#each cmsContents as content}
-					<div class="card" style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;">
-						<div>
-							<div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;">
-								<span style="padding:4px 10px;border-radius:20px;background:{typeColors[content.content_type] ?? '#94a3b8'};color:white;font-size:11px;font-weight:700;text-transform:capitalize;">
-									{content.content_type}
-								</span>
-								<span style="padding:4px 10px;border-radius:20px;background:{content.status === 'published' ? '#dcfce7' : '#f1f5f9'};color:{content.status === 'published' ? '#16a34a' : '#64748b'};font-size:11px;font-weight:700;">
-									{content.status}
-								</span>
+					<div class="card" style="margin-bottom:16px;">
+						<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;">
+							<div>
+								<div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;">
+									<span style="padding:4px 10px;border-radius:20px;background:{typeColors[content.content_type] ?? '#94a3b8'};color:white;font-size:11px;font-weight:700;text-transform:capitalize;">
+										{content.content_type}
+									</span>
+									<span style="padding:4px 10px;border-radius:20px;background:{content.status === 'published' ? '#dcfce7' : '#f1f5f9'};color:{content.status === 'published' ? '#16a34a' : '#64748b'};font-size:11px;font-weight:700;">
+										{content.status}
+									</span>
+								</div>
+								<h3 style="margin:0;color:#0d2460;font-size:18px;">{content.title}</h3>
+								<p style="margin:4px 0 0;color:#64748b;font-size:13px;">/{content.slug} · {formatDate(content.created_at)}</p>
 							</div>
-							<h3 style="margin:0;color:#0d2460;font-size:18px;">{content.title}</h3>
-							<p style="margin:4px 0 0;color:#64748b;font-size:13px;">/{content.slug} · {formatDate(content.created_at)}</p>
+							<div style="display:flex;gap:8px;flex-wrap:wrap;">
+								<button
+									on:click={() => startEdit(content)}
+									style="padding:8px 14px;border-radius:8px;border:none;background:#3b82f6;color:white;font-weight:700;cursor:pointer;font-size:13px;"
+								>
+									Edit
+								</button>
+								<button
+									on:click={() => togglePublish(content)}
+									style="padding:8px 14px;border-radius:8px;border:none;background:{content.status === 'published' ? '#f59e0b' : '#16a34a'};color:white;font-weight:700;cursor:pointer;font-size:13px;"
+								>
+									{content.status === 'published' ? 'Unpublish' : 'Publish'}
+								</button>
+								<button
+									class="reject"
+									style="padding:8px 14px;font-size:13px;"
+									on:click={() => deleteContent(content.id)}
+								>
+									Delete
+								</button>
+							</div>
 						</div>
-						<button class="reject" on:click={() => deleteContent(content.id)}>Delete</button>
 					</div>
 				{/each}
 			{/if}
 
-		<!-- MANAGE USERS TAB -->
 		{:else if activeTab === 'users'}
 			<h3 class="heading">Manage Users</h3>
 
@@ -770,7 +795,11 @@
 									{formatDate(u.created_at)}
 								</td>
 								<td style="padding:14px 20px;">
-									<button class="reject" style="padding:8px 14px;font-size:13px;" on:click={() => removeUser(u.id)}>
+									<button
+										class="reject"
+										style="padding:8px 14px;font-size:13px;"
+										on:click={() => removeUser(u.id)}
+									>
 										Remove
 									</button>
 								</td>
@@ -796,19 +825,9 @@
 		align-items: center;
 		margin-bottom: 24px;
 	}
-	h1 {
-		margin: 0;
-		font-size: 30px;
-		font-weight: 900;
-		color: #0d2460;
-	}
+	h1 { margin: 0; font-size: 30px; font-weight: 900; color: #0d2460; }
 	.welcome { color: #64748b; margin-top: 6px; }
-	.tabs {
-		display: flex;
-		gap: 10px;
-		margin-bottom: 28px;
-		flex-wrap: wrap;
-	}
+	.tabs { display: flex; gap: 10px; margin-bottom: 28px; flex-wrap: wrap; }
 	.tabs button {
 		background: white;
 		border: 1px solid #d8e8fa;
@@ -820,10 +839,7 @@
 		transition: .2s;
 		font-size: 14px;
 	}
-	.tabs button.active {
-		background: #0155bd;
-		color: white;
-	}
+	.tabs button.active { background: #0155bd; color: white; }
 	.badge {
 		background: #ef4444;
 		color: white;
@@ -863,18 +879,8 @@
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
 	}
-	.stat-num {
-		margin: 0;
-		font-size: 36px;
-		font-weight: 900;
-		color: #0d2460;
-	}
-	.layout {
-		display: grid;
-		grid-template-columns: 420px 1fr;
-		gap: 24px;
-		align-items: start;
-	}
+	.stat-num { margin: 0; font-size: 36px; font-weight: 900; color: #0d2460; }
+	.layout { display: grid; grid-template-columns: 420px 1fr; gap: 24px; align-items: start; }
 	.card {
 		background: white;
 		border-radius: 18px;
@@ -882,42 +888,17 @@
 		border: 1px solid #e8eef7;
 		box-shadow: 0 8px 24px rgba(0,0,0,.05);
 	}
-	.empty-card {
-		text-align: center;
-		padding: 40px;
-		color: #64748b;
-	}
-	.heading {
-		margin-bottom: 18px;
-		font-size: 22px;
-		color: #0d2460;
-		font-weight: 800;
-	}
-	.request-card, .article-card {
-		margin-bottom: 18px;
-		cursor: pointer;
-		transition: .2s;
-	}
+	.empty-card { text-align: center; padding: 40px; color: #64748b; }
+	.heading { margin-bottom: 18px; font-size: 22px; color: #0d2460; font-weight: 800; }
+	.request-card, .article-card { margin-bottom: 18px; cursor: pointer; transition: .2s; }
 	.request-card:hover, .article-card:hover {
 		transform: translateY(-2px);
 		box-shadow: 0 12px 28px rgba(1,85,189,.12);
 		border-color: #0155bd;
 	}
-	.article-card.selected {
-		border-color: #0155bd;
-		box-shadow: 0 0 0 2px #0155bd33;
-	}
-	.request-card h3, .article-card h3 {
-		margin: 0 0 12px;
-		color: #0d2460;
-		font-size: 18px;
-	}
-	.request-card p, .article-card p {
-		margin: 6px 0;
-		line-height: 1.6;
-		color: #475569;
-		font-size: 14px;
-	}
+	.article-card.selected { border-color: #0155bd; box-shadow: 0 0 0 2px #0155bd33; }
+	.request-card h3, .article-card h3 { margin: 0 0 12px; color: #0d2460; font-size: 18px; }
+	.request-card p, .article-card p { margin: 6px 0; line-height: 1.6; color: #475569; font-size: 14px; }
 	.reason {
 		margin-top: 14px;
 		background: #f8fbff;
@@ -927,12 +908,7 @@
 		font-size: 14px;
 		color: #475569;
 	}
-	.actions {
-		display: flex;
-		gap: 10px;
-		margin-top: 20px;
-		flex-wrap: wrap;
-	}
+	.actions { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
 	.status {
 		display: inline-block;
 		margin-top: 10px;
@@ -951,40 +927,12 @@
 		overflow-y: auto;
 		max-height: 85vh;
 	}
-	.preview h2 {
-		margin: 0;
-		font-size: 26px;
-		color: #0d2460;
-	}
-	.subtitle {
-		margin-top: 8px;
-		color: #64748b;
-		font-style: italic;
-	}
-	.section {
-		margin-top: 24px;
-		padding-top: 20px;
-		border-top: 1px solid #edf2f7;
-	}
-	.section h4 {
-		margin: 0 0 8px;
-		font-size: 16px;
-		font-weight: 800;
-		color: #0d2460;
-	}
-	.section p {
-		margin: 0;
-		color: #475569;
-		line-height: 1.8;
-		white-space: pre-wrap;
-		font-size: 14px;
-	}
-	.review-actions {
-		display: flex;
-		gap: 12px;
-		margin-top: 24px;
-		flex-wrap: wrap;
-	}
+	.preview h2 { margin: 0; font-size: 26px; color: #0d2460; }
+	.subtitle { margin-top: 8px; color: #64748b; font-style: italic; }
+	.section { margin-top: 24px; padding-top: 20px; border-top: 1px solid #edf2f7; }
+	.section h4 { margin: 0 0 8px; font-size: 16px; font-weight: 800; color: #0d2460; }
+	.section p { margin: 0; color: #475569; line-height: 1.8; white-space: pre-wrap; font-size: 14px; }
+	.review-actions { display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
 	.approve, .reject, .changes, .btn-logout {
 		border: none;
 		border-radius: 10px;
@@ -1023,6 +971,4 @@
 		.analytics-grid { grid-template-columns: repeat(2, 1fr); }
 		h1 { font-size: 24px; }
 	}
-
-	
 </style>

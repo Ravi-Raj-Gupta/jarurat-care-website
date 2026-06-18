@@ -11,13 +11,18 @@
 	$: pathname = $page.url.pathname;
 
 	const navItems = [
-		{ title: 'Home', href: '/' },
-		{ title: 'About Us', href: '/about-us' },
-		{ title: 'Get Involved', href: '/get-involved' },
-		{ title: 'News & Blogs', href: '/articles' },
-		{ title: 'Contact Us', href: '/contact-us' }
-	];
+	{ title: 'Home', href: '/' },
+	{ title: 'About Us', href: '/about-us' },
+	{ title: 'Get Involved', href: '/get-involved' },
 
+	// Research Articles
+	{ title: 'Articles', href: '/articles' },
+
+	// CMS Content
+	{ title: 'Content', href: '/content' },
+
+	{ title: 'Contact Us', href: '/contact-us' }
+];
 	onMount(async () => {
 		const { cmsSupabase } = await import('$lib/cmsSupabase');
 
