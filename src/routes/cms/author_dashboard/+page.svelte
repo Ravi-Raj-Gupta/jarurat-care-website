@@ -19,7 +19,6 @@
 	let loading = true;
 	let selectedArticle: Article | null = null;
 
-	// Form fields
 	let title = '';
 	let subtitle = '';
 	let abstract = '';
@@ -32,25 +31,28 @@
 	let message = '';
 	let showForm = false;
 
+	// Stats
+	$: stats = {
+		draft: articles.filter(a => a.status === 'draft').length,
+		submitted: articles.filter(a => a.status === 'submitted').length,
+		under_review: articles.filter(a => a.status === 'under_review').length,
+		changes_requested: articles.filter(a => a.status === 'changes_requested').length,
+		published: articles.filter(a => a.status === 'published').length,
+		rejected: articles.filter(a => a.status === 'rejected').length,
+	};
+
 	onMount(async () => {
 		const { data: { user: u } } = await cmsSupabase.auth.getUser();
 
-		if (!u) {
-			goto('/cms/login');
-			return;
-		}
+		if (!u) { goto('/cms/login'); return; }
 
-		// Role check
 		const { data: profile } = await cmsSupabase
 			.from('profiles')
 			.select('role')
 			.eq('id', u.id)
 			.single();
 
-		if (profile?.role !== 'author') {
-			goto('/cms/pending');
-			return;
-		}
+		if (profile?.role !== 'author') { goto('/cms/pending'); return; }
 
 		user = u;
 		await loadArticles();
@@ -58,35 +60,22 @@
 
 	async function loadArticles() {
 		loading = true;
-
 		const { data, error } = await cmsSupabase
 			.from('research_articles')
 			.select('*')
 			.eq('user_id', user.id)
 			.order('created_at', { ascending: false });
 
-		if (error) {
-			console.error(error);
-			articles = [];
-		} else {
+		if (!error) {
 			articles = data ?? [];
-			if (!selectedArticle && articles.length > 0) {
-				selectedArticle = articles[0];
-			}
+			if (!selectedArticle && articles.length > 0) selectedArticle = articles[0];
 		}
-
 		loading = false;
 	}
 
 	async function saveDraft() {
-		if (!title.trim()) {
-			message = 'Title is required';
-			return;
-		}
-		if (!abstract.trim()) {
-			message = 'Abstract is required';
-			return;
-		}
+		if (!title.trim()) { message = 'Title is required'; return; }
+		if (!abstract.trim()) { message = 'Abstract is required'; return; }
 
 		submitting = true;
 		message = '';
@@ -106,20 +95,10 @@
 
 		submitting = false;
 
-		if (error) {
-			message = error.message;
-			return;
-		}
+		if (error) { message = error.message; return; }
 
 		message = '✅ Draft saved!';
-		title = '';
-		subtitle = '';
-		abstract = '';
-		introduction = '';
-		methods = '';
-		results = '';
-		discussion = '';
-		conclusion = '';
+		title = subtitle = abstract = introduction = methods = results = discussion = conclusion = '';
 		showForm = false;
 		await loadArticles();
 	}
@@ -132,11 +111,7 @@
 			.update({ status: 'submitted', updated_at: new Date().toISOString() })
 			.eq('id', id);
 
-		if (error) {
-			alert(error.message);
-			return;
-		}
-
+		if (error) { alert(error.message); return; }
 		await loadArticles();
 	}
 
@@ -148,21 +123,13 @@
 			.delete()
 			.eq('id', id);
 
-		if (error) {
-			alert(error.message);
-			return;
-		}
-
+		if (error) { alert(error.message); return; }
 		if (selectedArticle?.id === id) selectedArticle = null;
 		await loadArticles();
 	}
 
 	function formatDate(date: string) {
-		return new Date(date).toLocaleDateString('en-IN', {
-			day: 'numeric',
-			month: 'short',
-			year: 'numeric'
-		});
+		return new Date(date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 	}
 
 	function getStatusColor(status: string) {
@@ -179,7 +146,7 @@
 
 	async function logout() {
 		await cmsSupabase.auth.signOut();
-		goto('/cms/login');
+		goto('/');
 	}
 </script>
 
@@ -192,8 +159,35 @@
 			<p class="welcome">Welcome, {user?.email?.split('@')[0] || '...'}</p>
 		</div>
 		<div style="display:flex;gap:12px;align-items:center;">
-			<div class="pill">Articles: {articles.length}</div>
 			<button class="btn-logout" on:click={logout}>Logout</button>
+		</div>
+	</div>
+
+	<!-- Stats Cards -->
+	<div class="stats-grid">
+		<div class="stat-card">
+			<p class="stat-label">Draft</p>
+			<p class="stat-num">{stats.draft}</p>
+		</div>
+		<div class="stat-card submitted">
+			<p class="stat-label">Submitted</p>
+			<p class="stat-num">{stats.submitted}</p>
+		</div>
+		<div class="stat-card review">
+			<p class="stat-label">Under Review</p>
+			<p class="stat-num">{stats.under_review}</p>
+		</div>
+		<div class="stat-card changes">
+			<p class="stat-label">Changes Requested</p>
+			<p class="stat-num">{stats.changes_requested}</p>
+		</div>
+		<div class="stat-card published">
+			<p class="stat-label">Published</p>
+			<p class="stat-num">{stats.published}</p>
+		</div>
+		<div class="stat-card rejected">
+			<p class="stat-label">Rejected</p>
+			<p class="stat-num">{stats.rejected}</p>
 		</div>
 	</div>
 
@@ -269,7 +263,7 @@
 								<div class="row">
 									<h4>{article.title}</h4>
 									<span class="status {getStatusColor(article.status)}">
-										{article.status.replace('_', ' ')}
+										{article.status.replace(/_/g, ' ')}
 									</span>
 								</div>
 
@@ -283,19 +277,12 @@
 
 								<div class="actions">
 									{#if article.status === 'draft' || article.status === 'changes_requested'}
-										<button
-											class="btn-submit"
-											on:click|stopPropagation={() => submitArticle(article.id)}
-										>
+										<button class="btn-submit" on:click|stopPropagation={() => submitArticle(article.id)}>
 											Submit
 										</button>
 									{/if}
-
 									{#if article.status === 'draft'}
-										<button
-											class="btn-delete"
-											on:click|stopPropagation={() => deleteArticle(article.id)}
-										>
+										<button class="btn-delete" on:click|stopPropagation={() => deleteArticle(article.id)}>
 											Delete
 										</button>
 									{/if}
@@ -312,15 +299,13 @@
 			{#if selectedArticle}
 				<div class="reader-head">
 					<span class="status {getStatusColor(selectedArticle.status)}">
-						{selectedArticle.status.replace('_', ' ')}
+						{selectedArticle.status.replace(/_/g, ' ')}
 					</span>
 					<h2>{selectedArticle.title}</h2>
 					{#if selectedArticle.subtitle}
 						<p class="subtitle-text">{selectedArticle.subtitle}</p>
 					{/if}
-					<p class="reader-meta">
-						{formatDate(selectedArticle.created_at)}
-					</p>
+					<p class="reader-meta">{formatDate(selectedArticle.created_at)}</p>
 				</div>
 
 				<div class="reader-content">
@@ -349,11 +334,12 @@
 
 <style>
 	.dashboard {
-    padding: 100px 40px 40px;
-    background: #f4f9ff;
-    min-height: 100vh;
-    font-family: 'DM Sans', sans-serif;
-}
+		padding: 100px 40px 40px;
+		background: #f4f9ff;
+		min-height: 100vh;
+		font-family: 'DM Sans', sans-serif;
+	}
+
 	.topbar {
 		display: flex;
 		justify-content: space-between;
@@ -364,13 +350,43 @@
 	h1 { font-size: 30px; font-weight: 900; color: #0d2460; margin: 0; }
 	.welcome { color: #5b6780; margin-top: 6px; }
 
-	.pill {
+	/* Stats Grid */
+	.stats-grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 16px;
+		margin-bottom: 28px;
+	}
+
+	.stat-card {
 		background: white;
-		border: 1px solid #d8e8fa;
-		color: #0155bd;
-		font-weight: 800;
-		padding: 10px 14px;
-		border-radius: 999px;
+		border-radius: 16px;
+		padding: 20px 24px;
+		border: 1px solid #e8eef7;
+		box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+		border-top: 4px solid #94a3b8;
+	}
+
+	.stat-card.submitted { border-top-color: #3b82f6; }
+	.stat-card.review { border-top-color: #f59e0b; }
+	.stat-card.changes { border-top-color: #f97316; }
+	.stat-card.published { border-top-color: #22c55e; }
+	.stat-card.rejected { border-top-color: #ef4444; }
+
+	.stat-label {
+		font-size: 11px;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+		color: #6b7280;
+		margin: 0 0 8px;
+	}
+
+	.stat-num {
+		font-size: 36px;
+		font-weight: 900;
+		color: #0d2460;
+		margin: 0;
 	}
 
 	.btn-new {
@@ -478,7 +494,6 @@
 	}
 
 	h4 { margin: 0; font-size: 15px; color: #0d2460; line-height: 1.35; }
-
 	.date { font-size: 12px; color: #7a7a7a; margin: 6px 0 8px; }
 
 	.status {
@@ -498,21 +513,16 @@
 	.status-rejected { background: #fee2e2; color: #991b1b; }
 
 	.preview-text { font-size: 13px; color: #374151; line-height: 1.65; margin-bottom: 12px; }
-
 	.actions { display: flex; gap: 8px; flex-wrap: wrap; }
-
 	.btn-submit { background: #16a34a; font-size: 13px; padding: 6px 12px; }
 	.btn-delete { background: #dc2626; font-size: 13px; padding: 6px 12px; }
 
 	.reader { min-height: 540px; position: sticky; top: 24px; }
-
 	.reader-head { margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #eef2f7; }
 	.reader-head h2 { margin: 8px 0 0; font-size: 24px; color: #0d2460; }
 	.subtitle-text { color: #6b7280; font-style: italic; margin: 6px 0; }
 	.reader-meta { color: #6b7280; font-size: 13px; margin-top: 8px; }
-
 	.reader-content { line-height: 1.9; font-size: 1rem; color: #374151; }
-
 	.section { margin-bottom: 20px; }
 	.section h4 { font-size: 16px; color: #0d2460; margin-bottom: 8px; border-bottom: 1px solid #e8eef7; padding-bottom: 6px; }
 
@@ -532,10 +542,12 @@
 	@media (max-width: 1100px) {
 		.layout { grid-template-columns: 1fr; }
 		.reader { position: static; }
+		.stats-grid { grid-template-columns: repeat(2, 1fr); }
 	}
 
 	@media (max-width: 700px) {
-		.dashboard { padding: 20px; }
+		.dashboard { padding: 80px 20px 20px; }
 		.topbar { flex-direction: column; align-items: flex-start; }
+		.stats-grid { grid-template-columns: repeat(2, 1fr); }
 	}
 </style>
