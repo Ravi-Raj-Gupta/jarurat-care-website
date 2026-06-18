@@ -87,7 +87,20 @@
 	let contentBody = '';
 	let contentCategory = '';
 	let contentStatus = 'draft';
+	let contentExcerpt = '';
+	let contentTags = '';
+	let featuredImage: File | null = null;
+	let seoTitle = '';
+	let seoDescription = '';
+	let publishDate = '';
 	let savingContent = false;
+	$: if (contentTitle) {
+	contentSlug = contentTitle
+		.toLowerCase()
+		.trim()
+		.replace(/[^a-z0-9\s-]/g, "")
+		.replace(/\s+/g, "-");
+}
 
 	// User management
 	let userSearch = '';
@@ -218,39 +231,94 @@
 	}
 
 	async function saveContent() {
-		if (!contentTitle.trim() || !contentBody.trim()) {
-			alert('Title and content are required');
+	if (!contentTitle.trim() || !contentBody.trim()) {
+		alert('Title and content are required');
+		return;
+	}
+
+	savingContent = true;
+
+	const slug = contentTitle
+		.toLowerCase()
+		.trim()
+		.replace(/[^a-z0-9\s-]/g, '')
+		.replace(/\s+/g, '-');
+	let imageUrl = null;
+
+	if (featuredImage) {
+		const fileName = `${Date.now()}-${featuredImage.name}`;
+
+		const { error: uploadError } = await cmsSupabase.storage
+			.from('cms-images')
+			.upload(fileName, featuredImage);
+
+		if (uploadError) {
+			alert(uploadError.message);
+			savingContent = false;
 			return;
 		}
-		savingContent = true;
 
-		const slug = contentTitle.toLowerCase()
-			.replace(/[^a-z0-9\s-]/g, '')
-			.replace(/\s+/g, '-')
-			.trim();
+		const { data } = cmsSupabase.storage
+			.from('cms-images')
+			.getPublicUrl(fileName);
 
-		const { error } = await cmsSupabase.from('cms_content').insert([{
-			content_type: contentType,
-			title: contentTitle,
-			slug: selectedContent ? selectedContent.slug : slug,
-			content: contentBody,
-			category: contentCategory || null,
-			status: contentStatus
-		}]);
-
-		savingContent = false;
-		if (error) { alert(error.message); return; }
-
-		alert('✅ Content saved!');
-		showContentForm = false;
-		contentTitle = '';
-		contentBody = '';
-		contentCategory = '';
-		contentType = 'blog';
-		contentStatus = 'draft';
-		await loadCMSContent();
-		await loadAnalytics();
+		imageUrl = data.publicUrl;
 	}
+	const { data: sessionData } = await cmsSupabase.auth.getSession();
+	console.log("SESSION", sessionData);
+
+	const { data: userData } = await cmsSupabase.auth.getUser();
+	console.log("USER", userData);
+
+	const { error } = await cmsSupabase
+		.from('cms_content')
+		.insert([
+			{
+				content_type: contentType,
+				title: contentTitle,
+				slug,
+				excerpt: contentExcerpt,
+				content: contentBody,
+				category: contentCategory || null,
+				tags: contentTags
+	? contentTags.split(",").map(tag => tag.trim())
+	: [],
+				featured_image: imageUrl,
+				seo_title: seoTitle || null,
+				seo_description: seoDescription || null,
+				published_at: publishDate || null,
+				status: contentStatus
+			}
+		]);
+
+	savingContent = false;
+
+	if (error) {
+		alert(error.message);
+		return;
+	}
+
+	alert('✅ Content saved successfully!');
+
+	showContentForm = false;
+
+	contentTitle = '';
+	contentSlug = '';
+	contentExcerpt = '';
+	contentBody = '';
+	contentCategory = '';
+	contentTags = '';
+	seoTitle = '';
+	seoDescription = '';
+	publishDate = '';
+	featuredImage = null;
+
+	contentType = 'blog';
+	contentStatus = 'draft';
+
+	await loadCMSContent();
+	await loadAnalytics();
+}
 
 	async function deleteContent(id: string) {
 		if (!confirm('Delete this content?')) return;
@@ -493,18 +561,117 @@
 						placeholder="Title *"
 						style="width:100%;padding:12px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:12px;font-size:15px;"
 					/>
+					
+						<input
+						bind:value={contentTitle}
+						placeholder="Title *"
+						style="width:100%;padding:12px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:12px;font-size:15px;"
+					/>
+
+					<div style="margin-bottom:16px;">
+
+						<label>Slug *</label>
+
+						<input
+							bind:value={contentSlug}
+							placeholder="auto-generated-from-title"
+							style="width:100%;padding:12px;border:1px solid #e2e8f0;border-radius:10px;"
+						/>
+
+						<small style="color:#64748b;">
+							URL: /{contentType}/{contentSlug}
+						</small>
+
+					</div>
 
 					<input
 						bind:value={contentCategory}
 						placeholder="Category (optional)"
 						style="width:100%;padding:12px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:12px;font-size:15px;"
 					/>
+					<div style="margin-bottom:16px;">
 
+						<label style="display:block;margin-bottom:8px;font-weight:600;">
+							Short Description / Excerpt
+						</label>
+
+						<textarea
+							bind:value={contentExcerpt}
+							rows="3"
+							placeholder="Write a short summary of this content..."
+							style="width:100%;padding:12px;border:1px solid #e2e8f0;border-radius:10px;font-size:15px;resize:vertical;"
+						></textarea>
+
+					</div>
+
+					<div style="margin-bottom:16px;">
+
+						<label style="display:block;margin-bottom:8px;font-weight:600;">
+							Tags
+						</label>
+
+						<input
+							bind:value={contentTags}
+							placeholder="cancer, awareness, health"
+							style="width:100%;padding:12px;border:1px solid #e2e8f0;border-radius:10px;font-size:15px;"
+						/>
+
+					</div>
 					<textarea
 						bind:value={contentBody}
 						placeholder="Content *"
 						rows="8"
 						style="width:100%;padding:12px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:12px;font-size:15px;resize:vertical;"
+					></textarea>
+					<div style="margin-bottom:16px;">
+
+						<label style="display:block;margin-bottom:8px;font-weight:600;">
+							Featured Image
+						</label>
+
+						<input
+							type="file"
+							accept="image/*"
+							on:change={(e) => featuredImage = e.currentTarget.files?.[0] ?? null}
+							style="width:100%;padding:10px;border:1px solid #e2e8f0;border-radius:10px;"
+						/>
+
+						{#if featuredImage}
+							<p style="margin-top:8px;color:#16a34a;font-size:14px;">
+								Selected: {featuredImage.name}
+							</p>
+						{/if}
+
+					</div>
+					<div style="margin-bottom:16px;">
+
+						<label style="display:block;margin-bottom:8px;font-weight:600;">
+							Publish Date
+						</label>
+
+						<input
+							type="datetime-local"
+							bind:value={publishDate}
+							style="width:100%;padding:12px;border:1px solid #e2e8f0;border-radius:10px;font-size:15px;"
+						/>
+
+					</div>
+
+					<h3 style="margin-top:30px;margin-bottom:15px;color:#0d2460;">
+						SEO Settings
+					</h3>
+
+					<input
+						bind:value={seoTitle}
+						placeholder="SEO Title"
+						style="width:100%;padding:12px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:12px;font-size:15px;"
+					/>
+
+					<textarea
+						bind:value={seoDescription}
+						rows="4"
+						placeholder="SEO Description"
+						style="width:100%;padding:12px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:16px;font-size:15px;resize:vertical;"
 					></textarea>
 
 					<div style="display:flex;gap:12px;margin-bottom:16px;">
