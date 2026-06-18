@@ -40,7 +40,25 @@
       } else if (role === 'cms_admin' || role === 'super_admin') {
         goto('/cms/admin/admin_dashboard');
       } else {
-        goto('/cms/pending');
+        // Normal user — author request check karo
+        const { data: request } = await cmsSupabase
+          .from('author_requests')
+          .select('status')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (!request) {
+          // Koi request nahi — author request form pe bhejo
+          goto('/cms/author-request');
+        } else if (request.status === 'pending') {
+          goto('/cms/pending');
+        } else if (request.status === 'rejected') {
+          goto('/cms/pending');
+        } else {
+          goto('/cms/pending');
+        }
       }
 
     } catch (err: any) {
@@ -107,11 +125,32 @@
 
 h2 { margin-bottom: 5px; color: #2c3e50; }
 .subtitle { font-size: 14px; color: #777; margin-bottom: 25px; }
-input { width: 100%; padding: 12px; margin-bottom: 15px; border:1px solid #ddd; border-radius:6px; font-size:14px; box-sizing:border-box; }
-button { width: 100%; padding:12px; background:#2f80ed; border:none; color:white; border-radius:6px; cursor:pointer; font-size:15px; }
-button:hover { background:#1c6dd0; }
-button:disabled { background:#9ab8e8; cursor:not-allowed; }
-a { display:block; margin-top:10px; font-size:13px; color:#2f80ed; text-decoration:none; }
-.error { color:red; font-size:13px; margin-top:10px; }
-.signup-link { margin-top:15px; font-size:14px; }
+
+input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  background: #2f80ed;
+  border: none;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+button:hover { background: #1c6dd0; }
+button:disabled { background: #9ab8e8; cursor: not-allowed; }
+
+.error { color: red; font-size: 13px; margin-top: 10px; }
+.signup-link { margin-top: 15px; font-size: 14px; }
+a { color: #2f80ed; text-decoration: none; }
 </style>

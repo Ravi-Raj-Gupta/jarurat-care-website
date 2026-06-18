@@ -349,12 +349,11 @@
 
 <style>
 	.dashboard {
-		padding: 40px;
-		background: #f4f9ff;
-		min-height: 100vh;
-		font-family: 'DM Sans', sans-serif;
-	}
-
+    padding: 100px 40px 40px;
+    background: #f4f9ff;
+    min-height: 100vh;
+    font-family: 'DM Sans', sans-serif;
+}
 	.topbar {
 		display: flex;
 		justify-content: space-between;
