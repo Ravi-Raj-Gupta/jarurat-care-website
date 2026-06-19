@@ -3,6 +3,7 @@
 	import { goto } from '$app/navigation';
 	import Nav from '$lib/components/nav.svelte';
 	import { cmsSupabase } from '$lib/cmsSupabase';
+	import RichTextEditor from '$lib/components/RichEditor.svelte';
 
 	type AuthorRequest = {
 		id: number;
@@ -626,13 +627,17 @@
 					</div>
 
 					<div style="margin-bottom:16px;">
-						<label style="display:block;margin-bottom:6px;font-weight:600;font-size:14px;">Content *</label>
-						<textarea
-							bind:value={contentBody}
-							placeholder="Write your content here..."
-							rows="8"
-							style="width:100%;padding:12px;border:1px solid #e2e8f0;border-radius:10px;font-size:15px;resize:vertical;"
-						></textarea>
+
+						<label style="display:block;margin-bottom:8px;font-weight:600;">
+							Content *
+						</label>
+
+						<RichTextEditor
+							content={contentBody}
+							placeholder="Write your content..."
+							on:update={(e) => (contentBody = e.detail)}
+						/>
+
 					</div>
 
 					{#if !editingContent}

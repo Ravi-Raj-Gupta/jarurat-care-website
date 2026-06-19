@@ -3,6 +3,7 @@
 	import { cmsSupabase } from '$lib/cmsSupabase';
 	import { goto } from '$app/navigation';
 	import Nav from '$lib/components/nav.svelte';
+	import RichEditor from '$lib/components/RichEditor.svelte';
 
 	type Article = {
 		id: string;
@@ -210,24 +211,54 @@
 			<input placeholder="Subtitle (optional)" bind:value={subtitle} />
 
 			<label>Abstract *</label>
-			<textarea rows="4" placeholder="Abstract..." bind:value={abstract}></textarea>
+			<RichEditor
+				content={abstract}
+				placeholder="Abstract..."
+				minHeight="120px"
+				on:update={(e) => abstract = e.detail}
+			/>
 
 			<label>Introduction</label>
-			<textarea rows="4" placeholder="Introduction..." bind:value={introduction}></textarea>
+			<RichEditor
+				content={introduction}
+				placeholder="Introduction..."
+				minHeight="140px"
+				on:update={(e) => introduction = e.detail}
+			/>
 
 			<label>Methods</label>
-			<textarea rows="4" placeholder="Methods..." bind:value={methods}></textarea>
+			<RichEditor
+				content={methods}
+				placeholder="Methods..."
+				minHeight="140px"
+				on:update={(e) => methods = e.detail}
+			/>
 
 			<label>Results</label>
-			<textarea rows="4" placeholder="Results..." bind:value={results}></textarea>
+			<RichEditor
+				content={results}
+				placeholder="Results..."
+				minHeight="140px"
+				on:update={(e) => results = e.detail}
+			/>
 
 			<label>Discussion</label>
-			<textarea rows="4" placeholder="Discussion..." bind:value={discussion}></textarea>
+			<RichEditor
+				content={discussion}
+				placeholder="Discussion..."
+				minHeight="140px"
+				on:update={(e) => discussion = e.detail}
+			/>
 
 			<label>Conclusion</label>
-			<textarea rows="4" placeholder="Conclusion..." bind:value={conclusion}></textarea>
+			<RichEditor
+				content={conclusion}
+				placeholder="Conclusion..."
+				minHeight="120px"
+				on:update={(e) => conclusion = e.detail}
+			/>
 
-			<button on:click={saveDraft} disabled={submitting} style="margin-top:12px;">
+			<button on:click={saveDraft} disabled={submitting} style="margin-top:16px;">
 				{submitting ? 'Saving...' : 'Save Draft'}
 			</button>
 
@@ -430,11 +461,10 @@
 		font-size: 13px;
 		font-weight: 600;
 		color: #374151;
-		margin: 10px 0 4px;
+		margin: 14px 0 6px;
 	}
 
-	.form-card input,
-	.form-card textarea {
+	.form-card input {
 		width: 100%;
 		padding: 12px 14px;
 		border-radius: 10px;
@@ -445,8 +475,7 @@
 		box-sizing: border-box;
 	}
 
-	.form-card input:focus,
-	.form-card textarea:focus { border-color: #0155bd; }
+	.form-card input:focus { border-color: #0155bd; }
 
 	button {
 		background: #0155bd;
