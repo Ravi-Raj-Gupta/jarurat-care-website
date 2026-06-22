@@ -395,7 +395,7 @@
 
 	const typeColors: Record<string, string> = {
 		blog: '#9333ea', news: '#3b82f6', event: '#22c55e',
-		faq: '#eab308', campaign: '#ec4899', testimonials: '#f97316'
+		faq: '#eab308', campaign: '#ec4899', testimonial: '#f97316'
 	};
 </script>
 

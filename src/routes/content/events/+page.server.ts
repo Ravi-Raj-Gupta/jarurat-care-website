@@ -6,6 +6,7 @@ export async function load() {
 		.from('cms_content')
 		.select('*')
 		.eq('content_type', 'event')
+		.eq('status', 'published')
 		.order('created_at', { ascending: false });
 
 	if (error) {

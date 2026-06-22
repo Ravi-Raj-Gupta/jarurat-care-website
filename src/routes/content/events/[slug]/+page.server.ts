@@ -8,6 +8,7 @@ export async function load({ params }) {
 		.select('*')
 		.eq('slug', params.slug)
 		.eq('content_type', 'event')
+		.eq('status', 'published')
 		.single();
 
 	if (dbError || !event) {

@@ -7,6 +7,7 @@ export async function load({ params }) {
 		.from('cms_content')
 		.select('*')
 		.eq('slug', params.slug)
+		.eq('status', 'published')
 		.eq('content_type', 'news')
 		.single();
 
