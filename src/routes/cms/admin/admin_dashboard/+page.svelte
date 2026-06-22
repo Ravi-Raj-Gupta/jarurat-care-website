@@ -6,6 +6,8 @@
 	import RichTextEditor from '$lib/components/RichEditor.svelte';
 	import toast from 'svelte-french-toast';
 	import NewsFooter from '$lib/components/news-footer.svelte';
+	import Treatment from '$lib/svg/treatment.svelte';
+	import { Search } from 'lucide-svelte';
 
 	type AuthorRequest = {
 		id: number;
@@ -48,6 +50,7 @@
 		status: string;
 		category: string | null;
 		created_at: string;
+		updated_at?: string;
 	};
 
 	type UserProfile = {
@@ -109,6 +112,32 @@
 	// User management
 	let userSearch = '';
 	let roleFilter = 'all';
+	let contentSearch = '';
+	let contentSort = 'newest';
+
+	$: filteredContents = cmsContents
+		.filter((c) => {
+			if (!contentSearch) return true;
+			const term = contentSearch.toLowerCase();
+			return c.title.toLowerCase().includes(term) || c.slug.toLowerCase().includes(term);
+		})
+		.sort((a, b) => {
+			if (contentSort === 'newest')
+				return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+			if (contentSort === 'oldest')
+				return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+			if (contentSort === 'alphabetical') return a.title.localeCompare(b.title);
+			if (contentSort === 'recently_updated') {
+				const dateA = a.updated_at
+					? new Date(a.updated_at).getTime()
+					: new Date(a.created_at).getTime();
+				const dateB = b.updated_at
+					? new Date(b.updated_at).getTime()
+					: new Date(b.created_at).getTime();
+				return dateB - dateA;
+			}
+			return 0;
+		});
 
 	const CONTENT_TYPES = ['blog', 'news', 'event', 'faq', 'campaign', 'testimonial'];
 	const ROLES = ['user', 'author', 'cms_admin', 'super_admin'];
@@ -296,7 +325,7 @@
 		} else {
 			toast.success('Content moved to draft. ');
 		}
-		
+
 		await loadCMSContent();
 		await loadAnalytics();
 	}
@@ -591,13 +620,45 @@
 			</section>
 		</div>
 	{:else if activeTab === 'content'}
-		<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+		<div
+			style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;"
+		>
 			<h3 class="heading" style="margin:0;">
 				{editingContent ? '✏️ Edit Content' : '🗂 CMS Content'}
 			</h3>
-			<button class="approve" on:click={resetContentForm}>
-				{showContentForm ? '✕ Cancel' : '+ Create Content'}
-			</button>
+			<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+				{#if !showContentForm && cmsContents.length > 0}
+					<div class="hidden md:flex relative group items-center">
+						<input
+							bind:value={contentSearch}
+							class="w-0 group-hover:w-48 transition-all duration-500 bg-transparent border-0 border-b border-black outline-none focus:outline-none focus:ring-0 focus:border-black focus:border-x-0 focus:border-t-0 focus:shadow-none focus:w-48 px-2 text-black"
+							placeholder="Search..."
+							type="text"
+						/>
+						<button
+							class="cursor-pointer text-black p-2 scale-105 active:scale-95 transition-transform flex items-center justify-center"
+						>
+							<Search size={20} />
+						</button>
+					</div>
+					<select
+						bind:value={contentSort}
+						style="padding:8px 12px; border:1px solid #e2e8f0; border-radius:10px; font-size:14px; outline:none; background:white; color:#374151; cursor:pointer;"
+					>
+						<option value="newest">Newest</option>
+						<option value="oldest">Oldest</option>
+						<option value="alphabetical">Alphabetical (A-Z)</option>
+						<option value="recently_updated">Recently Updated</option>
+					</select>
+				{/if}
+				<button
+					class="approve"
+					on:click={resetContentForm}
+					style="height:100%;padding:10px 16px;display:flex;align-items:center;"
+				>
+					{showContentForm ? '✕ Cancel' : '+ Create Content'}
+				</button>
+			</div>
 		</div>
 
 		{#if showContentForm}
@@ -763,8 +824,10 @@
 
 		{#if cmsContents.length === 0}
 			<div class="card empty-card">No content yet. Create some!</div>
+		{:else if filteredContents.length === 0}
+			<div class="card empty-card">No content matches your search.</div>
 		{:else}
-			{#each cmsContents as content}
+			{#each filteredContents as content}
 				<div class="card" style="margin-bottom:16px;">
 					<div
 						style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;"
