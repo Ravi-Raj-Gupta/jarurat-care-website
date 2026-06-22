@@ -8,12 +8,14 @@
 	import '@fontsource/manrope/800.css';
 	import '@fontsource/playfair-display/600.css';
 	import '@fontsource/rubik/500.css';
-	
-
+	import { Toaster } from 'svelte-french-toast';
+	import { browser } from '$app/environment';
 	import '@splidejs/svelte-splide/css/core';
 </script>
 
 <main class="font-manrope">
+	{#if browser}
+		<Toaster />
+	{/if}
 	<slot />
-	<Footer />
 </main>

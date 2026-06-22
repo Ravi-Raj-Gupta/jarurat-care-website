@@ -2,6 +2,7 @@
 import { onMount } from "svelte";
 import { supabase } from "$lib/supabase";
 import Nav from "$lib/components/nav.svelte";
+import toast from 'svelte-french-toast';
 
 let users = [];
 let roles = {};
@@ -43,9 +44,9 @@ async function saveRole(email) {
     .eq("email", email);
 
   if (error) {
-    alert("Error updating role");
+    toast.error("Error updating role");
   } else {
-    alert("Updated successfully");
+    toast.success("Updated successfully");
     loadUsers();
   }
 }
@@ -61,9 +62,9 @@ async function deleteUser(email) {
     .eq("email", email);
 
   if (error) {
-    alert("Error deleting user");
+    toast.error("Error deleting user");
   } else {
-    alert("User deleted successfully");
+    toast.success("User deleted successfully");
     selectedUser = null;
     loadUsers();
   }

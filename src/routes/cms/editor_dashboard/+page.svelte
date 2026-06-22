@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { supabase } from '$lib/supabase';
+	import toast from 'svelte-french-toast';
 
 	type Article = {
 		id: number;
@@ -64,8 +65,9 @@
 			.eq('id', id);
 
 		if (error) {
-			alert(error.message);
+			toast.error(error.message);
 		} else {
+			toast.success('Article saved successfully!');
 			editingId = null;
 			loadArticles();
 		}

@@ -4,6 +4,7 @@
 	import { goto } from '$app/navigation';
 	import Nav from '$lib/components/nav.svelte';
 	import RichEditor from '$lib/components/RichEditor.svelte';
+	import toast from 'svelte-french-toast';
 
 	type Article = {
 		id: string;
@@ -29,7 +30,6 @@
 	let discussion = '';
 	let conclusion = '';
 	let submitting = false;
-	let message = '';
 	let showForm = false;
 
 	// Stats
@@ -75,11 +75,10 @@
 	}
 
 	async function saveDraft() {
-		if (!title.trim()) { message = 'Title is required'; return; }
-		if (!abstract.trim()) { message = 'Abstract is required'; return; }
+		if (!title.trim()) { toast.error('Title is required'); return; }
+		if (!abstract.trim()) { toast.error('Abstract is required'); return; }
 
 		submitting = true;
-		message = '';
 
 		const { error } = await cmsSupabase.from('research_articles').insert([{
 			user_id: user.id,
@@ -96,9 +95,9 @@
 
 		submitting = false;
 
-		if (error) { message = error.message; return; }
+		if (error) { toast.error(error.message); return; }
 
-		message = '✅ Draft saved!';
+		toast.success('Draft saved successfully!');
 		title = subtitle = abstract = introduction = methods = results = discussion = conclusion = '';
 		showForm = false;
 		await loadArticles();
@@ -112,7 +111,8 @@
 			.update({ status: 'submitted', updated_at: new Date().toISOString() })
 			.eq('id', id);
 
-		if (error) { alert(error.message); return; }
+		if (error) { toast.error(error.message); return; }
+		toast.success('Article submitted for review!');
 		await loadArticles();
 	}
 
@@ -124,7 +124,8 @@
 			.delete()
 			.eq('id', id);
 
-		if (error) { alert(error.message); return; }
+		if (error) { toast.error(error.message); return; }
+		toast.success('Article deleted!');
 		if (selectedArticle?.id === id) selectedArticle = null;
 		await loadArticles();
 	}
@@ -261,10 +262,6 @@
 			<button on:click={saveDraft} disabled={submitting} style="margin-top:16px;">
 				{submitting ? 'Saving...' : 'Save Draft'}
 			</button>
-
-			{#if message}
-				<p class="msg">{message}</p>
-			{/if}
 		</div>
 	{/if}
 
