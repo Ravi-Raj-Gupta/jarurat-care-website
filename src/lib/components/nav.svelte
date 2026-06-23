@@ -59,13 +59,6 @@
 		</ul>
 
 		<div class="hidden md:flex items-center gap-3">
-			{#if isLoggedIn}
-				<a href="/cms/author_dashboard" class="border border-[#1E4ED8] text-[#1E4ED8] px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-50 transition">Dashboard</a>
-				<button on:click={logout} class="bg-gray-100 text-gray-600 px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-200 transition border-0 cursor-pointer">Logout</button>
-			{:else}
-				<a href="/cms/login" class="border border-[#1E4ED8] text-[#1E4ED8] px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-50 transition">Login</a>
-				<a href="/cms/signup" class="bg-[#1E4ED8] text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-700 transition">Register</a>
-			{/if}
 			<a href="/donate" class="bg-[#1E4ED8] text-white px-6 py-2 rounded-full text-sm font-medium shadow-md hover:shadow-lg transition">Donate Now</a>
 		</div>
 
@@ -80,14 +73,6 @@
 				{#each navItems as item}
 					<a href={item.href} class="text-base font-medium py-2 border-b" on:click={() => (isMenuOpen = false)}>{item.title}</a>
 				{/each}
-
-				{#if isLoggedIn}
-					<a href="/cms/author_dashboard" class="w-full text-center border border-[#1E4ED8] text-[#1E4ED8] py-3 rounded-full font-medium" on:click={() => (isMenuOpen = false)}>Dashboard</a>
-					<button on:click={logout} class="w-full bg-gray-100 text-gray-600 py-3 rounded-full font-medium border-0 cursor-pointer">Logout</button>
-				{:else}
-					<a href="/cms/login" class="w-full text-center border border-[#1E4ED8] text-[#1E4ED8] py-3 rounded-full font-medium block" on:click={() => (isMenuOpen = false)}>Login</a>
-					<a href="/cms/signup" class="w-full text-center bg-[#1E4ED8] text-white py-3 rounded-full font-medium block" on:click={() => (isMenuOpen = false)}>Register</a>
-				{/if}
 
 				<a href="/donate" class="w-full text-center bg-[#1E4ED8] text-white py-3 rounded-full font-medium block mt-2">Donate Now</a>
 			</div>

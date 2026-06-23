@@ -71,6 +71,16 @@
 	const PAGE_SIZE = 9;
 	let currentPage = 1;
 
+	let isLoggedIn = false;
+	let userRole = '';
+
+	async function handleLogout() {
+		await cmsSupabase.auth.signOut();
+		isLoggedIn = false;
+		userRole = '';
+		window.location.reload();
+	}
+
 	const FILTERS = [
 		{ label: 'All', value: 'all' },
 		{ label: 'Research', value: 'article' },
@@ -164,7 +174,34 @@
 		}
 	}
 
-	onMount(loadContent);
+	onMount(async () => {
+		loadContent();
+
+		const { data: { user } } = await cmsSupabase.auth.getUser();
+		if (user) {
+			isLoggedIn = true;
+			const { data: profile } = await cmsSupabase
+				.from('profiles')
+				.select('role')
+				.eq('id', user.id)
+				.single();
+			userRole = profile?.role || 'user';
+		}
+
+		cmsSupabase.auth.onAuthStateChange(async (event, session) => {
+			isLoggedIn = !!session?.user;
+			if (session?.user) {
+				const { data: profile } = await cmsSupabase
+					.from('profiles')
+					.select('role')
+					.eq('id', session.user.id)
+					.single();
+				userRole = profile?.role || 'user';
+			} else {
+				userRole = '';
+			}
+		});
+	});
 
 	$: filtered = allContent.filter(item => {
 		const matchFilter = activeFilter === 'all' || item.type === activeFilter;
@@ -298,11 +335,60 @@
 
 		{:else}
 			<!-- List View -->
-			<header class="hub-header">
+			<header class="hub-header flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
 				<div>
 					<p class="hub-eyebrow">Jarurat Care</p>
 					<h1 class="hub-title">Knowledge Hub</h1>
 					<p class="hub-desc">Explore research, blogs, news, events and more — all in one place.</p>
+				</div>
+
+				<!-- Portal Card -->
+				<div class="w-full max-w-[350px] bg-[#F0F6FD] border border-[#D8E8FA] rounded-2xl p-5 shadow-sm flex flex-col gap-3">
+					{#if isLoggedIn}
+						<div class="flex items-center gap-2">
+							<span class="text-xs font-black uppercase tracking-wider text-[#78C520] bg-[#E8F8D8] px-2.5 py-1 rounded-full">
+								Role: {userRole === 'cms_admin' || userRole === 'super_admin' ? 'Admin' : (userRole || 'User')}
+							</span>
+						</div>
+						<p class="text-xs text-[#0D2460] font-bold">Welcome back! Ready to write or manage your content?</p>
+						<div class="flex gap-2">
+							<a
+								href={userRole === 'cms_admin' || userRole === 'super_admin' ? '/cms/admin/admin_dashboard' : '/cms/author_dashboard'}
+								class="bg-[#0155bd] text-white px-3 py-2 rounded-xl text-xs font-bold hover:bg-[#004085] transition-colors text-center whitespace-nowrap flex-1"
+							>
+								Dashboard
+							</a>
+							<button
+								on:click={handleLogout}
+								class="bg-white border border-[#D8E8FA] text-[#0D2460] px-3 py-2 rounded-xl text-xs font-bold hover:border-red-500 hover:text-red-500 transition-colors text-center whitespace-nowrap flex-1"
+							>
+								Logout
+							</button>
+						</div>
+					{:else}
+						<div class="flex items-center gap-2">
+							<span class="text-xs font-black uppercase tracking-wider text-[#78C520] bg-[#E8F8D8] px-2.5 py-1 rounded-full">
+								Authors Portal
+							</span>
+						</div>
+						<p class="text-xs text-[#5B6780] leading-relaxed">
+							Are you a researcher, doctor, or writer? Join us to publish medical research, blogs, and insights.
+						</p>
+						<div class="flex gap-2 mt-1">
+							<a
+								href="/cms/login"
+								class="bg-[#0155bd] text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-[#004085] transition-colors text-center flex-1"
+							>
+								Login
+							</a>
+							<a
+								href="/cms/signup"
+								class="bg-white border border-[#D8E8FA] text-[#0d2460] px-4 py-2 rounded-xl text-xs font-bold hover:border-[#0155bd] transition-colors text-center flex-1"
+							>
+								Register
+							</a>
+						</div>
+					{/if}
 				</div>
 			</header>
 
@@ -479,7 +565,7 @@
 	/* Header */
 	.hub-header { margin-bottom: 32px; }
 	.hub-eyebrow { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.3em; color: #78c520; margin: 0 0 8px; }
-	.hub-title { font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 900; color: #0d2460; margin: 0 0 12px; font-family: 'DM Serif Display', serif; }
+	.hub-title { font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 700; color: #0d2460; margin: 0 0 12px; font-family: 'Arial', sans-serif; }
 	.hub-desc { color: #5b6780; font-size: 1rem; max-width: 600px; }
 
 	/* Filters */
