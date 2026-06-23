@@ -15,11 +15,7 @@
 	{ title: 'About Us', href: '/about-us' },
 	{ title: 'Get Involved', href: '/get-involved' },
 
-	// Research Articles
-	{ title: 'Articles', href: '/articles' },
-
-	// CMS Content
-	{ title: 'Content', href: '/content' },
+	{ title: 'Knowledge Hub', href: '/knowledge-hub' },
 
 	{ title: 'Contact Us', href: '/contact-us' }
 ];

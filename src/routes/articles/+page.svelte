@@ -137,6 +137,12 @@
 				.select('*')
 				.eq('status', 'published')
 				.order('created_at', { ascending: false });
+			
+			const { data: contentData, error: contentError } = await cmsSupabase
+				.from('cms_content')
+				.select('*')
+				.eq('status', 'published')
+				.order('created_at', { ascending: false });	
 
 			const cmsArticles: ArticleDoc[] = cmsError
 				? []
@@ -170,7 +176,31 @@
 						updated_at_raw: row.updated_at || row.created_at
 					}));
 
-			articles = [...jcfArticles, ...cmsArticles].sort(
+					const cmsContentArticles: ArticleDoc[] = contentError
+	? []
+	: ((contentData ?? []) as any[]).map((row) => ({
+			id: row.id,
+			slug: row.slug,
+			title: safeText(row.title, 'Untitled Content'),
+			subtitle: '',
+			content: safeText(row.body, ''),
+			excerpt: safeText(row.excerpt, makeExcerpt(row.body)),
+			thumbnail:
+				row.featured_image ||
+				'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=1200&q=80',
+			category: safeText(row.content_type, 'Content'),
+			tags: row.tags ? row.tags.split(',').map((t) => t.trim()) : [],
+			author: 'Jarurat Care',
+			date: formatDate(row.created_at),
+			readTime: 3,
+			isFeatured: false,
+			hidden: false,
+			source: 'cms' as const,
+			created_at_raw: row.created_at,
+			updated_at_raw: row.updated_at || row.created_at
+		}));
+
+			articles = [...jcfArticles, ...cmsArticles,...cmsContentArticles].sort(
 				(a, b) => new Date(b.created_at_raw).getTime() - new Date(a.created_at_raw).getTime()
 			);
 		} catch (err) {
@@ -244,7 +274,7 @@
 </script>
 
 <svelte:head>
-	<title>The Journal — Jarurat Care</title>
+	<title>Knowledge Hub — Jarurat Care</title>
 	<meta
 		name="description"
 		content="Approved articles from the Jarurat Care journal, loaded directly from Supabase."
@@ -398,10 +428,10 @@
 							class="text-4xl font-black leading-none tracking-tight text-[#0D2460] sm:text-5xl lg:text-6xl"
 							style="font-family:'DM Serif Display',serif;"
 						>
-							The Journal
+							Knowledge Hub
 						</h1>
 						<p class="mt-3 max-w-2xl text-sm text-[#5B6780]">
-							Approved articles are fetched live from Supabase and displayed directly from the table.
+							Research articles, blogs, news, events, campaigns and stories from Jarurat Care Foundation.
 						</p>
 					</div>
 
