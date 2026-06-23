@@ -40,6 +40,8 @@
 		isFeatured: boolean;
 		hidden: boolean;
 		source: 'jcf' | 'cms';
+		created_at_raw: string;
+		updated_at_raw?: string;
 		abstract?: string;
 		introduction?: string;
 		methods?: string;
@@ -60,7 +62,7 @@
 	let searchQuery = '';
 	let activeTag: string | null = null;
 	let viewMode: ViewMode = 'grid';
-	let sortBy: 'date' | 'title' = 'date';
+	let sortBy: 'newest' | 'oldest' | 'alphabetical' | 'recently_updated' = 'newest';
 
 	const PAGE_SIZE = 9;
 	let currentPage = 1;
@@ -125,7 +127,9 @@
 					readTime: Number(row.read_time) > 0 ? Number(row.read_time) : 3,
 					isFeatured: Boolean(row.is_featured),
 					hidden: Boolean(row.hidden),
-					source: 'jcf' as const
+					source: 'jcf' as const,
+					created_at_raw: row.created_at,
+					updated_at_raw: (row as any).updated_at || row.created_at
 				}));
 
 			const { data: cmsData, error: cmsError } = await cmsSupabase
@@ -161,11 +165,13 @@
 						conclusion: row.conclusion,
 						funding: row.funding,
 						ethics_statement: row.ethics_statement,
-						acknowledgements: row.acknowledgements
+						acknowledgements: row.acknowledgements,
+						created_at_raw: row.created_at,
+						updated_at_raw: row.updated_at || row.created_at
 					}));
 
 			articles = [...jcfArticles, ...cmsArticles].sort(
-				(a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+				(a, b) => new Date(b.created_at_raw).getTime() - new Date(a.created_at_raw).getTime()
 			);
 		} catch (err) {
 			console.error(err);
@@ -193,8 +199,21 @@
 	});
 
 	$: sorted = [...filtered].sort((a, b) => {
-		if (sortBy === 'title') return a.title.localeCompare(b.title);
-		return new Date(b.date).getTime() - new Date(a.date).getTime();
+		if (sortBy === 'newest')
+			return new Date(b.created_at_raw).getTime() - new Date(a.created_at_raw).getTime();
+		if (sortBy === 'oldest')
+			return new Date(a.created_at_raw).getTime() - new Date(b.created_at_raw).getTime();
+		if (sortBy === 'alphabetical') return a.title.localeCompare(b.title);
+		if (sortBy === 'recently_updated') {
+			const dateA = a.updated_at_raw
+				? new Date(a.updated_at_raw).getTime()
+				: new Date(a.created_at_raw).getTime();
+			const dateB = b.updated_at_raw
+				? new Date(b.updated_at_raw).getTime()
+				: new Date(b.created_at_raw).getTime();
+			return dateB - dateA;
+		}
+		return 0;
 	});
 
 	$: totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
@@ -389,10 +408,12 @@
 					<div class="flex flex-wrap items-center gap-3">
 						<select
 							bind:value={sortBy}
-							class="cursor-pointer rounded-full border border-[#D8E8FA] bg-white px-4 py-2 text-xs font-bold text-[#0D2460] outline-none transition-colors hover:border-[#0155BD]"
+							class="cursor-pointer rounded-full border border-[#D8E8FA] bg-white pl-4 pr-10 py-2 text-xs font-bold text-[#0D2460] outline-none transition-colors hover:border-[#0155BD] custom-select"
 						>
-							<option value="date">Latest First</option>
-							<option value="title">A – Z</option>
+							<option value="newest">Newest</option>
+							<option value="oldest">Oldest</option>
+							<option value="alphabetical">Alphabetical (A-Z)</option>
+							<option value="recently_updated">Recently Updated</option>
 						</select>
 
 						<div class="flex items-center gap-1 rounded-full border border-[#D8E8FA] bg-white p-1 shadow-sm">
@@ -731,6 +752,16 @@
 </div>
 
 <style>
+	.custom-select {
+		appearance: none;
+		-webkit-appearance: none;
+		-moz-appearance: none;
+		background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230d2460' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='m6 9 6 6 6-6'/%3e%3c/svg%3e");
+		background-repeat: no-repeat;
+		background-position: right 16px center;
+		background-size: 10px;
+	}
+
 	:global(body) {
 		font-family: 'DM Sans', sans-serif;
 		background: #f4f9ff;
