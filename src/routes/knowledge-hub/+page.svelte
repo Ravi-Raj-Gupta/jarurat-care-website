@@ -246,9 +246,9 @@
 <Nav />
 
 <div class="hub">
-	<div class="container">
+	<div class="container relative">
 
-		{#if selectedItem}
+				{#if selectedItem}
 			<!-- Detail View -->
 			<section class="detail">
 				<button class="back-btn" on:click={closeItem}>
@@ -335,55 +335,39 @@
 
 		{:else}
 			<!-- List View -->
-			<header class="hub-header flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+			<header class="hub-header flex flex-col md:flex-row justify-between items-start gap-6 mb-8 mt-2">
 				<div>
 					<p class="hub-eyebrow">Jarurat Care</p>
 					<h1 class="hub-title">Knowledge Hub</h1>
 					<p class="hub-desc">Explore research, blogs, news, events and more — all in one place.</p>
 				</div>
-
-				<!-- Portal Card -->
-				<div class="w-full max-w-[350px] bg-[#F0F6FD] border border-[#D8E8FA] rounded-2xl p-5 shadow-sm flex flex-col gap-3">
+				<div class="flex-shrink-0">
 					{#if isLoggedIn}
 						<div class="flex items-center gap-2">
-							<span class="text-xs font-black uppercase tracking-wider text-[#78C520] bg-[#E8F8D8] px-2.5 py-1 rounded-full">
-								Role: {userRole === 'cms_admin' || userRole === 'super_admin' ? 'Admin' : (userRole || 'User')}
-							</span>
-						</div>
-						<p class="text-xs text-[#0D2460] font-bold">Welcome back! Ready to write or manage your content?</p>
-						<div class="flex gap-2">
 							<a
 								href={userRole === 'cms_admin' || userRole === 'super_admin' ? '/cms/admin/admin_dashboard' : '/cms/author_dashboard'}
-								class="bg-[#0155bd] text-white px-3 py-2 rounded-xl text-xs font-bold hover:bg-[#004085] transition-colors text-center whitespace-nowrap flex-1"
+								class="bg-[#0155bd] text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-[#004085] transition-colors text-center whitespace-nowrap"
 							>
 								Dashboard
 							</a>
 							<button
 								on:click={handleLogout}
-								class="bg-white border border-[#D8E8FA] text-[#0D2460] px-3 py-2 rounded-xl text-xs font-bold hover:border-red-500 hover:text-red-500 transition-colors text-center whitespace-nowrap flex-1"
+								class="bg-white border border-[#D8E8FA] text-[#0D2460] px-6 py-2.5 rounded-xl text-sm font-bold hover:border-red-500 hover:text-red-500 transition-colors text-center whitespace-nowrap"
 							>
 								Logout
 							</button>
 						</div>
 					{:else}
 						<div class="flex items-center gap-2">
-							<span class="text-xs font-black uppercase tracking-wider text-[#78C520] bg-[#E8F8D8] px-2.5 py-1 rounded-full">
-								Authors Portal
-							</span>
-						</div>
-						<p class="text-xs text-[#5B6780] leading-relaxed">
-							Are you a researcher, doctor, or writer? Join us to publish medical research, blogs, and insights.
-						</p>
-						<div class="flex gap-2 mt-1">
 							<a
 								href="/cms/login"
-								class="bg-[#0155bd] text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-[#004085] transition-colors text-center flex-1"
+								class="bg-[#0155bd] text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-[#004085] transition-colors text-center"
 							>
 								Login
 							</a>
 							<a
 								href="/cms/signup"
-								class="bg-white border border-[#D8E8FA] text-[#0d2460] px-4 py-2 rounded-xl text-xs font-bold hover:border-[#0155bd] transition-colors text-center flex-1"
+								class="bg-white border border-[#D8E8FA] text-[#0d2460] px-6 py-2.5 rounded-xl text-sm font-bold hover:border-[#0155bd] transition-colors text-center"
 							>
 								Register
 							</a>
