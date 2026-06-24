@@ -13,6 +13,7 @@
 		abstract: string | null;
 		introduction: string | null;
 		status: string;
+		admin_feedback: string | null;
 		created_at: string;
 	};
 
@@ -31,6 +32,7 @@
 	let conclusion = '';
 	let submitting = false;
 	let showForm = false;
+	let editingArticleId: string | null = null;
 
 	// Stats
 	$: stats = {
@@ -74,14 +76,33 @@
 		loading = false;
 	}
 
+	function resetForm() {
+		title = subtitle = abstract = introduction = methods = results = discussion = conclusion = '';
+		editingArticleId = null;
+		showForm = false;
+	}
+
+	function startEdit(article: any) {
+		editingArticleId = article.id;
+		title = article.title || '';
+		subtitle = article.subtitle || '';
+		abstract = article.abstract || '';
+		introduction = article.introduction || '';
+		methods = article.methods || '';
+		results = article.results || '';
+		discussion = article.discussion || '';
+		conclusion = article.conclusion || '';
+		showForm = true;
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+	}
+
 	async function saveDraft() {
 		if (!title.trim()) { toast.error('Title is required'); return; }
 		if (!abstract.trim()) { toast.error('Abstract is required'); return; }
 
 		submitting = true;
 
-		const { error } = await cmsSupabase.from('research_articles').insert([{
-			user_id: user.id,
+		const payload = {
 			title: title.trim(),
 			subtitle: subtitle.trim() || null,
 			abstract: abstract.trim(),
@@ -90,16 +111,34 @@
 			results: results.trim() || null,
 			discussion: discussion.trim() || null,
 			conclusion: conclusion.trim() || null,
-			status: 'draft'
-		}]);
+		};
+
+		let error;
+		if (editingArticleId) {
+			const res = await cmsSupabase.from('research_articles').update({
+				...payload,
+				updated_at: new Date().toISOString()
+			}).eq('id', editingArticleId);
+			error = res.error;
+		} else {
+			const res = await cmsSupabase.from('research_articles').insert([{
+				user_id: user.id,
+				...payload,
+				status: 'draft'
+			}]);
+			error = res.error;
+		}
 
 		submitting = false;
 
 		if (error) { toast.error(error.message); return; }
+		
+		if (editingArticleId && selectedArticle?.id === editingArticleId) {
+			selectedArticle = { ...selectedArticle, ...payload };
+		}
 
-		toast.success('Draft saved successfully!');
-		title = subtitle = abstract = introduction = methods = results = discussion = conclusion = '';
-		showForm = false;
+		toast.success(editingArticleId ? 'Changes saved successfully!' : 'Draft saved successfully!');
+		resetForm();
 		await loadArticles();
 	}
 
@@ -113,6 +152,9 @@
 
 		if (error) { toast.error(error.message); return; }
 		toast.success('Article submitted for review!');
+		if (selectedArticle?.id === id) {
+			selectedArticle = { ...selectedArticle, status: 'submitted' };
+		}
 		await loadArticles();
 	}
 
@@ -125,7 +167,7 @@
 			.eq('id', id);
 
 		if (error) { toast.error(error.message); return; }
-		toast.success('Article deleted!');
+		toast.success('Article deleted successfully!');
 		if (selectedArticle?.id === id) selectedArticle = null;
 		await loadArticles();
 	}
@@ -195,7 +237,7 @@
 
 	<!-- New Article Button -->
 	<div style="margin-bottom:20px;">
-		<button class="btn-new" on:click={() => showForm = !showForm}>
+		<button class="btn-new" on:click={() => { if(showForm) resetForm(); else showForm = true; }}>
 			{showForm ? '✕ Cancel' : '+ New Article'}
 		</button>
 	</div>
@@ -203,7 +245,7 @@
 	<!-- Create Form -->
 	{#if showForm}
 		<div class="card form-card" style="margin-bottom:24px;">
-			<h3>Create Research Article</h3>
+			<h3>{editingArticleId ? 'Edit Research Article' : 'Create Research Article'}</h3>
 
 			<label>Title *</label>
 			<input placeholder="Article title" bind:value={title} />
@@ -260,7 +302,7 @@
 			/>
 
 			<button on:click={saveDraft} disabled={submitting} style="margin-top:16px;">
-				{submitting ? 'Saving...' : 'Save Draft'}
+				{submitting ? 'Saving...' : (editingArticleId ? 'Save Changes' : 'Save Draft')}
 			</button>
 		</div>
 	{/if}
@@ -304,7 +346,12 @@
 								{/if}
 
 								<div class="actions">
-									{#if article.status === 'draft' || article.status === 'changes_requested'}
+									{#if article.status === 'draft' || article.status === 'changes_requested' || article.status === 'rejected'}
+										<button class="btn-edit" on:click|stopPropagation={() => startEdit(article)}>
+											Edit
+										</button>
+									{/if}
+									{#if article.status === 'draft' || article.status === 'changes_requested' || article.status === 'rejected'}
 										<button class="btn-submit" on:click|stopPropagation={() => submitArticle(article.id)}>
 											Submit
 										</button>
@@ -334,6 +381,13 @@
 						<p class="subtitle-text">{selectedArticle.subtitle}</p>
 					{/if}
 					<p class="reader-meta">{formatDate(selectedArticle.created_at)}</p>
+
+					{#if selectedArticle.admin_feedback && (selectedArticle.status === 'rejected' || selectedArticle.status === 'changes_requested')}
+						<div style="margin-top:16px;padding:16px;background:#fef2f2;border:1px solid #fca5a5;border-radius:12px;">
+							<h4 style="margin:0 0 8px;color:#991b1b;font-size:14px;font-weight:700;">Admin Feedback / Suggested Changes:</h4>
+							<p style="margin:0;color:#7f1d1d;font-size:14px;white-space:pre-wrap;">{selectedArticle.admin_feedback}</p>
+						</div>
+					{/if}
 				</div>
 
 				<div class="reader-content">
@@ -540,6 +594,7 @@
 
 	.preview-text { font-size: 13px; color: #374151; line-height: 1.65; margin-bottom: 12px; }
 	.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+	.btn-edit { background: #3b82f6; font-size: 13px; padding: 6px 12px; }
 	.btn-submit { background: #16a34a; font-size: 13px; padding: 6px 12px; }
 	.btn-delete { background: #dc2626; font-size: 13px; padding: 6px 12px; }
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { goto } from '$app/navigation';
 	import Nav from '$lib/components/nav.svelte';
 	import { cmsSupabase } from '$lib/cmsSupabase';
@@ -38,6 +38,7 @@
 		status: string;
 		created_at: string;
 		updated_at: string;
+		admin_feedback: string | null;
 		profiles?: { full_name: string; email: string };
 	};
 
@@ -84,6 +85,9 @@
 	let cmsContents: CMSContent[] = [];
 	let users: UserProfile[] = [];
 	let selectedArticle: Article | null = null;
+	let adminFeedback = '';
+	let showFeedbackModal = false;
+	let pendingAction: 'reject' | 'changes' | null = null;
 	let editingContent: CMSContent | null = null;
 
 	// CMS Content form
@@ -258,28 +262,47 @@
 		selectedArticle = null;
 	}
 
-	async function rejectArticle(article: Article) {
-		await cmsSupabase
-			.from('research_articles')
-			.update({ status: 'rejected', updated_at: new Date().toISOString() })
-			.eq('id', article.id);
-		await loadArticles();
-		await loadAnalytics();
-		selectedArticle = null;
+
+	async function triggerAction(action: 'reject' | 'changes') {
+		pendingAction = action;
+		adminFeedback = '';
+		showFeedbackModal = true;
+		await tick();
+		const el = document.getElementById('admin-feedback-input');
+		if (el) el.focus();
 	}
 
-	async function requestChanges(article: Article) {
+	function cancelFeedbackAction() {
+		showFeedbackModal = false;
+		pendingAction = null;
+		adminFeedback = '';
+	}
+
+	async function submitFeedbackAction() {
+		if (!adminFeedback || adminFeedback.trim() === '') {
+			toast.error("Feedback is required.");
+			return;
+		}
+		if (!selectedArticle) return;
+
+		const status = pendingAction === 'reject' ? 'rejected' : 'changes_requested';
+
 		await cmsSupabase
 			.from('research_articles')
-			.update({ status: 'changes_requested', updated_at: new Date().toISOString() })
-			.eq('id', article.id);
+			.update({ status, updated_at: new Date().toISOString(), admin_feedback: adminFeedback })
+			.eq('id', selectedArticle.id);
+		
 		await loadArticles();
 		await loadAnalytics();
 		selectedArticle = null;
+		showFeedbackModal = false;
+		pendingAction = null;
+		adminFeedback = '';
 	}
 
 	function openArticle(article: Article) {
 		selectedArticle = article;
+		adminFeedback = article.admin_feedback || '';
 	}
 
 	function resetContentForm() {
@@ -617,13 +640,33 @@
 						{/if}
 					{/each}
 					<div class="review-actions">
-						<button class="approve" on:click={() => approveArticle(selectedArticle)}>Publish</button
-						>
-						<button class="changes" on:click={() => requestChanges(selectedArticle)}
-							>Request Changes</button
-						>
-						<button class="reject" on:click={() => rejectArticle(selectedArticle)}>Reject</button>
+						<button class="approve" on:click={() => approveArticle(selectedArticle)}>Publish</button>
+						<button class="changes" on:click={() => triggerAction('changes')}>Request Changes</button>
+						<button class="reject" on:click={() => triggerAction('reject')}>Reject</button>
 					</div>
+
+					{#if showFeedbackModal}
+						<div style="margin-top:20px;padding:16px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:12px;">
+							<h4 style="margin:0 0 12px;color:#0f172a;font-size:16px;">
+								{pendingAction === 'reject' ? 'Reason for Rejection' : 'Feedback / Suggested Changes'}
+							</h4>
+							<textarea
+								id="admin-feedback-input"
+								bind:value={adminFeedback}
+								rows="4"
+								placeholder="Type your feedback here (required)..."
+								style="width:100%;padding:12px;border:1px solid #94a3b8;border-radius:8px;font-size:14px;resize:vertical;margin-bottom:12px;"
+							></textarea>
+							<div style="display:flex;gap:12px;justify-content:flex-end;">
+								<button on:click={cancelFeedbackAction} style="padding:8px 16px;background:#e2e8f0;color:#475569;border-radius:8px;border:none;cursor:pointer;font-weight:600;">
+									Cancel
+								</button>
+								<button on:click={submitFeedbackAction} style="padding:8px 16px;background:#3b82f6;color:white;border-radius:8px;border:none;cursor:pointer;font-weight:600;">
+									Confirm & Submit
+								</button>
+							</div>
+						</div>
+					{/if}
 				{:else}
 					<div class="empty">
 						<h3>Select an article</h3>
