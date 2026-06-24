@@ -4,7 +4,7 @@
 	import NewsFooter from '$lib/components/news-footer.svelte';
 	import { Search, LayoutGrid, List, ChevronRight, X, ArrowLeft } from 'lucide-svelte';
 	import { cmsSupabase } from '$lib/cmsSupabase';
-
+ 
 	type ContentItem = {
 		id: string;
 		title: string;
@@ -27,7 +27,7 @@
 		ethics_statement?: string;
 		acknowledgements?: string;
 	};
-
+ 
 	const TYPE_LABELS: Record<string, string> = {
 		article: 'Research Article',
 		blog: 'Blog',
@@ -37,7 +37,7 @@
 		testimonials: 'Testimonial',
 		campaign: 'Campaign'
 	};
-
+ 
 	const TYPE_COLORS: Record<string, string> = {
 		article: '#0155bd',
 		blog: '#7c3aed',
@@ -47,7 +47,7 @@
 		testimonials: '#db2777',
 		campaign: '#dc2626'
 	};
-
+ 
 	const DEFAULT_THUMBNAILS: Record<string, string> = {
 		article: 'https://images.unsplash.com/photo-1532094349884-543559c95d15?auto=format&fit=crop&w=800&q=80',
 		blog: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=800&q=80',
@@ -57,30 +57,30 @@
 		testimonials: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=800&q=80',
 		campaign: 'https://images.unsplash.com/photo-1561489413-985b06da5bee?auto=format&fit=crop&w=800&q=80'
 	};
-
+ 
 	let allContent: ContentItem[] = [];
 	let selectedItem: ContentItem | null = null;
 	let loading = true;
 	let errorMsg = '';
-
+ 
 	let searchQuery = '';
 	let activeFilter = 'all';
 	let viewMode: 'grid' | 'list' = 'grid';
 	let sortBy: 'date' | 'date_asc' | 'title' | 'title_desc' = 'date';
-
+ 
 	const PAGE_SIZE = 9;
 	let currentPage = 1;
-
+ 
 	let isLoggedIn = false;
 	let userRole = '';
-
+ 
 	async function handleLogout() {
 		await cmsSupabase.auth.signOut();
 		isLoggedIn = false;
 		userRole = '';
 		window.location.reload();
 	}
-
+ 
 	const FILTERS = [
 		{ label: 'All', value: 'all' },
 		{ label: 'Research', value: 'article' },
@@ -91,25 +91,25 @@
 		{ label: 'Testimonials', value: 'testimonials' },
 		{ label: 'Campaign', value: 'campaign' }
 	];
-
+ 
 	function stripHtml(html: string) {
 		return (html || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 	}
-
+ 
 	function makeExcerpt(text: string, max = 160) {
 		const plain = stripHtml(text);
 		return plain.length > max ? plain.slice(0, max) + '…' : plain;
 	}
-
+ 
 	function formatDate(d: string) {
 		if (!d) return '';
 		return new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(d));
 	}
-
+ 
 	async function loadContent() {
 		loading = true;
 		errorMsg = '';
-
+ 
 		try {
 			// Research Articles fetch karo
 			const { data: articles, error: aErr } = await cmsSupabase
@@ -117,9 +117,9 @@
 				.select('*')
 				.eq('status', 'published')
 				.order('created_at', { ascending: false });
-
+ 
 			if (aErr) throw aErr;
-
+ 
 			const articleItems: ContentItem[] = (articles ?? []).map(a => ({
 				id: a.id,
 				title: a.title || 'Untitled',
@@ -141,16 +141,16 @@
 				ethics_statement: a.ethics_statement,
 				acknowledgements: a.acknowledgements
 			}));
-
+ 
 			// CMS Content fetch karo (blogs, news, events etc.)
 			const { data: cmsContent, error: cErr } = await cmsSupabase
 				.from('cms_content')
 				.select('*')
 				.eq('status', 'published')
 				.order('created_at', { ascending: false });
-
+ 
 			if (cErr) throw cErr;
-
+ 
 			const cmsItems: ContentItem[] = (cmsContent ?? []).map(c => ({
 				id: c.id,
 				title: c.title || 'Untitled',
@@ -162,8 +162,30 @@
 				date: formatDate(c.created_at),
 				author: 'Editorial Team'
 			}));
-
-			allContent = [...articleItems, ...cmsItems].sort(
+ 
+			// Published Testimonials fetch karo
+			const { data: testimonials, error: tErr } = await cmsSupabase
+				.from('testimonials')
+				.select('*')
+				.eq('status', 'published')
+				.order('created_at', { ascending: false });
+ 
+			if (tErr) throw tErr;
+ 
+			const testimonialItems: ContentItem[] = (testimonials ?? []).map(t => ({
+				id: t.id,
+				title: t.name || 'Anonymous',
+				subtitle: t.designation || '',
+				excerpt: makeExcerpt(t.content || ''),
+				content: t.content || '',
+				thumbnail: DEFAULT_THUMBNAILS.testimonials,
+				category: 'Testimonial',
+				type: 'testimonials',
+				date: formatDate(t.created_at),
+				author: t.name || 'Anonymous'
+			}));
+ 
+			allContent = [...articleItems, ...cmsItems, ...testimonialItems].sort(
 				(a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
 			);
 		} catch (err) {
@@ -173,10 +195,10 @@
 			loading = false;
 		}
 	}
-
+ 
 	onMount(async () => {
 		loadContent();
-
+ 
 		const { data: { user } } = await cmsSupabase.auth.getUser();
 		if (user) {
 			isLoggedIn = true;
@@ -187,7 +209,7 @@
 				.single();
 			userRole = profile?.role || 'user';
 		}
-
+ 
 		cmsSupabase.auth.onAuthStateChange(async (event, session) => {
 			isLoggedIn = !!session?.user;
 			if (session?.user) {
@@ -202,36 +224,36 @@
 			}
 		});
 	});
-
+ 
 	$: filtered = allContent.filter(item => {
 		const matchFilter = activeFilter === 'all' || item.type === activeFilter;
 		const q = searchQuery.toLowerCase();
 		const matchSearch = !q || item.title.toLowerCase().includes(q) || item.excerpt.toLowerCase().includes(q);
 		return matchFilter && matchSearch;
 	});
-
+ 
 	$: sorted = [...filtered].sort((a, b) => {
     if (sortBy === 'title') return a.title.localeCompare(b.title);
     if (sortBy === 'title_desc') return b.title.localeCompare(a.title);
     if (sortBy === 'date_asc') return new Date(a.date).getTime() - new Date(b.date).getTime();
     return new Date(b.date).getTime() - new Date(a.date).getTime();
 });
-
+ 
 	$: totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
 	$: paged = sorted.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 	$: if (currentPage > totalPages) currentPage = 1;
-
+ 
 	function openItem(item: ContentItem) {
 		selectedItem = item;
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 	}
-
+ 
 	function closeItem() {
 		selectedItem = null;
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 	}
 </script>
-
+ 
 <svelte:head>
     <title>Knowledge Hub — Jarurat Care Foundation</title>
     <meta name="description" content="Explore research articles, blogs, news, events, FAQs and more from Jarurat Care Foundation. Your one-stop hub for health knowledge." />
@@ -242,19 +264,19 @@
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://jarurat.care/knowledge-hub" />
 </svelte:head>
-
+ 
 <Nav />
-
+ 
 <div class="hub">
 	<div class="container relative">
-
+ 
 				{#if selectedItem}
 			<!-- Detail View -->
 			<section class="detail">
 				<button class="back-btn" on:click={closeItem}>
 					<ArrowLeft size={14} /> Back to Knowledge Hub
 				</button>
-
+ 
 				<article class="detail-card">
 					<div class="detail-hero">
 						<img src={selectedItem.thumbnail} alt={selectedItem.title} class="detail-img" />
@@ -264,7 +286,7 @@
 							</span>
 						</div>
 					</div>
-
+ 
 					<div class="detail-body">
 						<h1 class="detail-title">{selectedItem.title}</h1>
 						{#if selectedItem.subtitle}
@@ -274,7 +296,7 @@
 							<span>✍️ {selectedItem.author}</span>
 							<span>📅 {selectedItem.date}</span>
 						</div>
-
+ 
 						<div class="detail-content">
 							{#if selectedItem.type === 'article'}
 								{#if selectedItem.abstract}
@@ -325,6 +347,10 @@
 										<div>{@html selectedItem.acknowledgements}</div>
 									</div>
 								{/if}
+							{:else if selectedItem.type === 'testimonials'}
+								<p class="prose" style="font-style:italic;font-size:1.15rem;color:#374151;">
+									"{selectedItem.content}"
+								</p>
 							{:else}
 								<div class="prose">{@html selectedItem.content}</div>
 							{/if}
@@ -332,7 +358,7 @@
 					</div>
 				</article>
 			</section>
-
+ 
 		{:else}
 			<!-- List View -->
 			<header class="hub-header flex flex-col md:flex-row justify-between items-start gap-6 mb-8 mt-2">
@@ -375,7 +401,7 @@
 					{/if}
 				</div>
 			</header>
-
+ 
 			<!-- Filter Tabs -->
 			<div class="filters">
 				{#each FILTERS as f}
@@ -392,7 +418,7 @@
 					</button>
 				{/each}
 			</div>
-
+ 
 			<!-- Search + Sort + View -->
 			<div class="toolbar">
 				<div class="search-wrap">
@@ -410,14 +436,14 @@
 						</button>
 					{/if}
 				</div>
-
+ 
 				<select bind:value={sortBy} class="sort-select">
                     <option value="date">Newest First</option>
                     <option value="date_asc">Oldest First</option>
                     <option value="title">A – Z</option>
                     <option value="title_desc">Z – A</option>
                 </select>
-
+ 
 				<div class="view-toggle">
 					<button class="view-btn {viewMode === 'grid' ? 'active' : ''}" on:click={() => viewMode = 'grid'}>
 						<LayoutGrid size={14} />
@@ -427,7 +453,7 @@
 					</button>
 				</div>
 			</div>
-
+ 
 			<!-- Content -->
 			{#if loading}
 				<div class="loading-grid">
@@ -435,13 +461,13 @@
 						<div class="skeleton"></div>
 					{/each}
 				</div>
-
+ 
 			{:else if errorMsg}
 				<div class="empty-state">
 					<p>{errorMsg}</p>
 					<button on:click={loadContent} class="filter-btn active">Try Again</button>
 				</div>
-
+ 
 			{:else if sorted.length === 0}
 				<div class="empty-state">
 					<p style="font-size:2rem;">🔍</p>
@@ -451,7 +477,7 @@
 						Clear Filters
 					</button>
 				</div>
-
+ 
 			{:else if viewMode === 'grid'}
 				<div class="content-grid">
 					{#each paged as item}
@@ -480,7 +506,7 @@
 						</article>
 					{/each}
 				</div>
-
+ 
 			{:else}
 				<div class="list-view">
 					{#each paged as item}
@@ -507,7 +533,7 @@
 					{/each}
 				</div>
 			{/if}
-
+ 
 			<!-- Pagination -->
 			{#if totalPages > 1}
 				<div class="pagination">
@@ -525,33 +551,33 @@
 				</div>
 			{/if}
 		{/if}
-
+ 
 	</div>
-
+ 
 	<div class="footer-wrap">
 		<NewsFooter />
 	</div>
 </div>
-
+ 
 <style>
 	.hub {
 		min-height: 100vh;
 		background: #f4f9ff;
 		font-family: 'DM Sans', sans-serif;
 	}
-
+ 
 	.container {
 		max-width: 1200px;
 		margin: 0 auto;
 		padding: 120px 24px 60px;
 	}
-
+ 
 	/* Header */
 	.hub-header { margin-bottom: 32px; }
 	.hub-eyebrow { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.3em; color: #78c520; margin: 0 0 8px; }
 	.hub-title { font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 700; color: #0d2460; margin: 0 0 12px; font-family: 'Arial', sans-serif; }
 	.hub-desc { color: #5b6780; font-size: 1rem; max-width: 600px; }
-
+ 
 	/* Filters */
 	.filters {
 		display: flex;
@@ -559,7 +585,7 @@
 		gap: 8px;
 		margin-bottom: 24px;
 	}
-
+ 
 	.filter-btn {
 		padding: 8px 16px;
 		border-radius: 999px;
@@ -571,11 +597,11 @@
 		cursor: pointer;
 		transition: all 0.2s;
 	}
-
+ 
 	.filter-btn:hover { border-color: #0155bd; color: #0155bd; }
 	.filter-btn.active { background: #0155bd; color: white; border-color: #0155bd; }
 	.filter-count { font-size: 11px; opacity: 0.7; }
-
+ 
 	/* Toolbar */
 	.toolbar {
 		display: flex;
@@ -584,13 +610,13 @@
 		margin-bottom: 28px;
 		flex-wrap: wrap;
 	}
-
+ 
 	.search-wrap {
 		position: relative;
 		flex: 1;
 		min-width: 200px;
 	}
-
+ 
 	.search-input {
 		width: 100%;
 		padding: 10px 36px 10px 36px;
@@ -602,11 +628,11 @@
 		color: #0d2460;
 		box-sizing: border-box;
 	}
-
+ 
 	.search-input:focus { border-color: #0155bd; }
-
+ 
 	:global(.search-icon) { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
-
+ 
 	.clear-search {
 		position: absolute;
 		right: 10px;
@@ -618,7 +644,7 @@
 		color: #94a3b8;
 		padding: 2px;
 	}
-
+ 
 	.sort-select {
 		padding: 10px 14px;
 		border: 1px solid #d8e8fa;
@@ -630,11 +656,11 @@
 		outline: none;
 		cursor: pointer;
 	}
-
+ 
 	.view-toggle { display: flex; gap: 4px; background: white; border: 1px solid #d8e8fa; border-radius: 999px; padding: 4px; }
 	.view-btn { background: none; border: none; padding: 6px 8px; border-radius: 999px; cursor: pointer; color: #94a3b8; transition: all 0.2s; }
 	.view-btn.active { background: #0155bd; color: white; }
-
+ 
 	/* Grid */
 	.content-grid {
 		display: grid;
@@ -642,7 +668,7 @@
 		gap: 24px;
 		margin-bottom: 40px;
 	}
-
+ 
 	.content-card {
 		background: white;
 		border-radius: 20px;
@@ -653,17 +679,17 @@
 		display: flex;
 		flex-direction: column;
 	}
-
+ 
 	.content-card:hover {
 		transform: translateY(-4px);
 		box-shadow: 0 20px 40px rgba(1,85,189,0.12);
 		border-color: #0155bd;
 	}
-
+ 
 	.card-img-wrap { position: relative; aspect-ratio: 16/9; overflow: hidden; }
 	.card-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
 	.content-card:hover .card-img { transform: scale(1.05); }
-
+ 
 	.card-type-badge {
 		position: absolute;
 		top: 12px;
@@ -676,7 +702,7 @@
 		color: white;
 		letter-spacing: 0.05em;
 	}
-
+ 
 	.card-body { padding: 20px; flex: 1; display: flex; flex-direction: column; }
 	.card-date { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #94a3b8; margin: 0 0 8px; letter-spacing: 0.1em; }
 	.card-title { font-size: 17px; font-weight: 800; color: #0d2460; margin: 0 0 10px; line-height: 1.35; font-family: 'DM Serif Display', serif; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
@@ -684,10 +710,10 @@
 	.card-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid #f0f6fd; margin-top: auto; }
 	.card-author { font-size: 11px; font-weight: 700; color: #94a3b8; }
 	.card-read { font-size: 12px; font-weight: 800; color: #0155bd; }
-
+ 
 	/* List View */
 	.list-view { display: flex; flex-direction: column; gap: 12px; margin-bottom: 40px; }
-
+ 
 	.list-item {
 		background: white;
 		border-radius: 16px;
@@ -699,26 +725,26 @@
 		cursor: pointer;
 		transition: all 0.2s;
 	}
-
+ 
 	.list-item:hover { border-color: #0155bd; box-shadow: 0 8px 24px rgba(1,85,189,0.08); }
-
+ 
 	.list-thumb { width: 80px; height: 60px; border-radius: 10px; object-fit: cover; flex-shrink: 0; }
 	.list-body { flex: 1; min-width: 0; }
 	.list-title { font-size: 15px; font-weight: 800; color: #0d2460; margin: 0 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 	:global(.list-arrow) { color: #c7ddf7; flex-shrink: 0; }
-
+ 
 	/* Loading */
 	.loading-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
 	.skeleton { background: linear-gradient(90deg, #f0f4ff 25%, #e8eef7 50%, #f0f4ff 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 20px; height: 320px; }
 	@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-
+ 
 	/* Empty */
 	.empty-state { text-align: center; padding: 80px 20px; color: #6b7280; }
 	.empty-state h3 { color: #0d2460; font-size: 24px; margin-bottom: 8px; }
-
+ 
 	/* Detail */
 	.detail { max-width: 860px; margin: 0 auto; }
-
+ 
 	.back-btn {
 		display: inline-flex;
 		align-items: center;
@@ -734,39 +760,39 @@
 		margin-bottom: 24px;
 		transition: all 0.2s;
 	}
-
+ 
 	.back-btn:hover { border-color: #0155bd; color: #0155bd; }
-
+ 
 	.detail-card { background: white; border-radius: 24px; overflow: hidden; border: 1px solid #e8eef7; box-shadow: 0 20px 50px rgba(1,85,189,0.08); }
-
+ 
 	.detail-hero { position: relative; aspect-ratio: 21/9; overflow: hidden; }
 	.detail-img { width: 100%; height: 100%; object-fit: cover; }
 	.detail-overlay { position: absolute; bottom: 16px; left: 16px; }
-
+ 
 	.type-badge { padding: 6px 14px; border-radius: 999px; font-size: 11px; font-weight: 800; text-transform: uppercase; color: white; letter-spacing: 0.1em; }
-
+ 
 	.detail-body { padding: 40px; }
 	.detail-title { font-size: clamp(1.8rem, 3vw, 2.5rem); font-weight: 900; color: #0d2460; margin: 0 0 8px; font-family: 'DM Serif Display', serif; line-height: 1.2; }
 	.detail-subtitle { color: #6b7280; font-style: italic; font-size: 1.1rem; margin: 0 0 16px; }
 	.detail-meta { display: flex; gap: 20px; color: #6b7280; font-size: 13px; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #e8eef7; }
-
+ 
 	.detail-content { line-height: 1.9; color: #374151; font-size: 1.02rem; }
-
+ 
 	.content-section { margin-bottom: 32px; }
 	.content-section h2 { font-size: 1.4rem; font-weight: 800; color: #0d2460; margin: 0 0 12px; padding-bottom: 8px; border-bottom: 2px solid #e8eef7; }
-
+ 
 	.prose { line-height: 1.9; }
-
+ 
 	/* Pagination */
 	.pagination { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 40px; }
 	.page-btn { padding: 8px 18px; border-radius: 999px; border: 1px solid #d8e8fa; background: white; color: #0d2460; font-weight: 700; font-size: 13px; cursor: pointer; transition: all 0.2s; }
 	.page-btn:hover:not(:disabled) { border-color: #0155bd; color: #0155bd; }
 	.page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 	.page-info { font-size: 13px; font-weight: 700; color: #6b7280; }
-
+ 
 	/* Footer */
 	.footer-wrap { margin-top: 60px; }
-
+ 
 	@media (max-width: 768px) {
 		.container { padding: 100px 16px 40px; }
 		.content-grid { grid-template-columns: 1fr; }

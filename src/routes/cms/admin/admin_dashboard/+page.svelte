@@ -8,7 +8,7 @@
 	import NewsFooter from '$lib/components/news-footer.svelte';
 	import Treatment from '$lib/svg/treatment.svelte';
 	import { Search } from 'lucide-svelte';
-
+ 
 	type AuthorRequest = {
 		id: number;
 		user_id: string;
@@ -19,7 +19,7 @@
 		created_at: string;
 		profiles?: { full_name: string; email: string };
 	};
-
+ 
 	type Article = {
 		id: number;
 		user_id: string;
@@ -41,7 +41,7 @@
 		admin_feedback: string | null;
 		profiles?: { full_name: string; email: string };
 	};
-
+ 
 	type CMSContent = {
 		id: string;
 		content_type: string;
@@ -53,7 +53,7 @@
 		created_at: string;
 		updated_at?: string;
 	};
-
+ 
 	type UserProfile = {
 		id: string;
 		email: string;
@@ -61,12 +61,12 @@
 		role: string;
 		created_at: string;
 	};
-
+ 
 	let user: any = null;
 	let loading = true;
 	let contentToDelete: string | null = null;
 	let activeTab = 'analytics';
-
+ 
 	// Analytics
 	let totalAuthors = 0;
 	let pendingRequests = 0;
@@ -78,19 +78,20 @@
 	let changesRequestedArticles = 0;
 	let totalContent = 0;
 	let publishedContent = 0;
-
+ 
 	// Data
 	let authorRequests: AuthorRequest[] = [];
 	let articles: Article[] = [];
 	let cmsContents: CMSContent[] = [];
 	let users: UserProfile[] = [];
 	let selectedArticle: Article | null = null;
+	let pendingTestimonials: any[] = [];
 	let adminFeedback = '';
 	let showFeedbackModal = false;
 	let submittingFeedback = false;
 	let pendingAction: 'reject' | 'changes' | null = null;
 	let editingContent: CMSContent | null = null;
-
+ 
 	// CMS Content form
 	let showContentForm = false;
 	let contentType = 'blog';
@@ -106,7 +107,7 @@
 	let seoDescription = '';
 	let publishDate = '';
 	let savingContent = false;
-
+ 
 	$: if (contentTitle && !editingContent) {
 		contentSlug = contentTitle
 			.toLowerCase()
@@ -114,18 +115,18 @@
 			.replace(/[^a-z0-9\s-]/g, '')
 			.replace(/\s+/g, '-');
 	}
-
+ 
 	// User management
 	let userSearch = '';
 	let roleFilter = 'all';
 	let contentSearch = '';
 	let contentSort = 'newest';
-
+ 
 	$: filteredContents = cmsContents
 		.filter((c) => {
 			if (!contentSearch) return true;
 			const term = contentSearch.toLowerCase();
-			return c.title.toLowerCase().includes(term) || 
+			return c.title.toLowerCase().includes(term) ||
 			       c.slug.toLowerCase().includes(term) ||
 			       (c.category && c.category.toLowerCase().includes(term));
 		})
@@ -146,10 +147,10 @@
 			}
 			return 0;
 		});
-
-	const CONTENT_TYPES = ['blog', 'news', 'event', 'faq', 'campaign', 'testimonial'];
-	const ROLES = ['user', 'author', 'cms_admin', 'super_admin'];
-
+ 
+	const CONTENT_TYPES = ['blog', 'news', 'event', 'faq', 'campaign'];
+	const ROLES = ['user', 'author', 'testimonial_writer', 'cms_admin', 'super_admin'];
+ 
 	onMount(async () => {
 		const {
 			data: { user: authUser }
@@ -159,39 +160,40 @@
 			return;
 		}
 		user = authUser;
-
+ 
 		const { data: profile } = await cmsSupabase
 			.from('profiles')
 			.select('role')
 			.eq('id', authUser.id)
 			.single();
-
+ 
 		if (profile?.role !== 'cms_admin' && profile?.role !== 'super_admin') {
 			goto('/cms/login');
 			return;
 		}
-
+ 
 		await Promise.all([
 			loadAnalytics(),
 			loadAuthorRequests(),
 			loadArticles(),
+			loadPendingTestimonials(),
 			loadCMSContent(),
 			loadUsers()
 		]);
-
+ 
 		loading = false;
 	});
-
+ 
 	async function loadAnalytics() {
 		const { data: authors } = await cmsSupabase.from('profiles').select('id').eq('role', 'author');
 		totalAuthors = authors?.length ?? 0;
-
+ 
 		const { data: pending } = await cmsSupabase
 			.from('author_requests')
 			.select('id')
 			.eq('status', 'pending');
 		pendingRequests = pending?.length ?? 0;
-
+ 
 		const { data: allArticles } = await cmsSupabase.from('research_articles').select('id, status');
 		totalArticles = allArticles?.length ?? 0;
 		publishedArticles = allArticles?.filter((a) => a.status === 'published').length ?? 0;
@@ -200,12 +202,12 @@
 		underReviewArticles = allArticles?.filter((a) => a.status === 'under_review').length ?? 0;
 		changesRequestedArticles =
 			allArticles?.filter((a) => a.status === 'changes_requested').length ?? 0;
-
+ 
 		const { data: content } = await cmsSupabase.from('cms_content').select('id, status');
 		totalContent = content?.length ?? 0;
 		publishedContent = content?.filter((c) => c.status === 'published').length ?? 0;
 	}
-
+ 
 	async function loadAuthorRequests() {
 		const { data } = await cmsSupabase
 			.from('author_requests')
@@ -214,7 +216,7 @@
 			.order('created_at', { ascending: false });
 		authorRequests = data ?? [];
 	}
-
+ 
 	async function loadArticles() {
 		const { data } = await cmsSupabase
 			.from('research_articles')
@@ -223,7 +225,83 @@
 			.order('created_at', { ascending: false });
 		articles = data ?? [];
 	}
-
+ 
+	async function loadPendingTestimonials() {
+		const { data, error } = await cmsSupabase
+			.from('testimonials')
+			.select('*')
+			.eq('status', 'submitted')
+			.order('created_at', { ascending: false });
+ 
+		if (error) {
+			toast.error(error.message);
+			return;
+		}
+ 
+		pendingTestimonials = data ?? [];
+	}
+ 
+	async function approveTestimonial(testimonial: any) {
+		const { error } = await cmsSupabase
+			.from('testimonials')
+			.update({
+				status: 'published',
+				updated_at: new Date().toISOString()
+			})
+			.eq('id', testimonial.id);
+ 
+		if (error) {
+			toast.error(error.message);
+			return;
+		}
+ 
+		toast.success('Testimonial published!');
+		await loadPendingTestimonials();
+		await loadAnalytics();
+	}
+ 
+	async function rejectTestimonial(testimonial: any) {
+		const { error } = await cmsSupabase
+			.from('testimonials')
+			.update({
+				status: 'rejected',
+				updated_at: new Date().toISOString()
+			})
+			.eq('id', testimonial.id);
+ 
+		if (error) {
+			toast.error(error.message);
+			return;
+		}
+ 
+		toast.success('Testimonial rejected.');
+		await loadPendingTestimonials();
+		await loadAnalytics();
+	}
+ 
+	async function requestTestimonialChanges(testimonial: any) {
+		const feedback = prompt('Enter feedback for the user:');
+ 
+		if (!feedback?.trim()) return;
+ 
+		const { error } = await cmsSupabase
+			.from('testimonials')
+			.update({
+				status: 'changes_requested',
+				admin_feedback: feedback,
+				updated_at: new Date().toISOString()
+			})
+			.eq('id', testimonial.id);
+ 
+		if (error) {
+			toast.error(error.message);
+			return;
+		}
+ 
+		toast.success('Feedback sent to user.');
+		await loadPendingTestimonials();
+	}
+ 
 	async function loadCMSContent() {
 		const { data } = await cmsSupabase
 			.from('cms_content')
@@ -231,7 +309,7 @@
 			.order('created_at', { ascending: false });
 		cmsContents = data ?? [];
 	}
-
+ 
 	async function loadUsers() {
 		const { data } = await cmsSupabase
 			.from('profiles')
@@ -239,20 +317,23 @@
 			.order('created_at', { ascending: false });
 		users = data ?? [];
 	}
-
+ 
 	async function approveAuthor(request: AuthorRequest) {
-		await cmsSupabase.from('profiles').update({ role: 'author' }).eq('id', request.user_id);
+		// Testimonial request hai ya author request
+		const newRole = request.research_area === 'Testimonial' ? 'testimonial_writer' : 'author';
+ 
+		await cmsSupabase.from('profiles').update({ role: newRole }).eq('id', request.user_id);
 		await cmsSupabase.from('author_requests').update({ status: 'approved' }).eq('id', request.id);
 		await loadAuthorRequests();
 		await loadAnalytics();
 	}
-
+ 
 	async function rejectAuthor(request: AuthorRequest) {
 		await cmsSupabase.from('author_requests').update({ status: 'rejected' }).eq('id', request.id);
 		await loadAuthorRequests();
 		await loadAnalytics();
 	}
-
+ 
 	async function approveArticle(article: Article) {
 		await cmsSupabase
 			.from('research_articles')
@@ -262,8 +343,7 @@
 		await loadAnalytics();
 		selectedArticle = null;
 	}
-
-
+ 
 	async function triggerAction(action: 'reject' | 'changes') {
 		pendingAction = action;
 		adminFeedback = '';
@@ -272,43 +352,49 @@
 		const el = document.getElementById('admin-feedback-input');
 		if (el) el.focus();
 	}
-
+ 
 	function cancelFeedbackAction() {
 		showFeedbackModal = false;
 		pendingAction = null;
 		adminFeedback = '';
 	}
-
+ 
 	async function submitFeedbackAction() {
 		if (!adminFeedback || adminFeedback.trim() === '') {
-			toast.error("Feedback is required.");
+			toast.error('Feedback is required.');
 			return;
 		}
 		if (!selectedArticle) return;
-
+ 
 		submittingFeedback = true;
 		const status = pendingAction === 'reject' ? 'rejected' : 'changes_requested';
-
-		await cmsSupabase
+ 
+		const { error } = await cmsSupabase
 			.from('research_articles')
 			.update({ status, updated_at: new Date().toISOString(), admin_feedback: adminFeedback })
 			.eq('id', selectedArticle.id);
-		
+ 
+		submittingFeedback = false;
+ 
+		if (error) {
+			toast.error(error.message);
+			return;
+		}
+ 
 		await loadArticles();
 		await loadAnalytics();
-		
-		submittingFeedback = false;
+ 
 		selectedArticle = null;
 		showFeedbackModal = false;
 		pendingAction = null;
 		adminFeedback = '';
 	}
-
+ 
 	function openArticle(article: Article) {
 		selectedArticle = article;
 		adminFeedback = article.admin_feedback || '';
 	}
-
+ 
 	function resetContentForm() {
 		editingContent = null;
 		showContentForm = false;
@@ -326,7 +412,7 @@
 		contentStatus = 'draft';
 		showContentForm = true;
 	}
-
+ 
 	function startEdit(content: CMSContent) {
 		editingContent = content;
 		showContentForm = true;
@@ -338,7 +424,7 @@
 		contentStatus = content.status;
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 	}
-
+ 
 	async function togglePublish(content: CMSContent) {
 		const newStatus = content.status === 'published' ? 'draft' : 'published';
 		const { error } = await cmsSupabase
@@ -349,24 +435,24 @@
 			toast.error(error.message);
 			return;
 		}
-
+ 
 		if (newStatus === 'published') {
 			toast.success('Content published successfully! ');
 		} else {
 			toast.success('Content moved to draft. ');
 		}
-
+ 
 		await loadCMSContent();
 		await loadAnalytics();
 	}
-
+ 
 	async function saveContent() {
 		if (!contentTitle.trim() || !contentBody.trim()) {
 			toast.error('Title and content are required');
 			return;
 		}
 		savingContent = true;
-
+ 
 		let imageUrl = null;
 		if (featuredImage) {
 			const fileName = `${Date.now()}-${featuredImage.name}`;
@@ -381,7 +467,7 @@
 			const { data } = cmsSupabase.storage.from('cms-images').getPublicUrl(fileName);
 			imageUrl = data.publicUrl;
 		}
-
+ 
 		const { error } = await cmsSupabase.from('cms_content').insert([
 			{
 				content_type: contentType,
@@ -398,19 +484,19 @@
 				status: contentStatus
 			}
 		]);
-
+ 
 		savingContent = false;
 		if (error) {
 			toast.error(error.message);
 			return;
 		}
-
+ 
 		toast.success(' Content saved successfully!');
 		resetContentForm();
 		await loadCMSContent();
 		await loadAnalytics();
 	}
-
+ 
 	async function updateContent() {
 		if (!contentTitle.trim() || !contentBody.trim()) {
 			toast.error('Title and content are required');
@@ -418,7 +504,7 @@
 		}
 		if (!editingContent) return;
 		savingContent = true;
-
+ 
 		const { error } = await cmsSupabase
 			.from('cms_content')
 			.update({
@@ -431,27 +517,27 @@
 				updated_at: new Date().toISOString()
 			})
 			.eq('id', editingContent.id);
-
+ 
 		savingContent = false;
 		if (error) {
 			toast.error(error.message);
 			return;
 		}
-
+ 
 		toast.success(' Content updated!');
 		resetContentForm();
 		await loadCMSContent();
 		await loadAnalytics();
 	}
-
+ 
 	function promptDelete(id: string) {
 		contentToDelete = id;
 	}
-
+ 
 	function cancelDelete() {
 		contentToDelete = null;
 	}
-
+ 
 	async function confirmDelete() {
 		if (!contentToDelete) return;
 		await cmsSupabase.from('cms_content').delete().eq('id', contentToDelete);
@@ -460,7 +546,7 @@
 		await loadCMSContent();
 		await loadAnalytics();
 	}
-
+ 
 	async function updateUserRole(userId: string, newRole: string) {
 		const { error } = await cmsSupabase.from('profiles').update({ role: newRole }).eq('id', userId);
 		if (error) {
@@ -470,13 +556,13 @@
 		await loadUsers();
 		await loadAnalytics();
 	}
-
+ 
 	async function removeUser(userId: string) {
 		if (!confirm('Remove this user?')) return;
 		await cmsSupabase.from('profiles').delete().eq('id', userId);
 		await loadUsers();
 	}
-
+ 
 	function formatDate(date: string) {
 		return new Date(date).toLocaleDateString('en-IN', {
 			day: 'numeric',
@@ -484,12 +570,12 @@
 			year: 'numeric'
 		});
 	}
-
+ 
 	async function logout() {
 		await cmsSupabase.auth.signOut();
 		goto('/cms/login');
 	}
-
+ 
 	$: filteredUsers = users.filter((u) => {
 		const matchSearch =
 			!userSearch ||
@@ -498,19 +584,19 @@
 		const matchRole = roleFilter === 'all' || u.role === roleFilter;
 		return matchSearch && matchRole;
 	});
-
+ 
 	const typeColors: Record<string, string> = {
 		blog: '#9333ea',
 		news: '#3b82f6',
 		event: '#22c55e',
 		faq: '#eab308',
-		campaign: '#ec4899',
-		testimonial: '#f97316'
+		campaign: '#ec4899'
+		
 	};
 </script>
-
+ 
 <Nav />
-
+ 
 <div class="dashboard">
 	<div class="topbar">
 		<div>
@@ -519,7 +605,7 @@
 		</div>
 		<button class="btn-logout" on:click={logout}>Logout</button>
 	</div>
-
+ 
 	<div class="tabs">
 		<button class:active={activeTab === 'analytics'} on:click={() => (activeTab = 'analytics')}>
 			📊 Analytics
@@ -532,6 +618,15 @@
 		<button class:active={activeTab === 'articles'} on:click={() => (activeTab = 'articles')}>
 			📝 Review Articles {#if articles.length > 0}<span class="badge">{articles.length}</span>{/if}
 		</button>
+		<button
+			class:active={activeTab === 'testimonials'}
+			on:click={() => (activeTab = 'testimonials')}
+		>
+			💬 Testimonial Reviews
+			{#if pendingTestimonials.length > 0}
+				<span class="badge">{pendingTestimonials.length}</span>
+			{/if}
+		</button>
 		<button class:active={activeTab === 'content'} on:click={() => (activeTab = 'content')}>
 			🗂 CMS Content
 		</button>
@@ -539,7 +634,7 @@
 			🔧 Manage Users
 		</button>
 	</div>
-
+ 
 	{#if loading}
 		<div class="card" style="text-align:center;padding:60px;">Loading...</div>
 	{:else if activeTab === 'analytics'}
@@ -592,7 +687,21 @@
 		{:else}
 			{#each authorRequests as request}
 				<div class="card request-card">
-					<h3>{request.profiles?.full_name ?? 'Unknown'}</h3>
+					<div
+						style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;"
+					>
+						<h3 style="margin:0;">{request.profiles?.full_name ?? 'Unknown'}</h3>
+						<span
+							style="padding:4px 10px;border-radius:999px;font-size:11px;font-weight:800;text-transform:uppercase;background:{request.research_area ===
+							'Testimonial'
+								? '#fff7ed'
+								: '#eff6ff'};color:{request.research_area === 'Testimonial'
+								? '#c2410c'
+								: '#1d4ed8'};"
+						>
+							{request.research_area === 'Testimonial' ? '💬 Testimonial' : '✍️ Author'}
+						</span>
+					</div>
 					<p><strong>Email:</strong> {request.profiles?.email}</p>
 					<p><strong>Qualification:</strong> {request.qualification}</p>
 					<p><strong>Research Area:</strong> {request.research_area}</p>
@@ -628,7 +737,7 @@
 					{/each}
 				{/if}
 			</section>
-
+ 
 			<section class="card preview">
 				{#if selectedArticle}
 					<h2>{selectedArticle.title}</h2>
@@ -644,13 +753,18 @@
 						{/if}
 					{/each}
 					<div class="review-actions">
-						<button class="approve" on:click={() => approveArticle(selectedArticle)}>Publish</button>
-						<button class="changes" on:click={() => triggerAction('changes')}>Request Changes</button>
+						<button class="approve" on:click={() => approveArticle(selectedArticle)}>Publish</button
+						>
+						<button class="changes" on:click={() => triggerAction('changes')}
+							>Request Changes</button
+						>
 						<button class="reject" on:click={() => triggerAction('reject')}>Reject</button>
 					</div>
-
+ 
 					{#if showFeedbackModal}
-						<div style="margin-top:20px;padding:16px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:12px;">
+						<div
+							style="margin-top:20px;padding:16px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:12px;"
+						>
 							<h4 style="margin:0 0 12px;color:#0f172a;font-size:16px;">
 								{pendingAction === 'reject' ? 'Reason for Rejection' : 'Feedback / Suggested Changes'}
 							</h4>
@@ -662,10 +776,22 @@
 								style="width:100%;padding:12px;border:1px solid #94a3b8;border-radius:8px;font-size:14px;resize:vertical;margin-bottom:12px;"
 							></textarea>
 							<div style="display:flex;gap:12px;justify-content:flex-end;">
-								<button on:click={cancelFeedbackAction} disabled={submittingFeedback} style="padding:8px 16px;background:#e2e8f0;color:#475569;border-radius:8px;border:none;cursor:pointer;font-weight:600;opacity:{submittingFeedback ? 0.5 : 1};">
+								<button
+									on:click={cancelFeedbackAction}
+									disabled={submittingFeedback}
+									style="padding:8px 16px;background:#e2e8f0;color:#475569;border-radius:8px;border:none;cursor:pointer;font-weight:600;opacity:{submittingFeedback
+										? 0.5
+										: 1};"
+								>
 									Cancel
 								</button>
-								<button on:click={submitFeedbackAction} disabled={submittingFeedback} style="padding:8px 16px;background:#3b82f6;color:white;border-radius:8px;border:none;cursor:pointer;font-weight:600;opacity:{submittingFeedback ? 0.7 : 1};">
+								<button
+									on:click={submitFeedbackAction}
+									disabled={submittingFeedback}
+									style="padding:8px 16px;background:#3b82f6;color:white;border-radius:8px;border:none;cursor:pointer;font-weight:600;opacity:{submittingFeedback
+										? 0.7
+										: 1};"
+								>
 									{submittingFeedback ? 'Submitting...' : 'Confirm & Submit'}
 								</button>
 							</div>
@@ -679,6 +805,35 @@
 				{/if}
 			</section>
 		</div>
+	{:else if activeTab === 'testimonials'}
+		<h3 class="heading">Pending Testimonials</h3>
+ 
+		{#if pendingTestimonials.length === 0}
+			<div class="card empty-card">No pending testimonials.</div>
+		{:else}
+			{#each pendingTestimonials as testimonial}
+				<div class="card" style="margin-bottom:16px;">
+					<h3>{testimonial.name}</h3>
+ 
+					<p style="color:#64748b;margin-bottom:8px;">
+						{testimonial.designation}
+					</p>
+ 
+					<p>{testimonial.content}</p>
+					<div class="actions" style="margin-top:12px;">
+						<button class="approve" on:click={() => approveTestimonial(testimonial)}>
+							Publish
+						</button>
+						<button class="changes" on:click={() => requestTestimonialChanges(testimonial)}>
+							Request Changes
+						</button>
+						<button class="reject" on:click={() => rejectTestimonial(testimonial)}>
+							Reject
+						</button>
+					</div>
+				</div>
+			{/each}
+		{/if}
 	{:else if activeTab === 'content'}
 		<div
 			style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;"
@@ -720,13 +875,13 @@
 				</button>
 			</div>
 		</div>
-
+ 
 		{#if showContentForm}
 			<div class="card" style="margin-bottom:24px;">
 				<h3 style="margin:0 0 20px;color:#0d2460;">
 					{editingContent ? 'Edit Content' : 'Create New Content'}
 				</h3>
-
+ 
 				<div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
 					{#each CONTENT_TYPES as type}
 						<button
@@ -743,13 +898,13 @@
 						</button>
 					{/each}
 				</div>
-
+ 
 				<input
 					bind:value={contentTitle}
 					placeholder="Title *"
 					style="width:100%;padding:12px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:12px;font-size:15px;"
 				/>
-
+ 
 				<div style="margin-bottom:16px;">
 					<label style="display:block;margin-bottom:6px;font-weight:600;font-size:14px;"
 						>Slug *</label
@@ -761,13 +916,13 @@
 					/>
 					<small style="color:#64748b;">URL: /{contentType}/{contentSlug}</small>
 				</div>
-
+ 
 				<input
 					bind:value={contentCategory}
 					placeholder="Category (optional)"
 					style="width:100%;padding:12px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:12px;font-size:15px;"
 				/>
-
+ 
 				<div style="margin-bottom:16px;">
 					<label style="display:block;margin-bottom:6px;font-weight:600;font-size:14px;"
 						>Short Description / Excerpt</label
@@ -779,7 +934,7 @@
 						style="width:100%;padding:12px;border:1px solid #e2e8f0;border-radius:10px;font-size:15px;resize:vertical;"
 					></textarea>
 				</div>
-
+ 
 				<div style="margin-bottom:16px;">
 					<label style="display:block;margin-bottom:6px;font-weight:600;font-size:14px;">Tags</label
 					>
@@ -789,17 +944,17 @@
 						style="width:100%;padding:12px;border:1px solid #e2e8f0;border-radius:10px;font-size:15px;"
 					/>
 				</div>
-
+ 
 				<div style="margin-bottom:16px;">
 					<label style="display:block;margin-bottom:8px;font-weight:600;"> Content * </label>
-
+ 
 					<RichTextEditor
 						content={contentBody}
 						placeholder="Write your content..."
 						on:update={(e) => (contentBody = e.detail)}
 					/>
 				</div>
-
+ 
 				{#if !editingContent}
 					<div style="margin-bottom:16px;">
 						<label style="display:block;margin-bottom:6px;font-weight:600;font-size:14px;"
@@ -817,7 +972,7 @@
 							</p>
 						{/if}
 					</div>
-
+ 
 					<div style="margin-bottom:16px;">
 						<label style="display:block;margin-bottom:6px;font-weight:600;font-size:14px;"
 							>Publish Date</label
@@ -829,24 +984,24 @@
 						/>
 					</div>
 				{/if}
-
+ 
 				<h3 style="margin-top:24px;margin-bottom:12px;color:#0d2460;font-size:18px;">
 					SEO Settings
 				</h3>
-
+ 
 				<input
 					bind:value={seoTitle}
 					placeholder="SEO Title"
 					style="width:100%;padding:12px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:12px;font-size:15px;"
 				/>
-
+ 
 				<textarea
 					bind:value={seoDescription}
 					rows="3"
 					placeholder="SEO Description"
 					style="width:100%;padding:12px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:16px;font-size:15px;resize:vertical;"
 				></textarea>
-
+ 
 				<div style="display:flex;gap:12px;margin-bottom:20px;">
 					<button
 						on:click={() => (contentStatus = 'draft')}
@@ -871,7 +1026,7 @@
 						Published
 					</button>
 				</div>
-
+ 
 				<button
 					class="approve"
 					on:click={editingContent ? updateContent : saveContent}
@@ -881,7 +1036,7 @@
 				</button>
 			</div>
 		{/if}
-
+ 
 		{#if cmsContents.length === 0}
 			<div class="card empty-card">No content yet. Create some!</div>
 		{:else if filteredContents.length === 0}
@@ -948,7 +1103,7 @@
 		{/if}
 	{:else if activeTab === 'users'}
 		<h3 class="heading">Manage Users</h3>
-
+ 
 		<div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
 			<input
 				bind:value={userSearch}
@@ -965,7 +1120,7 @@
 				{/each}
 			</select>
 		</div>
-
+ 
 		<div class="card" style="padding:0;overflow:hidden;">
 			<table style="width:100%;border-collapse:collapse;">
 				<thead>
@@ -1025,7 +1180,7 @@
 		</div>
 	{/if}
 </div>
-
+ 
 {#if contentToDelete}
 	<div class="modal-overlay">
 		<div class="modal-card">
@@ -1054,7 +1209,7 @@
 		</div>
 	</div>
 {/if}
-
+ 
 <style>
 	.modal-overlay {
 		position: fixed;
@@ -1132,7 +1287,7 @@
 		background: #e11d48;
 		border-color: #e11d48;
 	}
-
+ 
 	.dashboard {
 		padding: 100px 40px 40px;
 		background: #f4f9ff;

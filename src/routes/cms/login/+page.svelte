@@ -34,12 +34,14 @@
       const role = profile?.role || 'user';
 
       if (role === 'author') {
-        goto('/cms/author_dashboard');
-      } else if (role === 'editor_approver') {
-        goto('/cms/editor_dashboard');
-      } else if (role === 'cms_admin' || role === 'super_admin') {
-        goto('/cms/admin/admin_dashboard');
-      } else {
+    goto('/cms/author_dashboard');
+} else if (role === 'testimonial_writer') {
+    goto('/cms/testimonial_dashboard');
+} else if (role === 'editor_approver') {
+    goto('/cms/editor_dashboard');
+} else if (role === 'cms_admin' || role === 'super_admin') {
+    goto('/cms/admin/admin_dashboard');
+} else {
         // Normal user — author request check karo
         const { data: request } = await cmsSupabase
           .from('author_requests')

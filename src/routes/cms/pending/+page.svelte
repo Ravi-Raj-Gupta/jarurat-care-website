@@ -29,6 +29,11 @@
       return;
     }
 
+    if (profile?.role === 'testimonial_writer') {
+    goto('/cms/testimonial_dashboard');
+    return;
+    }
+
     // Author request ka status check karo
     const { data: request } = await cmsSupabase
       .from('author_requests')
