@@ -87,6 +87,7 @@
 	let selectedArticle: Article | null = null;
 	let adminFeedback = '';
 	let showFeedbackModal = false;
+	let submittingFeedback = false;
 	let pendingAction: 'reject' | 'changes' | null = null;
 	let editingContent: CMSContent | null = null;
 
@@ -285,6 +286,7 @@
 		}
 		if (!selectedArticle) return;
 
+		submittingFeedback = true;
 		const status = pendingAction === 'reject' ? 'rejected' : 'changes_requested';
 
 		await cmsSupabase
@@ -294,6 +296,8 @@
 		
 		await loadArticles();
 		await loadAnalytics();
+		
+		submittingFeedback = false;
 		selectedArticle = null;
 		showFeedbackModal = false;
 		pendingAction = null;
@@ -658,11 +662,11 @@
 								style="width:100%;padding:12px;border:1px solid #94a3b8;border-radius:8px;font-size:14px;resize:vertical;margin-bottom:12px;"
 							></textarea>
 							<div style="display:flex;gap:12px;justify-content:flex-end;">
-								<button on:click={cancelFeedbackAction} style="padding:8px 16px;background:#e2e8f0;color:#475569;border-radius:8px;border:none;cursor:pointer;font-weight:600;">
+								<button on:click={cancelFeedbackAction} disabled={submittingFeedback} style="padding:8px 16px;background:#e2e8f0;color:#475569;border-radius:8px;border:none;cursor:pointer;font-weight:600;opacity:{submittingFeedback ? 0.5 : 1};">
 									Cancel
 								</button>
-								<button on:click={submitFeedbackAction} style="padding:8px 16px;background:#3b82f6;color:white;border-radius:8px;border:none;cursor:pointer;font-weight:600;">
-									Confirm & Submit
+								<button on:click={submitFeedbackAction} disabled={submittingFeedback} style="padding:8px 16px;background:#3b82f6;color:white;border-radius:8px;border:none;cursor:pointer;font-weight:600;opacity:{submittingFeedback ? 0.7 : 1};">
+									{submittingFeedback ? 'Submitting...' : 'Confirm & Submit'}
 								</button>
 							</div>
 						</div>
