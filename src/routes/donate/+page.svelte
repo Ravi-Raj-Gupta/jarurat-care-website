@@ -11,4 +11,3 @@
 <PayComponent />
 <DonationImpact />
 <MonthlyUpdates />
-
