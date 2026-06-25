@@ -50,15 +50,45 @@
 		campaign: '#dc2626'
 	};
  
-	const DEFAULT_THUMBNAILS: Record<string, string> = {
-		article: 'https://images.unsplash.com/photo-1532094349884-543559c95d15?auto=format&fit=crop&w=800&q=80',
-		blog: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=800&q=80',
-		news: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=800&q=80',
-		event: 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80',
-		faq: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=800&q=80',
-		testimonials: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=800&q=80',
-		campaign: 'https://images.unsplash.com/photo-1561489413-985b06da5bee?auto=format&fit=crop&w=800&q=80'
+	const DEFAULT_IMAGE_COUNTS: Record<string, number> = {
+		article: 8,
+		blog: 2,
+		campaign: 3,
+		event: 3,
+		faq: 3,
+		news: 3,
+		testimonials: 3
 	};
+
+	const FOLDER_MAP: Record<string, string> = {
+		article: 'Articles',
+		blog: 'Blogs',
+		campaign: 'Campaign',
+		event: 'Events',
+		faq: 'FAQs',
+		news: 'News',
+		testimonials: 'Testimonials'
+	};
+
+	function getDefaultThumbnail(type: string, id: string | number) {
+		const safeType = type || 'article';
+		const count = DEFAULT_IMAGE_COUNTS[safeType] || 1;
+		const folder = FOLDER_MAP[safeType] || 'Articles';
+		
+		let numId = 0;
+		if (typeof id === 'number') {
+			numId = id;
+		} else if (typeof id === 'string') {
+			for (let i = 0; i < id.length; i++) {
+				numId = (numId << 5) - numId + id.charCodeAt(i);
+				numId |= 0; // Convert to 32bit integer
+			}
+			numId = Math.abs(numId);
+		}
+		
+		const index = (numId % count) + 1;
+		return `/defaults/${folder}/${safeType}-${index}.jpeg`;
+	}
  
 	let allContent: ContentItem[] = [];
 	let selectedItem: ContentItem | null = null;
@@ -129,7 +159,7 @@
 				subtitle: a.subtitle || '',
 				excerpt: makeExcerpt(a.abstract || ''),
 				content: a.abstract || '',
-				thumbnail: DEFAULT_THUMBNAILS.article,
+				thumbnail: getDefaultThumbnail('article', a.id),
 				category: 'Research',
 				type: 'article',
 				date: formatDate(a.created_at),
@@ -159,7 +189,7 @@
 				title: c.title || 'Untitled',
 				excerpt: makeExcerpt(c.content || ''),
 				content: c.content || '',
-				thumbnail: c.featured_image || DEFAULT_THUMBNAILS[c.content_type] || DEFAULT_THUMBNAILS.blog,
+				thumbnail: c.featured_image || getDefaultThumbnail(c.content_type, c.id),
 				category: c.category || c.content_type,
 				type: c.content_type,
 				date: formatDate(c.created_at),
@@ -181,7 +211,7 @@
 				subtitle: t.designation || '',
 				excerpt: makeExcerpt(t.content || ''),
 				content: t.content || '',
-				thumbnail: DEFAULT_THUMBNAILS.testimonials,
+				thumbnail: getDefaultThumbnail('testimonials', t.id),
 				category: 'Testimonial',
 				type: 'testimonials',
 				date: formatDate(t.created_at),
