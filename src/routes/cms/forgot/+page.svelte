@@ -1,116 +1,167 @@
-<script>
-import { auth } from '$lib/firebase';
-import { sendPasswordResetEmail } from "firebase/auth";
-import Nav from "$lib/components/nav.svelte";
-let email = "";
-let message = "";
+<script lang="ts">
+  import { cmsSupabase } from '$lib/cmsSupabase';
+  import Nav from '$lib/components/nav.svelte';
+  import { goto } from '$app/navigation';
 
-async function resetPassword() {
-  try {
-    await sendPasswordResetEmail(auth, email);
-    message = "Password reset email sent!";
-  } catch (err) {
-    message = err.message;
+  let email = '';
+  let loading = false;
+  let sent = false;
+  let error = '';
+
+  async function sendReset() {
+    if (!email.trim()) {
+      error = 'Please enter your email address.';
+      return;
+    }
+
+    loading = true;
+    error = '';
+
+    const { error: resetError } = await cmsSupabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/cms/reset-password`
+    });
+
+    loading = false;
+
+    if (resetError) {
+      error = resetError.message;
+      return;
+    }
+
+    sent = true;
   }
-}
 </script>
+
 <Nav />
-<div class="auth-container">
 
-<div class="auth-card">
+<div class="page">
+  <div class="card">
+    {#if sent}
+      <div class="center">
+        <div class="icon">📧</div>
+        <h2>Check Your Email</h2>
+        <p class="desc">
+          We've sent a password reset link to <strong>{email}</strong>.
+          Please check your inbox and follow the instructions.
+        </p>
+        <p class="desc" style="font-size:13px;color:#94a3b8;">
+          Didn't receive it? Check your spam folder.
+        </p>
+        <button class="btn" on:click={() => { sent = false; email = ''; }}>
+          Try Again
+        </button>
+        <a href="/cms/login" class="back-link">← Back to Login</a>
+      </div>
 
-<h2>Reset Password</h2>
-<p class="subtitle">Enter your email to receive reset link</p>
+    {:else}
+      <h2>Forgot Password?</h2>
+      <p class="desc">
+        Enter your email address and we'll send you a link to reset your password.
+      </p>
 
-<input
-type="email"
-placeholder="Email address"
-bind:value={email}
-/>
+      <label>Email Address *</label>
+      <input
+        type="email"
+        placeholder="Enter your email"
+        bind:value={email}
+        on:keydown={(e) => e.key === 'Enter' && sendReset()}
+      />
 
-<button on:click={resetPassword}>
-Send Reset Link
-</button>
+      {#if error}
+        <p class="error">{error}</p>
+      {/if}
 
-<p class="message">{message}</p>
+      <button class="btn" on:click={sendReset} disabled={loading}>
+        {loading ? 'Sending...' : 'Send Reset Link'}
+      </button>
 
-<p class="switch-link">
-Remember your password?
-<a href="/cms/login">Login</a>
-</p>
-
-</div>
-
+      <a href="/cms/login" class="back-link">← Back to Login</a>
+    {/if}
+  </div>
 </div>
 
 <style>
+  .page {
+    min-height: calc(100vh - 80px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f5f7fb;
+    padding: 100px 20px 40px;
+  }
 
-.auth-container{
-height:100vh;
-display:flex;
-align-items:center;
-justify-content:center;
-background:#f5f7fb;
-}
+  .card {
+    width: 100%;
+    max-width: 420px;
+    background: white;
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  }
 
-.auth-card{
-width:380px;
-padding:40px;
-background:white;
-border-radius:10px;
-box-shadow:0 8px 20px rgba(0,0,0,0.08);
-text-align:center;
-}
+  .center { text-align: center; }
+  .icon { font-size: 48px; margin-bottom: 16px; }
 
-h2{
-margin-bottom:5px;
-color:#2c3e50;
-}
+  h2 { margin: 0 0 8px; color: #0d2460; font-size: 24px; font-weight: 800; }
 
-.subtitle{
-font-size:14px;
-color:#777;
-margin-bottom:25px;
-}
+  .desc {
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
 
-input{
-width:100%;
-padding:12px;
-margin-bottom:15px;
-border:1px solid #ddd;
-border-radius:6px;
-font-size:14px;
-}
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 6px;
+  }
 
-button{
-width:100%;
-padding:12px;
-background:#2f80ed;
-border:none;
-color:white;
-border-radius:6px;
-cursor:pointer;
-font-size:15px;
-}
+  input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+    margin-bottom: 16px;
+  }
 
-button:hover{
-background:#1c6dd0;
-}
+  input:focus { border-color: #0155bd; }
 
-.message{
-margin-top:12px;
-font-size:13px;
-color:#333;
-}
+  .btn {
+    width: 100%;
+    padding: 13px;
+    background: #0155bd;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 4px;
+  }
 
-.switch-link{
-margin-top:18px;
-font-size:14px;
-}
+  .btn:hover { background: #0046a8; }
+  .btn:disabled { background: #93c5fd; cursor: not-allowed; }
 
-a{
-color:#2f80ed;
-text-decoration:none;
-}
+  .error { color: #dc2626; font-size: 13px; margin-bottom: 8px; }
 
+  .back-link {
+    display: block;
+    text-align: center;
+    margin-top: 16px;
+    color: #0155bd;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .back-link:hover { text-decoration: underline; }
 </style>

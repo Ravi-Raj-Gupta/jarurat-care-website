@@ -90,13 +90,15 @@
       bind:value={password}
     />
 
+        <a href="/cms/forgot" class="forgot-link">Forgot Password?</a>
+
     <button on:click={login} disabled={loading}>
       {loading ? 'Logging in...' : 'Login'}
     </button>
 
     <p class="signup-link">
-      Don't have an account?
-      <a href="/cms/signup">Sign up</a>
+        Don't have an account?
+        <a href="/cms/signup">Sign up</a>
     </p>
 
     {#if error}
@@ -155,4 +157,14 @@ button:disabled { background: #9ab8e8; cursor: not-allowed; }
 .error { color: red; font-size: 13px; margin-top: 10px; }
 .signup-link { margin-top: 15px; font-size: 14px; }
 a { color: #2f80ed; text-decoration: none; }
+
+.forgot-link {
+    display: block;
+    text-align: right;
+    margin: -8px 0 16px;
+    font-size: 13px;
+    color: #0155bd;
+    text-decoration: none;
+}
+.forgot-link:hover { text-decoration: underline; }
 </style>
