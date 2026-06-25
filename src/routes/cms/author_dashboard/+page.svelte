@@ -190,7 +190,8 @@
 
 	async function logout() {
 		await cmsSupabase.auth.signOut();
-		goto('/');
+		toast.success('Logged out successfully');
+		goto('/knowledge-hub');
 	}
 </script>
 

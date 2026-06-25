@@ -1,9 +1,11 @@
 <script>
 	import Logo from '$lib/svg/logo.svelte';
 	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
 	import { MenuIcon, X } from 'lucide-svelte';
 	import { cn } from '$lib/utils';
 	import { onMount } from 'svelte';
+	import toast from 'svelte-french-toast';
 
 	let isMenuOpen = false;
 	let isLoggedIn = false;
@@ -32,7 +34,8 @@
 		window.__cmsLogout = async () => {
 			await cmsSupabase.auth.signOut();
 			isLoggedIn = false;
-			window.location.href = '/';
+			toast.success('Logged out successfully');
+			goto('/knowledge-hub');
 		};
 	});
 

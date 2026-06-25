@@ -2,8 +2,10 @@
 	import { onMount } from 'svelte';
 	import Nav from '$lib/components/nav.svelte';
 	import NewsFooter from '$lib/components/news-footer.svelte';
+	import { goto } from '$app/navigation';
 	import { Search, LayoutGrid, List, ChevronRight, X, ArrowLeft } from 'lucide-svelte';
 	import { cmsSupabase } from '$lib/cmsSupabase';
+	import toast from 'svelte-french-toast';
  
 	type ContentItem = {
 		id: string;
@@ -74,11 +76,12 @@
 	let isLoggedIn = false;
 	let userRole = '';
  
-	async function handleLogout() {
+	async function logout() {
 		await cmsSupabase.auth.signOut();
-		isLoggedIn = false;
+		toast.success('Logged out successfully');
 		userRole = '';
-		window.location.reload();
+		isLoggedIn = false;
+		await goto('/knowledge-hub', { invalidateAll: true });
 	}
  
 	const FILTERS = [
@@ -377,7 +380,7 @@
 								Dashboard
 							</a>
 							<button
-								on:click={handleLogout}
+								on:click={logout}
 								class="bg-white border border-[#D8E8FA] text-[#0D2460] px-6 py-2.5 rounded-xl text-sm font-bold hover:border-red-500 hover:text-red-500 transition-colors text-center whitespace-nowrap"
 							>
 								Logout
