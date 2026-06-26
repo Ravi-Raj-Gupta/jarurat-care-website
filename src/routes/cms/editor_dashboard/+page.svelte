@@ -76,6 +76,7 @@
 	async function approve(id: number) {
 		await supabase.from('articles').update({ status: 'approved' }).eq('id', id);
 		loadArticles();
+		toast.success('Article published successfully!');
 	}
 
 	async function reject(id: number) {

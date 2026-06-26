@@ -342,6 +342,7 @@
 		await loadArticles();
 		await loadAnalytics();
 		selectedArticle = null;
+		toast.success('Article published successfully!');
 	}
  
 	async function triggerAction(action: 'reject' | 'changes') {
