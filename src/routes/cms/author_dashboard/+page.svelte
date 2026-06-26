@@ -22,6 +22,7 @@
 	let loading = true;
 	let selectedArticle: Article | null = null;
 	let articleToDelete: string | null = null;
+	let articleToSubmit: string | null = null;
 
 	let title = '';
 	let subtitle = '';
@@ -166,19 +167,28 @@
 		await loadArticles();
 	}
 
-	async function submitArticle(id: string) {
-		if (!confirm('Submit this article for review?')) return;
+	function promptSubmit(id: string) {
+		articleToSubmit = id;
+	}
+
+	function cancelSubmit() {
+		articleToSubmit = null;
+	}
+
+	async function confirmSubmit() {
+		if (!articleToSubmit) return;
 
 		const { error } = await cmsSupabase
 			.from('research_articles')
 			.update({ status: 'submitted', updated_at: new Date().toISOString() })
-			.eq('id', id);
+			.eq('id', articleToSubmit);
 
 		if (error) { toast.error(error.message); return; }
 		toast.success('Article submitted for review!');
-		if (selectedArticle?.id === id) {
+		if (selectedArticle?.id === articleToSubmit) {
 			selectedArticle = { ...selectedArticle, status: 'submitted' };
 		}
+		articleToSubmit = null;
 		await loadArticles();
 	}
 
@@ -402,7 +412,7 @@
 										<button class="btn-edit" on:click|stopPropagation={() => startEdit(article)}>
 											Edit
 										</button>
-										<button class="btn-submit" on:click|stopPropagation={() => submitArticle(article.id)}>
+										<button class="btn-submit" on:click|stopPropagation={() => promptSubmit(article.id)}>
 											Submit
 										</button>
 										<button class="btn-delete" on:click|stopPropagation={() => promptDelete(article.id)}>
@@ -461,6 +471,26 @@
 		</section>
 	</div>
 </div>
+
+{#if articleToSubmit}
+	<div class="modal-overlay">
+		<div class="modal-card">
+			<div class="modal-icon-container">
+				<svg width="120" height="120" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<ellipse cx="50" cy="82" rx="25" ry="4" fill="#e8fdf0" />
+					<path d="M35 50L45 60L65 40" stroke="#16a34a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+					<circle cx="50" cy="50" r="30" stroke="#16a34a" stroke-width="4"/>
+				</svg>
+			</div>
+			<h3>Submit Article?</h3>
+			<p>Submit this article for review? You won't be able to edit it while it's under review.</p>
+			<div class="modal-actions">
+				<button class="btn-cancel" on:click={cancelSubmit}>Cancel</button>
+				<button class="btn-confirm-submit" on:click={confirmSubmit}>Submit</button>
+			</div>
+		</div>
+	</div>
+{/if}
 
 {#if articleToDelete}
 	<div class="modal-overlay">
@@ -567,6 +597,22 @@
 	.btn-confirm:hover {
 		background: #e11d48;
 		border-color: #e11d48;
+	}
+	.btn-confirm-submit {
+		flex: 1;
+		background: #16a34a;
+		color: white;
+		border: 1px solid #16a34a;
+		padding: 12px 0;
+		border-radius: 12px;
+		cursor: pointer;
+		font-weight: 600;
+		font-size: 15px;
+		transition: 0.2s;
+	}
+	.btn-confirm-submit:hover {
+		background: #15803d;
+		border-color: #15803d;
 	}
 	.dashboard {
 		padding: 100px 40px 40px;
