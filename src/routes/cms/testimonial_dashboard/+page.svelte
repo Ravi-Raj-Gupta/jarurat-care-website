@@ -1,8 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { cmsSupabase } from '$lib/cmsSupabase';
   import { goto } from '$app/navigation';
+  import { cmsSupabase } from '$lib/cmsSupabase';
   import Nav from '$lib/components/nav.svelte';
+  import toast from 'svelte-french-toast';
  
   type Testimonial = {
     id: string;
@@ -98,6 +99,27 @@
   }
  
   async function submitTestimonial() {
+    await saveTestimonial('submitted');
+  }
+
+  async function submitFromCard(id: string) {
+    const { error } = await cmsSupabase
+      .from('testimonials')
+      .update({ status: 'submitted', updated_at: new Date().toISOString() })
+      .eq('id', id);
+    if (error) { toast.error(error.message); return; }
+    toast.success('Testimonial submitted for review!');
+    await loadTestimonials();
+  }
+
+  async function deleteTestimonial(id: string) {
+    if (!confirm('Delete this testimonial?')) return;
+    await cmsSupabase.from('testimonials').delete().eq('id', id);
+    toast.success('Testimonial deleted successfully!');
+    await loadTestimonials();
+  }
+
+  async function saveTestimonial(statusStr: string) {
     if (!name.trim() || !content.trim()) {
       message = 'Name and testimonial are required.';
       return;
@@ -126,7 +148,7 @@
       name: name.trim(),
       designation: designation.trim() || null,
       content: content.trim(),
-      status: 'submitted',
+      status: statusStr,
     };
 
     if (imageUrl) {
@@ -145,7 +167,7 @@
  
       if (error) { message = error.message; return; }
  
-      message = '✅ Testimonial updated and resubmitted for review!';
+      message = statusStr === 'draft' ? '✅ Draft saved successfully!' : '✅ Testimonial updated and resubmitted!';
       resetForm();
       await loadTestimonials();
       return;
@@ -159,7 +181,7 @@
  
     if (error) { message = error.message; return; }
  
-    message = '✅ Testimonial submitted for review!';
+    message = statusStr === 'draft' ? '✅ Draft saved successfully!' : '✅ Testimonial submitted for review!';
     resetForm();
     await loadTestimonials();
   }
@@ -247,9 +269,12 @@
         <p class="msg">{message}</p>
       {/if}
  
-      <button class="btn-submit" on:click={submitTestimonial} disabled={submitting}>
-        {submitting ? (editingTestimonial ? 'Updating...' : 'Submitting...') : (editingTestimonial ? 'Update Testimonial' : 'Submit Testimonial')}
-      </button>
+      <div class="actions" style="margin-top: 20px;">
+        <button class="btn-cancel" on:click={resetForm} disabled={submitting}>Cancel</button>
+        <button class="btn-publish" on:click={submitTestimonial} disabled={submitting}>
+          {submitting ? 'Submitting...' : 'Submit Testimonial'}
+        </button>
+      </div>
     </div>
   {/if}
  
@@ -289,9 +314,17 @@
  
           <div class="t-footer">
             <p class="t-date">{formatDate(t.created_at)}</p>
-            {#if canEdit(t.status)}
-              <button class="btn-edit" on:click={() => startEdit(t)}>Edit</button>
-            {/if}
+            <div class="actions">
+              {#if canEdit(t.status)}
+                <button class="btn-edit" on:click={() => startEdit(t)}>Edit</button>
+              {/if}
+              {#if t.status === 'draft' || t.status === 'changes_requested' || t.status === 'rejected'}
+                <button class="btn-publish" style="padding: 6px 12px; font-size: 13px;" on:click={() => submitFromCard(t.id)}>Submit</button>
+              {/if}
+              {#if t.status === 'draft'}
+                <button class="btn-delete" on:click={() => deleteTestimonial(t.id)}>Delete</button>
+              {/if}
+            </div>
           </div>
         </div>
       {/each}
@@ -390,21 +423,16 @@
  
   input:focus, textarea:focus { border-color: #0155bd; }
  
-  .msg { color: #167a33; font-weight: 700; margin-top: 10px; }
+  .msg { margin-top: 15px; font-size: 14px; color: #16a34a; font-weight: 600; background: #f0fdf4; padding: 10px; border-radius: 6px;}
  
-  .btn-submit {
-    background: #0155bd;
-    color: white;
-    padding: 12px 24px;
-    border-radius: 10px;
-    border: none;
-    cursor: pointer;
-    font-weight: 700;
-    margin-top: 14px;
-    width: 100%;
-  }
- 
-  .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn-submit { background: #3b82f6; color: white; padding: 10px 16px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+  .btn-submit:hover { background: #2563eb; }
+  .btn-publish { background: #16a34a; color: white; padding: 10px 16px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+  .btn-publish:hover { background: #15803d; }
+  .btn-cancel { background: #f1f5f9; color: #475569; padding: 10px 16px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+  .btn-cancel:hover { background: #e2e8f0; }
+  .btn-delete { background: #dc2626; color: white; padding: 6px 12px; font-size: 13px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
  
   .section-title { color: #0d2460; font-size: 20px; margin: 0 0 16px; }
  
