@@ -22,7 +22,7 @@
 
       const user = data.user;
 
-      // Role fetch karo
+      // Fetch user role
       const { data: profile, error: profileError } = await cmsSupabase
         .from('profiles')
         .select('role')
@@ -42,7 +42,7 @@
 } else if (role === 'cms_admin' || role === 'super_admin') {
     goto('/cms/admin/admin_dashboard');
 } else {
-        // Normal user — author request check karo
+        // Check author request for normal user
         const { data: request } = await cmsSupabase
           .from('author_requests')
           .select('status')
@@ -52,7 +52,7 @@
           .maybeSingle();
 
         if (!request) {
-          // Koi request nahi — author request form pe bhejo
+          // No request found — redirect to author request form
           goto('/cms/author-request');
         } else if (request.status === 'pending') {
           goto('/cms/pending');
@@ -93,7 +93,11 @@
         <a href="/cms/forgot" class="forgot-link">Forgot Password?</a>
 
     <button on:click={login} disabled={loading}>
-      {loading ? 'Logging in...' : 'Login'}
+      {#if loading}
+        <span class="spinner"></span> Logging in...
+      {:else}
+        Login
+      {/if}
     </button>
 
     <p class="signup-link">
@@ -149,6 +153,24 @@ button {
   border-radius: 6px;
   cursor: pointer;
   font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 0.8s ease-in-out infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 button:hover { background: #1c6dd0; }

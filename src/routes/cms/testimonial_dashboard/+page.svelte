@@ -143,8 +143,8 @@
   }
  
   async function logout() {
-    await cmsSupabase.auth.signOut();
     goto('/');
+    cmsSupabase.auth.signOut();
   }
  
   function getStatusColor(status: string) {

@@ -87,7 +87,7 @@
     const { data: { user } } = await cmsSupabase.auth.getUser();
     if (!user) { goto('/cms/login'); return; }
 
-    // Author requests table mein testimonial request insert karo
+    // Insert testimonial request into author requests table
     const { error } = await cmsSupabase.from('author_requests').insert([{
       user_id: user.id,
       qualification: tDesignation.trim() || 'N/A',

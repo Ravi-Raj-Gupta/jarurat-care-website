@@ -32,10 +32,10 @@
 		});
 
 		window.__cmsLogout = async () => {
-			await cmsSupabase.auth.signOut();
 			isLoggedIn = false;
 			toast.success('Logged out successfully');
 			goto('/knowledge-hub');
+			cmsSupabase.auth.signOut();
 		};
 	});
 

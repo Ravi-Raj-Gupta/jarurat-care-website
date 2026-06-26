@@ -319,7 +319,7 @@
 	}
  
 	async function approveAuthor(request: AuthorRequest) {
-		// Testimonial request hai ya author request
+		// Check if it is a testimonial request or author request
 		const newRole = request.research_area === 'Testimonial' ? 'testimonial_writer' : 'author';
  
 		await cmsSupabase.from('profiles').update({ role: newRole }).eq('id', request.user_id);
@@ -572,9 +572,9 @@
 	}
  
 	async function logout() {
-		await cmsSupabase.auth.signOut();
 		toast.success('Logged out successfully');
 		goto('/knowledge-hub');
+		cmsSupabase.auth.signOut();
 	}
  
 	$: filteredUsers = users.filter((u) => {

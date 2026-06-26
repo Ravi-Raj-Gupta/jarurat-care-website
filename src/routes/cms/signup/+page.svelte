@@ -1,6 +1,8 @@
 <script lang="ts">
   import { cmsSupabase } from '$lib/cmsSupabase';
   import Nav from '$lib/components/nav.svelte';
+  import toast from 'svelte-french-toast';
+  import { goto } from '$app/navigation';
 
   let fullName = '';
   let email = '';
@@ -30,7 +32,7 @@
     loading = true;
 
     try {
-      // CMS Supabase mein register karo
+      // Register in CMS Supabase
       const { data, error: authError } = await cmsSupabase.auth.signUp({
         email,
         password
@@ -41,7 +43,7 @@
       const user = data.user;
 
       if (user) {
-        // profiles table mein insert karo
+        // Insert into profiles table
         const { error: profileError } = await cmsSupabase
           .from('profiles')
           .insert([{
@@ -55,7 +57,13 @@
       }
 
       success = true;
-      message = 'Account created successfully! You can now login.';
+      message = 'Account created successfully! Redirecting to login...';
+      toast.success('Registration successful!');
+      
+      setTimeout(() => {
+        goto('/cms/login');
+      }, 2000);
+      
       fullName = '';
       email = '';
       password = '';

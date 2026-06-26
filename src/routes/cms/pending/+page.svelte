@@ -16,14 +16,14 @@
       return;
     }
 
-    // Profile role check karo
+    // Check profile role
     const { data: profile } = await cmsSupabase
       .from('profiles')
       .select('role')
       .eq('id', user.id)
       .single();
 
-    // Agar already author ban gaya toh redirect karo
+    // Redirect if already approved as author
     if (profile?.role === 'author') {
       goto('/cms/author_dashboard');
       return;
@@ -34,7 +34,7 @@
     return;
     }
 
-    // Author request ka status check karo
+    // Check author request status
     const { data: request } = await cmsSupabase
       .from('author_requests')
       .select('status')

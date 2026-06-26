@@ -2,6 +2,7 @@
   import { cmsSupabase } from '$lib/cmsSupabase';
   import Nav from '$lib/components/nav.svelte';
   import { goto } from '$app/navigation';
+  import toast from 'svelte-french-toast';
 
   let email = '';
   let loading = false;
@@ -29,6 +30,7 @@
     }
 
     sent = true;
+    toast.success('Email sent successfully!');
   }
 </script>
 
@@ -59,7 +61,7 @@
         Enter your email address and we'll send you a link to reset your password.
       </p>
 
-      <label>Email Address *</label>
+      <span class="input-label">Email Address *</span>
       <input
         type="email"
         placeholder="Enter your email"
@@ -117,6 +119,16 @@
     font-weight: 600;
     color: #374151;
     margin-bottom: 6px;
+  }
+
+  .input-label {
+    display: block;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 700;
+    color: #475569;
+    margin-bottom: 6px;
+    letter-spacing: 0.05em;
   }
 
   input {

@@ -107,11 +107,11 @@
 	let userRole = '';
  
 	async function logout() {
-		await cmsSupabase.auth.signOut();
 		toast.success('Logged out successfully');
 		userRole = '';
 		isLoggedIn = false;
 		await goto('/knowledge-hub', { invalidateAll: true });
+		cmsSupabase.auth.signOut();
 	}
  
 	const FILTERS = [
@@ -144,7 +144,7 @@
 		errorMsg = '';
  
 		try {
-			// Research Articles fetch karo
+			// Fetch research articles
 			const { data: articles, error: aErr } = await cmsSupabase
 				.from('research_articles')
 				.select('*')
@@ -175,7 +175,7 @@
 				acknowledgements: a.acknowledgements
 			}));
  
-			// CMS Content fetch karo (blogs, news, events etc.)
+			// Fetch CMS content (blogs, news, events etc.)
 			const { data: cmsContent, error: cErr } = await cmsSupabase
 				.from('cms_content')
 				.select('*')
@@ -196,7 +196,7 @@
 				author: 'Editorial Team'
 			}));
  
-			// Published Testimonials fetch karo
+			// Fetch published testimonials
 			const { data: testimonials, error: tErr } = await cmsSupabase
 				.from('testimonials')
 				.select('*')

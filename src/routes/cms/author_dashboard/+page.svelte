@@ -189,9 +189,9 @@
 	}
 
 	async function logout() {
-		await cmsSupabase.auth.signOut();
 		toast.success('Logged out successfully');
 		goto('/knowledge-hub');
+		cmsSupabase.auth.signOut();
 	}
 </script>
 

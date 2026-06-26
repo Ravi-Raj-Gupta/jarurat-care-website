@@ -13,7 +13,7 @@
   let checking = true;
 
   onMount(async () => {
-    // URL se session check karo
+    // Check session from URL
     const { data: { session } } = await cmsSupabase.auth.getSession();
     if (session) {
       validSession = true;
@@ -53,7 +53,7 @@
 
     success = true;
 
-    // 3 seconds baad login pe bhejo
+    // Redirect to login after 3 seconds
     setTimeout(() => goto('/cms/login'), 3000);
   }
 </script>
