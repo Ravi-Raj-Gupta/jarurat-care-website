@@ -21,6 +21,7 @@
 	let articles: Article[] = [];
 	let loading = true;
 	let selectedArticle: Article | null = null;
+	let articleToDelete: string | null = null;
 
 	let title = '';
 	let subtitle = '';
@@ -158,18 +159,30 @@
 		await loadArticles();
 	}
 
-	async function deleteArticle(id: string) {
-		if (!confirm('Delete this article?')) return;
+	function promptDelete(id: string) {
+		articleToDelete = id;
+	}
 
+	function cancelDelete() {
+		articleToDelete = null;
+	}
+
+	async function confirmDelete() {
+		if (!articleToDelete) return;
 		const { error } = await cmsSupabase
 			.from('research_articles')
 			.delete()
-			.eq('id', id);
+			.eq('id', articleToDelete);
 
-		if (error) { toast.error(error.message); return; }
+		if (error) {
+			toast.error('Error deleting article');
+			return;
+		}
+
 		toast.success('Article deleted successfully!');
-		if (selectedArticle?.id === id) selectedArticle = null;
+		articleToDelete = null;
 		await loadArticles();
+		selectedArticle = null;
 	}
 
 	function formatDate(date: string) {
@@ -351,14 +364,10 @@
 										<button class="btn-edit" on:click|stopPropagation={() => startEdit(article)}>
 											Edit
 										</button>
-									{/if}
-									{#if article.status === 'draft' || article.status === 'changes_requested' || article.status === 'rejected'}
 										<button class="btn-submit" on:click|stopPropagation={() => submitArticle(article.id)}>
 											Submit
 										</button>
-									{/if}
-									{#if article.status === 'draft'}
-										<button class="btn-delete" on:click|stopPropagation={() => deleteArticle(article.id)}>
+										<button class="btn-delete" on:click|stopPropagation={() => promptDelete(article.id)}>
 											Delete
 										</button>
 									{/if}
@@ -415,7 +424,112 @@
 	</div>
 </div>
 
+{#if articleToDelete}
+	<div class="modal-overlay">
+		<div class="modal-card">
+			<div class="modal-icon-container">
+				<svg width="120" height="120" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<ellipse cx="50" cy="82" rx="25" ry="4" fill="#fde8e8" />
+					<path d="M35 38L38 73C38.3 76 41 78 44 78H56C59 78 61.7 76 62 73L65 38H35Z" fill="#ff3b3b"/>
+					<path d="M28 34C28 31.8 29.8 30 32 30H68C70.2 30 72 31.8 72 34C72 36.2 70.2 38 68 38H32C29.8 38 28 36.2 28 34Z" fill="#ff3b3b"/>
+					<path d="M42 30V26C42 24.3 43.3 23 45 23H55C56.7 23 58 24.3 58 26V30" fill="none" stroke="#ff3b3b" stroke-width="5" stroke-linecap="round"/>
+					<rect x="42" y="45" width="3" height="20" rx="1.5" fill="white"/>
+					<rect x="48.5" y="45" width="3" height="20" rx="1.5" fill="white"/>
+					<rect x="55" y="45" width="3" height="20" rx="1.5" fill="white"/>
+					<path d="M22 35L28 35M25 32L25 38" stroke="#ff3b3b" stroke-width="2" stroke-linecap="round"/>
+					<path d="M70 25L76 25M73 22L73 28" stroke="#ff3b3b" stroke-width="2" stroke-linecap="round"/>
+					<circle cx="20" cy="50" r="1.5" fill="#ff3b3b"/>
+					<circle cx="78" cy="45" r="1.5" fill="#ff3b3b"/>
+					<circle cx="60" cy="18" r="1.5" fill="#ff3b3b"/>
+				</svg>
+			</div>
+			<h3>Delete Article?</h3>
+			<p>Your article will be permanently deleted and cannot be recovered.</p>
+			<div class="modal-actions">
+				<button class="btn-cancel" on:click={cancelDelete}>Cancel</button>
+				<button class="btn-confirm" on:click={confirmDelete}>Delete</button>
+			</div>
+		</div>
+	</div>
+{/if}
+
 <style>
+	.modal-overlay {
+		position: fixed;
+		top: 0; left: 0; right: 0; bottom: 0;
+		background: rgba(0, 0, 0, 0.5);
+		backdrop-filter: blur(4px);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 1000;
+	}
+	.modal-card {
+		background: white;
+		padding: 32px 24px 24px;
+		border-radius: 20px;
+		width: 90%;
+		max-width: 360px;
+		text-align: center;
+		box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+		animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+	}
+	.modal-icon-container {
+		margin-bottom: 20px;
+		display: flex;
+		justify-content: center;
+	}
+	@keyframes popIn {
+		0% { transform: scale(0.9); opacity: 0; }
+		100% { transform: scale(1); opacity: 1; }
+	}
+	.modal-card h3 {
+		margin: 0 0 10px;
+		color: #111827;
+		font-size: 22px;
+		font-weight: 700;
+	}
+	.modal-card p {
+		color: #6b7280;
+		margin: 0 0 28px;
+		font-size: 14px;
+		line-height: 1.5;
+	}
+	.modal-actions {
+		display: flex;
+		gap: 12px;
+	}
+	.btn-cancel {
+		flex: 1;
+		background: white;
+		color: #16a34a;
+		border: 1px solid #16a34a;
+		padding: 12px 0;
+		border-radius: 12px;
+		cursor: pointer;
+		font-weight: 600;
+		font-size: 15px;
+		transition: 0.2s;
+	}
+	.btn-cancel:hover {
+		background: #f0fdf4;
+	}
+	.btn-confirm {
+		flex: 1;
+		background: #fc3c44;
+		color: white;
+		border: 1px solid #fc3c44;
+		padding: 12px 0;
+		border-radius: 12px;
+		cursor: pointer;
+		font-weight: 600;
+		font-size: 15px;
+		transition: 0.2s;
+	}
+	.btn-confirm:hover {
+		background: #e11d48;
+		border-color: #e11d48;
+	}
 	.dashboard {
 		padding: 100px 40px 40px;
 		background: #f4f9ff;
