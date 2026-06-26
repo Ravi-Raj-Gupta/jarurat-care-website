@@ -26,6 +26,7 @@
 	let title = '';
 	let subtitle = '';
 	let abstract = '';
+	let featuredImage: File | null = null;
 	let introduction = '';
 	let methods = '';
 	let results = '';
@@ -79,6 +80,7 @@
 
 	function resetForm() {
 		title = subtitle = abstract = introduction = methods = results = discussion = conclusion = '';
+		featuredImage = null;
 		editingArticleId = null;
 		showForm = false;
 	}
@@ -88,6 +90,7 @@
 		title = article.title || '';
 		subtitle = article.subtitle || '';
 		abstract = article.abstract || '';
+		featuredImage = null; // Do not reload existing image file object
 		introduction = article.introduction || '';
 		methods = article.methods || '';
 		results = article.results || '';
@@ -103,7 +106,23 @@
 
 		submitting = true;
 
-		const payload = {
+		let imageUrl = null;
+		if (featuredImage) {
+			const fileName = `${Date.now()}-${featuredImage.name.replace(/[^a-zA-Z0-9.\-]/g, '')}`;
+			const { error: uploadError } = await cmsSupabase.storage
+				.from('cms-images')
+				.upload(fileName, featuredImage);
+			
+			if (uploadError) {
+				toast.error('Image upload failed: ' + uploadError.message);
+				submitting = false;
+				return;
+			}
+			const { data: urlData } = cmsSupabase.storage.from('cms-images').getPublicUrl(fileName);
+			imageUrl = urlData.publicUrl;
+		}
+
+		const payload: any = {
 			title: title.trim(),
 			subtitle: subtitle.trim() || null,
 			abstract: abstract.trim(),
@@ -113,6 +132,10 @@
 			discussion: discussion.trim() || null,
 			conclusion: conclusion.trim() || null,
 		};
+
+		if (imageUrl) {
+			payload.featured_image = imageUrl;
+		}
 
 		let error;
 		if (editingArticleId) {
@@ -206,6 +229,12 @@
 		goto('/knowledge-hub');
 		cmsSupabase.auth.signOut();
 	}
+	function handleImageUpload(event: Event) {
+		const target = event.target as HTMLInputElement;
+		if (target.files && target.files.length > 0) {
+			featuredImage = target.files[0];
+		}
+	}
 </script>
 
 <Nav />
@@ -263,10 +292,19 @@
 
 			<label>Title *</label>
 			<input placeholder="Article title" bind:value={title} />
-
-			<label>Subtitle</label>
-			<input placeholder="Subtitle (optional)" bind:value={subtitle} />
-
+			<div class="row">
+				<div style="flex:1;">
+					<label>Subtitle (Optional)</label>
+					<input type="text" placeholder="A brief subtitle or secondary heading" bind:value={subtitle} />
+				</div>
+				<div style="flex:1;">
+					<label>Cover Image (Optional)</label>
+					<input type="file" accept="image/*" on:change={handleImageUpload} style="padding: 9px;" />
+					{#if featuredImage}
+						<span style="font-size: 11px; color: #16a34a; font-weight: bold; margin-top: 4px; display: block;">Image selected: {featuredImage.name}</span>
+					{/if}
+				</div>
+			</div>
 			<label>Abstract *</label>
 			<RichEditor
 				content={abstract}

@@ -25,6 +25,7 @@
   let name = '';
   let designation = '';
   let content = '';
+  let photo: File | null = null;
  
   onMount(async () => {
     const { data: { user: u } } = await cmsSupabase.auth.getUser();
@@ -64,14 +65,17 @@
   function startEdit(t: Testimonial) {
     editingTestimonial = t;
     name = t.name;
-    designation = t.designation ?? '';
+    designation = t.designation || '';
     content = t.content;
-    message = '';
+    photo = null;
     showForm = true;
+    message = '';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
  
   function resetForm() {
+    name = designation = content = '';
+    photo = null;
     editingTestimonial = null;
     name = '';
     designation = '';
@@ -101,18 +105,40 @@
  
     submitting = true;
     message = '';
- 
+
+    let imageUrl = null;
+    if (photo) {
+      const fileName = `${Date.now()}-${photo.name.replace(/[^a-zA-Z0-9.\-]/g, '')}`;
+      const { error: uploadError } = await cmsSupabase.storage
+        .from('cms-images')
+        .upload(fileName, photo);
+      
+      if (uploadError) {
+        message = '⚠️ Image upload failed: ' + uploadError.message;
+        submitting = false;
+        return;
+      }
+      const { data: urlData } = cmsSupabase.storage.from('cms-images').getPublicUrl(fileName);
+      imageUrl = urlData.publicUrl;
+    }
+
+    const payload: any = {
+      name: name.trim(),
+      designation: designation.trim() || null,
+      content: content.trim(),
+      status: 'submitted',
+    };
+
+    if (imageUrl) {
+      payload.featured_image = imageUrl;
+    }
+
     if (editingTestimonial) {
+      payload.admin_feedback = null;
+      payload.updated_at = new Date().toISOString();
       const { error } = await cmsSupabase
         .from('testimonials')
-        .update({
-          name: name.trim(),
-          designation: designation.trim() || null,
-          content: content.trim(),
-          status: 'submitted',
-          admin_feedback: null,
-          updated_at: new Date().toISOString()
-        })
+        .update(payload)
         .eq('id', editingTestimonial.id);
  
       submitting = false;
@@ -125,13 +151,9 @@
       return;
     }
  
-    const { error } = await cmsSupabase.from('testimonials').insert([{
-      user_id: user.id,
-      name: name.trim(),
-      designation: designation.trim() || null,
-      content: content.trim(),
-      status: 'submitted'
-    }]);
+    payload.user_id = user.id;
+
+    const { error } = await cmsSupabase.from('testimonials').insert([payload]);
  
     submitting = false;
  
@@ -140,6 +162,13 @@
     message = '✅ Testimonial submitted for review!';
     resetForm();
     await loadTestimonials();
+  }
+  
+  function handlePhotoUpload(event: Event) {
+    const target = event.target as HTMLInputElement;
+    if (target.files && target.files.length > 0) {
+      photo = target.files[0];
+    }
   }
  
   async function logout() {
@@ -204,6 +233,12 @@
  
       <label>Designation / Role</label>
       <input type="text" placeholder="e.g. Cancer Survivor, Caregiver" bind:value={designation} />
+
+      <label>Photo (Optional)</label>
+      <input type="file" accept="image/*" on:change={handlePhotoUpload} style="margin-bottom: 15px;" />
+      {#if photo}
+        <span style="font-size: 12px; color: #16a34a; font-weight: 600; display: block; margin-top: -10px; margin-bottom: 15px;">Image selected: {photo.name}</span>
+      {/if}
  
       <label>Your Testimonial *</label>
       <textarea rows="6" placeholder="Share your experience with Jarurat Care..." bind:value={content}></textarea>
