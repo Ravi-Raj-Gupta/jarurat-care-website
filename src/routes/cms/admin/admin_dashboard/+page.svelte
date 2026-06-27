@@ -930,11 +930,15 @@ async function loadAuthorRequests() {
 					{/each}
 				</div>
  
-				<input
-					bind:value={contentTitle}
-					placeholder="Title *"
-					style="width:100%;padding:12px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:12px;font-size:15px;"
-				/>
+				<div style="margin-bottom:12px;">
+					<label for="content-title" style="display:block;margin-bottom:6px;font-weight:600;font-size:14px;">Title *</label>
+					<input
+						id="content-title"
+						bind:value={contentTitle}
+						placeholder="Title *"
+						style="width:100%;padding:12px;border:1px solid #e2e8f0;border-radius:10px;font-size:15px;"
+					/>
+				</div>
  
 				<div style="margin-bottom:16px;">
 					<label style="display:block;margin-bottom:6px;font-weight:600;font-size:14px;"
