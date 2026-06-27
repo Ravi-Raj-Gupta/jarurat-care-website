@@ -208,23 +208,52 @@
 		publishedContent = content?.filter((c) => c.status === 'published').length ?? 0;
 	}
  
-	async function loadAuthorRequests() {
-		const { data } = await cmsSupabase
-			.from('author_requests')
-			.select('*, profiles:user_id(full_name, email)')
-			.eq('status', 'pending')
-			.order('created_at', { ascending: false });
-		authorRequests = data ?? [];
-	}
+async function loadAuthorRequests() {
+    const { data, error } = await cmsSupabase
+        .from('author_requests')
+        .select('*')
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false });
+    
+    if (error) { console.log('Error:', error); return; }
+
+    // Har request ke liye profile fetch karo
+    const requestsWithProfiles = await Promise.all(
+        (data ?? []).map(async (req) => {
+            const { data: profile } = await cmsSupabase
+                .from('profiles')
+                .select('full_name, email')
+                .eq('id', req.user_id)
+                .maybeSingle();
+            return { ...req, profiles: profile };
+        })
+    );
+
+    authorRequests = requestsWithProfiles;
+}
  
 	async function loadArticles() {
-		const { data } = await cmsSupabase
-			.from('research_articles')
-			.select('*, profiles:user_id(full_name, email)')
-			.eq('status', 'submitted')
-			.order('created_at', { ascending: false });
-		articles = data ?? [];
-	}
+    const { data, error } = await cmsSupabase
+        .from('research_articles')
+        .select('*')
+        .eq('status', 'submitted')
+        .order('created_at', { ascending: false });
+
+    if (error) { console.log('Error:', error); return; }
+
+    const articlesWithProfiles = await Promise.all(
+        (data ?? []).map(async (article) => {
+            const { data: profile } = await cmsSupabase
+                .from('profiles')
+                .select('full_name, email')
+                .eq('id', article.user_id)
+                .maybeSingle();
+            return { ...article, profiles: profile };
+        })
+    );
+
+    articles = articlesWithProfiles;
+}
  
 	async function loadPendingTestimonials() {
 		const { data, error } = await cmsSupabase
