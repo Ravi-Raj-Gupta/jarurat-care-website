@@ -120,7 +120,7 @@ export const actions: Actions = {
 					full_name: fullName,
 					orcid_id: orcidId || null
 				},
-				emailRedirectTo: 'https://jarurat.care/cms/login?verified=true'
+				emailRedirectTo: 'http://localhost:5173/cms/login?verified=true'
 			}
 		});
  
