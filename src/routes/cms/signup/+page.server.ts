@@ -128,14 +128,12 @@ export const actions: Actions = {
  
 		const user = authData.user;
 		if (user) {
-			// Insert into profiles table
 			await supabase.from('profiles').insert([{
 				id: user.id,
 				email,
 				full_name: fullName,
 				role: 'user',
-				orcid_id: orcidId || null,
-				email_verified: false
+				orcid_id: orcidId || null
 			}]);
 		}
  
