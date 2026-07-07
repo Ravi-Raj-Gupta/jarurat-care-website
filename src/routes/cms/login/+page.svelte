@@ -40,6 +40,7 @@
 				.from('profiles')
 				.select('role')
 				.eq('id', user.id)
+				.limit(1)
 				.maybeSingle();
 
 			if (profileError) throw profileError;
