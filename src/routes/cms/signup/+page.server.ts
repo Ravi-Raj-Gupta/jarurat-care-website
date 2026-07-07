@@ -133,8 +133,7 @@ export const actions: Actions = {
 				email,
 				full_name: fullName,
 				role: 'user',
-				orcid_id: orcidId || null,
-				email_verified: false
+				orcid_id: orcidId || null
 			}]);
 		}
  
