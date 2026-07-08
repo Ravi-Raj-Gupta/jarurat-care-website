@@ -1,5 +1,5 @@
 <script lang="ts">
-	let roleToggle = 'Author'; // Default to Author to show the new view, or 'Reader'
+	let roleToggle = 'Doctor'; // Default to Doctor to show the new view, or 'Reader'
 	
 	// Basic Info (Common)
 	let fullName = '';
@@ -10,14 +10,14 @@
 	let location = '';
 	let organization = '';
 
-	// Author Specific Basic Info
+	// Doctor Specific Basic Info
 	let qualification = '';
 	let designation = '';
 	let specialization = '';
 	let affiliation = '';
 	let cityState = '';
 
-	// Author Credentials
+	// Doctor Credentials
 	let experience = '';
 	let patientsTreated = '';
 	let publications = '';
@@ -30,8 +30,44 @@
 	// Interests (Reader)
 	let interests: string[] = ['Cancer Care', 'Medical Research', 'Patient stories', 'Health & Wellness'];
 
-	// Expertise (Author)
+	// Expertise (Doctor)
 	let expertise: string[] = ['Colorectal Cancer', 'Gastric Cancer Treatment', 'Pancreatic Cancer'];
+
+	// Photo upload state
+	let photoFile: File | null = null;
+	let photoPreviewUrl: string | null = null;
+	let fileInputRef: HTMLInputElement;
+
+	function handlePhotoSelect(event: Event) {
+		const target = event.target as HTMLInputElement;
+		if (target.files && target.files.length > 0) {
+			photoFile = target.files[0];
+			photoPreviewUrl = URL.createObjectURL(photoFile);
+		}
+	}
+
+	function triggerPhotoUpload() {
+		if (fileInputRef) fileInputRef.click();
+	}
+
+	// Tags logic
+	let newTag = '';
+	let isAddingTag = false;
+
+	function handleTagKeydown(event: KeyboardEvent) {
+		if (event.key === 'Enter' && newTag.trim() !== '') {
+			if (roleToggle === 'Reader') {
+				interests = [...interests, newTag.trim()];
+			} else {
+				expertise = [...expertise, newTag.trim()];
+			}
+			newTag = '';
+			isAddingTag = false;
+		} else if (event.key === 'Escape') {
+			newTag = '';
+			isAddingTag = false;
+		}
+	}
 
 	function removeTag(type: 'interest' | 'expertise', index: number) {
 		if (type === 'interest') {
@@ -46,7 +82,7 @@
 	let newsletters = false;
 	let eventUpdates = true;
 
-	// Confirmation (Author)
+	// Confirmation (Doctor)
 	let isConfirmed = false;
 </script>
 
@@ -57,7 +93,7 @@
 			<p>Sign in to comment publish research and manage your saved articles.</p>
 			
 			<div class="role-toggle">
-				<button class:active={roleToggle === 'Author'} on:click={() => roleToggle = 'Author'}>Author</button>
+				<button class:active={roleToggle === 'Doctor'} on:click={() => roleToggle = 'Doctor'}>Doctor</button>
 				<button class:active={roleToggle === 'Reader'} on:click={() => roleToggle = 'Reader'}>Reader</button>
 			</div>
 		</div>
@@ -81,14 +117,22 @@
 					</div>
 				</div>
 				<div class="photo-col">
-					<div class="photo-upload-box">
-						<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-							<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-							<circle cx="8.5" cy="8.5" r="1.5"></circle>
-							<polyline points="21 15 16 10 5 21"></polyline>
-						</svg>
-						<p>Upload photo</p>
-						<span class="photo-hint">JPG/PNG (Max 2MB)</span>
+					<input type="file" accept="image/png, image/jpeg" bind:this={fileInputRef} on:change={handlePhotoSelect} style="display: none;" />
+					
+					<!-- svelte-ignore a11y-click-events-have-key-events -->
+					<!-- svelte-ignore a11y-no-static-element-interactions -->
+					<div class="photo-upload-box" on:click={triggerPhotoUpload}>
+						{#if photoPreviewUrl}
+							<img src={photoPreviewUrl} alt="Preview" class="photo-preview" />
+						{:else}
+							<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+								<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+								<circle cx="8.5" cy="8.5" r="1.5"></circle>
+								<polyline points="21 15 16 10 5 21"></polyline>
+							</svg>
+							<p>Upload photo</p>
+							<span class="photo-hint">JPG/PNG (Max 2MB)</span>
+						{/if}
 					</div>
 				</div>
 			</div>
@@ -139,8 +183,8 @@
 			{/if}
 		</div>
 
-		<!-- Author Section 2: Credentials and Statistics -->
-		{#if roleToggle === 'Author'}
+		<!-- Doctor Section 2: Credentials and Statistics -->
+		{#if roleToggle === 'Doctor'}
 			<div class="section">
 				<h3 class="section-title">2. Credentials and Statistics</h3>
 				<div class="two-col-grid mb-16">
@@ -172,11 +216,11 @@
 
 		<!-- Bio Section -->
 		<div class="section">
-			<h3 class="section-title">{roleToggle === 'Author' ? '3. About The Author' : '2. About The Reader'}</h3>
+			<h3 class="section-title">{roleToggle === 'Doctor' ? '3. About The Doctor' : '2. About The Reader'}</h3>
 			<h4 class="sub-title">Short Bio</h4>
 			<div class="textarea-wrapper">
 				<textarea 
-					placeholder={roleToggle === 'Author' ? "Dr. Gupta specializes in colorectal, gastric, and pancreatic cancer with over 1800 patients treated across 18 years of clinical practice." : "Passionate about healthcare and medical advancements. Regularly read articles on cancer care and treatment."} 
+					placeholder={roleToggle === 'Doctor' ? "Dr. Gupta specializes in colorectal, gastric, and pancreatic cancer with over 1800 patients treated across 18 years of clinical practice." : "Passionate about healthcare and medical advancements. Regularly read articles on cancer care and treatment."} 
 					bind:value={bio} 
 					maxlength={300}
 				></textarea>
@@ -188,9 +232,22 @@
 		<div class="two-col-layout">
 			<!-- Tags -->
 			<div class="section">
-				<h3 class="section-title">{roleToggle === 'Author' ? '4. Areas of Expertise' : '3. Interests'}</h3>
+				<h3 class="section-title">{roleToggle === 'Doctor' ? '4. Areas of Expertise' : '3. Interests'}</h3>
 				<div class="interests-box">
-					<button class="btn-outline-pill">Add your interest</button>
+					{#if isAddingTag}
+						<!-- svelte-ignore a11y-autofocus -->
+						<input 
+							type="text" 
+							class="tag-input" 
+							bind:value={newTag} 
+							on:keydown={handleTagKeydown} 
+							on:blur={() => { if(newTag === '') isAddingTag = false; }} 
+							placeholder="Type & Enter" 
+							autofocus 
+						/>
+					{:else}
+						<button class="btn-outline-pill" on:click={() => isAddingTag = true}>Add your {roleToggle === 'Doctor' ? 'expertise' : 'interest'}</button>
+					{/if}
 					<div class="tags-container">
 						{#if roleToggle === 'Reader'}
 							{#each interests as tag, i}
@@ -217,7 +274,7 @@
 
 			<!-- Notifications -->
 			<div class="section">
-				<h3 class="section-title">{roleToggle === 'Author' ? '5. Notification Preferences' : '4. Notification Preferences'}</h3>
+				<h3 class="section-title">{roleToggle === 'Doctor' ? '5. Notification Preferences' : '4. Notification Preferences'}</h3>
 				<div class="notifications-box">
 					<div class="notif-row">
 						<div class="notif-text">
@@ -253,8 +310,8 @@
 			</div>
 		</div>
 
-		<!-- Author Confirmation -->
-		{#if roleToggle === 'Author'}
+		<!-- Doctor Confirmation -->
+		{#if roleToggle === 'Doctor'}
 			<div class="confirmation-box">
 				<label class="checkbox-label">
 					<input type="checkbox" bind:checked={isConfirmed} />
@@ -395,16 +452,25 @@
 	.photo-upload-box {
 		width: 100%;
 		max-width: 200px;
+		height: 120px;
 		background: #f3f4f6;
 		border-radius: 8px;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		padding: 32px 16px;
+		padding: 12px;
 		border: 1px dashed transparent;
 		cursor: pointer;
 		transition: border 0.2s;
+		overflow: hidden;
+	}
+
+	.photo-preview {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		border-radius: 6px;
 	}
 
 	.photo-upload-box:hover {
@@ -553,6 +619,22 @@
 
 	.btn-outline-pill:hover {
 		background: #f3f4f6;
+	}
+
+	.tag-input {
+		padding: 8px 16px;
+		border: 1px solid #3b82f6;
+		border-radius: 20px;
+		font-size: 13px;
+		outline: none;
+		margin-bottom: 24px;
+		width: 200px;
+		text-align: center;
+		color: #111827;
+	}
+
+	.tag-input::placeholder {
+		color: #9ca3af;
 	}
 
 	.tags-container {
