@@ -35,15 +35,18 @@
 
 			const user = authData.user;
 
-			// Fetch user role
 			const { data: profile, error: profileError } = await cmsSupabase
-				.from('profiles')
-				.select('role')
-				.eq('id', user.id)
-				.limit(1)
-				.maybeSingle();
+	.from('profiles')
+	.select('role, profile_completed')
+	.eq('id', user.id)
+	.limit(1)
+	.maybeSingle();
 
 			if (profileError) throw profileError;
+			if (!profile?.profile_completed) {
+				goto('/cms/complete-profile');
+				return;
+			}
 
 			const role = profile?.role || 'user';
 
