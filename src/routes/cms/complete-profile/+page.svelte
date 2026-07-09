@@ -1,10 +1,10 @@
 <script lang="ts">
 	let roleToggle = 'Doctor'; // Default to Doctor to show the new view, or 'Reader'
-	
+
 	// Basic Info (Common)
 	let fullName = '';
 	let email = '';
-	
+
 	// Reader Specific
 	let profession = '';
 	let location = '';
@@ -15,6 +15,7 @@
 	let designation = '';
 	let specialization = '';
 	let affiliation = '';
+	let medicalRegId = '';
 	let cityState = '';
 
 	// Doctor Credentials
@@ -23,15 +24,17 @@
 	let publications = '';
 	let awards = '';
 	let citations = '';
-	
+
 	// Bio (Common)
 	let bio = '';
-	
+
 	// Interests (Reader)
-	let interests: string[] = ['Cancer Care', 'Medical Research', 'Patient stories', 'Health & Wellness'];
+	const availableInterests = ['Cancer Care', 'Medical Research', 'Patient Stories', 'Health & Wellness', 'Clinical Trials', 'Diet & Nutrition'];
+	let interests: string[] = [];
 
 	// Expertise (Doctor)
-	let expertise: string[] = ['Colorectal Cancer', 'Gastric Cancer Treatment', 'Pancreatic Cancer'];
+	const availableExpertise = ['Colorectal Cancer', 'Pancreatic Cancer', 'Breast Cancer', 'Lung Cancer', 'Radiation Oncology', 'Medical Oncology', 'Gastric Cancer Treatment'];
+	let expertise: string[] = [];
 
 	// Photo upload state
 	let photoFile: File | null = null;
@@ -50,33 +53,6 @@
 		if (fileInputRef) fileInputRef.click();
 	}
 
-	// Tags logic
-	let newTag = '';
-	let isAddingTag = false;
-
-	function handleTagKeydown(event: KeyboardEvent) {
-		if (event.key === 'Enter' && newTag.trim() !== '') {
-			if (roleToggle === 'Reader') {
-				interests = [...interests, newTag.trim()];
-			} else {
-				expertise = [...expertise, newTag.trim()];
-			}
-			newTag = '';
-			isAddingTag = false;
-		} else if (event.key === 'Escape') {
-			newTag = '';
-			isAddingTag = false;
-		}
-	}
-
-	function removeTag(type: 'interest' | 'expertise', index: number) {
-		if (type === 'interest') {
-			interests = interests.filter((_, i) => i !== index);
-		} else {
-			expertise = expertise.filter((_, i) => i !== index);
-		}
-	}
-
 	// Notifications (Common)
 	let emailNotifications = true;
 	let newsletters = false;
@@ -91,10 +67,14 @@
 		<div class="header">
 			<h1>Welcome to JCF</h1>
 			<p>Sign in to comment publish research and manage your saved articles.</p>
-			
+
 			<div class="role-toggle">
-				<button class:active={roleToggle === 'Doctor'} on:click={() => roleToggle = 'Doctor'}>Doctor</button>
-				<button class:active={roleToggle === 'Reader'} on:click={() => roleToggle = 'Reader'}>Reader</button>
+				<button class:active={roleToggle === 'Doctor'} on:click={() => (roleToggle = 'Doctor')}
+					>Doctor</button
+				>
+				<button class:active={roleToggle === 'Reader'} on:click={() => (roleToggle = 'Reader')}
+					>Reader</button
+				>
 			</div>
 		</div>
 
@@ -103,7 +83,7 @@
 		<!-- Section 1: Basic Information -->
 		<div class="section border-box">
 			<h3 class="section-title">1. Basic Information</h3>
-			
+
 			<!-- Common fields -->
 			<div class="basic-info-grid">
 				<div class="fields-col">
@@ -117,15 +97,30 @@
 					</div>
 				</div>
 				<div class="photo-col">
-					<input type="file" accept="image/png, image/jpeg" bind:this={fileInputRef} on:change={handlePhotoSelect} style="display: none;" />
-					
+					<input
+						type="file"
+						accept="image/png, image/jpeg"
+						bind:this={fileInputRef}
+						on:change={handlePhotoSelect}
+						style="display: none;"
+					/>
+
 					<!-- svelte-ignore a11y-click-events-have-key-events -->
 					<!-- svelte-ignore a11y-no-static-element-interactions -->
 					<div class="photo-upload-box" on:click={triggerPhotoUpload}>
 						{#if photoPreviewUrl}
 							<img src={photoPreviewUrl} alt="Preview" class="photo-preview" />
 						{:else}
-							<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<svg
+								width="24"
+								height="24"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="#6b7280"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							>
 								<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
 								<circle cx="8.5" cy="8.5" r="1.5"></circle>
 								<polyline points="21 15 16 10 5 21"></polyline>
@@ -136,7 +131,7 @@
 					</div>
 				</div>
 			</div>
-			
+
 			<!-- Role specific fields -->
 			{#if roleToggle === 'Reader'}
 				<div class="three-col-grid">
@@ -157,17 +152,29 @@
 				<div class="two-col-grid mb-16">
 					<div class="field">
 						<label>Qualification <span>*</span></label>
-						<input type="text" placeholder="E.g., MD (Radiation Oncology), DNB" bind:value={qualification} />
+						<input
+							type="text"
+							placeholder="E.g., MD (Radiation Oncology), DNB"
+							bind:value={qualification}
+						/>
 					</div>
 					<div class="field">
 						<label>Current Designation <span>*</span></label>
-						<input type="text" placeholder="E.g. Senior Consultant - Medical Oncology" bind:value={designation} />
+						<input
+							type="text"
+							placeholder="E.g. Senior Consultant - Medical Oncology"
+							bind:value={designation}
+						/>
 					</div>
 				</div>
 				<div class="two-col-grid mb-16">
 					<div class="field">
 						<label>Specialization <span>*</span></label>
-						<input type="text" placeholder="E.g. Gastrointestinal Medical Oncology" bind:value={specialization} />
+						<input
+							type="text"
+							placeholder="E.g. Gastrointestinal Medical Oncology"
+							bind:value={specialization}
+						/>
 					</div>
 					<div class="field">
 						<label>Hospital / Clinic Affiliation <span>*</span></label>
@@ -175,6 +182,10 @@
 					</div>
 				</div>
 				<div class="two-col-grid">
+					<div class="field">
+						<label>Medical Registration ID <span>*</span></label>
+						<input type="text" placeholder="E.g. MCI-12345" bind:value={medicalRegId} />
+					</div>
 					<div class="field">
 						<label>City/ State</label>
 						<input type="text" placeholder="E.g. New Delhi" bind:value={cityState} />
@@ -216,12 +227,16 @@
 
 		<!-- Bio Section -->
 		<div class="section">
-			<h3 class="section-title">{roleToggle === 'Doctor' ? '3. About The Doctor' : '2. About The Reader'}</h3>
+			<h3 class="section-title">
+				{roleToggle === 'Doctor' ? '3. About The Doctor' : '2. About The Reader'}
+			</h3>
 			<h4 class="sub-title">Short Bio</h4>
 			<div class="textarea-wrapper">
-				<textarea 
-					placeholder={roleToggle === 'Doctor' ? "Dr. Gupta specializes in colorectal, gastric, and pancreatic cancer with over 1800 patients treated across 18 years of clinical practice." : "Passionate about healthcare and medical advancements. Regularly read articles on cancer care and treatment."} 
-					bind:value={bio} 
+				<textarea
+					placeholder={roleToggle === 'Doctor'
+						? 'Dr. Gupta specializes in colorectal, gastric, and pancreatic cancer with over 1800 patients treated across 18 years of clinical practice.'
+						: 'Passionate about healthcare and medical advancements. Regularly read articles on cancer care and treatment.'}
+					bind:value={bio}
 					maxlength={300}
 				></textarea>
 				<div class="char-count">{bio.length}/300</div>
@@ -232,40 +247,24 @@
 		<div class="two-col-layout">
 			<!-- Tags -->
 			<div class="section">
-				<h3 class="section-title">{roleToggle === 'Doctor' ? '4. Areas of Expertise' : '3. Interests'}</h3>
+				<h3 class="section-title">
+					{roleToggle === 'Doctor' ? '4. Areas of Expertise' : '3. Interests'}
+				</h3>
 				<div class="interests-box">
-					{#if isAddingTag}
-						<!-- svelte-ignore a11y-autofocus -->
-						<input 
-							type="text" 
-							class="tag-input" 
-							bind:value={newTag} 
-							on:keydown={handleTagKeydown} 
-							on:blur={() => { if(newTag === '') isAddingTag = false; }} 
-							placeholder="Type & Enter" 
-							autofocus 
-						/>
-					{:else}
-						<button class="btn-outline-pill" on:click={() => isAddingTag = true}>Add your {roleToggle === 'Doctor' ? 'expertise' : 'interest'}</button>
-					{/if}
-					<div class="tags-container">
+					<div class="checkbox-grid">
 						{#if roleToggle === 'Reader'}
-							{#each interests as tag, i}
-								<span class="tag">
-									{tag}
-									<button class="btn-close" on:click={() => removeTag('interest', i)}>
-										<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-									</button>
-								</span>
+							{#each availableInterests as item}
+								<label class="checkbox-item">
+									<input type="checkbox" bind:group={interests} value={item} />
+									{item}
+								</label>
 							{/each}
 						{:else}
-							{#each expertise as tag, i}
-								<span class="tag">
-									{tag}
-									<button class="btn-close" on:click={() => removeTag('expertise', i)}>
-										<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-									</button>
-								</span>
+							{#each availableExpertise as item}
+								<label class="checkbox-item">
+									<input type="checkbox" bind:group={expertise} value={item} />
+									{item}
+								</label>
 							{/each}
 						{/if}
 					</div>
@@ -274,7 +273,9 @@
 
 			<!-- Notifications -->
 			<div class="section">
-				<h3 class="section-title">{roleToggle === 'Doctor' ? '5. Notification Preferences' : '4. Notification Preferences'}</h3>
+				<h3 class="section-title">
+					{roleToggle === 'Doctor' ? '5. Notification Preferences' : '4. Notification Preferences'}
+				</h3>
 				<div class="notifications-box">
 					<div class="notif-row">
 						<div class="notif-text">
@@ -380,7 +381,7 @@
 	.role-toggle button.active {
 		background: #ffffff;
 		color: #0d2460;
-		box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 	}
 
 	.card {
@@ -390,7 +391,7 @@
 		border: 1px solid #e5e7eb;
 		border-radius: 12px;
 		padding: 40px;
-		box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
 	}
 
 	.card-title {
@@ -493,7 +494,9 @@
 		color: #9ca3af;
 	}
 
-	.mb-16 { margin-bottom: 16px; }
+	.mb-16 {
+		margin-bottom: 16px;
+	}
 
 	.two-col-grid {
 		display: grid;
@@ -566,7 +569,7 @@
 		color: #111827;
 		box-sizing: border-box;
 	}
-	
+
 	textarea::placeholder {
 		color: #9ca3af;
 	}
@@ -591,7 +594,8 @@
 		margin-top: 40px;
 	}
 
-	.interests-box, .notifications-box {
+	.interests-box,
+	.notifications-box {
 		border: 1px solid #e5e7eb;
 		border-radius: 12px;
 		padding: 24px;
@@ -601,75 +605,29 @@
 	}
 
 	.interests-box {
-		text-align: center;
+		text-align: left;
 	}
 
-	.btn-outline-pill {
-		border: 1px solid #9ca3af;
-		background: transparent;
-		color: #4b5563;
-		padding: 8px 16px;
-		border-radius: 20px;
-		font-size: 13px;
-		font-weight: 500;
-		cursor: pointer;
-		margin-bottom: 24px;
-		transition: all 0.2s;
+	.checkbox-grid {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 16px;
 	}
 
-	.btn-outline-pill:hover {
-		background: #f3f4f6;
-	}
-
-	.tag-input {
-		padding: 8px 16px;
-		border: 1px solid #3b82f6;
-		border-radius: 20px;
-		font-size: 13px;
-		outline: none;
-		margin-bottom: 24px;
-		width: 200px;
-		text-align: center;
-		color: #111827;
-	}
-
-	.tag-input::placeholder {
-		color: #9ca3af;
-	}
-
-	.tags-container {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 12px;
-		justify-content: center;
-	}
-
-	.tag {
-		display: inline-flex;
-		align-items: center;
-		gap: 8px;
-		border: 1px solid #93c5fd;
-		background: #eff6ff;
-		color: #2563eb;
-		padding: 8px 14px;
-		border-radius: 6px;
-		font-size: 13px;
-		font-weight: 600;
-	}
-
-	.btn-close {
-		background: none;
-		border: none;
-		color: #3b82f6;
-		cursor: pointer;
-		padding: 0;
+	.checkbox-item {
 		display: flex;
 		align-items: center;
-		justify-content: center;
-	}
-
-	.btn-close:hover {
+		font-size: 13px;
 		color: #1e3a8a;
+		cursor: pointer;
+		font-weight: 500;
+	}
+
+	.checkbox-item input {
+		margin-right: 12px;
+		width: 16px;
+		height: 16px;
+		cursor: pointer;
 	}
 
 	/* Notifications */
@@ -720,21 +678,21 @@
 		right: 0;
 		bottom: 0;
 		background-color: #e5e7eb;
-		transition: .3s;
+		transition: 0.3s;
 		border-radius: 34px;
 	}
 
 	.slider:before {
 		position: absolute;
-		content: "";
+		content: '';
 		height: 18px;
 		width: 18px;
 		left: 3px;
 		bottom: 3px;
 		background-color: white;
-		transition: .3s;
+		transition: 0.3s;
 		border-radius: 50%;
-		box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 	}
 
 	input:checked + .slider {
@@ -744,7 +702,7 @@
 	input:checked + .slider:before {
 		transform: translateX(20px);
 	}
-	
+
 	/* Confirmation Box */
 	.confirmation-box {
 		margin-top: 32px;
@@ -818,7 +776,8 @@
 			justify-content: center;
 			margin-top: 16px;
 		}
-		.two-col-grid, .three-col-grid {
+		.two-col-grid,
+		.three-col-grid {
 			grid-template-columns: 1fr;
 		}
 		.two-col-layout {
