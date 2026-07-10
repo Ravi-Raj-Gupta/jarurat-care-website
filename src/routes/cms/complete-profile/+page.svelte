@@ -106,8 +106,8 @@
 			<input type="hidden" name="role" value={roleToggle} />
  
 			<div class="header">
-				<h1>Welcome to JCF</h1>
-				<p>Sign in to comment publish research and manage your saved articles.</p>
+				<h1 style="font-size: 32px; color: #1e40af; font-weight: 800; margin-bottom: 10px;">Complete Your Profile</h1>
+				<p style="font-size: 16px; color: #4b5563; margin-bottom: 24px;">Please fill out all the necessary details below to complete your profile and unlock full access to the JCF platform.</p>
  
 				<div class="role-toggle">
 					<button type="button" class:active={roleToggle === 'Doctor'} on:click={() => (roleToggle = 'Doctor')}
