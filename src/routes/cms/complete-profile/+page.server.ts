@@ -9,7 +9,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		throw redirect(303, '/cms/login');
 	}
  
-	const { data: profile, error } = await supabaseAdmin
+	const { data: profile, error } = await locals.supabase
 		.from('profiles')
 		.select('*')
 		.eq('id', session.user.id)
@@ -75,7 +75,7 @@ export const actions: Actions = {
 		const formData = await request.formData();
 		const profileData = extractFormData(formData);
  
-		const { error } = await supabaseAdmin
+		const { error } = await locals.supabase
 			.from('profiles')
 			.upsert(
 				{ id: session.user.id, ...profileData, profile_completed: false },
@@ -105,7 +105,7 @@ export const actions: Actions = {
  
 		const verification_status = profileData.role === 'Doctor' ? 'pending' : 'approved';
  
-		const { error } = await supabaseAdmin
+		const { error } = await locals.supabase
 			.from('profiles')
 			.upsert(
 				{
@@ -122,6 +122,10 @@ export const actions: Actions = {
 			return fail(500, { message: 'Could not submit profile. Please try again.' });
 		}
  
-		throw redirect(303, '/dashboard');
+		if (profileData.role === 'Doctor') {
+			throw redirect(303, '/cms/author_dashboard');
+		} else {
+			throw redirect(303, '/');
+		}
 	}
 };
