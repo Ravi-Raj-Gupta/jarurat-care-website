@@ -45,6 +45,7 @@
 		"@iconify/svelte": "^4.0.2",
 		"@splidejs/splide": "^4.1.4",
 		"@splidejs/svelte-splide": "^0.2.9",
+		"@supabase/ssr": "^0.12.0",
 		"@supabase/supabase-js": "^2.101.1",
 		"@tiptap/core": "^3.27.1",
 		"@tiptap/extension-image": "^3.27.1",

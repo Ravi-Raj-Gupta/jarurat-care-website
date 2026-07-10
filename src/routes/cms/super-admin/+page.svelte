@@ -1,8 +1,27 @@
 <script lang="ts">
+import { onMount } from 'svelte';
+import { cmsSupabase } from '$lib/cmsSupabase';
 	// Active section in sidebar
 	let activeSection = 'analytics';
 	let showDropdown = false;
 	let dropdownRef: HTMLElement;
+	let pendingDoctors: any[] = [];
+	let loading = true;
+
+	async function loadPendingDoctors() {
+	const { data, error } = await cmsSupabase
+		.from('profiles')
+		.select('*')
+		.eq('profile_completed', true)
+		.eq('verification_status', 'pending');
+
+	if (!error && data) {
+	pendingDoctors = data;
+	doctorRequests = data;
+}
+
+	loading = false;
+}
 
 	function closeDropdown(e: MouseEvent) {
 		if (showDropdown && dropdownRef && !dropdownRef.contains(e.target as Node)) {
@@ -34,14 +53,7 @@
 	];
 
 	// Doctor Requests
-	type ReqStatus = 'pending' | 'approved' | 'rejected';
-	let doctorRequests = [
-		{ id: 1, name: 'Dr. Ananya Sharma', specialization: 'Oncology', hospital: 'AIIMS Delhi', regId: 'MCI-10234', date: '2026-07-08', status: 'pending' as ReqStatus },
-		{ id: 2, name: 'Dr. Rahul Verma', specialization: 'Cardiology', hospital: 'Fortis Mumbai', regId: 'MCI-58921', date: '2026-07-07', status: 'pending' as ReqStatus },
-		{ id: 3, name: 'Dr. Priya Kapoor', specialization: 'Neurology', hospital: 'Apollo Hyderabad', regId: 'MCI-33471', date: '2026-07-06', status: 'approved' as ReqStatus },
-		{ id: 4, name: 'Dr. Vikram Singh', specialization: 'Orthopedics', hospital: 'Max Gurugram', regId: 'MCI-77621', date: '2026-07-05', status: 'rejected' as ReqStatus },
-		{ id: 5, name: 'Dr. Meera Nair', specialization: 'Gastroenterology', hospital: 'Kokilaben Mumbai', regId: 'MCI-44102', date: '2026-07-04', status: 'pending' as ReqStatus }
-	];
+	let doctorRequests: any[] = [];
 	let requestFilter: 'all' | 'pending' | 'approved' | 'rejected' = 'all';
 
 	$: filteredRequests = requestFilter === 'all'
@@ -105,6 +117,10 @@
 		{ id: 'publishing', label: 'Publishing Power' },
 		{ id: 'users', label: 'Manage Users' }
 	];
+
+	onMount(() => {
+	loadPendingDoctors();
+});
 </script>
 
 <svelte:window on:click={closeDropdown} />
@@ -294,11 +310,11 @@
 					<tbody>
 						{#each filteredRequests as req}
 							<tr>
-								<td><strong>{req.name}</strong></td>
-								<td>{req.specialization}</td>
-								<td>{req.hospital}</td>
-								<td><code class="reg-id">{req.regId}</code></td>
-								<td>{req.date}</td>
+								<td><strong>{req.full_name}</strong></td>
+								<td>—</td>
+								<td>—</td>
+								<td>{req.email}</td>
+								<td>{new Date(req.created_at).toLocaleDateString()}</td>
 								<td>
 									<span class="status-badge status-{req.status}">{req.status}</span>
 								</td>
