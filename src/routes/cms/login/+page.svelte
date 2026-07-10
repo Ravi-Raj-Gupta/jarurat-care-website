@@ -48,32 +48,23 @@
 				return;
 			}
 
-			const role = profile?.role || 'user';
+			const { profile_completed, role, verification_status } = profile || {};
 
-			if (role === 'author') {
-				goto('/cms/author_dashboard');
-			} else if (role === 'testimonial_writer') {
-				goto('/cms/testimonial_dashboard');
-			} else if (role === 'editor_approver') {
-				goto('/cms/editor_dashboard');
-			} else if (role === 'cms_admin' || role === 'super_admin') {
-				goto('/cms/admin/admin_dashboard');
-			} else {
-				const { data: request } = await cmsSupabase
-					.from('author_requests')
-					.select('status')
-					.eq('user_id', user.id)
-					.order('created_at', { ascending: false })
-					.limit(1)
-					.maybeSingle();
+			if (!profile_completed) {
+				goto('/cms/complete-profile');
+				return;
+			}
 
-				if (!request) {
-					goto('/cms/author-request');
-				} else if (request.status === 'pending' || request.status === 'rejected') {
-					goto('/cms/pending');
+			if (role === 'Super_Admin' || role === 'Admin') {
+				goto('/cms/super-admin');
+			} else if (role === 'Doctor') {
+				if (verification_status === 'approved') {
+					goto('/cms/author_dashboard');
 				} else {
-					goto('/cms/pending');
+					goto('/cms/author_dashboard'); 
 				}
+			} else {
+				goto('/');
 			}
 		} catch (err: any) {
 			error = err.message || 'Login failed';

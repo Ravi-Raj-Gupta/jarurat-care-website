@@ -1,35 +1,17 @@
 <script lang="ts">
-import { onMount } from 'svelte';
-import { cmsSupabase } from '$lib/cmsSupabase';
+	import { enhance } from '$app/forms';
+	export let data;
 	// Active section in sidebar
 	let activeSection = 'analytics';
 	let showDropdown = false;
 	let dropdownRef: HTMLElement;
-	let pendingDoctors: any[] = [];
-	let loading = true;
-
-	async function loadPendingDoctors() {
-	const { data, error } = await cmsSupabase
-		.from('profiles')
-		.select('*')
-		.eq('profile_completed', true)
-		.eq('verification_status', 'pending');
-
-	if (!error && data) {
-	pendingDoctors = data;
-	doctorRequests = data;
-}
-
-	loading = false;
-}
+	let loading = false;
 
 	function closeDropdown(e: MouseEvent) {
 		if (showDropdown && dropdownRef && !dropdownRef.contains(e.target as Node)) {
 			showDropdown = false;
 		}
 	}
-
-	// ─── Mock Data ───────────────────────────────────────────────────────────────
 
 	const statsCards = [
 		{ label: 'Total Users', value: '1,284', change: '+12%', icon: '👥', color: '#1e40af' },
@@ -41,7 +23,7 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 	const recentActivity = [
 		{ text: 'Dr. Ananya Sharma submitted profile for review', time: '2 hours ago', type: 'doctor' },
 		{ text: 'User Raghav Menon created an account', time: '4 hours ago', type: 'user' },
-		{ text: 'Dr. Priya Kapoor\'s article was approved', time: '6 hours ago', type: 'article' },
+		{ text: "Dr. Priya Kapoor's article was approved", time: '6 hours ago', type: 'article' },
 		{ text: 'Dr. Vikram Singh request was rejected', time: '1 day ago', type: 'reject' },
 		{ text: 'New article submitted by Dr. Meera Nair', time: '1 day ago', type: 'article' }
 	];
@@ -53,62 +35,79 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 	];
 
 	// Doctor Requests
-	let doctorRequests: any[] = [];
 	let requestFilter: 'all' | 'pending' | 'approved' | 'rejected' = 'all';
 
-	$: filteredRequests = requestFilter === 'all'
-		? doctorRequests
-		: doctorRequests.filter(r => r.status === requestFilter);
-
-	function updateStatus(id: number, status: ReqStatus) {
-		doctorRequests = doctorRequests.map(r => r.id === id ? { ...r, status } : r);
-	}
+	// Use the data from the server directly
+	$: filteredRequests =
+		requestFilter === 'all'
+			? data.pendingDoctors
+			: data.pendingDoctors.filter((r: any) => r.verification_status === requestFilter);
 
 	// Publishing Power
 	type PubStatus = 'granted' | 'revoked';
 	let publishingDoctors = [
-		{ id: 1, name: 'Dr. Priya Kapoor', specialization: 'Neurology', articles: 12, status: 'granted' as PubStatus },
-		{ id: 2, name: 'Dr. Meera Nair', specialization: 'Gastroenterology', articles: 7, status: 'granted' as PubStatus },
-		{ id: 3, name: 'Dr. Suresh Pillai', specialization: 'Cardiology', articles: 24, status: 'granted' as PubStatus },
-		{ id: 4, name: 'Dr. Nandini Rao', specialization: 'Oncology', articles: 3, status: 'revoked' as PubStatus },
-		{ id: 5, name: 'Dr. Arun Gupta', specialization: 'Pediatrics', articles: 9, status: 'granted' as PubStatus }
+		{
+			id: 1,
+			name: 'Dr. Priya Kapoor',
+			specialization: 'Neurology',
+			articles: 12,
+			status: 'granted' as PubStatus
+		},
+		{
+			id: 2,
+			name: 'Dr. Meera Nair',
+			specialization: 'Gastroenterology',
+			articles: 7,
+			status: 'granted' as PubStatus
+		},
+		{
+			id: 3,
+			name: 'Dr. Suresh Pillai',
+			specialization: 'Cardiology',
+			articles: 24,
+			status: 'granted' as PubStatus
+		},
+		{
+			id: 4,
+			name: 'Dr. Nandini Rao',
+			specialization: 'Oncology',
+			articles: 3,
+			status: 'revoked' as PubStatus
+		},
+		{
+			id: 5,
+			name: 'Dr. Arun Gupta',
+			specialization: 'Pediatrics',
+			articles: 9,
+			status: 'granted' as PubStatus
+		}
 	];
 
 	function togglePublishing(id: number) {
-		publishingDoctors = publishingDoctors.map(d =>
+		publishingDoctors = publishingDoctors.map((d) =>
 			d.id === id ? { ...d, status: d.status === 'granted' ? 'revoked' : 'granted' } : d
 		);
 	}
 
-	// User Management
-	type UserRole = 'reader' | 'doctor' | 'admin';
-	let users = [
-		{ id: 1, name: 'Raghav Menon', email: 'raghav@email.com', role: 'reader' as UserRole, joined: '2026-07-08', active: true },
-		{ id: 2, name: 'Sunita Joshi', email: 'sunita@email.com', role: 'reader' as UserRole, joined: '2026-07-07', active: true },
-		{ id: 3, name: 'Dr. Priya Kapoor', email: 'priya@email.com', role: 'doctor' as UserRole, joined: '2026-06-20', active: true },
-		{ id: 4, name: 'Arjun Malhotra', email: 'arjun@email.com', role: 'reader' as UserRole, joined: '2026-06-15', active: false },
-		{ id: 5, name: 'Dr. Suresh Pillai', email: 'suresh@email.com', role: 'doctor' as UserRole, joined: '2026-06-10', active: true },
-		{ id: 6, name: 'Admin User', email: 'admin@jarurat.care', role: 'admin' as UserRole, joined: '2026-01-01', active: true }
-	];
 	let userSearch = '';
-	let userRoleFilter: 'all' | UserRole = 'all';
+	let userRoleFilter: 'all' | 'Reader' | 'Doctor' | 'Admin' | 'Super_Admin' = 'all';
 
-	$: filteredUsers = users.filter(u => {
-		const matchRole = userRoleFilter === 'all' || u.role === userRoleFilter;
-		const matchSearch = u.name.toLowerCase().includes(userSearch.toLowerCase()) || u.email.toLowerCase().includes(userSearch.toLowerCase());
+	$: filteredUsers = data.users.filter((u: any) => {
+		// Because role could be lowercase or uppercase in DB, we'll normalize it for matching
+		const uRole = u.role ? u.role.toLowerCase() : '';
+		const filterRole = userRoleFilter.toLowerCase();
+
+		const matchRole = userRoleFilter === 'all' || uRole === filterRole;
+
+		const matchSearch =
+			(u.full_name && u.full_name.toLowerCase().includes(userSearch.toLowerCase())) ||
+			(u.email && u.email.toLowerCase().includes(userSearch.toLowerCase()));
+
 		return matchRole && matchSearch;
 	});
 
-	function toggleUserActive(id: number) {
-		users = users.map(u => u.id === id ? { ...u, active: !u.active } : u);
-	}
-
-	function changeUserRole(id: number, newRole: string) {
-		users = users.map(u => u.id === id ? { ...u, role: newRole as UserRole } : u);
-	}
-
 	function setRoleFilter(role: string) {
-		userRoleFilter = role as 'all' | UserRole;
+		userRoleFilter = role as 'all' | 'Reader' | 'Doctor' | 'Admin' | 'Super_Admin';
 	}
 
 	const navItems = [
@@ -117,10 +116,6 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 		{ id: 'publishing', label: 'Publishing Power' },
 		{ id: 'users', label: 'Manage Users' }
 	];
-
-	onMount(() => {
-	loadPendingDoctors();
-});
 </script>
 
 <svelte:window on:click={closeDropdown} />
@@ -171,7 +166,7 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 				<!-- svelte-ignore a11y-click-events-have-key-events -->
 				<!-- svelte-ignore a11y-no-static-element-interactions -->
 				<div class="avatar-wrapper" bind:this={dropdownRef}>
-					<div class="avatar" on:click={() => showDropdown = !showDropdown}>SA</div>
+					<div class="avatar" on:click={() => (showDropdown = !showDropdown)}>SA</div>
 					{#if showDropdown}
 						<!-- svelte-ignore a11y-click-events-have-key-events -->
 						<!-- svelte-ignore a11y-no-static-element-interactions -->
@@ -181,7 +176,11 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 								<span>admin@jarurat.care</span>
 							</div>
 							<hr class="dropdown-divider" />
-							<a href="/cms/complete-profile" class="dropdown-item" on:click={() => showDropdown = false}>View Profile</a>
+							<a
+								href="/cms/complete-profile"
+								class="dropdown-item"
+								on:click={() => (showDropdown = false)}>View Profile</a
+							>
 							<a href="/cms/login" class="dropdown-item dropdown-logout">Logout</a>
 						</div>
 					{/if}
@@ -216,16 +215,38 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 					<div class="traffic-chart">
 						<div class="donut-ring">
 							<svg width="140" height="140" viewBox="0 0 140 140">
-								<circle cx="70" cy="70" r="54" fill="none" stroke="#dbeafe" stroke-width="22"/>
-								<circle cx="70" cy="70" r="54" fill="none" stroke="#93c5fd" stroke-width="22"
-									stroke-dasharray="{(55/100)*339.29} {(45/100)*339.29}"
-									stroke-dashoffset="{-(34/100)*339.29}"
-									transform="rotate(-90 70 70)"/>
-								<circle cx="70" cy="70" r="54" fill="none" stroke="#1e40af" stroke-width="22"
-									stroke-dasharray="{(34/100)*339.29} {(66/100)*339.29}"
-									transform="rotate(-90 70 70)"/>
-								<text x="70" y="66" text-anchor="middle" font-size="18" font-weight="700" fill="#0d2460">55%</text>
-								<text x="70" y="82" text-anchor="middle" font-size="11" fill="#6b7280">Readers</text>
+								<circle cx="70" cy="70" r="54" fill="none" stroke="#dbeafe" stroke-width="22" />
+								<circle
+									cx="70"
+									cy="70"
+									r="54"
+									fill="none"
+									stroke="#93c5fd"
+									stroke-width="22"
+									stroke-dasharray="{(55 / 100) * 339.29} {(45 / 100) * 339.29}"
+									stroke-dashoffset={-(34 / 100) * 339.29}
+									transform="rotate(-90 70 70)"
+								/>
+								<circle
+									cx="70"
+									cy="70"
+									r="54"
+									fill="none"
+									stroke="#1e40af"
+									stroke-width="22"
+									stroke-dasharray="{(34 / 100) * 339.29} {(66 / 100) * 339.29}"
+									transform="rotate(-90 70 70)"
+								/>
+								<text
+									x="70"
+									y="66"
+									text-anchor="middle"
+									font-size="18"
+									font-weight="700"
+									fill="#0d2460">55%</text
+								>
+								<text x="70" y="82" text-anchor="middle" font-size="11" fill="#6b7280">Readers</text
+								>
 							</svg>
 						</div>
 						<div class="traffic-legend">
@@ -244,18 +265,19 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 				<div class="card">
 					<h3 class="card-title">Monthly Overview</h3>
 					<div class="bar-chart">
-						{#each [
-							{ month: 'Feb', users: 40, articles: 12 },
-							{ month: 'Mar', users: 65, articles: 18 },
-							{ month: 'Apr', users: 55, articles: 22 },
-							{ month: 'May', users: 78, articles: 30 },
-							{ month: 'Jun', users: 90, articles: 35 },
-							{ month: 'Jul', users: 72, articles: 28 }
-						] as bar}
+						{#each [{ month: 'Feb', users: 40, articles: 12 }, { month: 'Mar', users: 65, articles: 18 }, { month: 'Apr', users: 55, articles: 22 }, { month: 'May', users: 78, articles: 30 }, { month: 'Jun', users: 90, articles: 35 }, { month: 'Jul', users: 72, articles: 28 }] as bar}
 							<div class="bar-group">
 								<div class="bar-pair">
-									<div class="bar users-bar" style="height: {bar.users * 1.4}px" title="{bar.users} users"></div>
-									<div class="bar articles-bar" style="height: {bar.articles * 1.4}px" title="{bar.articles} articles"></div>
+									<div
+										class="bar users-bar"
+										style="height: {bar.users * 1.4}px"
+										title="{bar.users} users"
+									></div>
+									<div
+										class="bar articles-bar"
+										style="height: {bar.articles * 1.4}px"
+										title="{bar.articles} articles"
+									></div>
 								</div>
 								<span class="bar-label">{bar.month}</span>
 							</div>
@@ -288,10 +310,32 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 		<!-- ── Doctor Requests Section ────────────────────────────────── -->
 		{#if activeSection === 'requests'}
 			<div class="filter-bar">
-				<button class="filter-btn" class:active-filter={requestFilter === 'all'} on:click={() => requestFilter = 'all'}>All ({doctorRequests.length})</button>
-				<button class="filter-btn" class:active-filter={requestFilter === 'pending'} on:click={() => requestFilter = 'pending'}>Pending ({doctorRequests.filter(r => r.status === 'pending').length})</button>
-				<button class="filter-btn" class:active-filter={requestFilter === 'approved'} on:click={() => requestFilter = 'approved'}>Approved ({doctorRequests.filter(r => r.status === 'approved').length})</button>
-				<button class="filter-btn" class:active-filter={requestFilter === 'rejected'} on:click={() => requestFilter = 'rejected'}>Rejected ({doctorRequests.filter(r => r.status === 'rejected').length})</button>
+				<button
+					class="filter-btn"
+					class:active-filter={requestFilter === 'all'}
+					on:click={() => (requestFilter = 'all')}>All ({data.pendingDoctors.length})</button
+				>
+				<button
+					class="filter-btn"
+					class:active-filter={requestFilter === 'pending'}
+					on:click={() => (requestFilter = 'pending')}
+					>Pending ({data.pendingDoctors.filter((r) => r.verification_status === 'pending')
+						.length})</button
+				>
+				<button
+					class="filter-btn"
+					class:active-filter={requestFilter === 'approved'}
+					on:click={() => (requestFilter = 'approved')}
+					>Approved ({data.pendingDoctors.filter((r) => r.verification_status === 'approved')
+						.length})</button
+				>
+				<button
+					class="filter-btn"
+					class:active-filter={requestFilter === 'rejected'}
+					on:click={() => (requestFilter = 'rejected')}
+					>Rejected ({data.pendingDoctors.filter((r) => r.verification_status === 'rejected')
+						.length})</button
+				>
 			</div>
 
 			<div class="table-card">
@@ -311,29 +355,34 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 						{#each filteredRequests as req}
 							<tr>
 								<td><strong>{req.full_name}</strong></td>
-								<td>—</td>
-								<td>—</td>
-								<td>{req.email}</td>
+								<td>{req.specialization || '—'}</td>
+								<td>{req.organization || '—'}</td>
+								<td>{req.medical_reg_id || '—'}</td>
 								<td>{new Date(req.created_at).toLocaleDateString()}</td>
 								<td>
-									<span class="status-badge status-{req.status}">{req.status}</span>
+									<span class="status-badge status-{req.verification_status}"
+										>{req.verification_status}</span
+									>
 								</td>
 								<td class="actions-cell">
-									<button
-										class="action-btn approve"
-										style={req.status === 'approved' ? 'visibility: hidden;' : ''}
-										on:click={() => updateStatus(req.id, 'approved')}
-									>
-										Approve
-									</button>
-									<button
-										class="action-btn reject"
-										style={req.status === 'rejected' ? 'visibility: hidden;' : ''}
-										on:click={() => updateStatus(req.id, 'rejected')}
-									>
-										Reject
-									</button>
+									{#if req.verification_status === 'pending'}
+										<!-- Approve Button Form -->
+										<form method="POST" action="?/approve" use:enhance style="display:inline;">
+											<input type="hidden" name="doctorId" value={req.id} />
+											<button class="action-btn approve">Approve</button>
+										</form>
+
+										<!-- Reject Button Form -->
+										<form method="POST" action="?/reject" use:enhance style="display:inline;">
+											<input type="hidden" name="doctorId" value={req.id} />
+											<button class="action-btn reject">Reject</button>
+										</form>
+									{/if}
 								</td>
+							</tr>
+						{:else}
+							<tr>
+								<td colspan="7" class="text-center">No doctor requests found for this filter.</td>
 							</tr>
 						{/each}
 					</tbody>
@@ -367,7 +416,9 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 									<strong style="color: #1e40af;">{doc.articles}</strong>
 								</td>
 								<td>
-									<span class="status-badge status-{doc.status === 'granted' ? 'approved' : 'rejected'}">
+									<span
+										class="status-badge status-{doc.status === 'granted' ? 'approved' : 'rejected'}"
+									>
 										{doc.status === 'granted' ? 'Can Publish' : 'Revoked'}
 									</span>
 								</td>
@@ -398,13 +449,13 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 					bind:value={userSearch}
 				/>
 				<div class="role-filter-tabs">
-					{#each ['all', 'reader', 'doctor', 'admin'] as role}
+					{#each ['all', 'Reader', 'Doctor', 'Admin', 'Super_Admin'] as role}
 						<button
 							class="filter-btn"
 							class:active-filter={userRoleFilter === role}
 							on:click={() => setRoleFilter(role)}
 						>
-							{role.charAt(0).toUpperCase() + role.slice(1)}
+							{role.replace('_', ' ')}
 						</button>
 					{/each}
 				</div>
@@ -419,43 +470,56 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 							<th>Current Role</th>
 							<th>Change Role</th>
 							<th>Joined</th>
-							<th>Status</th>
-							<th>Action</th>
+							<!-- <th>Status</th>
+							<th>Action</th> -->
 						</tr>
 					</thead>
 					<tbody>
 						{#each filteredUsers as user}
-							<tr class:inactive-row={!user.active}>
-								<td><strong>{user.name}</strong></td>
-								<td class="email-cell">{user.email}</td>
+							<tr>
+								<td><strong>{user.full_name || 'N/A'}</strong></td>
+								<td class="email-cell">{user.email || 'N/A'}</td>
 								<td>
-									<span class="role-badge role-{user.role}">{user.role}</span>
+									<span class="role-badge role-{user.role?.toLowerCase() || 'reader'}">{user.role ? user.role.replace('_', ' ') : 'User'}</span>
 								</td>
 								<td>
-									<select
-										class="role-select"
-										value={user.role}
-										on:change={(e) => changeUserRole(user.id, e.currentTarget.value)}
-									>
-										<option value="reader">Reader</option>
-										<option value="doctor">Doctor</option>
-										<option value="admin">Admin</option>
-									</select>
+									<form method="POST" action="?/updateRole" use:enhance>
+										<input type="hidden" name="userId" value={user.id} />
+										<select
+											class="role-select"
+											name="newRole"
+											value={user.role || 'user'}
+											on:change={(e) => e.currentTarget.form?.requestSubmit()}
+										>
+											<option value="user">User</option>
+											<option value="Reader">Reader</option>
+											<option value="Doctor">Doctor</option>
+											<option value="Admin">Admin</option>
+											<option value="Super_Admin">Super Admin</option>
+										</select>
+									</form>
 								</td>
-								<td>{user.joined}</td>
+								<td>{new Date(user.created_at).toLocaleDateString()}</td>
+								<!-- 
 								<td>
-									<span class="status-badge {user.active ? 'status-approved' : 'status-rejected'}">
-										{user.active ? 'Active' : 'Inactive'}
+									<span class="status-badge status-approved">
+										Active
 									</span>
 								</td>
 								<td>
 									<button
-										class="action-btn {user.active ? 'reject small' : 'approve small'}"
-										on:click={() => toggleUserActive(user.id)}
+										class="action-btn reject small"
+										style="opacity: 0.5; cursor: not-allowed;"
+										disabled
 									>
-										{user.active ? 'Deactivate' : 'Activate'}
+										Deactivate
 									</button>
-								</td>
+								</td> 
+								-->
+							</tr>
+						{:else}
+							<tr>
+								<td colspan="5" class="text-center">No users found for this filter.</td>
 							</tr>
 						{/each}
 					</tbody>
@@ -468,7 +532,11 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 <style>
 	@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
 
-	* { box-sizing: border-box; margin: 0; padding: 0; }
+	* {
+		box-sizing: border-box;
+		margin: 0;
+		padding: 0;
+	}
 
 	.dashboard {
 		display: flex;
@@ -497,7 +565,7 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 		align-items: center;
 		gap: 12px;
 		padding: 0 20px 28px;
-		border-bottom: 1px solid rgba(255,255,255,0.2);
+		border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 	}
 
 	.logo-img {
@@ -537,7 +605,7 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 		border-radius: 10px;
 		border: none;
 		background: transparent;
-		color: rgba(255,255,255,0.75);
+		color: rgba(255, 255, 255, 0.75);
 		font-size: 15px;
 		font-weight: 500;
 		cursor: pointer;
@@ -552,16 +620,18 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 	}
 
 	.nav-item.active {
-		background: rgba(255,255,255,0.2);
+		background: rgba(255, 255, 255, 0.2);
 		color: #ffffff;
 		font-weight: 700;
 	}
 
-	.nav-icon { font-size: 18px; }
+	.nav-icon {
+		font-size: 18px;
+	}
 
 	.sidebar-footer {
 		padding: 16px 20px;
-		border-top: 1px solid rgba(255,255,255,0.2);
+		border-top: 1px solid rgba(255, 255, 255, 0.2);
 		margin-top: auto;
 	}
 
@@ -579,7 +649,10 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 		font-weight: 600;
 	}
 
-	.logout-btn:hover { background: #0d2460; color: #fff; }
+	.logout-btn:hover {
+		background: #0d2460;
+		color: #fff;
+	}
 
 	/* ── Main ──────────────────────────────────────────────────────── */
 	.main {
@@ -643,7 +716,7 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 		background: white;
 		border: 1px solid #e5e7eb;
 		border-radius: 12px;
-		box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 		min-width: 200px;
 		z-index: 100;
 		overflow: hidden;
@@ -711,7 +784,7 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 		display: flex;
 		align-items: center;
 		gap: 16px;
-		box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 	}
 
 	.stat-icon {
@@ -757,7 +830,7 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 		background: white;
 		border-radius: 14px;
 		padding: 24px;
-		box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 	}
 
 	.wide-card {
@@ -778,7 +851,11 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 		gap: 32px;
 	}
 
-	.traffic-legend { display: flex; flex-direction: column; gap: 14px; }
+	.traffic-legend {
+		display: flex;
+		flex-direction: column;
+		gap: 14px;
+	}
 
 	.legend-row {
 		display: flex;
@@ -796,8 +873,13 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 		flex-shrink: 0;
 	}
 
-	.legend-label { flex: 1; }
-	.legend-pct { font-weight: 700; color: #0d2460; }
+	.legend-label {
+		flex: 1;
+	}
+	.legend-pct {
+		font-weight: 700;
+		color: #0d2460;
+	}
 
 	/* Bar chart */
 	.bar-chart {
@@ -829,8 +911,12 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 		transition: height 0.3s;
 	}
 
-	.users-bar { background: #1e40af; }
-	.articles-bar { background: #93c5fd; }
+	.users-bar {
+		background: #1e40af;
+	}
+	.articles-bar {
+		background: #93c5fd;
+	}
 
 	.bar-label {
 		font-size: 11px;
@@ -853,7 +939,12 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 	}
 
 	/* Activity */
-	.activity-list { list-style: none; display: flex; flex-direction: column; gap: 0; }
+	.activity-list {
+		list-style: none;
+		display: flex;
+		flex-direction: column;
+		gap: 0;
+	}
 
 	.activity-item {
 		display: flex;
@@ -863,7 +954,9 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 		border-bottom: 1px solid #f3f4f6;
 	}
 
-	.activity-item:last-child { border-bottom: none; }
+	.activity-item:last-child {
+		border-bottom: none;
+	}
 
 	.activity-dot {
 		width: 10px;
@@ -873,16 +966,32 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 		flex-shrink: 0;
 	}
 
-	.activity-dot.doctor { background: #1e40af; }
-	.activity-dot.user { background: #16a34a; }
-	.activity-dot.article { background: #d97706; }
-	.activity-dot.reject { background: #dc2626; }
+	.activity-dot.doctor {
+		background: #1e40af;
+	}
+	.activity-dot.user {
+		background: #16a34a;
+	}
+	.activity-dot.article {
+		background: #d97706;
+	}
+	.activity-dot.reject {
+		background: #dc2626;
+	}
 
-	.activity-text p { font-size: 13px; color: #374151; font-weight: 500; }
-	.activity-time { font-size: 11px; color: #9ca3af; }
+	.activity-text p {
+		font-size: 13px;
+		color: #374151;
+		font-weight: 500;
+	}
+	.activity-time {
+		font-size: 11px;
+		color: #9ca3af;
+	}
 
 	/* ── Filter Bar ─────────────────────────────────────────────── */
-	.filter-bar, .search-filter-bar {
+	.filter-bar,
+	.search-filter-bar {
 		display: flex;
 		align-items: center;
 		gap: 10px;
@@ -905,9 +1014,14 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 		color: #111827;
 	}
 
-	.search-input:focus { border-color: #1e40af; }
+	.search-input:focus {
+		border-color: #1e40af;
+	}
 
-	.role-filter-tabs { display: flex; gap: 8px; }
+	.role-filter-tabs {
+		display: flex;
+		gap: 8px;
+	}
 
 	.filter-btn {
 		padding: 8px 16px;
@@ -921,15 +1035,22 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 		font-family: inherit;
 	}
 
-	.filter-btn:not(.active-filter):hover { border-color: #93c5fd; color: #1e40af; }
-	.active-filter { background: #1e40af; color: white; border-color: #1e40af; }
+	.filter-btn:not(.active-filter):hover {
+		border-color: #93c5fd;
+		color: #1e40af;
+	}
+	.active-filter {
+		background: #1e40af;
+		color: white;
+		border-color: #1e40af;
+	}
 
 	/* ── Table ──────────────────────────────────────────────────── */
 	.table-card {
 		background: white;
 		border-radius: 14px;
 		overflow: hidden;
-		box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 	}
 
 	.data-table {
@@ -957,9 +1078,13 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 		vertical-align: middle;
 	}
 
-	.data-table tr:last-child td { border-bottom: none; }
+	.data-table tr:last-child td {
+		border-bottom: none;
+	}
 
-	.data-table tr:hover td { background: #fafbff; }
+	.data-table tr:hover td {
+		background: #fafbff;
+	}
 
 	/* Removed inactive-row opacity fade */
 
@@ -972,7 +1097,10 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 		font-family: monospace;
 	}
 
-	.email-cell { color: #6b7280; font-size: 12px; }
+	.email-cell {
+		color: #6b7280;
+		font-size: 12px;
+	}
 
 	/* Status Badges */
 	.status-badge {
@@ -983,9 +1111,18 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 		text-transform: capitalize;
 	}
 
-	.status-pending { background: #fef3c7; color: #92400e; }
-	.status-approved { background: #d1fae5; color: #065f46; }
-	.status-rejected { background: #fee2e2; color: #991b1b; }
+	.status-pending {
+		background: #fef3c7;
+		color: #92400e;
+	}
+	.status-approved {
+		background: #d1fae5;
+		color: #065f46;
+	}
+	.status-rejected {
+		background: #fee2e2;
+		color: #991b1b;
+	}
 
 	/* Role Badges */
 	.role-badge {
@@ -996,9 +1133,22 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 		text-transform: capitalize;
 	}
 
-	.role-reader { background: #f3f4f6; color: #374151; }
-	.role-doctor { background: #dbeafe; color: #1e40af; }
-	.role-admin { background: #fae8ff; color: #7e22ce; }
+	.role-reader {
+		background: #f3f4f6;
+		color: #374151;
+	}
+	.role-doctor {
+		background: #dbeafe;
+		color: #1e40af;
+	}
+	.role-admin {
+		background: #fae8ff;
+		color: #7e22ce;
+	}
+	.role-super_admin {
+		background: #ffedd5;
+		color: #c2410c; /* Orange tint for Super Admin */
+	}
 
 	.role-select {
 		padding: 6px 12px;
@@ -1026,9 +1176,15 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 	}
 
 	/* Action Buttons */
-	.actions-cell { display: flex; gap: 10px; justify-content: center; }
+	.actions-cell {
+		display: flex;
+		gap: 10px;
+		justify-content: center;
+	}
 
-	.text-center { text-align: center; }
+	.text-center {
+		text-align: center;
+	}
 
 	.action-btn {
 		padding: 9px 20px;
@@ -1041,11 +1197,24 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 		transition: all 0.2s;
 	}
 
-	.action-btn.approve { background: #22c55e; color: white; }
-	.action-btn.approve:hover { background: #16a34a; }
-	.action-btn.reject { background: #ef4444; color: white; }
-	.action-btn.reject:hover { background: #dc2626; }
-	.action-btn.small { padding: 7px 14px; font-size: 13px; }
+	.action-btn.approve {
+		background: #22c55e;
+		color: white;
+	}
+	.action-btn.approve:hover {
+		background: #16a34a;
+	}
+	.action-btn.reject {
+		background: #ef4444;
+		color: white;
+	}
+	.action-btn.reject:hover {
+		background: #dc2626;
+	}
+	.action-btn.small {
+		padding: 7px 14px;
+		font-size: 13px;
+	}
 
 	/* Toggle Switch */
 	.toggle-switch {
@@ -1056,7 +1225,11 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 		cursor: pointer;
 	}
 
-	.toggle-switch input { opacity: 0; width: 0; height: 0; }
+	.toggle-switch input {
+		opacity: 0;
+		width: 0;
+		height: 0;
+	}
 
 	.toggle-slider {
 		position: absolute;
@@ -1067,7 +1240,7 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 	}
 
 	.toggle-slider:before {
-		content: "";
+		content: '';
 		position: absolute;
 		width: 20px;
 		height: 20px;
@@ -1076,11 +1249,15 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 		background: white;
 		border-radius: 50%;
 		transition: 0.3s;
-		box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 	}
 
-	.toggle-switch input:checked + .toggle-slider { background: #1e40af; }
-	.toggle-switch input:checked + .toggle-slider:before { transform: translateX(20px); }
+	.toggle-switch input:checked + .toggle-slider {
+		background: #1e40af;
+	}
+	.toggle-switch input:checked + .toggle-slider:before {
+		transform: translateX(20px);
+	}
 
 	/* Section desc */
 	.section-desc {
@@ -1094,9 +1271,17 @@ import { cmsSupabase } from '$lib/cmsSupabase';
 	}
 
 	@media (max-width: 900px) {
-		.stats-grid { grid-template-columns: 1fr 1fr; }
-		.analytics-grid { grid-template-columns: 1fr; }
-		.wide-card { grid-column: 1; }
-		.sidebar { width: 200px; }
+		.stats-grid {
+			grid-template-columns: 1fr 1fr;
+		}
+		.analytics-grid {
+			grid-template-columns: 1fr;
+		}
+		.wide-card {
+			grid-column: 1;
+		}
+		.sidebar {
+			width: 200px;
+		}
 	}
 </style>

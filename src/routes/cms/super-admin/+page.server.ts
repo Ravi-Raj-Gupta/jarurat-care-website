@@ -1,0 +1,105 @@
+import { fail, redirect } from '@sveltejs/kit';
+import { supabaseAdmin } from '$lib/supabaseAdmin';
+import type { PageServerLoad, Actions } from './$types';
+
+export const load: PageServerLoad = async ({ locals }) => {
+	// Require admin session
+	const session = await locals.getSession();
+	if (!session) {
+		throw redirect(303, '/cms/login');
+	}
+
+	// Fetch the user's profile to check if they are actually an Admin/Super_Admin
+	const { data: userProfile } = await locals.supabase
+		.from('profiles')
+		.select('role')
+		.eq('id', session.user.id)
+		.single();
+
+	if (!userProfile || (userProfile.role !== 'Admin' && userProfile.role !== 'Super_Admin')) {
+		// Agar admin nahi hai, toh homepage par bhej do (ya error page)
+		throw redirect(303, '/');
+	}
+
+	const { data: pendingDoctors, error } = await supabaseAdmin
+		.from('profiles')
+		.select('*')
+		.eq('role', 'Doctor');
+
+	// Fetch all users for the Manage Users tab
+	const { data: users, error: usersError } = await supabaseAdmin
+		.from('profiles')
+		.select('*');
+
+	console.log("SUPER ADMIN QUERY:", { pendingDoctors, error });
+
+	if (error || usersError) {
+		console.error("Error fetching data:", error || usersError);
+		return { pendingDoctors: [], users: [] };
+	}
+
+	return { 
+		pendingDoctors: pendingDoctors || [],
+		users: users || []
+	};
+};
+
+export const actions: Actions = {
+	approve: async ({ request }) => {
+		const formData = await request.formData();
+		const doctorId = formData.get('doctorId') as string;
+
+		if (!doctorId) return fail(400, { message: 'Missing doctor ID' });
+
+		const { error } = await supabaseAdmin
+			.from('profiles')
+			.update({ verification_status: 'approved' })
+			.eq('id', doctorId);
+
+		if (error) {
+			console.error("Error approving doctor:", error);
+			return fail(500, { message: 'Could not approve doctor' });
+		}
+		
+		return { success: true };
+	},
+
+	reject: async ({ request }) => {
+		const formData = await request.formData();
+		const doctorId = formData.get('doctorId') as string;
+
+		if (!doctorId) return fail(400, { message: 'Missing doctor ID' });
+
+		const { error } = await supabaseAdmin
+			.from('profiles')
+			.update({ verification_status: 'rejected' })
+			.eq('id', doctorId);
+
+		if (error) {
+			console.error("Error rejecting doctor:", error);
+			return fail(500, { message: 'Could not reject doctor' });
+		}
+		
+		return { success: true };
+	},
+
+	updateRole: async ({ request }) => {
+		const formData = await request.formData();
+		const userId = formData.get('userId') as string;
+		const newRole = formData.get('newRole') as string;
+
+		if (!userId || !newRole) return fail(400, { message: 'Missing userId or newRole' });
+
+		const { error } = await supabaseAdmin
+			.from('profiles')
+			.update({ role: newRole })
+			.eq('id', userId);
+
+		if (error) {
+			console.error("Error updating user role:", error);
+			return fail(500, { message: 'Could not update role' });
+		}
+		
+		return { success: true };
+	}
+};
