@@ -55,8 +55,10 @@
 				return;
 			}
 
-			if (role === 'Super_Admin' || role === 'Admin') {
+			if (role === 'Super_Admin') {
 				goto('/cms/super-admin');
+			} else if (role === 'Admin') {
+				goto('/cms/admin');
 			} else if (role === 'Doctor') {
 				if (verification_status === 'approved') {
 					goto('/cms/author_dashboard');
