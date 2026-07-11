@@ -37,7 +37,7 @@
 
 			const { data: profile, error: profileError } = await cmsSupabase
 	.from('profiles')
-	.select('role, profile_completed')
+	.select('role, profile_completed, verification_status')
 	.eq('id', user.id)
 	.limit(1)
 	.maybeSingle();
@@ -61,9 +61,9 @@
 				goto('/cms/admin');
 			} else if (role === 'Doctor') {
 				if (verification_status === 'approved') {
-					goto('/cms/author_dashboard');
+					goto('/cms/doctor-dashboard');
 				} else {
-					goto('/cms/author_dashboard'); 
+					goto('/cms/pending');
 				}
 			} else {
 				goto('/');
