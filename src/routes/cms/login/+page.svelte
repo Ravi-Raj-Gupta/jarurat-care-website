@@ -65,6 +65,8 @@
 				} else {
 					goto('/cms/pending');
 				}
+			} else if (role === 'Reader') {
+				goto('/cms/reader-dashboard');
 			} else {
 				goto('/');
 			}
