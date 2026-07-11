@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { marked } from 'marked';
-	import { Plus } from 'lucide-svelte';
+	import { ChevronDown } from 'lucide-svelte';
 	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
 
@@ -19,11 +19,11 @@
 
 <div class="bg-white sm:px-4 py-3 sm:rounded-lg border-b sm:border">
 	<button
-		class="flex items-center justify-between cursor-pointer w-full text-[#0D2561] font-medium text-[0.9em] text-left gap-4"
+		class="flex items-center justify-between cursor-pointer w-full text-[#6BAA2E] font-medium text-[0.9em] text-left gap-4"
 		on:click={() => isOpen.set(!$isOpen)}
 	>
 		{question}
-		<Plus class={`text-[#0D2561] ${$isOpen ? 'rotate-180' : ''} transition-transform`} />
+		<ChevronDown class={`text-[#6BAA2E] ${$isOpen ? 'rotate-180' : ''} transition-transform duration-300`} />
 	</button>
 
 	<div
@@ -31,6 +31,17 @@
 		style="height: {$isOpen ? contentHeight : 0}px"
 		class="overflow-hidden transition-all text-gray-700 text-[0.8em]"
 	>
-		<p class="mt-2 px-2 pt-2 border-t prose">{@html marked(answer)}</p>
+		<p class="mt-2 px-2 pt-2 border-t prose faq-content">{@html marked(answer)}</p>
 	</div>
 </div>
+<style>
+:global(.faq-content a) {
+    color: #2563EB;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+:global(.faq-content a:hover) {
+    text-decoration: underline;
+}
+</style>

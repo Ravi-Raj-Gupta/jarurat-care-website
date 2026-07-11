@@ -47,13 +47,13 @@
 </script>
 
 <header class="fixed inset-x-0 top-0 z-50 bg-white shadow-sm">
-	<nav class="max-w-7xl mx-auto flex items-center justify-between px-4 md:px-6 py-3">
+	<nav class="max-w-7xl mx-auto flex items-center justify-between px-4 md:px-8 lg:px-6 py-3">
 
 		<a href="/">
 			<Logo class="h-8 md:h-10 w-auto" />
 		</a>
 
-		<ul class="hidden md:flex items-center gap-8 font-rubik text-[#0D2561] text-[0.95rem]">
+		<ul class="hidden lg:flex items-center gap-8 font-rubik text-[#0D2561] text-[0.95rem]">
 			{#each navItems as item}
 				<li>
 					<a href={item.href} class={cn("transition-all duration-200 hover:text-[#1E4ED8]", pathname === item.href ? "font-semibold border-b-2 border-[#1E4ED8] pb-1" : "")}>{item.title}</a>
@@ -61,11 +61,12 @@
 			{/each}
 		</ul>
 
-		<div class="hidden md:flex items-center gap-3">
+		<div class="flex items-center gap-4">
+            <div class="hidden md:flex lg:hidden">
 			<a href="/donate" class="bg-[#1E4ED8] text-white px-6 py-2 rounded-full text-sm font-medium shadow-md hover:shadow-lg transition">Donate Now</a>
 		</div>
 
-		<button class="md:hidden p-2" on:click={() => (isMenuOpen = !isMenuOpen)}>
+		<button class="lg:hidden p-2" on:click={() => (isMenuOpen = !isMenuOpen)}>
 			{#if isMenuOpen}<X size={26} />{:else}<MenuIcon size={26} />{/if}
 		</button>
 	</nav>
