@@ -64,10 +64,11 @@ export const load: PageServerLoad = async ({ locals }) => {
 			console.error('Error loading articles:', articlesError);
 		}
 
+		let authorsById = new Map<string, string>();
+
 		const articlesList = articles ?? [];
 		const authorIds = [...new Set(articlesList.map((a) => a.author_id))];
 
-		let authorsById = new Map<string, string>();
 		if (authorIds.length > 0) {
 			const { data: authors, error: authorsError } = await supabaseAdmin
 				.from('profiles')
@@ -97,10 +98,66 @@ export const load: PageServerLoad = async ({ locals }) => {
 			.filter((a): a is NonNullable<typeof a> => a !== null);
 	}
 
+	let recommendedArticles: Array<{
+		id: string;
+		title: string;
+		category: string | null;
+		authorName: string;
+		date: string;
+		thumbnail: string;
+	}> = [];
+
+	const interests = profile.interests ?? [];
+	if (interests.length > 0) {
+		// Fetch recent approved articles to filter by interests
+		const { data: recArticles, error: recError } = await supabaseAdmin
+			.from('articles')
+			.select('id, title, category, author_id, created_at, image, tags')
+			.eq('status', 'approved')
+			.order('created_at', { ascending: false })
+			.limit(50);
+
+		if (!recError && recArticles) {
+			const filtered = recArticles
+				.filter((a) => {
+					const matchCat = a.category && interests.includes(a.category);
+					const matchTags = Array.isArray(a.tags) && a.tags.some((t: string) => interests.includes(t));
+					return matchCat || matchTags;
+				})
+				.slice(0, 4);
+
+			// fetch authors if not already in map
+			const recAuthorIds = [...new Set(filtered.map((a) => a.author_id))];
+			const newAuthorsToFetch = recAuthorIds.filter((id) => !authorsById.has(id));
+
+			if (newAuthorsToFetch.length > 0) {
+				const { data: moreAuthors } = await supabaseAdmin
+					.from('profiles')
+					.select('id, full_name')
+					.in('id', newAuthorsToFetch);
+
+				if (moreAuthors) {
+					moreAuthors.forEach((a) => authorsById.set(a.id, a.full_name));
+				}
+			}
+
+			recommendedArticles = filtered.map((a) => ({
+				id: String(a.id),
+				title: a.title,
+				category: a.category,
+				authorName: authorsById.get(a.author_id) || 'Unknown',
+				date: a.created_at,
+				thumbnail: a.image || 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=1200&q=80'
+			}));
+		}
+	}
+
 	return {
 		profile,
 		savedArticles,
+		recommendedArticles,
+		reactedArticles: [], // Placeholder for future Reacted Articles
 		savedCount: savedRowsList.length,
-		interestsCount: (profile.interests ?? []).length
+		interestsCount: interests.length
 	};
 };

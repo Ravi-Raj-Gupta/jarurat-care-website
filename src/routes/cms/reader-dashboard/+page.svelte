@@ -4,6 +4,8 @@
 	import AboutCard from '$lib/components/dashboard/AboutCard.svelte';
 	import InterestsCard from '$lib/components/dashboard/InterestsCard.svelte';
 	import SavedArticlesCard from '$lib/components/dashboard/SavedArticlesCard.svelte';
+	import RecommendedArticlesCard from '$lib/components/dashboard/RecommendedArticlesCard.svelte';
+	import ReactedArticlesCard from '$lib/components/dashboard/ReactedArticlesCard.svelte';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -12,6 +14,8 @@
 	$: savedArticles = data.savedArticles;
 	$: savedCount = data.savedCount;
 	$: interestsCount = data.interestsCount;
+	$: recommendedArticles = data.recommendedArticles || [];
+	$: reactedArticles = data.reactedArticles || [];
 </script>
 
 <svelte:head>
@@ -29,7 +33,12 @@
 			<InterestsCard interests={profile?.interests || []} />
 		</div>
 
-		<SavedArticlesCard articles={savedArticles} />
+		<RecommendedArticlesCard articles={recommendedArticles} />
+
+		<div class="grid">
+			<SavedArticlesCard articles={savedArticles} />
+			<ReactedArticlesCard articles={reactedArticles} />
+		</div>
 	</div>
 </div>
 
