@@ -43,6 +43,20 @@
 			? data.pendingDoctors
 			: data.pendingDoctors.filter((r: any) => r.verification_status === requestFilter);
 
+	// Approval Modal State
+	let doctorToApprove: string | null = null;
+	let doctorToApproveName: string = '';
+
+	function promptApprove(req: any) {
+		doctorToApprove = req.id;
+		doctorToApproveName = req.full_name;
+	}
+
+	function cancelApprove() {
+		doctorToApprove = null;
+		doctorToApproveName = '';
+	}
+
 	// Publishing Power
 	type PubStatus = 'granted' | 'revoked';
 	let publishingDoctors = [
@@ -366,11 +380,8 @@
 								</td>
 								<td class="actions-cell">
 									{#if req.verification_status === 'pending'}
-										<!-- Approve Button Form -->
-										<form method="POST" action="?/approve" use:enhance style="display:inline;">
-											<input type="hidden" name="doctorId" value={req.id} />
-											<button class="action-btn approve">Approve</button>
-										</form>
+										<!-- Approve Button triggers modal -->
+										<button class="action-btn approve" on:click={() => promptApprove(req)}>Approve</button>
 
 										<!-- Reject Button Form -->
 										<form method="POST" action="?/reject" use:enhance style="display:inline;">
@@ -528,6 +539,36 @@
 		{/if}
 	</main>
 </div>
+
+<!-- Approval Modal -->
+{#if doctorToApprove}
+	<div class="modal-overlay">
+		<div class="modal-card">
+			<h3>Approve {doctorToApproveName}</h3>
+			<p>Select the permissions for this doctor:</p>
+			
+			<form method="POST" action="?/approve" use:enhance={() => {
+				return async ({ update }) => {
+					await update();
+					cancelApprove();
+				};
+			}}>
+				<input type="hidden" name="doctorId" value={doctorToApprove} />
+				<div class="modal-actions role-actions">
+					<button class="role-btn author-btn" name="assignedRole" value="author">
+						<strong>Author & Doctor</strong>
+						<span>Can write and publish articles</span>
+					</button>
+					<button class="role-btn reviewer-btn" name="assignedRole" value="reviewer">
+						<strong>Reviewer & Doctor</strong>
+						<span>Can write, publish, AND review other authors</span>
+					</button>
+				</div>
+				<button type="button" class="btn-cancel-modal" on:click={cancelApprove}>Cancel</button>
+			</form>
+		</div>
+	</div>
+{/if}
 
 <style>
 	@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
@@ -796,6 +837,93 @@
 		justify-content: center;
 		font-size: 22px;
 		flex-shrink: 0;
+	}
+
+	/* Modal Styles */
+	.modal-overlay {
+		position: fixed;
+		top: 0; left: 0; right: 0; bottom: 0;
+		background: rgba(0, 0, 0, 0.5);
+		backdrop-filter: blur(4px);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 1000;
+	}
+
+	.modal-card {
+		background: white;
+		padding: 30px;
+		border-radius: 16px;
+		width: 90%;
+		max-width: 420px;
+		text-align: center;
+		box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+	}
+
+	.modal-card h3 {
+		margin: 0 0 10px;
+		color: #0d2460;
+		font-size: 22px;
+	}
+
+	.modal-card p {
+		color: #6b7280;
+		margin: 0 0 24px;
+		font-size: 15px;
+	}
+
+	.role-actions {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+		margin-bottom: 20px;
+	}
+
+	.role-btn {
+		background: #f8fafc;
+		border: 1px solid #e2e8f0;
+		padding: 16px;
+		border-radius: 12px;
+		cursor: pointer;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		transition: all 0.2s;
+	}
+
+	.role-btn strong {
+		color: #0d2460;
+		font-size: 16px;
+		margin-bottom: 4px;
+	}
+
+	.role-btn span {
+		color: #64748b;
+		font-size: 13px;
+	}
+
+	.author-btn:hover {
+		border-color: #3b82f6;
+		background: #eff6ff;
+	}
+
+	.reviewer-btn:hover {
+		border-color: #16a34a;
+		background: #f0fdf4;
+	}
+
+	.btn-cancel-modal {
+		background: transparent;
+		border: none;
+		color: #94a3b8;
+		font-weight: 600;
+		cursor: pointer;
+		font-size: 14px;
+	}
+
+	.btn-cancel-modal:hover {
+		color: #64748b;
 	}
 
 	.stat-label {

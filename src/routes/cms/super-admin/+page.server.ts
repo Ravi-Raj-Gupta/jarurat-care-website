@@ -45,15 +45,32 @@ export const load: PageServerLoad = async ({ locals }) => {
 };
 
 export const actions: Actions = {
-	approve: async ({ request }) => {
+	approve: async ({ request, locals }) => {
+		const session = await locals.getSession();
+		if (!session) return fail(401, { message: 'Unauthorized' });
+		const { data: userProfile } = await locals.supabase.from('profiles').select('role').eq('id', session.user.id).single();
+		if (!userProfile || (userProfile.role !== 'Admin' && userProfile.role !== 'Super_Admin')) return fail(403, { message: 'Forbidden' });
+
 		const formData = await request.formData();
 		const doctorId = formData.get('doctorId') as string;
+		const assignedRole = formData.get('assignedRole') as string;
 
 		if (!doctorId) return fail(400, { message: 'Missing doctor ID' });
 
+		// Default permissions
+		let updateData: any = { verification_status: 'approved' };
+		
+		if (assignedRole === 'author') {
+			updateData.is_author = true;
+			updateData.is_reviewer = false;
+		} else if (assignedRole === 'reviewer') {
+			updateData.is_author = true;
+			updateData.is_reviewer = true;
+		}
+
 		const { error } = await supabaseAdmin
 			.from('profiles')
-			.update({ verification_status: 'approved' })
+			.update(updateData)
 			.eq('id', doctorId);
 
 		if (error) {
@@ -64,7 +81,12 @@ export const actions: Actions = {
 		return { success: true };
 	},
 
-	reject: async ({ request }) => {
+	reject: async ({ request, locals }) => {
+		const session = await locals.getSession();
+		if (!session) return fail(401, { message: 'Unauthorized' });
+		const { data: userProfile } = await locals.supabase.from('profiles').select('role').eq('id', session.user.id).single();
+		if (!userProfile || (userProfile.role !== 'Admin' && userProfile.role !== 'Super_Admin')) return fail(403, { message: 'Forbidden' });
+
 		const formData = await request.formData();
 		const doctorId = formData.get('doctorId') as string;
 
@@ -83,7 +105,12 @@ export const actions: Actions = {
 		return { success: true };
 	},
 
-	updateRole: async ({ request }) => {
+	updateRole: async ({ request, locals }) => {
+		const session = await locals.getSession();
+		if (!session) return fail(401, { message: 'Unauthorized' });
+		const { data: userProfile } = await locals.supabase.from('profiles').select('role').eq('id', session.user.id).single();
+		if (!userProfile || (userProfile.role !== 'Admin' && userProfile.role !== 'Super_Admin')) return fail(403, { message: 'Forbidden' });
+
 		const formData = await request.formData();
 		const userId = formData.get('userId') as string;
 		const newRole = formData.get('newRole') as string;
