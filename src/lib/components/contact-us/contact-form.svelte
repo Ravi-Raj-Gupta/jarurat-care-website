@@ -4,11 +4,9 @@
   import ContactNumber from "../contact-number.svelte";
   import FormInput from "../form-input.svelte";
   import RoleSelector from "../ui/RoleSelector.svelte";
-  import BgImage from "./image.png";
+  import BgImage from "./contact-banner.png";
 
-  let talk = "TALK ";
-  let to = "TO";
-  let us = "US";
+  let heroText = "We Are Here For You";
   let withText = "with";
   let getInTouchHeading = "Get in Touch ";
   let getInTouchDescription = "Our team is just an email away and ready to answer your questions";
@@ -250,31 +248,45 @@
 </style>
 
 <!-- Banner -->
-<div class="bg-cover bg-center w-full flex items-end md:items-center md:justify-center h-[50vh]"
-  style={`background-image: url(${BgImage})`}>
-  <h1 class="text-white text-3xl md:text-6xl">
-    {talk}
-    <span class="text-[#FFBA41]">{to}</span>
-    <span class="text-[#78C520]">{us}</span>
-  </h1>
+<div class="pt-[89px]">
+  
+  <div
+    class="bg-cover bg-center w-full flex items-center justify-center h-[70vh] md:h-[890px]"
+    style={`background-image: url(${BgImage})`}>
+
+    <h1
+      class="bg-white/60 backdrop-blur-sm text-[#0D2561]
+      text-5xl md:text-[66px] font-bold
+      px-8 py-4 rounded-2xl shadow-sm">
+      {heroText}
+    </h1>
+
+  </div>
+
 </div>
 
-<div class="relative bg-white">
+<div class="relative bg-[#D2DCF7] overflow-hidden">
   <ContactUs />
 
-  <div class="absolute inset-0 flex flex-col items-center max-w-[50rem] mx-auto mt-20">
-    
-    <h1 class="text-3xl text-center mb-4">
-      {getInTouchHeading}
-      <span class="text-[#0155BD]">{withText} {us}</span>
+<div class="relative z-10 flex flex-col items-center max-w-[1312px] mx-auto pt-16">    
+  <div class="text-center mb-12">
+    <h1 class="text-[40px] leading-[48px] font-bold text-[#0C1F56]">
+      Get in Touch <span class="text-[#0155BD]">with Us</span>
     </h1>
+
+  <p class="mt-4 text-[18px] leading-8 text-[#6B7280]">
+    Reach out to us for any support, collaboration or information.
+    <br />
+    We'll get back to you as soon as possible.
+  </p>
+</div>  
 
     {#if submitted}
       <div class="success mb-4 text-center">✅ Message sent successfully. Reloading…</div>
     {:else if globalError}
       <div class="error mb-4 text-center">❌ {globalError}</div>
     {/if}
-
+    <div class="w-full bg-white rounded-[32px] shadow-sm p-8 md:p-12">
     <form class="md:grid md:grid-cols-2 gap-4 w-full" on:submit|preventDefault={handleSubmit}>
 
       <!-- Full Name: wrapper ensures we can find the inner input -->
@@ -335,5 +347,6 @@
       </div>
 
     </form>
+    </div> 
   </div>
 </div>

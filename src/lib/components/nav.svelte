@@ -18,7 +18,9 @@
 	{ title: 'Get Involved', href: '/get-involved' },
 
 	{ title: 'Knowledge Hub', href: '/knowledge-hub' },
-
+    
+	{ title: 'Doctor Registration', href: '/doctor-form' },
+	
 	{ title: 'Contact Us', href: '/contact-us' }
 ];
 	onMount(async () => {
