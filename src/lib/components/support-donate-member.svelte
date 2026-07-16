@@ -4,13 +4,19 @@
 	import Hand from '$lib/svg/hand.svelte';
 	import Button from './ui/button.svelte';
 	import ImgMom from '$lib/assets/mom.webp';
-
+	import whyCancerIcon from '$lib/assets/icons/why-cancer-icon.svg';
+    import whyDonateIcon from '$lib/assets/icons/why-donate-icon.svg';
+    import whyCollaborationIcon from '$lib/assets/icons/why-collaboration-icon.svg';
+    import seekSupportImg from '$lib/assets/icons/seek-support.png';
+    import communityImg from '$lib/assets/icons/community.png';
+    import chatbotImg from '$lib/assets/icons/hope-ai-chatbot.png';
 	import { Splide, SplideSlide, SplideTrack } from '@splidejs/svelte-splide';
 	import { ChevronLeft, ChevronRight } from 'lucide-svelte';
 
 	const cards = [
 		{
 			icon: HandPlatterPlus,
+			image: seekSupportImg,
 			title: 'Seek Support',
 			description:
 				'Our NGO is here to help you through your cancer journey. Reach out to us today for support and care.',
@@ -19,6 +25,7 @@
 		},
 		{
 			icon: HandPlatterHeart,
+			image: communityImg,
 			title: 'Cancer Care Community',
 			description:
 				'Healing Hearts – Our community is here to guide, comfort, and stand beside those facing cancer.',
@@ -27,6 +34,7 @@
 		},
 		{
 			icon: Hand,
+			image: chatbotImg,
 			title: 'HOPE AI CHATBOT',
 			description:
 				'Our AI assistant is here to provide clarity and support during your cancer journey. Try it today.',
@@ -38,16 +46,19 @@
 	const sliderTop = [
 		{
 			title: 'Why Cancer',
+			icon: whyCancerIcon,
 			content:
 				'Cancer remains one of the leading causes of death worldwide, affecting millions of lives each year. Despite advancements in research and treatment, many people still lack access to the care and support they need. By focusing on cancer, we aim to raise awareness, provide vital resources, and drive efforts toward early detection, effective treatment.'
 		},
 		{
 			title: 'Why Donate',
+			icon: whyDonateIcon,
 			content:
 				'Donations are the lifeblood of Jarurat Care, empowering us to provide critical support to cancer patients who need it most. Your contributions directly fund life-saving treatments, emotional care, and essential services that make a real difference in peoples lives. Every donation brings us one step closer to a world where no one has to face cancer alone. Your support is not just important—its transformative.'
 		},
 		{
 			title: 'Why Collaborate',
+			icon: whyCollaborationIcon,
 			content:
 				'Join us because together, we can do so much more. By collaborating, we pool our strengths and resources to bring greater support to those fighting cancer. Your partnership helps us reach more people and make a bigger impact. Let’s work hand in hand to change lives.'
 		}
@@ -63,7 +74,7 @@
 		},
 		{
 			type: 'text',
-			title: 'Our Beginning',
+			title: 'Our Story',
 			content:
 				'After losing our beloved mother in December 2023, we founded Jarurat Care to support families navigating similar battles.'
 		}
@@ -72,7 +83,12 @@
 
 <!-- ================= TOP SLIDER ================= -->
 
-<section class="py-12 md:py-16 bg-[#EFFAFD]">
+<section class="py-12 md:py-16 bg-white">
+    <div class="max-w-6xl mx-auto">
+    <h2 class="text-2xl md:text-4xl font-bold text-[#0D2561] text-center mb-8">
+        Our Purpose
+    </h2>
+</div>
 	<div class="max-w-6xl mx-auto px-4 md:px-6 relative">
 		<Splide
 			hasTrack={false}
@@ -90,6 +106,11 @@
 				{#each sliderTop as slide}
 					<SplideSlide>
 						<div class="bg-white p-6 md:p-10 rounded-3xl md:rounded-4xl shadow-lg text-center min-h-[240px] md:min-h-[280px] flex flex-col justify-center">
+						    <div class="flex justify-center mb-5">
+                                <div class="w-12 h-12 rounded-lg bg-[#E9EEFC] flex items-center justify-center">
+                                 <img src={slide.icon} alt={slide.title} class="w-6 h-6" />
+                           </div>
+                       </div>
 							<h3 class="text-xl md:text-3xl font-bold text-[#0D2561] mb-3 md:mb-4">
 								{slide.title}
 							</h3>
@@ -115,7 +136,7 @@
 
 <!-- ================= CARDS ================= -->
 
-<section class="relative py-10 md:py-12 px-4 bg-[#F4F8FF]">
+<section class="relative py-10 md:py-12 px-4 bg-[#D3F2FC]">
 	<div class="max-w-7xl mx-auto">
 		<h2 class="text-2xl md:text-4xl font-bold text-[#0D2561] text-center mb-8 md:mb-10">
 			Our Support Services
@@ -124,9 +145,9 @@
 		<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
 			{#each cards as card}
 				<div class="bg-white rounded-3xl shadow-lg p-6 md:p-8 text-center hover:scale-105 transition duration-300">
-					<div class="w-14 h-14 mx-auto flex items-center justify-center bg-[#E5ECFF] rounded-full mb-4">
-						<svelte:component this={card.icon} class="w-7 h-7 text-[#1E40AF]" />
-					</div>
+					<div class="w-full aspect-[4/3] rounded-2xl overflow-hidden mb-4">
+                        <img src={card.image} alt={card.title} class="w-full h-full object-cover" />
+                    </div>
 					<h3 class="text-lg md:text-xl font-semibold text-[#0D2561] mb-2">
 						{card.title}
 					</h3>
@@ -144,7 +165,7 @@
 	</div>
 </section>
 <!-- ================= BOTTOM STORY SLIDER ================= -->
-<section class="py-12 md:py-16 bg-white">
+<section class="pt-20 pb-12 md:pt-32 md:pb-16 bg-white">
 	<div class="max-w-5xl mx-auto px-4 md:px-6 relative">
 		<Splide
 			hasTrack={false}

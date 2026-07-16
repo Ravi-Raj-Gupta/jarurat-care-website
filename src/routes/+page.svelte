@@ -14,6 +14,7 @@
     import VoiceOfHope from '$lib/components/voice-of-hope.svelte';
     import WhoWeAre from '$lib/components/who-we-are.svelte';
     import Popup from '$lib/components/Popup.svelte';
+    import TestimonialsSection from '$lib/components/testimonials-section.svelte';
 
     // Google Analytics initialization
     if (typeof window !== 'undefined') {
@@ -37,14 +38,18 @@ gotoLink="https://wa.me/919389529263?text=Hi"
 <SupportDonateMember />
 
 <Impact />
+<TestimonialsSection />
+
 <!-- <MonthlyUpdates /> -->
 <!-- <HowWeSupportYou /> -->
 <!-- <MapOfHospitals />  -->
 <!-- <CancerResearch /> -->
 <!-- <VoiceOfHope /> -->
 <!-- <OurTeam /> -->
-<!-- <Blogs />
-<Faq /> -->
+<!-- <Blogs /> -->
+
+<Faq />
+
 <!-- <Newsletter /> -->
 
 <!-- Add the script asynchronously in the document -->

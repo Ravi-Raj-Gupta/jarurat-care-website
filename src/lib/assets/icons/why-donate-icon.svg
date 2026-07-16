@@ -1,0 +1,12 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Large icon">
+<path d="M0 8C0 3.58172 3.58172 0 8 0H40C44.4183 0 48 3.58172 48 8V40C48 44.4183 44.4183 48 40 48H8C3.58172 48 0 44.4183 0 40V8Z" fill="#E9EEFC"/>
+<g id="Icon/donate">
+<path id="Vector" d="M23 27H25C25.5304 27 26.0391 26.7893 26.4142 26.4142C26.7893 26.0391 27 25.5304 27 25C27 24.4696 26.7893 23.9609 26.4142 23.5858C26.0391 23.2107 25.5304 23 25 23H22C21.4 23 20.9 23.2 20.6 23.6L15 29" stroke="#1E4ED8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_2" d="M19 33L20.6 31.6C20.9 31.2 21.4 31 22 31H26C27.1 31 28.1 30.6 28.8 29.8L33.4 25.4C33.7859 25.0354 34.0111 24.5323 34.0261 24.0016C34.0411 23.4709 33.8447 22.9559 33.48 22.57C33.1153 22.1841 32.6123 21.9589 32.0816 21.9439C31.5508 21.9289 31.0359 22.1254 30.65 22.49L26.45 26.39" stroke="#1E4ED8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_3" d="M14 28L20 34" stroke="#1E4ED8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_4" d="M28.0001 23.9001C29.6017 23.9001 30.9001 22.6017 30.9001 21.0001C30.9001 19.3985 29.6017 18.1001 28.0001 18.1001C26.3985 18.1001 25.1001 19.3985 25.1001 21.0001C25.1001 22.6017 26.3985 23.9001 28.0001 23.9001Z" stroke="#1E4ED8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_5" d="M18 20C19.6569 20 21 18.6569 21 17C21 15.3431 19.6569 14 18 14C16.3431 14 15 15.3431 15 17C15 18.6569 16.3431 20 18 20Z" stroke="#1E4ED8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+</g>
+</svg>

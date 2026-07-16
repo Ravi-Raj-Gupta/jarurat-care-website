@@ -19,25 +19,16 @@
 	</div>
 
 	<Header
-		title="Frequently asked question"
-		subtitle="Look through some of oue frequently answered questions"
+		title="FAQ"
+		subtitle=""
 	/>
 
-	<div class="max-w-[50rem] mx-auto flex flex-col sm:flex-row sm:gap-4 my-8">
-		<div class="grow flex flex-col sm:gap-4">
-			{#each columnOne as faq}
-				<FaqCard question={faq.question} answer={faq.answer} />
-			{/each}
-		</div>
-		<div class="grow flex flex-col sm:gap-4">
-			{#each columnOne as faq}
-				<FaqCard question={faq.question} answer={faq.answer} />
-			{/each}
-		</div>
-	</div>
-
-	<Header title="Still have Questions?" subtitle="Feel free to contact us" class="mt-16" />
-	<a href="mailto:Priyanka.joshi@jarurat.care?subject=">
-		<Button class="mt-8 block mx-auto">Contact Us</Button>
-	</a>
+	<div class="max-w-[48rem] mx-auto flex flex-col gap-4 my-8">
+		{#each faqs as faq}
+            <FaqCard
+                question={faq.question}
+                answer={faq.answer}
+        />
+    {/each}
+</div>
 </div>
