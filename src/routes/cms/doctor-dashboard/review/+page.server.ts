@@ -18,15 +18,15 @@ export const load: PageServerLoad = async ({ locals }) => {
 		throw redirect(303, '/cms/doctor-dashboard');
 	}
 
-	// Fetch pending regular articles
-	const { data: pendingArticles } = await locals.supabase
+	// Fetch pending regular articles using admin client to bypass RLS for reviewers
+	const { data: pendingArticles } = await supabaseAdmin
 		.from('articles')
 		.select('*')
 		.eq('status', 'under_review') // Assuming 'under_review' is the pending state
 		.order('created_at', { ascending: false });
 
 	// Fetch pending research articles
-	const { data: pendingResearch } = await locals.supabase
+	const { data: pendingResearch } = await supabaseAdmin
 		.from('research_articles')
 		.select('*')
 		.eq('status', 'under_review')

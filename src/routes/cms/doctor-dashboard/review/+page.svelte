@@ -112,12 +112,93 @@
 							<h2>{selectedItem.title}</h2>
 							
 							{#if activeTab === 'articles'}
-								{#if selectedItem.image}
-									<img src={selectedItem.image} alt="Cover" class="cover-image" />
+								{#if selectedItem.cover_image_url}
+									<img src={selectedItem.cover_image_url} alt="Cover" class="cover-image" />
 								{/if}
-								<div class="body-text">
-									{selectedItem.content}
-								</div>
+								
+								{#if selectedItem.abstract}
+									<div class="research-section">
+										<h4>Abstract / Executive Summary</h4>
+										<p>{selectedItem.abstract}</p>
+									</div>
+								{/if}
+								{#if selectedItem.introduction}
+									<div class="research-section">
+										<h4>Introduction</h4>
+										<p>{selectedItem.introduction}</p>
+									</div>
+								{/if}
+								{#if selectedItem.background}
+									<div class="research-section">
+										<h4>Background</h4>
+										<p>{selectedItem.background}</p>
+									</div>
+								{/if}
+								{#if selectedItem.purpose || selectedItem.scope}
+									<div class="research-section">
+										<h4>Purpose & Scope</h4>
+										{#if selectedItem.purpose}<p><strong>Purpose:</strong> {selectedItem.purpose}</p>{/if}
+										{#if selectedItem.scope}<p><strong>Scope:</strong> {selectedItem.scope}</p>{/if}
+									</div>
+								{/if}
+								{#if selectedItem.explanation}
+									<div class="research-section">
+										<h4>Explanation and Analysis</h4>
+										<p>{selectedItem.explanation}</p>
+									</div>
+								{/if}
+								{#if selectedItem.evidence}
+									<div class="research-section">
+										<h4>Supporting Evidence</h4>
+										<p>{selectedItem.evidence}</p>
+									</div>
+								{/if}
+								{#if selectedItem.examples}
+									<div class="research-section">
+										<h4>Examples / Practical Applications</h4>
+										<p>{selectedItem.examples}</p>
+									</div>
+								{/if}
+								{#if selectedItem.interpretation || selectedItem.implications}
+									<div class="research-section">
+										<h4>Discussion</h4>
+										{#if selectedItem.interpretation}<p><strong>Interpretation:</strong> {selectedItem.interpretation}</p>{/if}
+										{#if selectedItem.implications}<p><strong>Implications:</strong> {selectedItem.implications}</p>{/if}
+									</div>
+								{/if}
+								{#if selectedItem.recommendations}
+									<div class="research-section">
+										<h4>Recommendations</h4>
+										<p>{selectedItem.recommendations}</p>
+									</div>
+								{/if}
+								{#if selectedItem.conclusion_summary || selectedItem.takeaways}
+									<div class="research-section">
+										<h4>Conclusion</h4>
+										{#if selectedItem.conclusion_summary}<p><strong>Summary:</strong> {selectedItem.conclusion_summary}</p>{/if}
+										{#if selectedItem.takeaways}<p><strong>Takeaways:</strong> {selectedItem.takeaways}</p>{/if}
+									</div>
+								{/if}
+								{#if selectedItem.references_text}
+									<div class="research-section">
+										<h4>References</h4>
+										<p>{selectedItem.references_text}</p>
+									</div>
+								{/if}
+								{#if selectedItem.acknowledgements || selectedItem.appendix}
+									<div class="research-section">
+										<h4>Additional Information</h4>
+										{#if selectedItem.acknowledgements}<p><strong>Acknowledgements:</strong> {selectedItem.acknowledgements}</p>{/if}
+										{#if selectedItem.appendix}<p><strong>Appendix:</strong> {selectedItem.appendix}</p>{/if}
+									</div>
+								{/if}
+								
+								<!-- Fallback for legacy articles -->
+								{#if selectedItem.content && !selectedItem.explanation}
+									<div class="body-text">
+										{selectedItem.content}
+									</div>
+								{/if}
 							{:else}
 								<div class="research-section">
 									<h4>Abstract</h4>

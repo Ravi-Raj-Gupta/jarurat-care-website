@@ -3,7 +3,7 @@
 </script>
 
 <div class="quick-actions">
-	<a href="/cms/doctor-dashboard/create">Create Article</a>
+	<a href="/cms/articles/create">Create Article</a>
 
 	{#if hasDraft}
 		<a href="/cms/doctor-dashboard/drafts">Continue Draft</a>
