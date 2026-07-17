@@ -13,6 +13,7 @@
 		{ label: 'Dashboard', href: '/cms/doctor-dashboard' },
 		{ label: 'My Profile', href: '/cms/complete-profile' },
 		{ label: 'Create Article', href: '/cms/articles/create' },
+        { label: 'Create Research Paper',href: '/cms/doctor-dashboard/create-research-paper'},
 		{ label: 'My Articles', href: '/cms/doctor-dashboard/articles' },
 		{ label: 'Drafts', href: '/cms/doctor-dashboard/drafts' },
 		{ label: 'Saved Articles', href: '/cms/doctor-dashboard/saved' },
