@@ -6,6 +6,7 @@
 		specialization?: string;
 		verification_status?: string;
 		created_at?: string;
+		is_reviewer?: boolean;
 	};
 
 	function formatMemberSince(dateStr?: string) {
@@ -20,7 +21,12 @@
 		<div class="profile-photo"></div>
 
 		<div>
-			<h2>{profile?.full_name || 'Doctor'}</h2>
+			<h2>
+				{profile?.full_name || 'Doctor'}
+				{#if profile?.is_reviewer}
+					<span class="reviewer-badge">Reviewer</span>
+				{/if}
+			</h2>
 			<p>
 				{profile?.qualification || 'Qualification not set'}
 				{#if profile?.affiliation}
@@ -105,6 +111,18 @@
 	.verification-badge.approved {
 		background: #dcfce7;
 		color: #166534;
+	}
+
+	.reviewer-badge {
+		font-size: 11px;
+		font-weight: 700;
+		text-transform: uppercase;
+		padding: 3px 10px;
+		border-radius: 20px;
+		background: #f3e8ff;
+		color: #6b21a8;
+		margin-left: 10px;
+		vertical-align: middle;
 	}
 
 	.member {

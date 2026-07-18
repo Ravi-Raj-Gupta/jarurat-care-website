@@ -30,15 +30,12 @@ export const actions: Actions = {
 
 		const formData = await request.formData();
 		const actionType = formData.get('actionType') as string; // 'draft' or 'under_review'
-		const articleType = formData.get('articleType') as string; // 'regular' or 'research'
 
-		if (!actionType || !articleType) {
+		if (!actionType) {
 			return fail(400, { message: 'Missing submission parameters' });
 		}
 
 		const status = actionType === 'draft' ? 'draft' : 'under_review';
-
-		if (articleType === 'regular') {
 			// Extract Regular Article Fields
 			const title = formData.get('title') as string;
 			const author_name_credentials = formData.get('author_name_credentials') as string;
@@ -105,68 +102,6 @@ export const actions: Actions = {
 				console.error("Insert article error:", error);
 				return fail(500, { message: 'Failed to save regular article' });
 			}
-
-		} else if (articleType === 'research') {
-			// Extract Research Paper Fields
-			const title = formData.get('title') as string;
-			const authors_and_affiliations = formData.get('authors_and_affiliations') as string;
-			const corresponding_author_details = formData.get('corresponding_author_details') as string;
-			const abstract = formData.get('abstract') as string;
-			const keywords = formData.get('keywords') as string;
-			const introduction = formData.get('introduction') as string;
-			const literature_review = formData.get('literature_review') as string;
-			const methods = formData.get('methods') as string;
-			const results = formData.get('results') as string;
-			const discussion = formData.get('discussion') as string;
-			const conclusion = formData.get('conclusion') as string;
-			const acknowledgements = formData.get('acknowledgements') as string;
-			const funding = formData.get('funding') as string;
-			const conflict_of_interest = formData.get('conflict_of_interest') as string;
-			const author_contributions = formData.get('author_contributions') as string;
-			const data_availability = formData.get('data_availability') as string;
-			const ethics_statement = formData.get('ethics_statement') as string;
-			const references_text = formData.get('references_text') as string;
-			const appendix = formData.get('appendix') as string;
-			const featured_image = formData.get('featured_image') as string;
-
-			if (!title) return fail(400, { message: 'Title is required' });
-
-			const insertData = {
-				user_id: session.user.id, // Research table uses user_id instead of author_id
-				title,
-				authors_and_affiliations,
-				corresponding_author_details,
-				abstract,
-				keywords,
-				introduction,
-				literature_review,
-				methods,
-				results,
-				discussion,
-				conclusion,
-				acknowledgements,
-				funding,
-				conflict_of_interest,
-				author_contributions,
-				data_availability,
-				ethics_statement,
-				references_text,
-				appendix,
-				featured_image,
-				status,
-			};
-
-			const { error } = await supabaseAdmin
-				.from('research_articles')
-				.insert([insertData]);
-
-			if (error) {
-				console.error("Insert research error:", error);
-				return fail(500, { message: 'Failed to save research paper' });
-			}
-		} else {
-			return fail(400, { message: 'Invalid article type' });
-		}
 
 		// Redirect to dashboard on success
 		throw redirect(303, '/cms/doctor-dashboard');

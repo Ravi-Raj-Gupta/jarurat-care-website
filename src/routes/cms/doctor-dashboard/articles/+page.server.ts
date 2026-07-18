@@ -19,14 +19,14 @@ export const load: PageServerLoad = async ({ locals }) => {
 		throw redirect(303, '/cms/login');
 	}
 
-	const { data: researchPapers, error } = await supabaseAdmin
-		.from('research_articles')
+	const { data: articles, error } = await supabaseAdmin
+		.from('articles')
 		.select('*')
-		.eq('user_id', session.user.id)
+		.eq('author_id', session.user.id)
 		.order('created_at', { ascending: false });
 
 	return {
 		profile,
-		researchPapers: researchPapers ?? []
+		articles: articles ?? []
 	};
 };

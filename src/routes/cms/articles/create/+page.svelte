@@ -6,7 +6,6 @@
 	export let data;
 	$: profile = data.profile;
 
-	let articleType: 'regular' | 'research' = 'regular';
 	let isSubmitting = false;
 
 	// Common form submit handler
@@ -36,36 +35,10 @@
 			</div>
 
 			<div class="form-card">
-				<!-- Type Selection -->
-				<div class="type-selector">
-					<h3>What do you want to write?</h3>
-					<div class="radio-group">
-						<label class="radio-card" class:active={articleType === 'regular'}>
-							<input type="radio" bind:group={articleType} value="regular" />
-							<span class="icon">📝</span>
-							<div class="info">
-								<strong>Regular Article</strong>
-								<span>General health tips, stories, or blogs.</span>
-							</div>
-						</label>
-						<label class="radio-card" class:active={articleType === 'research'}>
-							<input type="radio" bind:group={articleType} value="research" />
-							<span class="icon">🔬</span>
-							<div class="info">
-								<strong>Medical Research</strong>
-								<span>Formal papers with abstract, methods, etc.</span>
-							</div>
-						</label>
-					</div>
-				</div>
-
-				<hr class="divider" />
-
 				<form method="POST" action="?/submitArticle" use:enhance={handleSubmit}>
-					<input type="hidden" name="articleType" value={articleType} />
+					<input type="hidden" name="articleType" value="regular" />
 
-					{#if articleType === 'regular'}
-						<!-- REGULAR ARTICLE FORM -->
+					<!-- REGULAR ARTICLE FORM -->
 						<div class="form-section">
 							<h3>Basic Information</h3>
 							<div class="input-group">
@@ -188,111 +161,6 @@
 							</div>
 						</div>
 
-					{:else}
-						<!-- RESEARCH PAPER FORM -->
-						<div class="form-section">
-							<h3>Basic Research Information</h3>
-							<div class="input-group">
-								<label for="title">Paper Title *</label>
-								<input type="text" id="title" name="title" required placeholder="Full title of the research paper..." />
-							</div>
-							<div class="input-grid">
-								<div class="input-group">
-									<label for="authors_and_affiliations">Authors & Affiliations</label>
-									<input type="text" id="authors_and_affiliations" name="authors_and_affiliations" placeholder="Jane Doe1, John Smith2..." />
-								</div>
-								<div class="input-group">
-									<label for="corresponding_author_details">Corresponding Author Details</label>
-									<input type="text" id="corresponding_author_details" name="corresponding_author_details" placeholder="Email, phone, institution..." />
-								</div>
-							</div>
-							<div class="input-grid">
-								<div class="input-group">
-									<label for="keywords">Keywords</label>
-									<input type="text" id="keywords" name="keywords" placeholder="e.g., oncology, clinical trial" />
-								</div>
-								<div class="input-group">
-									<label for="featured_image">Featured Image URL</label>
-									<input type="url" id="featured_image" name="featured_image" placeholder="https://..." />
-								</div>
-							</div>
-							<div class="input-group">
-								<label for="abstract">Abstract (Background, Objective, Methods, Results, Conclusion) *</label>
-								<textarea id="abstract" name="abstract" rows="5" required></textarea>
-							</div>
-						</div>
-
-						<div class="form-section">
-							<h3>Core Research Sections</h3>
-							<div class="input-group">
-								<label for="introduction">Introduction (Problem Statement, Research Gap)</label>
-								<textarea id="introduction" name="introduction" rows="5"></textarea>
-							</div>
-							<div class="input-group">
-								<label for="literature_review">Literature Review / Related Work</label>
-								<textarea id="literature_review" name="literature_review" rows="4"></textarea>
-							</div>
-							<div class="input-group">
-								<label for="methods">Materials and Methods (Study Design, Participants, Statistics)</label>
-								<textarea id="methods" name="methods" rows="6"></textarea>
-							</div>
-							<div class="input-group">
-								<label for="results">Results</label>
-								<textarea id="results" name="results" rows="6"></textarea>
-							</div>
-							<div class="input-group">
-								<label for="discussion">Discussion (Interpretation, Strengths, Limitations)</label>
-								<textarea id="discussion" name="discussion" rows="6"></textarea>
-							</div>
-							<div class="input-group">
-								<label for="conclusion">Conclusion</label>
-								<textarea id="conclusion" name="conclusion" rows="4"></textarea>
-							</div>
-						</div>
-
-						<div class="form-section">
-							<h3>Declarations & Supplementary</h3>
-							<div class="input-grid">
-								<div class="input-group">
-									<label for="ethics_statement">Ethical Approval / Informed Consent</label>
-									<textarea id="ethics_statement" name="ethics_statement" rows="3"></textarea>
-								</div>
-								<div class="input-group">
-									<label for="funding">Funding Statement</label>
-									<textarea id="funding" name="funding" rows="3"></textarea>
-								</div>
-							</div>
-							<div class="input-grid">
-								<div class="input-group">
-									<label for="conflict_of_interest">Conflict of Interest</label>
-									<textarea id="conflict_of_interest" name="conflict_of_interest" rows="2"></textarea>
-								</div>
-								<div class="input-group">
-									<label for="author_contributions">Author Contributions</label>
-									<textarea id="author_contributions" name="author_contributions" rows="2"></textarea>
-								</div>
-							</div>
-							<div class="input-grid">
-								<div class="input-group">
-									<label for="data_availability">Data Availability Statement</label>
-									<textarea id="data_availability" name="data_availability" rows="2"></textarea>
-								</div>
-								<div class="input-group">
-									<label for="acknowledgements">Acknowledgements</label>
-									<textarea id="acknowledgements" name="acknowledgements" rows="2"></textarea>
-								</div>
-							</div>
-							<div class="input-group">
-								<label for="references_text">References</label>
-								<textarea id="references_text" name="references_text" rows="4"></textarea>
-							</div>
-							<div class="input-group">
-								<label for="appendix">Appendix / Supplementary Material</label>
-								<textarea id="appendix" name="appendix" rows="3"></textarea>
-							</div>
-						</div>
-					{/if}
-
 					<div class="form-actions">
 						<button type="submit" name="actionType" value="draft" class="btn-draft" disabled={isSubmitting}>
 							Save as Draft
@@ -347,61 +215,7 @@
 		box-shadow: 0 4px 15px rgba(0,0,0,0.03);
 	}
 
-	.type-selector h3 {
-		font-size: 16px;
-		color: #1f2937;
-		margin: 0 0 15px;
-	}
 
-	.radio-group {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 20px;
-	}
-
-	.radio-card {
-		display: flex;
-		align-items: center;
-		padding: 20px;
-		border: 2px solid #e5e7eb;
-		border-radius: 12px;
-		cursor: pointer;
-		transition: all 0.2s;
-		background: #fafafa;
-	}
-
-	.radio-card input {
-		display: none;
-	}
-
-	.radio-card.active {
-		border-color: #0155bd;
-		background: #eff6ff;
-	}
-
-	.radio-card .icon {
-		font-size: 32px;
-		margin-right: 15px;
-	}
-
-	.radio-card .info strong {
-		display: block;
-		font-size: 16px;
-		color: #0d2460;
-		margin-bottom: 3px;
-	}
-
-	.radio-card .info span {
-		font-size: 13px;
-		color: #6b7280;
-	}
-
-	.divider {
-		border: 0;
-		height: 1px;
-		background: #e5e7eb;
-		margin: 35px 0;
-	}
 
 	.form-section {
 		margin-bottom: 35px;

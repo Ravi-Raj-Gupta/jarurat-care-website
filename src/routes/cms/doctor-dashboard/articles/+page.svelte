@@ -3,7 +3,7 @@
 	import Topbar from '$lib/components/dashboard/Topbar.svelte';
 	export let data;
 	$: profile = data.profile;
-	$: researchPapers = data.researchPapers;
+	$: articles = data.articles;
 
 	function formatDate(dateStr: string) {
 		return new Date(dateStr).toLocaleDateString('en-US', {
@@ -24,7 +24,7 @@
 </script>
 
 <svelte:head>
-	<title>My Research Papers | Doctor Dashboard</title>
+	<title>My Articles | Doctor Dashboard</title>
 </svelte:head>
 
 <div class="dashboard">
@@ -35,16 +35,16 @@
 
 		<div class="page">
 			<div class="header">
-				<h1>My Research Papers</h1>
-				<p>Manage all your submitted and drafted research papers.</p>
+				<h1>My Articles</h1>
+				<p>Manage all your written regular articles.</p>
 			</div>
 
 			<div class="articles-card">
-				{#if researchPapers.length === 0}
+				{#if articles.length === 0}
 					<div class="empty-state">
-						<h4>No Research Papers Yet</h4>
-						<p>You haven't submitted any research papers.</p>
-						<a href="/cms/research/create" class="btn-primary">Write a Research Paper</a>
+						<h4>No Articles Yet</h4>
+						<p>You haven't written any regular articles.</p>
+						<a href="/cms/articles/create" class="btn-primary">Write an Article</a>
 					</div>
 				{:else}
 					<div class="table-responsive">
@@ -52,16 +52,20 @@
 							<thead>
 								<tr>
 									<th>Title</th>
+									<th>Category</th>
 									<th>Status</th>
+									<th>Views</th>
 									<th>Date</th>
 								</tr>
 							</thead>
 							<tbody>
-								{#each researchPapers as paper}
+								{#each articles as article}
 									<tr>
-										<td><span class="title">{paper.title}</span></td>
-										<td><span class="status-badge status-{paper.status}">{statusLabel(paper.status)}</span></td>
-										<td>{formatDate(paper.created_at)}</td>
+										<td><span class="title">{article.title}</span></td>
+										<td>{article.category || 'N/A'}</td>
+										<td><span class="status-badge status-{article.status}">{statusLabel(article.status)}</span></td>
+										<td>{article.views || 0}</td>
+										<td>{formatDate(article.created_at)}</td>
 									</tr>
 								{/each}
 							</tbody>
