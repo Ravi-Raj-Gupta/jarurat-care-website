@@ -152,11 +152,117 @@ export const load: PageServerLoad = async ({ locals }) => {
 		}
 	}
 
+	// Liked articles for this reader
+	const { data: likedRows, error: likedError } = await supabaseAdmin
+		.from('article_likes')
+		.select('id, article_id, created_at')
+		.eq('user_id', session.user.id)
+		.order('created_at', { ascending: false });
+
+	if (likedError) {
+		console.error('Error loading liked articles:', likedError);
+	}
+
+	const likedRowsList = likedRows ?? [];
+	const likedArticleIds = likedRowsList.map((r) => r.article_id);
+
+	let reactedArticles: Array<{
+		id: string;
+		title: string;
+		category: string | null;
+		authorName: string;
+		likedAt: string;
+	}> = [];
+
+	if (likedArticleIds.length > 0) {
+		const { data: lArticles, error: lArticlesError } = await supabaseAdmin
+			.from('articles')
+			.select('id, title, category, author_id')
+			.in('id', likedArticleIds);
+
+		if (lArticlesError) {
+			console.error('Error loading liked articles details:', lArticlesError);
+		}
+
+		const lArticlesList = lArticles ?? [];
+		const lAuthorIds = [...new Set(lArticlesList.map((a) => a.author_id))];
+		const newAuthorsToFetch = lAuthorIds.filter((id) => !authorsById.has(id));
+
+		if (newAuthorsToFetch.length > 0) {
+			const { data: moreAuthors } = await supabaseAdmin
+				.from('profiles')
+				.select('id, full_name')
+				.in('id', newAuthorsToFetch);
+
+			if (moreAuthors) {
+				moreAuthors.forEach((a) => authorsById.set(a.id, a.full_name));
+			}
+		}
+
+		const lArticlesById = new Map(lArticlesList.map((a) => [a.id, a]));
+
+		reactedArticles = likedRowsList
+			.map((row) => {
+				const article = lArticlesById.get(row.article_id);
+				if (!article) return null;
+				return {
+					id: article.id,
+					title: article.title,
+					category: article.category,
+					authorName: authorsById.get(article.author_id) || 'Unknown',
+					likedAt: row.created_at
+				};
+			})
+			.filter((a): a is NonNullable<typeof a> => a !== null);
+	}
+
+	let followedDoctors: Array<{
+		id: string;
+		name: string;
+		specialization: string | null;
+		organization: string | null;
+		avatar: string | null;
+	}> = [];
+
+	const { data: followedRows, error: followedError } = await supabaseAdmin
+		.from('doctor_followers')
+		.select('doctor_id')
+		.eq('follower_id', session.user.id);
+
+	if (followedError) {
+		console.error('Error loading followed doctors:', followedError);
+	}
+
+	const followedRowsList = followedRows ?? [];
+	const followedDoctorIds = followedRowsList.map((r) => r.doctor_id);
+
+	if (followedDoctorIds.length > 0) {
+		const { data: doctorsData, error: doctorsError } = await supabaseAdmin
+			.from('profiles')
+			.select('id, full_name, specialization, organization')
+			.in('id', followedDoctorIds);
+
+		if (doctorsError) {
+			console.error('Error loading doctors details:', doctorsError);
+		}
+
+		if (doctorsData) {
+			followedDoctors = doctorsData.map(doc => ({
+				id: doc.id,
+				name: doc.full_name || 'Unknown Doctor',
+				specialization: doc.specialization,
+				organization: doc.organization,
+				avatar: null // Default avatar logic handled in component
+			}));
+		}
+	}
+
 	return {
 		profile,
 		savedArticles,
 		recommendedArticles,
-		reactedArticles: [], // Placeholder for future Reacted Articles
+		reactedArticles,
+		followedDoctors,
 		savedCount: savedRowsList.length,
 		interestsCount: interests.length
 	};

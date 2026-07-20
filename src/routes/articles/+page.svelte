@@ -274,7 +274,7 @@
 </script>
 
 <svelte:head>
-	<title>Knowledge Hub — Jarurat Care</title>
+	<title>Community — Jarurat Care</title>
 	<meta
 		name="description"
 		content="Approved articles from the Jarurat Care journal, loaded directly from Supabase."
@@ -428,7 +428,7 @@
 							class="text-4xl font-black leading-none tracking-tight text-[#0D2460] sm:text-5xl lg:text-6xl"
 							style="font-family:'DM Serif Display',serif;"
 						>
-							Knowledge Hub
+							Community
 						</h1>
 						<p class="mt-3 max-w-2xl text-sm text-[#5B6780]">
 							Research articles, blogs, news, events, campaigns and stories from Jarurat Care Foundation.

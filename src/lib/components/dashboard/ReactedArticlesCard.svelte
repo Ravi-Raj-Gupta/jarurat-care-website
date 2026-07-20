@@ -4,15 +4,35 @@
 
 <div class="reacted-card">
 	<div class="card-header">
-		<h3>Reacted Articles</h3>
-		<span class="badge">Coming Soon</span>
+		<h3>Liked Articles</h3>
 	</div>
 
-	<div class="empty-state">
-		<div class="icon">❤️</div>
-		<h4>No reactions yet</h4>
-		<p>Soon you'll be able to see the articles you've reacted to right here.</p>
-	</div>
+	{#if articles.length === 0}
+		<div class="empty-state">
+			<div class="icon">❤️</div>
+			<h4>No liked articles yet</h4>
+			<p>When you like articles, they will appear here.</p>
+		</div>
+	{:else}
+		<div class="article-list">
+			{#each articles as article}
+				<div class="article-item">
+					<div class="article-info">
+						<span class="category">{article.category || 'General'}</span>
+						<a href="/articles/{article.id}" class="title">{article.title}</a>
+						<div class="meta">
+							<span>By {article.authorName}</span>
+							<span class="dot">•</span>
+							<span>Liked on {new Date(article.likedAt).toLocaleDateString()}</span>
+						</div>
+					</div>
+					<div class="actions">
+						<button class="icon-btn liked" title="Unlike">❤️</button>
+					</div>
+				</div>
+			{/each}
+		</div>
+	{/if}
 </div>
 
 <style>
@@ -36,16 +56,7 @@
 		font-size: 16px;
 	}
 
-	.badge {
-		background: #eef2ff;
-		color: #4f46e5;
-		padding: 4px 8px;
-		border-radius: 12px;
-		font-size: 11px;
-		font-weight: 700;
-		text-transform: uppercase;
-		letter-spacing: 0.5px;
-	}
+
 
 	.empty-state {
 		padding: 40px 20px;
@@ -71,5 +82,79 @@
 	.empty-state p {
 		margin: 0;
 		font-size: 13px;
+	}
+
+	.article-list {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+	}
+
+	.article-item {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding-bottom: 16px;
+		border-bottom: 1px solid #f1f5f9;
+	}
+
+	.article-item:last-child {
+		border-bottom: none;
+		padding-bottom: 0;
+	}
+
+	.category {
+		font-size: 11px;
+		font-weight: 700;
+		text-transform: uppercase;
+		color: #4f46e5;
+		margin-bottom: 6px;
+		display: block;
+		letter-spacing: 0.5px;
+	}
+
+	.title {
+		font-size: 15px;
+		font-weight: 700;
+		color: #1e2a5e;
+		text-decoration: none;
+		display: block;
+		margin-bottom: 6px;
+		line-height: 1.4;
+		transition: color 0.2s;
+	}
+
+	.title:hover {
+		color: #4f46e5;
+	}
+
+	.meta {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		font-size: 12px;
+		color: #64748b;
+	}
+
+	.dot {
+		color: #cbd5e1;
+	}
+
+	.icon-btn {
+		background: #fee2e2;
+		border: none;
+		width: 32px;
+		height: 32px;
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		color: #ef4444;
+		transition: transform 0.2s;
+	}
+
+	.icon-btn:hover {
+		transform: scale(1.1);
 	}
 </style>

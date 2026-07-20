@@ -288,10 +288,10 @@
 </script>
  
 <svelte:head>
-    <title>Knowledge Hub — Jarurat Care Foundation</title>
+    <title>Community — Jarurat Care Foundation</title>
     <meta name="description" content="Explore research articles, blogs, news, events, FAQs and more from Jarurat Care Foundation. Your one-stop hub for health knowledge." />
     <meta name="keywords" content="jarurat care, health articles, cancer research, blogs, news, events, FAQ, health knowledge" />
-    <meta property="og:title" content="Knowledge Hub — Jarurat Care Foundation" />
+    <meta property="og:title" content="Community — Jarurat Care Foundation" />
     <meta property="og:description" content="Explore research, blogs, news and events from Jarurat Care Foundation." />
     <meta property="og:type" content="website" />
     <meta name="robots" content="index, follow" />
@@ -307,7 +307,7 @@
 			<!-- Detail View -->
 			<section class="detail">
 				<button class="back-btn" on:click={closeItem}>
-					<ArrowLeft size={14} /> Back to Knowledge Hub
+					<ArrowLeft size={14} /> Back to Community
 				</button>
  
 				<article class="detail-card">
@@ -397,7 +397,7 @@
 			<header class="hub-header flex flex-col md:flex-row justify-between items-start gap-6 mb-8 mt-2">
 				<div>
 					<p class="hub-eyebrow">Jarurat Care</p>
-					<h1 class="hub-title">Knowledge Hub</h1>
+					<h1 class="hub-title">Community</h1>
 					<p class="hub-desc">Explore research, blogs, news, events and more — all in one place.</p>
 				</div>
 				<div class="flex-shrink-0">
@@ -459,7 +459,7 @@
 					<input
 						type="text"
 						bind:value={searchQuery}
-						placeholder="Search knowledge hub..."
+						placeholder="Search community..."
 						class="search-input"
 						on:input={() => currentPage = 1}
 					/>
