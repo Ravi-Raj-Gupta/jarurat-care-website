@@ -128,6 +128,7 @@
 		{ id: 'analytics', label: 'Data Analytics' },
 		{ id: 'requests', label: 'Doctor Requests' },
 		{ id: 'publishing', label: 'Publishing Power' },
+		{ id: 'publish', label: 'Publish Content' },
 		{ id: 'users', label: 'Manage Users' }
 	];
 </script>
@@ -171,6 +172,7 @@
 					{#if activeSection === 'analytics'}Data Analytics
 					{:else if activeSection === 'requests'}Doctor Requests
 					{:else if activeSection === 'publishing'}Publishing Power
+					{:else if activeSection === 'publish'}Publish Content
 					{:else}Manage Users
 					{/if}
 				</h1>
@@ -443,6 +445,83 @@
 										<span class="toggle-slider"></span>
 									</label>
 								</td>
+							</tr>
+						{/each}
+					</tbody>
+				</table>
+			</div>
+		{/if}
+
+		<!-- ── Publish Content Section ────────────────────────────────── -->
+		{#if activeSection === 'publish'}
+			<div class="section-desc">
+				<p>Review articles and research papers approved by reviewers and publish them to the live platform.</p>
+			</div>
+
+			<div class="tabs" style="margin-bottom: 20px;">
+				<button class="tab-btn active">Pending to Publish</button>
+			</div>
+
+			<div class="table-card" style="margin-bottom: 30px;">
+				<h3 style="padding: 20px 20px 0; margin: 0; color: #0d2460;">Regular Articles</h3>
+				<table class="data-table">
+					<thead>
+						<tr>
+							<th>Title</th>
+							<th>Category</th>
+							<th>Date Approved</th>
+							<th class="text-center">Action</th>
+						</tr>
+					</thead>
+					<tbody>
+						{#each data.approvedArticles as article}
+							<tr>
+								<td><strong>{article.title || 'Untitled'}</strong></td>
+								<td>{article.category || 'N/A'}</td>
+								<td>{new Date(article.updated_at || article.created_at).toLocaleDateString()}</td>
+								<td class="text-center">
+									<form method="POST" action="?/publishContent" use:enhance>
+										<input type="hidden" name="articleId" value={article.id} />
+										<input type="hidden" name="articleType" value="regular" />
+										<button type="submit" class="action-btn approve" style="padding: 6px 12px;">Publish</button>
+									</form>
+								</td>
+							</tr>
+						{:else}
+							<tr>
+								<td colspan="4" class="text-center">No regular articles waiting to be published.</td>
+							</tr>
+						{/each}
+					</tbody>
+				</table>
+			</div>
+
+			<div class="table-card">
+				<h3 style="padding: 20px 20px 0; margin: 0; color: #0d2460;">Research Papers</h3>
+				<table class="data-table">
+					<thead>
+						<tr>
+							<th>Title</th>
+							<th>Date Approved</th>
+							<th class="text-center">Action</th>
+						</tr>
+					</thead>
+					<tbody>
+						{#each data.approvedResearch as research}
+							<tr>
+								<td><strong>{research.title || 'Untitled'}</strong></td>
+								<td>{new Date(research.updated_at || research.created_at).toLocaleDateString()}</td>
+								<td class="text-center">
+									<form method="POST" action="?/publishContent" use:enhance>
+										<input type="hidden" name="articleId" value={research.id} />
+										<input type="hidden" name="articleType" value="research" />
+										<button type="submit" class="action-btn approve" style="padding: 6px 12px;">Publish</button>
+									</form>
+								</td>
+							</tr>
+						{:else}
+							<tr>
+								<td colspan="3" class="text-center">No research papers waiting to be published.</td>
 							</tr>
 						{/each}
 					</tbody>

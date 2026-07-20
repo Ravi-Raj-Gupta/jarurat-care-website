@@ -31,16 +31,31 @@ export const load: PageServerLoad = async ({ locals }) => {
 		.from('profiles')
 		.select('*');
 
+	// Fetch approved articles waiting for super admin publishing
+	const { data: approvedArticles } = await supabaseAdmin
+		.from('articles')
+		.select('*')
+		.eq('status', 'approved')
+		.order('created_at', { ascending: false });
+
+	const { data: approvedResearch } = await supabaseAdmin
+		.from('research_articles')
+		.select('*')
+		.eq('status', 'approved')
+		.order('created_at', { ascending: false });
+
 	console.log("SUPER ADMIN QUERY:", { pendingDoctors, error });
 
 	if (error || usersError) {
 		console.error("Error fetching data:", error || usersError);
-		return { pendingDoctors: [], users: [] };
+		return { pendingDoctors: [], users: [], approvedArticles: [], approvedResearch: [] };
 	}
 
 	return { 
 		pendingDoctors: pendingDoctors || [],
-		users: users || []
+		users: users || [],
+		approvedArticles: approvedArticles || [],
+		approvedResearch: approvedResearch || []
 	};
 };
 
@@ -125,6 +140,36 @@ export const actions: Actions = {
 		if (error) {
 			console.error("Error updating user role:", error);
 			return fail(500, { message: 'Could not update role' });
+		}
+		
+		return { success: true };
+	},
+
+	publishContent: async ({ request, locals }) => {
+		const session = await locals.getSession();
+		if (!session) return fail(401, { message: 'Unauthorized' });
+		const { data: userProfile } = await locals.supabase.from('profiles').select('role').eq('id', session.user.id).single();
+		if (!userProfile || (userProfile.role !== 'Admin' && userProfile.role !== 'Super_Admin')) return fail(403, { message: 'Forbidden' });
+
+		const formData = await request.formData();
+		const articleId = formData.get('articleId') as string;
+		const articleType = formData.get('articleType') as string;
+
+		if (!articleId || !articleType) return fail(400, { message: 'Missing parameters' });
+
+		const table = articleType === 'research' ? 'research_articles' : 'articles';
+
+		const { error } = await supabaseAdmin
+			.from(table)
+			.update({ 
+				status: 'published',
+				published_by: session.user.id
+			})
+			.eq('id', articleId);
+
+		if (error) {
+			console.error("Error publishing content:", error);
+			return fail(500, { message: 'Could not publish content' });
 		}
 		
 		return { success: true };

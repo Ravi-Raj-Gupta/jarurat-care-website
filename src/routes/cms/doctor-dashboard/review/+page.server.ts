@@ -57,9 +57,8 @@ export const actions: Actions = {
 		const { error } = await supabaseAdmin
 			.from(table)
 			.update({ 
-				status: 'published',
-				reviewer_id: session.user.id,
-				published_by: session.user.id
+				status: 'approved',
+				reviewer_id: session.user.id
 			})
 			.eq('id', articleId);
 

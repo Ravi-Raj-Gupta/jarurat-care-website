@@ -252,7 +252,7 @@
 									}}>
 										<input type="hidden" name="articleId" value={selectedItem.id} />
 										<input type="hidden" name="articleType" value={activeTab} />
-										<button type="submit" class="btn-approve">Approve & Publish</button>
+										<button type="submit" class="btn-approve">Approve & Send to Super Admin</button>
 									</form>
 
 									<button type="button" class="btn-request" on:click={promptFeedback}>Request Changes</button>
