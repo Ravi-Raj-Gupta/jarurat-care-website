@@ -12,6 +12,7 @@
   let wantsMarketing = false;
 
   let showThankYou = false;
+  let sending = false;
 
   let fieldErrors = {
     doctorName: "",
@@ -38,9 +39,14 @@
   }
 
   onMount(() => {
-    attachInputListener(doctorNameWrap, (v) => (doctorName = v));
-    attachInputListener(emailWrap, (v) => (email = v));
-  });
+  if (sessionStorage.getItem("doctorFormSubmitted") === "true") {
+    showThankYou = true;
+    sessionStorage.removeItem("doctorFormSubmitted");
+  }
+
+  attachInputListener(doctorNameWrap, (v) => (doctorName = v));
+  attachInputListener(emailWrap, (v) => (email = v));
+});
 
   onDestroy(() => {
     for (const { el, handler } of _listeners) {
@@ -88,12 +94,17 @@
   }
 
   function handleSubmit(e) {
-    e.preventDefault();
-    readFromWrappers();
-    if (!validate()) return;
+  e.preventDefault();
+  readFromWrappers();
+  if (!validate()) return;
 
-    showThankYou = true;
-  }
+  sending = true;
+
+  setTimeout(() => {
+    sessionStorage.setItem("doctorFormSubmitted", "true");
+    location.reload();
+  }, 3000);
+}
 
   function closeModal() {
     showThankYou = false;
@@ -234,8 +245,10 @@
         </div>
 
         <div class="md:col-span-2 text-center mt-4">
-          <button class="btn" type="submit">Submit</button>
-        </div>
+           <button class="btn" type="submit" disabled={sending}>
+             {#if sending}Submitting...{:else}Submit{/if}
+           </button>
+          </div>
 
       </form>
     </div>
