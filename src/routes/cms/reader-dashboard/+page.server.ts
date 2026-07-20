@@ -109,11 +109,11 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 	const interests = profile.interests ?? [];
 	if (interests.length > 0) {
-		// Fetch recent approved articles to filter by interests
+		// Fetch recent published articles to filter by interests
 		const { data: recArticles, error: recError } = await supabaseAdmin
 			.from('articles')
 			.select('id, title, category, author_id, created_at, image, tags')
-			.eq('status', 'approved')
+			.eq('status', 'published')
 			.order('created_at', { ascending: false })
 			.limit(50);
 
