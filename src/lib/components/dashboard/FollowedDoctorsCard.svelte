@@ -11,6 +11,7 @@
 <div class="followed-card">
 	<div class="card-header">
 		<h3>Followed Doctors</h3>
+		<a href="/cms/reader-dashboard/doctors" class="find-more-btn">Find more doctors</a>
 	</div>
 
 	{#if doctors.length === 0}
@@ -59,6 +60,25 @@
 
 	.card-header {
 		margin-bottom: 20px;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.find-more-btn {
+		font-size: 13px;
+		color: #1e4ed8;
+		text-decoration: none;
+		font-weight: 600;
+		padding: 6px 12px;
+		border-radius: 6px;
+		background: #eff6ff;
+		transition: all 0.2s;
+	}
+
+	.find-more-btn:hover {
+		background: #dbeafe;
+		color: #1d4ed8;
 	}
 
 	.card-header h3 {
