@@ -10,17 +10,28 @@
 	}
 
 	const navItems = [
-		{ label: 'Dashboard', href: '/cms/doctor-dashboard' },
-		{ label: 'My Profile', href: '/cms/complete-profile' },
-		{ label: 'Create Article', href: '/cms/articles/create' },
-        { label: 'Create Research Paper',href: '/cms/research/create'},
-		{ label: 'My Articles', href: '/cms/doctor-dashboard/articles' },
-		{ label: 'My Research Papers', href: '/cms/doctor-dashboard/my-research-papers' },
-		{ label: 'Drafts', href: '/cms/doctor-dashboard/drafts' },
-		{ label: 'Saved Articles', href: '/cms/doctor-dashboard/saved' },
-		{ label: 'Notifications', href: '/cms/doctor-dashboard/notifications' },
-		{ label: 'Settings', href: '/cms/doctor-dashboard/settings' }
-	];
+	{ label: 'Dashboard', href: '/cms/doctor-dashboard' },
+
+	{ label: 'My Profile', href: '/cms/complete-profile' },
+
+	// COMMUNITY
+	{ label: 'Community - Doctors', href: '/cms/community/doctors' },
+
+	// CONTENT
+	{ label: 'Create Article', href: '/cms/doctor-dashboard/create-article' },
+	{ label: 'Create Research Paper', href: '/cms/doctor-dashboard/create-research-paper' },
+
+	{ label: 'My Articles', href: '/cms/doctor-dashboard/articles' },
+	{ label: 'My Research Papers', href: '/cms/doctor-dashboard/my-research-papers' },
+
+	{ label: 'Drafts', href: '/cms/doctor-dashboard/drafts' },
+
+	{ label: 'Saved Articles', href: '/cms/doctor-dashboard/saved' },
+
+	{ label: 'Notifications', href: '/cms/doctor-dashboard/notifications' },
+
+	{ label: 'Settings', href: '/cms/doctor-dashboard/settings' }
+];
 </script>
 
 <aside class="sidebar">
