@@ -1,5 +1,10 @@
 <script lang="ts">
-	export let doctor;
+	import { enhance } from '$app/forms';
+	export let doctor: any;
+	export let isFollowed: boolean = false;
+	export let isSelf: boolean = false;
+	
+	let loading = false;
 </script>
 
 <div class="doctor-card">
@@ -42,13 +47,36 @@
 	{/if}
 
 	<div class="actions">
-		<button class="profile-btn">
+		<a href="/doctors/{doctor.id}" class="profile-btn">
 			View Profile
-		</button>
+		</a>
 
-		<button class="follow-btn">
-			Follow
-		</button>
+		{#if !isSelf}
+			<form 
+				method="POST" 
+				action="?/{isFollowed ? 'unfollow' : 'follow'}"
+				use:enhance={() => {
+					const previousState = isFollowed;
+					// Optimistic update (instant UI change)
+					isFollowed = !isFollowed;
+					
+					return async ({ result, update }) => {
+						if (result.type !== 'success' && result.type !== 'redirect') {
+							// Revert if it failed
+							isFollowed = previousState;
+						}
+						// Silently update page data in the background
+						await update({ reset: false });
+					};
+				}}
+				class="follow-form"
+			>
+				<input type="hidden" name="doctor_id" value={doctor.id} />
+				<button type="submit" class="follow-btn {isFollowed ? 'following' : ''}">
+					{isFollowed ? 'Following' : 'Follow'}
+				</button>
+			</form>
+		{/if}
 	</div>
 
 </div>
@@ -113,10 +141,23 @@ h3{
 .profile-btn{
 	background:#eef2ff;
 	color:#202866;
+	text-decoration: none;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .profile-btn:hover{
 	background:#dbe4ff;
+}
+
+.follow-form {
+	flex: 1;
+	display: flex;
+}
+
+.follow-form button {
+	width: 100%;
 }
 
 .follow-btn{
@@ -126,5 +167,20 @@ h3{
 
 .follow-btn:hover{
 	background:#313b86;
+}
+
+.follow-btn.following {
+	background: #f1f5f9;
+	color: #475569;
+}
+
+.follow-btn.following:hover {
+	background: #fee2e2;
+	color: #ef4444;
+}
+
+.follow-btn:disabled {
+	opacity: 0.7;
+	cursor: not-allowed;
 }
 </style>

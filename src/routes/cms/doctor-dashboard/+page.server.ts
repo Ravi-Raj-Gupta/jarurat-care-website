@@ -85,11 +85,53 @@ export const load: PageServerLoad = async ({ locals }) => {
 		.eq('user_id', session.user.id)
 		.eq('is_read', false);
 
+	let followedDoctors: Array<{
+		id: string;
+		name: string;
+		specialization: string | null;
+		organization: string | null;
+		avatar: string | null;
+	}> = [];
+
+	const { data: followedRows, error: followedError } = await supabaseAdmin
+		.from('doctor_followers')
+		.select('doctor_id')
+		.eq('follower_id', session.user.id);
+
+	if (followedError) {
+		console.error('Error loading followed doctors:', followedError);
+	}
+
+	const followedRowsList = followedRows ?? [];
+	const followedDoctorIds = followedRowsList.map((r) => r.doctor_id);
+
+	if (followedDoctorIds.length > 0) {
+		const { data: doctorsData, error: doctorsError } = await supabaseAdmin
+			.from('profiles')
+			.select('id, full_name, specialization, organization')
+			.in('id', followedDoctorIds);
+
+		if (doctorsError) {
+			console.error('Error loading doctors details:', doctorsError);
+		}
+
+		if (doctorsData) {
+			followedDoctors = doctorsData.map((doc) => ({
+				id: doc.id,
+				name: doc.full_name || 'Unknown Doctor',
+				specialization: doc.specialization,
+				organization: doc.organization,
+				avatar: null
+			}));
+		}
+	}
+
 	return {
 		profile,
 		stats,
 		recentArticles,
 		notifications: notifications ?? [],
-		unreadCount: unreadCount ?? 0
+		unreadCount: unreadCount ?? 0,
+		followedDoctors
 	};
 };

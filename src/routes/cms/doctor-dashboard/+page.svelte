@@ -6,6 +6,7 @@
 	import QuickActions from '$lib/components/dashboard/QuickActions.svelte';
 	import RecentArticles from '$lib/components/dashboard/RecentArticles.svelte';
 	import NotificationsCard from '$lib/components/dashboard/NotificationsCard.svelte';
+	import FollowedDoctorsCard from '$lib/components/dashboard/FollowedDoctorsCard.svelte';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -15,6 +16,7 @@
 	$: recentArticles = data.recentArticles;
 	$: notifications = data.notifications;
 	$: unreadCount = data.unreadCount;
+	$: followedDoctors = data.followedDoctors || [];
 </script>
 
 <svelte:head>
@@ -41,6 +43,8 @@
 			</div>
 
 			<RecentArticles articles={recentArticles} />
+
+			<FollowedDoctorsCard doctors={followedDoctors} />
 
 			<NotificationsCard {notifications} />
 		</div>

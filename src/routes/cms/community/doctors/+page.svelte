@@ -5,8 +5,9 @@
 
 	export let data;
 
-	const profile = data.profile;
-	const doctors = data.doctors;
+	$: profile = data.profile;
+	$: doctors = data.doctors;
+	$: followedDoctorIds = new Set(data.followedDoctorIds);
 </script>
 
 <div class="dashboard">
@@ -27,9 +28,11 @@
 			<div class="doctor-grid">
 
 				{#each doctors as doctor}
-
-					<DoctorCard {doctor} />
-
+					<DoctorCard 
+						{doctor} 
+						isFollowed={followedDoctorIds.has(doctor.id)} 
+						isSelf={doctor.id === profile?.id}
+					/>
 				{/each}
 
 			</div>
