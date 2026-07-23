@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { invalidateAll } from '$app/navigation';
+	import CMSContentTab from '$lib/components/dashboard/CMSContentTab.svelte';
 	export let data;
 	// Active section in sidebar
 	let activeSection = 'analytics';
@@ -129,8 +131,13 @@
 		{ id: 'requests', label: 'Doctor Requests' },
 		{ id: 'publishing', label: 'Publishing Power' },
 		{ id: 'publish', label: 'Publish Content' },
+		{ id: 'cms_content', label: 'CMS Content' },
 		{ id: 'users', label: 'Manage Users' }
 	];
+
+	async function reloadData() {
+		await invalidateAll();
+	}
 </script>
 
 <svelte:window on:click={closeDropdown} />
@@ -173,6 +180,7 @@
 					{:else if activeSection === 'requests'}Doctor Requests
 					{:else if activeSection === 'publishing'}Publishing Power
 					{:else if activeSection === 'publish'}Publish Content
+					{:else if activeSection === 'cms_content'}CMS Content Management
 					{:else}Manage Users
 					{/if}
 				</h1>
@@ -203,6 +211,11 @@
 				</div>
 			</div>
 		</div>
+
+		<!-- ── CMS Content Section ───────────────────────────────────── -->
+		{#if activeSection === 'cms_content'}
+			<CMSContentTab cmsContents={data.cmsContents} reloadCallback={reloadData} />
+		{/if}
 
 		<!-- ── Analytics Section ─────────────────────────────────────── -->
 		{#if activeSection === 'analytics'}

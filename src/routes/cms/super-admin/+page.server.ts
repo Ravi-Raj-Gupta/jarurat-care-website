@@ -44,18 +44,24 @@ export const load: PageServerLoad = async ({ locals }) => {
 		.eq('status', 'approved')
 		.order('created_at', { ascending: false });
 
+	const { data: cmsContents } = await supabaseAdmin
+		.from('cms_content')
+		.select('*')
+		.order('created_at', { ascending: false });
+
 	console.log("SUPER ADMIN QUERY:", { pendingDoctors, error });
 
 	if (error || usersError) {
 		console.error("Error fetching data:", error || usersError);
-		return { pendingDoctors: [], users: [], approvedArticles: [], approvedResearch: [] };
+		return { pendingDoctors: [], users: [], approvedArticles: [], approvedResearch: [], cmsContents: [] };
 	}
 
 	return { 
 		pendingDoctors: pendingDoctors || [],
 		users: users || [],
 		approvedArticles: approvedArticles || [],
-		approvedResearch: approvedResearch || []
+		approvedResearch: approvedResearch || [],
+		cmsContents: cmsContents || []
 	};
 };
 
