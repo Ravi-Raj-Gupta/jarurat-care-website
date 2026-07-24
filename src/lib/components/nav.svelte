@@ -1,4 +1,4 @@
-<script lang="ts">
+<script>
 	import Logo from '$lib/svg/logo.svelte';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
@@ -13,120 +13,75 @@
 	$: pathname = $page.url.pathname;
 
 	const navItems = [
-		{ title: 'Home', href: '/' },
-		{ title: 'About Us', href: '/about-us' },
-		{ title: 'Get Involved', href: '/get-involved' },
-		{ title: 'Knowledge Hub', href: '/knowledge-hub' },
-		{ title: 'Contact Us', href: '/contact-us' }
-	];
+	{ title: 'Home', href: '/' },
+	{ title: 'About Us', href: '/about-us' },
+	{ title: 'Get Involved', href: '/get-involved' },
 
-	let handleLogout: (() => Promise<void>) | undefined = undefined;
-
+	{ title: 'Community', href: '/knowledge-hub' },
+    
+	{ title: 'Doctor Registration', href: '/doctor-form' },
+	
+	{ title: 'Contact Us', href: '/contact-us' }
+];
 	onMount(async () => {
-		try {
-			const { cmsSupabase } = await import('$lib/cmsSupabase');
+		const { cmsSupabase } = await import('$lib/cmsSupabase');
 
-			const { data: { user } } = await cmsSupabase.auth.getUser();
-			if (user) isLoggedIn = true;
+		const { data: { user } } = await cmsSupabase.auth.getUser();
+		if (user) isLoggedIn = true;
 
-			cmsSupabase.auth.onAuthStateChange((_event, session) => {
-				isLoggedIn = !!session?.user;
-			});
+		cmsSupabase.auth.onAuthStateChange((event, session) => {
+			isLoggedIn = !!session?.user;
+		});
 
-			handleLogout = async () => {
-				isLoggedIn = false;
-				toast.success('Logged out successfully');
-				goto('/knowledge-hub');
-				await cmsSupabase.auth.signOut();
-			};
-		} catch (e) {
-			console.warn('CMS Supabase client not initialized or unavailable:', e);
-		}
+		window.__cmsLogout = async () => {
+			isLoggedIn = false;
+			toast.success('Logged out successfully');
+			goto('/knowledge-hub');
+			cmsSupabase.auth.signOut();
+		};
 	});
 
-	async function logout() {
-		if (handleLogout) {
-			await handleLogout();
+	function logout() {
+		if (typeof window !== 'undefined' && window.__cmsLogout) {
+			window.__cmsLogout();
 		}
 	}
 </script>
 
-<header class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-	<div class="container flex h-20 items-center justify-between px-4 md:px-8 mx-auto">
-		<!-- Logo -->
-		<a href="/" class="flex items-center space-x-2">
-			<div class="h-10 w-auto flex items-center justify-center">
-				<Logo />
-			</div>
+<header class="fixed inset-x-0 top-0 z-50 bg-white shadow-sm">
+	<nav class="max-w-7xl mx-auto flex items-center justify-between px-4 md:px-8 lg:px-6 py-3">
+
+		<a href="/">
+			<Logo class="h-8 md:h-10 w-auto" />
 		</a>
 
-		<!-- Desktop Navigation Links -->
-		<nav class="hidden md:flex items-center space-x-6 text-sm font-medium">
+		<ul class="hidden lg:flex items-center gap-8 font-rubik text-[#0D2561] text-[0.95rem]">
 			{#each navItems as item}
-				<a
-					href={item.href}
-					class={cn(
-						'transition-colors hover:text-primary',
-						pathname === item.href ? 'text-primary font-semibold' : 'text-muted-foreground'
-					)}
-				>
-					{item.title}
-				</a>
+				<li>
+					<a href={item.href} class={cn("transition-all duration-200 hover:text-[#1E4ED8]", pathname === item.href ? "font-semibold border-b-2 border-[#1E4ED8] pb-1" : "")}>{item.title}</a>
+				</li>
 			{/each}
+		</ul>
 
-			{#if isLoggedIn}
-				<button
-					on:click={logout}
-					class="text-muted-foreground transition-colors hover:text-primary font-medium"
-				>
-					Logout
-				</button>
-			{/if}
-		</nav>
+		<div class="flex items-center gap-4">
+            <div class="hidden md:flex lg:hidden">
+			<a href="/donate" class="bg-[#1E4ED8] text-white px-6 py-2 rounded-full text-sm font-medium shadow-md hover:shadow-lg transition">Donate Now</a>
+		</div>
 
-		<!-- Mobile Menu Button -->
-		<button
-			class="md:hidden p-2 text-muted-foreground hover:text-foreground"
-			on:click={() => (isMenuOpen = !isMenuOpen)}
-			aria-label="Toggle Menu"
-		>
-			{#if isMenuOpen}
-				<X class="h-6 w-6" />
-			{:else}
-				<MenuIcon class="h-6 w-6" />
-			{/if}
+		<button class="lg:hidden p-2" on:click={() => (isMenuOpen = !isMenuOpen)}>
+			{#if isMenuOpen}<X size={26} />{:else}<MenuIcon size={26} />{/if}
 		</button>
-	</div>
+	</nav>
 
-	<!-- Mobile Navigation Drawer -->
 	{#if isMenuOpen}
-		<div class="md:hidden border-t px-4 pb-6 pt-4 bg-background">
-			<nav class="flex flex-col space-y-4 text-base font-medium">
+		<div class="md:hidden absolute top-full left-0 w-full bg-white shadow-lg border-t">
+			<div class="flex flex-col px-6 py-6 space-y-5 text-[#0D2561]">
 				{#each navItems as item}
-					<a
-						href={item.href}
-						on:click={() => (isMenuOpen = false)}
-						class={cn(
-							'transition-colors hover:text-primary',
-							pathname === item.href ? 'text-primary font-semibold' : 'text-muted-foreground'
-						)}
-					>
-						{item.title}
-					</a>
+					<a href={item.href} class="text-base font-medium py-2 border-b" on:click={() => (isMenuOpen = false)}>{item.title}</a>
 				{/each}
 
-				{#if isLoggedIn}
-					<button
-						on:click={() => {
-							isMenuOpen = false;
-							logout();
-						}}
-						class="text-left text-muted-foreground hover:text-primary font-medium"
-					>
-						Logout
-					</button>
-				{/if}
-			</nav>
+				<a href="/donate" class="w-full text-center bg-[#1E4ED8] text-white py-3 rounded-full font-medium block mt-2">Donate Now</a>
+			</div>
 		</div>
 	{/if}
 </header>

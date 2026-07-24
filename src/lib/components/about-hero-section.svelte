@@ -1,5 +1,5 @@
 <script>
-    import background from "$lib/assets/about-hero-section.png";
+    import background from "$lib/assets/about-hero-section.jpg";
 </script>
 
 <div class="relative">
