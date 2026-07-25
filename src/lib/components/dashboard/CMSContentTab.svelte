@@ -5,6 +5,7 @@
 
 	export let cmsContents: any[] = [];
 	export let reloadCallback: () => Promise<void>;
+	export let filterType: string | null = null;
 
 	type CMSContent = {
 		id: string;
@@ -36,7 +37,7 @@
 
 	let contentToDelete: string | null = null;
 	let showContentForm = false;
-	let contentType = 'blog';
+	let contentType = filterType || 'blog';
 	let contentTitle = '';
 	let contentSlug = '';
 	let contentBody = '';
@@ -64,6 +65,7 @@
 
 	$: filteredContents = cmsContents
 		.filter((c) => {
+			if (filterType && c.content_type !== filterType) return false;
 			if (!contentSearch) return true;
 			const term = contentSearch.toLowerCase();
 			return c.title.toLowerCase().includes(term) ||
@@ -301,6 +303,7 @@
 				{editingContent ? 'Edit Content' : 'Create New Content'}
 			</h3>
 
+			{#if !filterType}
 			<div class="content-types-wrap">
 				{#each CONTENT_TYPES as type}
 					<button
@@ -312,6 +315,7 @@
 					</button>
 				{/each}
 			</div>
+			{/if}
 
 			<div class="form-group">
 				<label for="content-title">Title *</label>
