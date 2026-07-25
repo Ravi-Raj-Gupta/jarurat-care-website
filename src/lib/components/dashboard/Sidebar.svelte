@@ -18,8 +18,8 @@
 	{ label: 'Community - Doctors', href: '/cms/community/doctors' },
 
 	// CONTENT
-	{ label: 'Create Article', href: '/cms/doctor-dashboard/create-article' },
-	{ label: 'Create Research Paper', href: '/cms/doctor-dashboard/create-research-paper' },
+	{ label: 'Create Article', href: '/cms/articles/create' },
+	{ label: 'Create Research Paper', href: '/cms/research/create' },
 
 	{ label: 'My Articles', href: '/cms/doctor-dashboard/articles' },
 	{ label: 'My Research Papers', href: '/cms/doctor-dashboard/my-research-papers' },
