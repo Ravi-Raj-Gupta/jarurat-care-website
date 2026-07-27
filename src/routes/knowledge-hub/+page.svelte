@@ -15,7 +15,7 @@
 		content: string;
 		thumbnail: string;
 		category: string;
-		type: 'article' | 'blog' | 'news' | 'event' | 'faq' | 'testimonials' | 'campaign';
+		type: 'article' | 'research' | 'blog' | 'news' | 'event' | 'faq' | 'testimonials' | 'campaign';
 		date: string;
 		author: string;
 		// Article specific fields
@@ -31,7 +31,8 @@
 	};
  
 	const TYPE_LABELS: Record<string, string> = {
-		article: 'Research Article',
+		article: 'Article',
+		research: 'Research Article',
 		blog: 'Blog',
 		news: 'News',
 		event: 'Event',
@@ -41,7 +42,8 @@
 	};
  
 	const TYPE_COLORS: Record<string, string> = {
-		article: '#0155bd',
+		article: '#2563EB',
+		research: '#0155bd',
 		blog: '#7c3aed',
 		news: '#0891b2',
 		event: '#16a34a',
@@ -87,7 +89,8 @@
 		}
 		
 		const index = (numId % count) + 1;
-		return `/defaults/${folder}/${safeType}-${index}.jpeg`;
+		const filePrefix = safeType === 'research' ? 'article' : safeType;
+		return `/defaults/${folder}/${filePrefix}-${index}.jpeg`;
 	}
  
 	let allContent: ContentItem[] = [];
@@ -121,7 +124,8 @@
  
 	const FILTERS = [
 		{ label: 'All', value: 'all' },
-		{ label: 'Research', value: 'article' },
+		{ label: 'Articles', value: 'article' },
+		{ label: 'Research', value: 'research' },
 		{ label: 'Blog', value: 'blog' },
 		{ label: 'News', value: 'news' },
 		{ label: 'Events', value: 'event' },
@@ -190,6 +194,17 @@
 	$: if (currentPage > totalPages) currentPage = 1;
  
 	let localLikes: Record<string, boolean> = {};
+	let localSaves: Record<string, boolean> = {};
+
+	function toggleSave(e: Event, item: any) {
+		e.stopPropagation();
+		localSaves[item.id] = !localSaves[item.id];
+		if (localSaves[item.id]) {
+			toast.success('Saved for later! 🔖');
+		} else {
+			toast.success('Removed from saved items');
+		}
+	}
 
 	function toggleLike(e: Event, item: any) {
 		e.stopPropagation();
@@ -201,17 +216,15 @@
 
 	function shareArticle(e: Event, item: any) {
 		e.stopPropagation();
-		const mappedType = item.type === 'article' ? 'research' : item.type;
-		const url = `${window.location.origin}/content/${mappedType}/${item.slug || item.id}`;
+		const url = `${window.location.origin}/content/${item.type}/${item.slug || item.id}`;
 		navigator.clipboard.writeText(url).then(() => {
 			toast.success('Link copied to clipboard!');
 		});
 	}
 
 	function openItem(item: any) {
-		const mappedType = item.type === 'article' ? 'research' : item.type;
 		if (item.slug || item.id) {
-			goto(`/content/${mappedType}/${item.slug || item.id}`);
+			goto(`/content/${item.type}/${item.slug || item.id}`);
 		} else {
 			toast.error('Publication link is missing.');
 		}
@@ -475,6 +488,9 @@
 										<button class="action-icon" on:click={(e) => shareArticle(e, item)} aria-label="Share">
 											<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
 										</button>
+										<button class="action-icon" class:saved={localSaves[item.id]} on:click={(e) => toggleSave(e, item)} aria-label="Save">
+											<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill={localSaves[item.id] ? "currentColor" : "none"} stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+										</button>
 										<span class="card-read">Read →</span>
 									</div>
 								</div>
@@ -511,6 +527,9 @@
 									</button>
 									<button class="action-icon" on:click={(e) => shareArticle(e, item)} aria-label="Share">
 										<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+									</button>
+									<button class="action-icon" class:saved={localSaves[item.id]} on:click={(e) => toggleSave(e, item)} aria-label="Save">
+										<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill={localSaves[item.id] ? "currentColor" : "none"} stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
 									</button>
 								</div>
 								<ChevronRight size={16} class="list-arrow" />

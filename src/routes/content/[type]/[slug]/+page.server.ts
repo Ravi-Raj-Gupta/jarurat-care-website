@@ -1,5 +1,6 @@
 import { cmsSupabase } from '$lib/cmsSupabase';
 import { supabase } from '$lib/supabase';
+import { supabaseAdmin } from '$lib/supabaseAdmin';
 import { error } from '@sveltejs/kit';
 
 export async function load({ params }) {
@@ -25,32 +26,22 @@ export async function load({ params }) {
 			source_table: 'research_articles'
 		};
 	} else if (type === 'article') {
-		// Old JCF articles
-		const { data, error: dbError } = await supabase
+		// New CMS articles
+		const { data, error: dbError } = await supabaseAdmin
 			.from('articles')
 			.select('*')
-			.eq('slug', slug)
+			.eq('id', slug)
 			.maybeSingle();
-			
-		let finalData = data;
-		if (!finalData && !isNaN(Number(slug))) {
-			const { data: idData } = await supabase
-				.from('articles')
-				.select('*')
-				.eq('id', Number(slug))
-				.maybeSingle();
-			finalData = idData;
-		}
 
-		if (!finalData) {
+		if (!data) {
 			throw error(404, 'Article not found');
 		}
 
 		articleData = {
-			...finalData,
-			featured_image: finalData.image,
-			source_table: 'cms_content',
-			abstract: finalData.abstract || finalData.content
+			...data,
+			featured_image: data.cover_image_url || data.image,
+			source_table: 'articles',
+			abstract: data.abstract || data.content
 		};
 	} else {
 		// blog, news, events, faqs, etc.

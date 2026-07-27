@@ -1,5 +1,6 @@
 import { cmsSupabase } from '$lib/cmsSupabase';
 import { supabase } from '$lib/supabase';
+import { supabaseAdmin } from '$lib/supabaseAdmin';
 import type { PageServerLoad } from './$types';
 
 function stripHtml(html: string) {
@@ -55,7 +56,8 @@ function getDefaultThumbnail(type: string, id: string | number) {
 	}
 	
 	const index = (numId % count) + 1;
-	return `/defaults/${folder}/${safeType}-${index}.jpeg`;
+	const filePrefix = safeType === 'research' ? 'article' : safeType;
+	return `/defaults/${folder}/${filePrefix}-${index}.jpeg`;
 }
 
 export const load: PageServerLoad = async () => {
@@ -102,25 +104,25 @@ export const load: PageServerLoad = async () => {
 			author: c.author_name_credentials || c.author || 'Editorial Team'
 		}));
 
-		// 3. Fetch Legacy JCF Articles
-		const { data: articlesData } = await supabase
+		// 3. Fetch CMS Articles (New DB)
+		const { data: articlesData } = await supabaseAdmin
 			.from('articles')
 			.select('*')
+			.eq('status', 'published')
 			.order('created_at', { ascending: false });
 
 		const legacyItems = (articlesData || [])
-			.filter(a => !a.hidden)
 			.map(a => ({
 				id: a.id,
 				slug: a.slug || a.id.toString(),
 				title: a.title || 'Untitled Article',
-				excerpt: makeExcerpt(a.content || ''),
-				thumbnail: a.image || getDefaultThumbnail('article', a.id.toString()),
+				excerpt: makeExcerpt(a.abstract || a.content || a.excerpt || ''),
+				thumbnail: a.cover_image_url || a.image || getDefaultThumbnail('article', a.id.toString()),
 				category: a.category || 'General Article',
 				type: 'article',
 				date: formatDate(a.created_at),
 				date_raw: new Date(a.created_at).getTime(),
-				author: a.author || 'JCF Team'
+				author: a.author_name_credentials || a.author || 'JCF Team'
 			}));
 
 		// Combine and sort
