@@ -7,7 +7,7 @@
   import toast, { Toaster } from 'svelte-french-toast';
 
   export let data;
-  const { article, type } = data;
+  $: ({ article, type, comments = [] } = data);
 
   let readingProgress = 0;
   let articleEl: HTMLElement;
@@ -97,6 +97,9 @@
       year: 'numeric'
     }).format(date);
   }
+
+  import { enhance } from '$app/forms';
+  let submittingComment = false;
 </script>
 
 <svelte:head>
@@ -219,6 +222,78 @@
     {/if}
 
   </article>
+
+  <!-- Comments Section -->
+  <section class="mt-16 max-w-4xl mx-auto px-4 md:px-0 mb-20">
+    <h3 class="text-2xl font-bold text-[#0D2460] mb-8 border-b pb-4">Comments ({comments.length})</h3>
+    
+    {#if user}
+      <form
+        method="POST"
+        action="?/submitComment"
+        class="mb-12 bg-gray-50 p-6 rounded-xl border border-gray-100"
+        use:enhance={() => {
+          submittingComment = true;
+          return async ({ update, result }) => {
+            await update({ reset: false }); 
+            submittingComment = false;
+            
+            if (result.type === 'failure') {
+              toast.error(result.data?.message || 'Failed to post comment');
+            } else {
+              toast.success('Comment posted!');
+              const ta = document.querySelector('textarea[name="content"]');
+              if(ta) ta.value = '';
+            }
+          };
+        }}
+      >
+        <input type="hidden" name="articleId" value={article.id} />
+        <label for="comment-content" class="sr-only">Your Comment</label>
+        <textarea
+          id="comment-content"
+          name="content"
+          rows="3"
+          required
+          placeholder="Share your thoughts on this..."
+          class="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0155bd] resize-none"
+        ></textarea>
+        <div class="mt-3 flex justify-end">
+          <button
+            type="submit"
+            disabled={submittingComment}
+            class="bg-[#0155bd] text-white px-6 py-2 rounded-lg font-semibold shadow-sm hover:bg-[#004085] transition-colors disabled:opacity-50"
+          >
+            {submittingComment ? 'Posting...' : 'Post Comment'}
+          </button>
+        </div>
+      </form>
+    {:else}
+      <div class="mb-12 bg-gray-50 p-6 rounded-xl border border-gray-100 text-center">
+        <p class="text-gray-600 mb-4">Please log in to join the discussion.</p>
+        <a href="/cms/login" class="inline-block bg-[#0155bd] text-white px-6 py-2 rounded-lg font-semibold hover:bg-[#004085] transition">Log in</a>
+      </div>
+    {/if}
+
+    <div class="space-y-6">
+      {#each comments as comment}
+        <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex gap-4">
+          <div class="w-10 h-10 rounded-full bg-[#0155bd] text-white flex items-center justify-center font-bold flex-shrink-0">
+            {(comment.profiles?.full_name || 'A')[0].toUpperCase()}
+          </div>
+          <div>
+            <div class="flex items-baseline gap-3 mb-1">
+              <h4 class="font-bold text-gray-900">{comment.profiles?.full_name || 'Anonymous'}</h4>
+              <span class="text-sm text-gray-500">{formatDate(comment.created_at)}</span>
+            </div>
+            <p class="text-gray-700 whitespace-pre-wrap">{comment.content}</p>
+          </div>
+        </div>
+      {:else}
+        <p class="text-gray-500 italic text-center py-8">No comments yet. Be the first to share your thoughts!</p>
+      {/each}
+    </div>
+  </section>
 </div>
 
 <NewsFooter />

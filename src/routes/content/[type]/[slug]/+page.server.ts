@@ -1,7 +1,6 @@
 import { cmsSupabase } from '$lib/cmsSupabase';
-import { supabase } from '$lib/supabase';
 import { supabaseAdmin } from '$lib/supabaseAdmin';
-import { error } from '@sveltejs/kit';
+import { fail, error as svelteError } from '@sveltejs/kit';
 
 export async function load({ params }) {
 	const { type, slug } = params;
@@ -18,7 +17,7 @@ export async function load({ params }) {
 			
 		if (dbError || !data) {
 			console.error("Research article error:", dbError);
-			throw error(404, 'Research article not found');
+			throw svelteError(404, 'Research article not found');
 		}
 		
 		articleData = {
@@ -34,7 +33,7 @@ export async function load({ params }) {
 			.maybeSingle();
 
 		if (!data) {
-			throw error(404, 'Article not found');
+			throw svelteError(404, 'Article not found');
 		}
 
 		articleData = {
@@ -69,7 +68,7 @@ export async function load({ params }) {
 			
 		if (dbError || !data) {
 			console.error("CMS content error:", dbError);
-			throw error(404, 'Content not found');
+			throw svelteError(404, 'Content not found');
 		}
 
 		articleData = {
@@ -78,8 +77,66 @@ export async function load({ params }) {
 		};
 	}
 
+	let comments = [];
+	try {
+		const { data: commentsData, error: commentsError } = await supabaseAdmin
+			.from('article_comments')
+			.select('id, content, created_at, user_id')
+			.eq('article_id', articleData.id)
+			.order('created_at', { ascending: true });
+			
+		if (commentsError) throw commentsError;
+		
+		if (commentsData && commentsData.length > 0) {
+			const userIds = [...new Set(commentsData.map(c => c.user_id))];
+			
+			const { data: profilesData } = await supabaseAdmin
+				.from('profiles')
+				.select('id, full_name')
+				.in('id', userIds);
+				
+			const profilesMap = new Map((profilesData || []).map(p => [p.id, p]));
+			
+			comments = commentsData.map(c => ({
+				...c,
+				profiles: profilesMap.get(c.user_id) || { full_name: 'Anonymous' }
+			}));
+		}
+	} catch (e) {
+		console.error('Error fetching comments:', e);
+	}
+
 	return {
 		article: articleData,
-		type
+		type,
+		comments
 	};
 }
+
+export const actions = {
+	submitComment: async ({ request, locals }) => {
+		const session = await locals.getSession();
+		if (!session) return fail(401, { message: 'Unauthorized' });
+
+		const formData = await request.formData();
+		const content = formData.get('content') as string;
+		const articleId = formData.get('articleId') as string;
+
+		if (!content || !articleId) return fail(400, { message: 'Missing data' });
+
+		const { error: insertError } = await supabaseAdmin
+			.from('article_comments')
+			.insert({
+				article_id: articleId,
+				user_id: session.user.id,
+				content
+			});
+
+		if (insertError) {
+			console.error('Insert comment error:', insertError);
+			return fail(500, { message: 'Failed to insert comment. If this is a research article or CMS content, the foreign key constraint on article_comments might be failing.' });
+		}
+
+		return { success: true };
+	}
+};

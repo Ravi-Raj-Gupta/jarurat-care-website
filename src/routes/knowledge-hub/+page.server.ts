@@ -60,7 +60,49 @@ function getDefaultThumbnail(type: string, id: string | number) {
 	return `/defaults/${folder}/${filePrefix}-${index}.jpeg`;
 }
 
-export const load: PageServerLoad = async () => {
+import { fail } from '@sveltejs/kit';
+
+export const actions = {
+	toggleSave: async ({ request, locals }) => {
+		const session = await locals.getSession();
+		if (!session) return fail(401, { message: 'Unauthorized' });
+
+		const formData = await request.formData();
+		const articleId = formData.get('articleId') as string;
+		const isSaved = formData.get('isSaved') === 'true';
+
+		if (!articleId) return fail(400, { message: 'Missing articleId' });
+
+		if (isSaved) {
+			await supabaseAdmin
+				.from('saved_articles')
+				.delete()
+				.match({ user_id: session.user.id, article_id: articleId });
+		} else {
+			await supabaseAdmin
+				.from('saved_articles')
+				.insert({ user_id: session.user.id, article_id: articleId });
+		}
+		
+		return { success: true };
+	}
+};
+
+export const load: PageServerLoad = async ({ locals }) => {
+	const session = await locals.getSession();
+	let savedArticleIds: string[] = [];
+
+	if (session) {
+		const { data: savedRows } = await supabaseAdmin
+			.from('saved_articles')
+			.select('article_id')
+			.eq('user_id', session.user.id);
+		
+		if (savedRows) {
+			savedArticleIds = savedRows.map(r => String(r.article_id));
+		}
+	}
+
 	let publications: any[] = [];
 
 	try {
@@ -133,6 +175,8 @@ export const load: PageServerLoad = async () => {
 	}
 
 	return {
-		publications
+		publications,
+		savedArticleIds,
+		session
 	};
 };

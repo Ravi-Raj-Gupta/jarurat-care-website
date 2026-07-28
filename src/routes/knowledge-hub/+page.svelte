@@ -149,6 +149,13 @@
 	}
  
 	onMount(async () => {
+		// Initialize local saves from backend data
+		if (data.savedArticleIds) {
+			data.savedArticleIds.forEach((id: string) => {
+				localSaves[id] = true;
+			});
+		}
+
 		const { data: { user } } = await cmsSupabase.auth.getUser();
 		if (user) {
 			isLoggedIn = true;
@@ -196,13 +203,40 @@
 	let localLikes: Record<string, boolean> = {};
 	let localSaves: Record<string, boolean> = {};
 
-	function toggleSave(e: Event, item: any) {
+	import { applyAction, deserialize } from '$app/forms';
+
+	async function toggleSave(e: Event, item: any) {
 		e.stopPropagation();
-		localSaves[item.id] = !localSaves[item.id];
-		if (localSaves[item.id]) {
-			toast.success('Saved for later! 🔖');
-		} else {
-			toast.success('Removed from saved items');
+		if (!isLoggedIn) {
+			toast.error('Please login to save articles!');
+			return;
+		}
+
+		const isSaved = localSaves[item.id] || false;
+		// Optimistic update
+		localSaves[item.id] = !isSaved;
+
+		const dataForm = new FormData();
+		dataForm.append('articleId', item.id);
+		dataForm.append('isSaved', String(isSaved));
+
+		try {
+			const response = await fetch('?/toggleSave', {
+				method: 'POST',
+				body: dataForm,
+				headers: { 'x-sveltekit-action': 'true' }
+			});
+			const result = deserialize(await response.text());
+			if (result.type === 'success') {
+				toast.success(localSaves[item.id] ? 'Saved for later! 🔖' : 'Removed from saved items');
+			} else {
+				// Revert on error
+				localSaves[item.id] = isSaved;
+				toast.error('Failed to save article.');
+			}
+		} catch(err) {
+			localSaves[item.id] = isSaved;
+			toast.error('Network error saving article.');
 		}
 	}
 
@@ -353,7 +387,7 @@
 					{#if isLoggedIn}
 						<div class="flex items-center gap-2">
 							<a
-								href={userRole === 'cms_admin' || userRole === 'super_admin' ? '/cms/admin/admin_dashboard' : '/cms/author_dashboard'}
+								href={userRole === 'Super_Admin' || userRole === 'Admin' ? '/cms/admin-dashboard' : (userRole === 'Doctor' ? '/cms/doctor-dashboard' : '/cms/reader-dashboard')}
 								class="bg-[#0155bd] text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-[#004085] transition-colors text-center whitespace-nowrap"
 							>
 								Dashboard
