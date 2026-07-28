@@ -22,7 +22,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const { data: pendingArticles } = await supabaseAdmin
 		.from('articles')
 		.select('*')
-		.eq('status', 'under_review') // Assuming 'under_review' is the pending state
+		.eq('status', 'under_review')
+		.neq('review_feedback', 'APPROVED_BY_REVIEWER')
 		.order('created_at', { ascending: false });
 
 	// Fetch pending research articles
@@ -30,6 +31,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		.from('research_articles')
 		.select('*')
 		.eq('status', 'under_review')
+		.neq('admin_feedback', 'APPROVED_BY_REVIEWER')
 		.order('created_at', { ascending: false });
 
 	return {
@@ -54,12 +56,16 @@ export const actions: Actions = {
 
 		const table = articleType === 'research' ? 'research_articles' : 'articles';
 
+		const updatePayload: any = {};
+		if (articleType === 'research') {
+			updatePayload.admin_feedback = 'APPROVED_BY_REVIEWER';
+		} else {
+			updatePayload.review_feedback = 'APPROVED_BY_REVIEWER';
+		}
+
 		const { error } = await supabaseAdmin
 			.from(table)
-			.update({ 
-				status: 'approved',
-				reviewer_id: session.user.id
-			})
+			.update(updatePayload)
 			.eq('id', articleId);
 
 		if (error) {
@@ -87,8 +93,7 @@ export const actions: Actions = {
 		const feedbackField = articleType === 'research' ? 'admin_feedback' : 'review_feedback';
 
 		const updateData: any = { 
-			status: 'changes_requested',
-			reviewer_id: session.user.id
+			status: 'changes_requested'
 		};
 		updateData[feedbackField] = feedback;
 

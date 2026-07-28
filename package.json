@@ -2,7 +2,11 @@
 	"name": "jarurat.care",
 	"version": "0.0.1",
 	"engines": {
+<<<<<<< HEAD
 		"node": "24.x"
+=======
+		"node": "20.x"
+>>>>>>> origin/cms-test
 	},
 	"private": true,
 	"scripts": {

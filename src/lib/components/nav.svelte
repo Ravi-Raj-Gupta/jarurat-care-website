@@ -20,6 +20,14 @@
 		{ title: 'Contact Us', href: '/contact-us' }
 	];
 
+<<<<<<< HEAD
+=======
+    { title: 'Community', href: '/knowledge-hub' },
+	{ title: 'Doctor Registration', href: '/doctor-form' },
+	
+	{ title: 'Contact Us', href: '/contact-us' }
+];
+>>>>>>> origin/cms-test
 	onMount(async () => {
 		const { cmsSupabase } = await import('$lib/cmsSupabase');
 

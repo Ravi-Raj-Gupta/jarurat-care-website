@@ -15,7 +15,7 @@
 		content: string;
 		thumbnail: string;
 		category: string;
-		type: 'article' | 'blog' | 'news' | 'event' | 'faq' | 'testimonials' | 'campaign';
+		type: 'article' | 'research' | 'blog' | 'news' | 'event' | 'faq' | 'testimonials' | 'campaign';
 		date: string;
 		author: string;
 		// Article specific fields
@@ -31,7 +31,8 @@
 	};
  
 	const TYPE_LABELS: Record<string, string> = {
-		article: 'Research Article',
+		article: 'Article',
+		research: 'Research Article',
 		blog: 'Blog',
 		news: 'News',
 		event: 'Event',
@@ -41,7 +42,8 @@
 	};
  
 	const TYPE_COLORS: Record<string, string> = {
-		article: '#0155bd',
+		article: '#2563EB',
+		research: '#0155bd',
 		blog: '#7c3aed',
 		news: '#0891b2',
 		event: '#16a34a',
@@ -87,12 +89,18 @@
 		}
 		
 		const index = (numId % count) + 1;
-		return `/defaults/${folder}/${safeType}-${index}.jpeg`;
+		const filePrefix = safeType === 'research' ? 'article' : safeType;
+		return `/defaults/${folder}/${filePrefix}-${index}.jpeg`;
 	}
  
 	let allContent: ContentItem[] = [];
+	export let data: any;
+	
+	// Ensure data.publications maps to allContent
+	$: allContent = data.publications || [];
+
 	let selectedItem: ContentItem | null = null;
-	let loading = true;
+	let loading = false;
 	let errorMsg = '';
  
 	let searchQuery = '';
@@ -116,7 +124,8 @@
  
 	const FILTERS = [
 		{ label: 'All', value: 'all' },
-		{ label: 'Research', value: 'article' },
+		{ label: 'Articles', value: 'article' },
+		{ label: 'Research', value: 'research' },
 		{ label: 'Blog', value: 'blog' },
 		{ label: 'News', value: 'news' },
 		{ label: 'Events', value: 'event' },
@@ -139,99 +148,7 @@
 		return new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(d));
 	}
  
-	async function loadContent() {
-		loading = true;
-		errorMsg = '';
- 
-		try {
-			// Fetch research articles
-			const { data: articles, error: aErr } = await cmsSupabase
-				.from('research_articles')
-				.select('*')
-				.eq('status', 'published')
-				.order('created_at', { ascending: false });
- 
-			if (aErr) throw aErr;
- 
-			const articleItems: ContentItem[] = (articles ?? []).map(a => ({
-				id: a.id,
-				title: a.title || 'Untitled',
-				subtitle: a.subtitle || '',
-				excerpt: makeExcerpt(a.abstract || ''),
-				content: a.abstract || '',
-				thumbnail: a.featured_image || getDefaultThumbnail('article', a.id),
-				category: 'Research',
-				type: 'article',
-				date: formatDate(a.created_at),
-				author: 'Research Team',
-				abstract: a.abstract,
-				introduction: a.introduction,
-				methods: a.methods,
-				results: a.results,
-				discussion: a.discussion,
-				conclusion: a.conclusion,
-				funding: a.funding,
-				ethics_statement: a.ethics_statement,
-				acknowledgements: a.acknowledgements
-			}));
- 
-			// Fetch CMS content (blogs, news, events etc.)
-			const { data: cmsContent, error: cErr } = await cmsSupabase
-				.from('cms_content')
-				.select('*')
-				.eq('status', 'published')
-				.order('created_at', { ascending: false });
- 
-			if (cErr) throw cErr;
- 
-			const cmsItems: ContentItem[] = (cmsContent ?? []).map(c => ({
-				id: c.id,
-				title: c.title || 'Untitled',
-				excerpt: makeExcerpt(c.content || ''),
-				content: c.content || '',
-				thumbnail: c.featured_image || getDefaultThumbnail(c.content_type, c.id),
-				category: c.category || c.content_type,
-				type: c.content_type,
-				date: formatDate(c.created_at),
-				author: 'Editorial Team'
-			}));
- 
-			// Fetch published testimonials
-			const { data: testimonials, error: tErr } = await cmsSupabase
-				.from('testimonials')
-				.select('*')
-				.eq('status', 'published')
-				.order('created_at', { ascending: false });
- 
-			if (tErr) throw tErr;
- 
-			const testimonialItems: ContentItem[] = (testimonials ?? []).map(t => ({
-				id: t.id,
-				title: t.name || 'Anonymous',
-				subtitle: t.designation || '',
-				excerpt: makeExcerpt(t.content || ''),
-				content: t.content || '',
-				thumbnail: t.featured_image || getDefaultThumbnail('testimonials', t.id),
-				category: 'Testimonial',
-				type: 'testimonials',
-				date: formatDate(t.created_at),
-				author: t.name || 'Anonymous'
-			}));
- 
-			allContent = [...articleItems, ...cmsItems, ...testimonialItems].sort(
-				(a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-			);
-		} catch (err) {
-			console.error(err);
-			errorMsg = 'Error loading content';
-		} finally {
-			loading = false;
-		}
-	}
- 
 	onMount(async () => {
-		loadContent();
- 
 		const { data: { user } } = await cmsSupabase.auth.getUser();
 		if (user) {
 			isLoggedIn = true;
@@ -276,9 +193,41 @@
 	$: paged = sorted.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 	$: if (currentPage > totalPages) currentPage = 1;
  
-	function openItem(item: ContentItem) {
-		selectedItem = item;
-		window.scrollTo({ top: 0, behavior: 'smooth' });
+	let localLikes: Record<string, boolean> = {};
+	let localSaves: Record<string, boolean> = {};
+
+	function toggleSave(e: Event, item: any) {
+		e.stopPropagation();
+		localSaves[item.id] = !localSaves[item.id];
+		if (localSaves[item.id]) {
+			toast.success('Saved for later! 🔖');
+		} else {
+			toast.success('Removed from saved items');
+		}
+	}
+
+	function toggleLike(e: Event, item: any) {
+		e.stopPropagation();
+		localLikes[item.id] = !localLikes[item.id];
+		if (localLikes[item.id]) {
+			toast.success('Liked! ❤️');
+		}
+	}
+
+	function shareArticle(e: Event, item: any) {
+		e.stopPropagation();
+		const url = `${window.location.origin}/content/${item.type}/${item.slug || item.id}`;
+		navigator.clipboard.writeText(url).then(() => {
+			toast.success('Link copied to clipboard!');
+		});
+	}
+
+	function openItem(item: any) {
+		if (item.slug || item.id) {
+			goto(`/content/${item.type}/${item.slug || item.id}`);
+		} else {
+			toast.error('Publication link is missing.');
+		}
 	}
  
 	function closeItem() {
@@ -498,7 +447,6 @@
 			{:else if errorMsg}
 				<div class="empty-state">
 					<p>{errorMsg}</p>
-					<button on:click={loadContent} class="filter-btn active">Try Again</button>
 				</div>
  
 			{:else if sorted.length === 0}
@@ -533,7 +481,18 @@
 								<p class="card-excerpt">{item.excerpt}</p>
 								<div class="card-footer">
 									<span class="card-author">{item.author}</span>
-									<span class="card-read">Read →</span>
+									<div class="pub-actions">
+										<button class="action-icon" class:liked={localLikes[item.id]} on:click={(e) => toggleLike(e, item)} aria-label="Like">
+											<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill={localLikes[item.id] ? "currentColor" : "none"} stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+										</button>
+										<button class="action-icon" on:click={(e) => shareArticle(e, item)} aria-label="Share">
+											<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+										</button>
+										<button class="action-icon" class:saved={localSaves[item.id]} on:click={(e) => toggleSave(e, item)} aria-label="Save">
+											<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill={localSaves[item.id] ? "currentColor" : "none"} stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+										</button>
+										<span class="card-read">Read →</span>
+									</div>
 								</div>
 							</div>
 						</article>
@@ -561,7 +520,20 @@
 								<h3 class="list-title">{item.title}</h3>
 								<p class="card-excerpt">{item.excerpt}</p>
 							</div>
-							<ChevronRight size={16} class="list-arrow" />
+							<div class="list-actions" style="display:flex;align-items:center;gap:12px;margin-left:auto;">
+								<div class="pub-actions" style="display:flex;gap:6px;">
+									<button class="action-icon" class:liked={localLikes[item.id]} on:click={(e) => toggleLike(e, item)} aria-label="Like">
+										<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill={localLikes[item.id] ? "currentColor" : "none"} stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+									</button>
+									<button class="action-icon" on:click={(e) => shareArticle(e, item)} aria-label="Share">
+										<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+									</button>
+									<button class="action-icon" class:saved={localSaves[item.id]} on:click={(e) => toggleSave(e, item)} aria-label="Save">
+										<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill={localSaves[item.id] ? "currentColor" : "none"} stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+									</button>
+								</div>
+								<ChevronRight size={16} class="list-arrow" />
+							</div>
 						</div>
 					{/each}
 				</div>
@@ -831,5 +803,32 @@
 		.content-grid { grid-template-columns: 1fr; }
 		.toolbar { flex-direction: column; align-items: stretch; }
 		.search-wrap { min-width: unset; }
+	}
+	.pub-actions {
+		display: flex;
+		gap: 8px;
+		align-items: center;
+	}
+
+	.action-icon {
+		background: none;
+		border: none;
+		color: #9ca3af;
+		cursor: pointer;
+		padding: 6px;
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition: all 0.2s;
+	}
+
+	.action-icon:hover {
+		background: #f3f4f6;
+		color: #4b5563;
+	}
+
+	.action-icon.liked {
+		color: #ef4444;
 	}
 </style>

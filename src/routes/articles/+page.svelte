@@ -5,6 +5,8 @@
 	import { Search, LayoutGrid, List, ChevronRight, Tag, X, ArrowLeft } from 'lucide-svelte';
 	import { supabase } from '$lib/supabase';
 	import { cmsSupabase } from '$lib/cmsSupabase';
+	import { goto } from '$app/navigation';
+	import toast from 'svelte-french-toast';
 
 	type ViewMode = 'grid' | 'list';
 
@@ -212,8 +214,19 @@
 	}
 
 	function openArticle(article: ArticleDoc) {
-		selectedArticle = article;
-		window.scrollTo({ top: 0, behavior: 'smooth' });
+		let mappedType = 'article';
+		if (article.category === 'Research') mappedType = 'research';
+		else if (article.source === 'cms') mappedType = article.category.toLowerCase(); // 'blog', 'news', etc.
+		// For 'jcf' source, mappedType stays 'article'
+
+		if (article.slug) {
+			goto(`/content/${mappedType}/${article.slug}`);
+		} else if (article.id) {
+			// Fallback for old JCF articles that use ID as slug
+			goto(`/content/${mappedType}/${article.id}`);
+		} else {
+			toast.error('Article link is not available');
+		}
 	}
 
 	function closeArticle() {
@@ -285,140 +298,7 @@
 
 <div class="min-h-screen bg-[#F4F9FF] pt-24 pb-16">
 	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-		{#if selectedArticle}
-			<section class="mx-auto max-w-5xl">
-				<div class="mb-6">
-					<button
-						on:click={closeArticle}
-						class="inline-flex items-center gap-2 rounded-full border border-[#D8E8FA] bg-white px-4 py-2 text-xs font-black text-[#0D2460] shadow-sm transition-colors hover:border-[#0155BD] hover:text-[#0155BD]"
-					>
-						<ArrowLeft size={14} />
-						Back to articles
-					</button>
-				</div>
-
-				<article class="overflow-hidden rounded-[2rem] border border-[#D8E8FA] bg-white shadow-[0_16px_40px_rgba(1,85,189,0.10)]">
-					<div class="p-6 sm:p-8 lg:p-10 border-b border-[#E8F0FB] bg-[#FBFDFF]">
-						<div class="flex flex-wrap items-center gap-3 mb-5">
-							<span class="text-[10px] font-black uppercase tracking-[0.2em] text-[#0155BD]">
-								{selectedArticle.category}
-							</span>
-							<span class="rounded-full bg-[#FFF0C2] px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-[#7A5C00]">
-								{selectedArticle.readTime} min read
-							</span>
-							{#if selectedArticle.source === 'cms'}
-								<span class="rounded-full bg-blue-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-blue-700">
-									Research
-								</span>
-							{/if}
-						</div>
-
-						<h1
-							class="text-3xl font-black leading-tight text-[#0D2460] sm:text-4xl lg:text-5xl"
-							style="font-family:'DM Serif Display',serif;"
-						>
-							{selectedArticle.title}
-						</h1>
-
-						{#if selectedArticle.subtitle}
-							<p class="mt-3 text-lg text-gray-500 italic">{selectedArticle.subtitle}</p>
-						{/if}
-
-						<div class="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-[#6B7280]">
-							<p class="font-bold text-[#0D2460]">{selectedArticle.author}</p>
-							<span>•</span>
-							<p>{selectedArticle.date}</p>
-						</div>
-
-						{#if selectedArticle.tags.length > 0}
-							<div class="mt-5 flex flex-wrap gap-2">
-								{#each selectedArticle.tags as tag}
-									<span class="rounded-full border border-[#D8E8FA] bg-white px-3 py-1 text-xs font-bold text-[#4A6D6D]">
-										#{tag}
-									</span>
-								{/each}
-							</div>
-						{/if}
-					</div>
-
-					<div class="p-4 sm:p-6 lg:p-8">
-						<img
-							src={selectedArticle.thumbnail}
-							alt={selectedArticle.title}
-							class="mb-8 h-[240px] w-full rounded-[1.5rem] object-cover shadow-sm sm:h-[320px] lg:h-[420px]"
-						/>
-
-						<div class="mx-auto max-w-3xl">
-							{#if selectedArticle.source === 'cms'}
-								<div class="space-y-8">
-									{#if selectedArticle.abstract}
-										<div>
-											<h2 class="text-xl font-bold text-[#0D2460] mb-3 pb-2 border-b border-[#E8F0FB]">Abstract</h2>
-											<div class="prose max-w-none text-[#374151] leading-8">{@html selectedArticle.abstract}</div>
-										</div>
-									{/if}
-									{#if selectedArticle.introduction}
-										<div>
-											<h2 class="text-xl font-bold text-[#0D2460] mb-3 pb-2 border-b border-[#E8F0FB]">Introduction</h2>
-											<div class="prose max-w-none text-[#374151] leading-8">{@html selectedArticle.introduction}</div>
-										</div>
-									{/if}
-									{#if selectedArticle.methods}
-										<div>
-											<h2 class="text-xl font-bold text-[#0D2460] mb-3 pb-2 border-b border-[#E8F0FB]">Methods</h2>
-											<div class="prose max-w-none text-[#374151] leading-8">{@html selectedArticle.methods}</div>
-										</div>
-									{/if}
-									{#if selectedArticle.results}
-										<div>
-											<h2 class="text-xl font-bold text-[#0D2460] mb-3 pb-2 border-b border-[#E8F0FB]">Results</h2>
-											<div class="prose max-w-none text-[#374151] leading-8">{@html selectedArticle.results}</div>
-										</div>
-									{/if}
-									{#if selectedArticle.discussion}
-										<div>
-											<h2 class="text-xl font-bold text-[#0D2460] mb-3 pb-2 border-b border-[#E8F0FB]">Discussion</h2>
-											<div class="prose max-w-none text-[#374151] leading-8">{@html selectedArticle.discussion}</div>
-										</div>
-									{/if}
-									{#if selectedArticle.conclusion}
-										<div>
-											<h2 class="text-xl font-bold text-[#0D2460] mb-3 pb-2 border-b border-[#E8F0FB]">Conclusion</h2>
-											<div class="prose max-w-none text-[#374151] leading-8">{@html selectedArticle.conclusion}</div>
-										</div>
-									{/if}
-									{#if selectedArticle.funding}
-										<div>
-											<h2 class="text-xl font-bold text-[#0D2460] mb-3 pb-2 border-b border-[#E8F0FB]">Funding</h2>
-											<div class="prose max-w-none text-[#374151] leading-8">{@html selectedArticle.funding}</div>
-										</div>
-									{/if}
-									{#if selectedArticle.ethics_statement}
-										<div>
-											<h2 class="text-xl font-bold text-[#0D2460] mb-3 pb-2 border-b border-[#E8F0FB]">Ethics Statement</h2>
-											<div class="prose max-w-none text-[#374151] leading-8">{@html selectedArticle.ethics_statement}</div>
-										</div>
-									{/if}
-									{#if selectedArticle.acknowledgements}
-										<div>
-											<h2 class="text-xl font-bold text-[#0D2460] mb-3 pb-2 border-b border-[#E8F0FB]">Acknowledgements</h2>
-											<div class="prose max-w-none text-[#374151] leading-8">{@html selectedArticle.acknowledgements}</div>
-										</div>
-									{/if}
-								</div>
-							{:else}
-								{#each formatBody(selectedArticle.content) as paragraph}
-									<p class="mb-5 text-[1.05rem] leading-8 text-[#374151] sm:text-[1.12rem]">
-										{paragraph}
-									</p>
-								{/each}
-							{/if}
-						</div>
-					</div>
-				</article>
-			</section>
-		{:else}
-			<header class="mb-10">
+		<header class="mb-10">
 				<div class="flex flex-col gap-4 border-b-2 border-[#0155BD] pb-6 lg:flex-row lg:items-end lg:justify-between">
 					<div>
 						<p class="mb-1 text-[10px] font-black uppercase tracking-[0.3em] text-[#78C520]">
@@ -771,7 +651,6 @@
 					</div>
 				</aside>
 			</div>
-		{/if}
 	</div>
 
 	<div class="mx-auto mt-16 max-w-7xl px-4 sm:px-6 lg:px-8">

@@ -31,31 +31,37 @@ export const load: PageServerLoad = async ({ locals }) => {
 		.from('profiles')
 		.select('*');
 
-	// Fetch approved articles waiting for super admin publishing
+	// Fetch approved or under_review articles waiting for super admin publishing
 	const { data: approvedArticles } = await supabaseAdmin
 		.from('articles')
 		.select('*')
-		.eq('status', 'approved')
+		.in('status', ['approved', 'under_review'])
 		.order('created_at', { ascending: false });
 
 	const { data: approvedResearch } = await supabaseAdmin
 		.from('research_articles')
 		.select('*')
-		.eq('status', 'approved')
+		.in('status', ['approved', 'under_review'])
+		.order('created_at', { ascending: false });
+
+	const { data: cmsContents } = await supabaseAdmin
+		.from('cms_content')
+		.select('*')
 		.order('created_at', { ascending: false });
 
 	console.log("SUPER ADMIN QUERY:", { pendingDoctors, error });
 
 	if (error || usersError) {
 		console.error("Error fetching data:", error || usersError);
-		return { pendingDoctors: [], users: [], approvedArticles: [], approvedResearch: [] };
+		return { pendingDoctors: [], users: [], approvedArticles: [], approvedResearch: [], cmsContents: [] };
 	}
 
 	return { 
 		pendingDoctors: pendingDoctors || [],
 		users: users || [],
 		approvedArticles: approvedArticles || [],
-		approvedResearch: approvedResearch || []
+		approvedResearch: approvedResearch || [],
+		cmsContents: cmsContents || []
 	};
 };
 
@@ -162,8 +168,7 @@ export const actions: Actions = {
 		const { error } = await supabaseAdmin
 			.from(table)
 			.update({ 
-				status: 'published',
-				published_by: session.user.id
+				status: 'published'
 			})
 			.eq('id', articleId);
 
