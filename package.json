@@ -10,7 +10,7 @@
 	},
 	"private": true,
 	"scripts": {
-		"dev": "vite dev",
+		"dev": "vite dev --open",
 		"build": "vite build",
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
@@ -19,9 +19,14 @@
 		"format": "prettier --write ."
 	},
 	"devDependencies": {
+<<<<<<< Updated upstream
 		"@sveltejs/adapter-auto": "^7.0.1",
 		"@sveltejs/adapter-vercel": "^6.3.4",
 		"@sveltejs/kit": "^2.70.1",
+=======
+		"@sveltejs/adapter-auto": "^3.3.1",
+		"@sveltejs/kit": "^2.0.0",
+>>>>>>> Stashed changes
 		"@sveltejs/vite-plugin-svelte": "^3.0.0",
 		"@tailwindcss/typography": "^0.5.13",
 		"@types/eslint": "^8.56.7",
@@ -53,7 +58,7 @@
 		"@iconify/svelte": "^4.0.2",
 		"@splidejs/splide": "^4.1.4",
 		"@splidejs/svelte-splide": "^0.2.9",
-		"@supabase/ssr": "^0.12.0",
+		"@supabase/ssr": "^0.12.3",
 		"@supabase/supabase-js": "^2.101.1",
 		"@tiptap/core": "^3.27.1",
 		"@tiptap/extension-image": "^3.27.1",

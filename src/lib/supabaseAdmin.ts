@@ -1,14 +1,6 @@
-import { createClient } from '@supabase/supabase-js';
-import { PUBLIC_CMS_SUPABASE_URL, PUBLIC_CMS_SUPABASE_ANON_KEY } from '$env/static/public';
-import { env } from '$env/dynamic/private';
- 
-// SERVER-ONLY client. Uses the service_role key which bypasses RLS if available.
-// Fallback to anon key to prevent crashes if the key is missing in .env
-const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY || PUBLIC_CMS_SUPABASE_ANON_KEY;
+import { createClient } from "@supabase/supabase-js";
 
-export const supabaseAdmin = createClient(PUBLIC_CMS_SUPABASE_URL, serviceKey, {
-	auth: {
-		autoRefreshToken: false,
-		persistSession: false
-	}
-});
+export const supabaseAdmin = createClient(
+  "https://xgkyjboxtrvpgkcbjatp.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhna3lqYm94dHJ2cGdrY2JqYXRwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MjQ2NzgxNiwiZXhwIjoyMDk4MDQzODE2fQ.VpCjTCgs_E1ksKmN73JpXBy3B2eTThOl_re-aN4wYGY"
+);
