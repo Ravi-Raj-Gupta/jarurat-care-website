@@ -8,7 +8,7 @@
   import Gallery from "$lib/components/contact-us/gallery.svelte";
   import ContactForm from "$lib/components/contact-us/contact-form.svelte";
 
-  // TODO: Add analytics tracking for form submissions later
+  // TODO: Implement validation script for form field data
 </script>
 
 <style>
