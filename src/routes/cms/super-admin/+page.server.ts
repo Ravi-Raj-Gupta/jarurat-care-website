@@ -53,15 +53,44 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 	if (error || usersError) {
 		console.error("Error fetching data:", error || usersError);
-		return { pendingDoctors: [], users: [], approvedArticles: [], approvedResearch: [], cmsContents: [] };
+		return { pendingDoctors: [], users: [], approvedArticles: [], approvedResearch: [], cmsContents: [], publishingDoctors: [] };
 	}
+
+	// Compute Publishing Doctors from real database records
+	const verifiedDoctors = (users || []).filter((u: any) => u.role === 'Doctor' && u.verification_status === 'approved');
+
+	const { data: allArticles } = await supabaseAdmin
+		.from('articles')
+		.select('author_id')
+		.eq('status', 'published');
+	const { data: allResearch } = await supabaseAdmin
+		.from('research_articles')
+		.select('author_id')
+		.eq('status', 'published');
+
+	const articleCounts: Record<string, number> = {};
+	(allArticles || []).forEach((a: any) => {
+		if (a.author_id) articleCounts[a.author_id] = (articleCounts[a.author_id] || 0) + 1;
+	});
+	(allResearch || []).forEach((a: any) => {
+		if (a.author_id) articleCounts[a.author_id] = (articleCounts[a.author_id] || 0) + 1;
+	});
+
+	const publishingDoctors = verifiedDoctors.map((doc: any) => ({
+		id: doc.id,
+		name: doc.full_name || 'Unnamed Doctor',
+		specialization: doc.specialization || 'General',
+		articles: articleCounts[doc.id] || 0,
+		status: doc.is_author !== false ? 'granted' : 'revoked'
+	}));
 
 	return { 
 		pendingDoctors: pendingDoctors || [],
 		users: users || [],
 		approvedArticles: approvedArticles || [],
 		approvedResearch: approvedResearch || [],
-		cmsContents: cmsContents || []
+		cmsContents: cmsContents || [],
+		publishingDoctors
 	};
 };
 
@@ -175,6 +204,33 @@ export const actions: Actions = {
 		if (error) {
 			console.error("Error publishing content:", error);
 			return fail(500, { message: 'Could not publish content' });
+		}
+		
+		return { success: true };
+	},
+
+	togglePublishingPower: async ({ request, locals }) => {
+		const session = await locals.getSession();
+		if (!session) return fail(401, { message: 'Unauthorized' });
+		const { data: userProfile } = await locals.supabase.from('profiles').select('role').eq('id', session.user.id).single();
+		if (!userProfile || (userProfile.role !== 'Admin' && userProfile.role !== 'Super_Admin')) return fail(403, { message: 'Forbidden' });
+
+		const formData = await request.formData();
+		const doctorId = formData.get('doctorId') as string;
+		const newStatus = formData.get('status') as string; // 'granted' or 'revoked'
+
+		if (!doctorId) return fail(400, { message: 'Missing doctor ID' });
+
+		const is_author = newStatus === 'granted';
+
+		const { error } = await supabaseAdmin
+			.from('profiles')
+			.update({ is_author })
+			.eq('id', doctorId);
+
+		if (error) {
+			console.error("Error updating publishing power:", error);
+			return fail(500, { message: 'Could not update publishing power' });
 		}
 		
 		return { success: true };

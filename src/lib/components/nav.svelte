@@ -70,6 +70,7 @@
 		<button class="lg:hidden p-2" on:click={() => (isMenuOpen = !isMenuOpen)}>
 			{#if isMenuOpen}<X size={26} />{:else}<MenuIcon size={26} />{/if}
 		</button>
+		</div>
 	</nav>
 
 	{#if isMenuOpen}

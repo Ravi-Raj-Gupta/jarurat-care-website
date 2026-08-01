@@ -60,49 +60,25 @@
 	}
 
 	// Publishing Power
-	type PubStatus = 'granted' | 'revoked';
-	let publishingDoctors = [
-		{
-			id: 1,
-			name: 'Dr. Priya Kapoor',
-			specialization: 'Neurology',
-			articles: 12,
-			status: 'granted' as PubStatus
-		},
-		{
-			id: 2,
-			name: 'Dr. Meera Nair',
-			specialization: 'Gastroenterology',
-			articles: 7,
-			status: 'granted' as PubStatus
-		},
-		{
-			id: 3,
-			name: 'Dr. Suresh Pillai',
-			specialization: 'Cardiology',
-			articles: 24,
-			status: 'granted' as PubStatus
-		},
-		{
-			id: 4,
-			name: 'Dr. Nandini Rao',
-			specialization: 'Oncology',
-			articles: 3,
-			status: 'revoked' as PubStatus
-		},
-		{
-			id: 5,
-			name: 'Dr. Arun Gupta',
-			specialization: 'Pediatrics',
-			articles: 9,
-			status: 'granted' as PubStatus
-		}
-	];
+	$: publishingDoctors = data.publishingDoctors || [];
 
-	function togglePublishing(id: number) {
-		publishingDoctors = publishingDoctors.map((d) =>
-			d.id === id ? { ...d, status: d.status === 'granted' ? 'revoked' : 'granted' } : d
-		);
+	async function togglePublishing(id: string, currentStatus: string) {
+		const nextStatus = currentStatus === 'granted' ? 'revoked' : 'granted';
+		const formData = new FormData();
+		formData.append('doctorId', id);
+		formData.append('status', nextStatus);
+
+		try {
+			const res = await fetch('?/togglePublishingPower', {
+				method: 'POST',
+				body: formData
+			});
+			if (res.ok) {
+				await invalidateAll();
+			}
+		} catch (e) {
+			console.error('Error toggling power:', e);
+		}
 	}
 
 	let userSearch = '';
@@ -453,11 +429,15 @@
 										<input
 											type="checkbox"
 											checked={doc.status === 'granted'}
-											on:change={() => togglePublishing(doc.id)}
+											on:change={() => togglePublishing(doc.id, doc.status)}
 										/>
 										<span class="toggle-slider"></span>
 									</label>
 								</td>
+							</tr>
+						{:else}
+							<tr>
+								<td colspan="5" class="text-center">No verified doctors found.</td>
 							</tr>
 						{/each}
 					</tbody>
