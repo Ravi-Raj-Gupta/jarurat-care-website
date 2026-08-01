@@ -2,9 +2,18 @@
 	import { enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
 	import CMSContentTab from '$lib/components/dashboard/CMSContentTab.svelte';
+	import { 
+		Home, FileText, Folder, Tag, Image, UserCheck, CheckSquare, ShieldCheck,
+		Users, Calendar as CalendarIcon, BarChart2, Settings, GitPullRequest, 
+		Bell, Activity, Globe, ChevronsLeft, Search, Mail, Clock, CheckCircle, 
+		Presentation, ArrowRight, TrendingUp, TrendingDown, MoreVertical, 
+		ChevronDown, Menu as MenuIcon, DollarSign, ExternalLink
+	} from 'lucide-svelte';
+
 	export let data;
 	// Active section in sidebar
 	let activeSection = 'analytics';
+	let recentTab = 'All';
 	let showDropdown = false;
 	let dropdownRef: HTMLElement;
 	let loading = false;
@@ -118,199 +127,600 @@
 
 <svelte:window on:click={closeDropdown} />
 
-<div class="dashboard">
-	<!-- Sidebar -->
-	<aside class="sidebar">
-		<div class="brand">
-			<img src="/logo.png" alt="JCF Logo" class="logo-img" onerror="this.style.display='none'" />
-			<div>
-				<span class="brand-name">JCF Admin</span>
-				<span class="brand-sub">Super Admin Panel</span>
+<div class="dashboard new-dashboard-root">
+	<!-- Left Sidebar -->
+	<aside class="new-sidebar">
+		<div class="sidebar-logo">
+			<div class="logo-icon-wrap">
+				<img src="/logo.png" alt="JCF Logo" class="logo-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3062/3062634.png'" />
+			</div>
+			<div class="logo-text">
+				<span class="main-title">Jarurat</span>
+				<span class="sub-title">Care Foundation</span>
 			</div>
 		</div>
 
-		<nav class="nav">
-			{#each navItems as item}
-				<button
-					class="nav-item"
-					class:active={activeSection === item.id}
-					on:click={() => (activeSection = item.id)}
-				>
-					<span>{item.label}</span>
-				</button>
-			{/each}
-		</nav>
+		<div class="sidebar-scroll">
+			<button class="nav-btn primary-nav" class:active={activeSection === 'analytics'} on:click={() => activeSection = 'analytics'}>
+				<Home size={18} />
+				<span>Dashboard</span>
+			</button>
 
-		<div class="sidebar-footer">
-			<a href="/cms/login" class="logout-btn">⏻ Logout</a>
+			<!-- CONTENT -->
+			<div class="nav-section">
+				<span class="nav-section-title">CONTENT</span>
+				<button class="nav-btn" class:active={activeSection === 'cms_content'} on:click={() => activeSection = 'cms_content'}>
+					<FileText size={18} />
+					<span>Articles</span>
+					<ChevronDown size={14} class="ml-auto opacity-50" />
+				</button>
+				<button class="nav-btn">
+					<Folder size={18} />
+					<span>Categories</span>
+				</button>
+				<button class="nav-btn">
+					<Tag size={18} />
+					<span>Tags</span>
+				</button>
+				<button class="nav-btn">
+					<Image size={18} />
+					<span>Media Library</span>
+				</button>
+			</div>
+
+			<!-- VERIFICATION & REVIEW -->
+			<div class="nav-section">
+				<span class="nav-section-title">VERIFICATION & REVIEW</span>
+				<button class="nav-btn" class:active={activeSection === 'requests'} on:click={() => activeSection = 'requests'}>
+					<UserCheck size={18} />
+					<span>Doctor Verification</span>
+					<span class="badge purple-badge ml-auto">8</span>
+				</button>
+				<button class="nav-btn" class:active={activeSection === 'publish'} on:click={() => activeSection = 'publish'}>
+					<CheckSquare size={18} />
+					<span>Article Review</span>
+					<span class="badge yellow-badge ml-auto">18</span>
+				</button>
+				<button class="nav-btn" class:active={activeSection === 'publishing'} on:click={() => activeSection = 'publishing'}>
+					<ShieldCheck size={18} />
+					<span>Publishing Power</span>
+				</button>
+			</div>
+
+			<!-- USERS -->
+			<div class="nav-section">
+				<span class="nav-section-title">USERS</span>
+				<button class="nav-btn" class:active={activeSection === 'users'} on:click={() => activeSection = 'users'}>
+					<Users size={18} />
+					<span>User Management</span>
+					<ChevronDown size={14} class="ml-auto opacity-50" />
+				</button>
+			</div>
+
+			<!-- EVENTS -->
+			<div class="nav-section">
+				<span class="nav-section-title">EVENTS</span>
+				<button class="nav-btn">
+					<CalendarIcon size={18} />
+					<div class="flex-col-label">
+						<span>Events Management</span>
+						<span class="sub-text">(Webinars)</span>
+					</div>
+					<span class="badge red-badge ml-auto">New</span>
+				</button>
+			</div>
+
+			<!-- REPORTS -->
+			<div class="nav-section">
+				<span class="nav-section-title">REPORTS</span>
+				<button class="nav-btn">
+					<BarChart2 size={18} />
+					<span>Reports & Analytics</span>
+				</button>
+			</div>
+
+			<!-- OTHER -->
+			<div class="nav-section">
+				<span class="nav-section-title">OTHER</span>
+				<button class="nav-btn">
+					<Settings size={18} />
+					<span>Settings</span>
+				</button>
+				<button class="nav-btn">
+					<GitPullRequest size={18} />
+					<span>Workflow</span>
+				</button>
+				<button class="nav-btn">
+					<Bell size={18} />
+					<span>Notifications</span>
+				</button>
+				<button class="nav-btn">
+					<Activity size={18} />
+					<span>Activity Logs</span>
+				</button>
+			</div>
+		</div>
+
+		<!-- Sidebar Bottom Actions -->
+		<div class="sidebar-bottom">
+			<a href="/" target="_blank" class="nav-btn bottom-link">
+				<Globe size={18} />
+				<span>View Website</span>
+				<ExternalLink size={16} class="ml-auto opacity-60" />
+			</a>
+			<button class="nav-btn collapse-btn">
+				<ChevronsLeft size={18} />
+				<span>Collapse</span>
+			</button>
 		</div>
 	</aside>
 
-	<!-- Main Content -->
-	<main class="main">
-		<!-- Top Bar -->
-		<div class="topbar">
+	<!-- Main Body Area -->
+	<main class="main-body">
+		<!-- Header Topbar -->
+		<header class="new-topbar">
 			<div class="topbar-left">
-				<h1 class="page-title">
-					{#if activeSection === 'analytics'}Data Analytics
-					{:else if activeSection === 'requests'}Doctor Requests
-					{:else if activeSection === 'publishing'}Publishing Power
-					{:else if activeSection === 'publish'}Publish Content
-					{:else if activeSection === 'cms_content'}CMS Content Management
-					{:else}Manage Users
-					{/if}
-				</h1>
+				<button class="menu-toggle"><MenuIcon size={20} /></button>
+				<div class="search-box">
+					<Search size={16} class="text-slate-400" />
+					<input type="text" placeholder="Search articles, authors, users, events..." />
+				</div>
 			</div>
 			<div class="topbar-right">
-				<span class="admin-badge">Super Admin</span>
+				<button class="icon-notification" aria-label="Notifications">
+					<Bell size={20} />
+					<span class="dot-badge">12</span>
+				</button>
+				<button class="icon-notification" aria-label="Messages">
+					<Mail size={20} />
+					<span class="dot-badge red-dot">4</span>
+				</button>
 				<!-- svelte-ignore a11y-click-events-have-key-events -->
 				<!-- svelte-ignore a11y-no-static-element-interactions -->
-				<div class="avatar-wrapper" bind:this={dropdownRef}>
-					<div class="avatar" on:click={() => (showDropdown = !showDropdown)}>SA</div>
+				<div class="profile-wrap" bind:this={dropdownRef}>
+					<div class="profile-trigger" on:click={() => showDropdown = !showDropdown}>
+						<img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" alt="Admin Avatar" class="profile-avatar" />
+						<div class="profile-names">
+							<span class="p-name">Admin User</span>
+							<span class="p-role">Super Admin</span>
+						</div>
+						<ChevronDown size={14} class="text-slate-500" />
+					</div>
+
 					{#if showDropdown}
-						<!-- svelte-ignore a11y-click-events-have-key-events -->
-						<!-- svelte-ignore a11y-no-static-element-interactions -->
-						<div class="avatar-dropdown">
-							<div class="dropdown-header">
+						<div class="profile-dropdown">
+							<div class="dd-head">
 								<strong>Super Admin</strong>
 								<span>admin@jarurat.care</span>
 							</div>
-							<hr class="dropdown-divider" />
-							<a
-								href="/cms/complete-profile"
-								class="dropdown-item"
-								on:click={() => (showDropdown = false)}>View Profile</a
-							>
-							<a href="/cms/login" class="dropdown-item dropdown-logout">Logout</a>
+							<hr />
+							<a href="/cms/complete-profile" on:click={() => showDropdown = false}>View Profile</a>
+							<a href="/cms/login" class="text-red-600 font-medium">Logout</a>
 						</div>
 					{/if}
 				</div>
 			</div>
-		</div>
+		</header>
 
-		<!-- ── CMS Content Section ───────────────────────────────────── -->
-		{#if activeSection === 'cms_content'}
-			<CMSContentTab cmsContents={data.cmsContents} reloadCallback={reloadData} />
-		{/if}
+		<!-- Content Tabs -->
+		<div class="main-content-area">
+			<!-- ── CMS Content Section ── -->
+			{#if activeSection === 'cms_content'}
+				<CMSContentTab cmsContents={data.cmsContents} reloadCallback={reloadData} />
+			{/if}
 
-		<!-- ── Analytics Section ─────────────────────────────────────── -->
-		{#if activeSection === 'analytics'}
-			<!-- Stats Cards -->
-			<div class="stats-grid">
-				{#each statsCards as card}
-					<div class="stat-card">
-						<div class="stat-icon" style="background: {card.color}20; color: {card.color}">
-							{card.icon}
+			<!-- ── Main Analytics / Dashboard UI ── -->
+			{#if activeSection === 'analytics'}
+				<!-- Title Row -->
+				<div class="welcome-bar">
+					<div>
+						<h1 class="welcome-title">Welcome back, Admin! 👋</h1>
+						<p class="welcome-subtitle">Here's what's happening with your platform today.</p>
+					</div>
+					<button class="date-picker-btn">
+						<CalendarIcon size={16} class="text-slate-500" />
+						<span>21 May - 27 May 2024</span>
+						<ChevronDown size={14} class="text-slate-400 ml-1" />
+					</button>
+				</div>
+
+				<!-- 6 Stat Cards Grid -->
+				<div class="stat-grid-6">
+					<div class="ui-stat-card">
+						<div class="stat-icon-box bg-purple">
+							<FileText size={22} class="text-purple" />
 						</div>
-						<div class="stat-info">
-							<p class="stat-label">{card.label}</p>
-							<h3 class="stat-value">{card.value}</h3>
-							{#if card.change}
-								<span class="stat-change positive">{card.change} this month</span>
-							{/if}
+						<div class="stat-meta">
+							<span class="meta-label">Total Articles</span>
+							<span class="meta-value">368</span>
+							<span class="meta-trend trend-green"><TrendingUp size={12} /> 14% <small>from last week</small></span>
 						</div>
 					</div>
-				{/each}
-			</div>
 
-			<div class="analytics-grid">
-				<!-- Traffic breakdown -->
-				<div class="card">
-					<h3 class="card-title">User Traffic Breakdown</h3>
-					<div class="traffic-chart">
-						<div class="donut-ring">
-							<svg width="140" height="140" viewBox="0 0 140 140">
-								<circle cx="70" cy="70" r="54" fill="none" stroke="#dbeafe" stroke-width="22" />
-								<circle
-									cx="70"
-									cy="70"
-									r="54"
-									fill="none"
-									stroke="#93c5fd"
-									stroke-width="22"
-									stroke-dasharray="{(55 / 100) * 339.29} {(45 / 100) * 339.29}"
-									stroke-dashoffset={-(34 / 100) * 339.29}
-									transform="rotate(-90 70 70)"
-								/>
-								<circle
-									cx="70"
-									cy="70"
-									r="54"
-									fill="none"
-									stroke="#1e40af"
-									stroke-width="22"
-									stroke-dasharray="{(34 / 100) * 339.29} {(66 / 100) * 339.29}"
-									transform="rotate(-90 70 70)"
-								/>
-								<text
-									x="70"
-									y="66"
-									text-anchor="middle"
-									font-size="18"
-									font-weight="700"
-									fill="#0d2460">55%</text
-								>
-								<text x="70" y="82" text-anchor="middle" font-size="11" fill="#6b7280">Readers</text
-								>
+					<div class="ui-stat-card">
+						<div class="stat-icon-box bg-orange">
+							<Clock size={22} class="text-orange" />
+						</div>
+						<div class="stat-meta">
+							<span class="meta-label">Pending Review</span>
+							<span class="meta-value">21</span>
+							<span class="meta-trend trend-red"><TrendingDown size={12} /> 12% <small>from last week</small></span>
+						</div>
+					</div>
+
+					<div class="ui-stat-card">
+						<div class="stat-icon-box bg-blue">
+							<FileText size={22} class="text-blue" />
+						</div>
+						<div class="stat-meta">
+							<span class="meta-label">In Review</span>
+							<span class="meta-value">9</span>
+							<span class="meta-trend trend-neutral">— Same as last week</span>
+						</div>
+					</div>
+
+					<div class="ui-stat-card">
+						<div class="stat-icon-box bg-green">
+							<CheckCircle size={22} class="text-green" />
+						</div>
+						<div class="stat-meta">
+							<span class="meta-label">Approved</span>
+							<span class="meta-value">42</span>
+							<span class="meta-trend trend-green"><TrendingUp size={12} /> 18% <small>from last week</small></span>
+						</div>
+					</div>
+
+					<div class="ui-stat-card">
+						<div class="stat-icon-box bg-pink">
+							<Users size={22} class="text-pink" />
+						</div>
+						<div class="stat-meta">
+							<span class="meta-label">Total Users</span>
+							<span class="meta-value">156</span>
+							<span class="meta-trend trend-green"><TrendingUp size={12} /> 8% <small>from last week</small></span>
+						</div>
+					</div>
+
+					<div class="ui-stat-card">
+						<div class="stat-icon-box bg-indigo">
+							<Presentation size={22} class="text-indigo" />
+						</div>
+						<div class="stat-meta">
+							<span class="meta-label">Upcoming Webinars</span>
+							<span class="meta-value">5</span>
+							<a href="#schedule" class="view-schedule-link">View schedule</a>
+						</div>
+					</div>
+				</div>
+
+				<!-- Management Overview Section -->
+				<div class="mgmt-overview">
+					<h2 class="section-hd">Management Overview</h2>
+					<div class="mgmt-cards-row">
+						<!-- Card 1 -->
+						<!-- svelte-ignore a11y-click-events-have-key-events -->
+						<!-- svelte-ignore a11y-no-static-element-interactions -->
+						<div class="mgmt-box" on:click={() => activeSection = 'requests'}>
+							<div class="mgmt-ico bg-circle-green text-green-600"><UserCheck size={24} /></div>
+							<h3 class="mgmt-title">Doctor Verification</h3>
+							<p class="mgmt-desc">Review and verify doctor registrations.</p>
+							<div class="mgmt-action text-green-600">
+								<span>8 Pending</span>
+								<ArrowRight size={16} />
+							</div>
+						</div>
+						<!-- Card 2 -->
+						<!-- svelte-ignore a11y-click-events-have-key-events -->
+						<!-- svelte-ignore a11y-no-static-element-interactions -->
+						<div class="mgmt-box" on:click={() => activeSection = 'publish'}>
+							<div class="mgmt-ico bg-circle-orange text-orange-600"><FileText size={24} /></div>
+							<h3 class="mgmt-title">Article Review</h3>
+							<p class="mgmt-desc">Review submitted articles and take action.</p>
+							<div class="mgmt-action text-orange-600">
+								<span>21 Pending</span>
+								<ArrowRight size={16} />
+							</div>
+						</div>
+						<!-- Card 3 -->
+						<!-- svelte-ignore a11y-click-events-have-key-events -->
+						<!-- svelte-ignore a11y-no-static-element-interactions -->
+						<div class="mgmt-box" on:click={() => activeSection = 'users'}>
+							<div class="mgmt-ico bg-circle-blue text-blue-600"><Users size={24} /></div>
+							<h3 class="mgmt-title">User Management</h3>
+							<p class="mgmt-desc">Manage writers, doctors, editors and admins.</p>
+							<div class="mgmt-action text-blue-600">
+								<span>156 Users</span>
+								<ArrowRight size={16} />
+							</div>
+						</div>
+						<!-- Card 4 -->
+						<div class="mgmt-box">
+							<div class="mgmt-ico bg-circle-purple text-purple-600"><CalendarIcon size={24} /></div>
+							<h3 class="mgmt-title">Events Management<br /><small class="font-normal text-slate-500">(Webinars)</small></h3>
+							<p class="mgmt-desc">Create, manage and monitor webinars.</p>
+							<div class="mgmt-action text-purple-600">
+								<span>5 Upcoming</span>
+								<ArrowRight size={16} />
+							</div>
+						</div>
+						<!-- Card 5 -->
+						<div class="mgmt-box">
+							<div class="mgmt-ico bg-circle-emerald text-emerald-600"><BarChart2 size={24} /></div>
+							<h3 class="mgmt-title">Reports</h3>
+							<p class="mgmt-desc">View analytics and download reports.</p>
+							<div class="mgmt-action text-slate-600">
+								<span>View Reports</span>
+								<ArrowRight size={16} />
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Middle Section: Charts & Top Writers -->
+				<div class="middle-widgets-row">
+					<!-- Articles Overview Chart -->
+					<div class="widget-box col-span-5">
+						<div class="widget-header">
+							<h3>Articles Overview</h3>
+							<button class="filter-select">This Week <ChevronDown size={14} /></button>
+						</div>
+						<div class="chart-legend">
+							<span><i class="dot blue-dot"></i> Submitted</span>
+							<span><i class="dot orange-dot"></i> In Review</span>
+							<span><i class="dot green-dot"></i> Approved</span>
+							<span><i class="dot purple-dot"></i> Published</span>
+						</div>
+						<div class="chart-svg-wrap">
+							<svg viewBox="0 0 500 200" class="line-chart">
+								<!-- Horizontal Grid Lines & Labels -->
+								<line x1="30" y1="20" x2="480" y2="20" stroke="#f1f5f9" stroke-width="1" />
+								<text x="5" y="24" class="axis-label">80</text>
+								<line x1="30" y1="60" x2="480" y2="60" stroke="#f1f5f9" stroke-width="1" />
+								<text x="5" y="64" class="axis-label">60</text>
+								<line x1="30" y1="100" x2="480" y2="100" stroke="#f1f5f9" stroke-width="1" />
+								<text x="5" y="104" class="axis-label">40</text>
+								<line x1="30" y1="140" x2="480" y2="140" stroke="#f1f5f9" stroke-width="1" />
+								<text x="5" y="144" class="axis-label">20</text>
+								<line x1="30" y1="180" x2="480" y2="180" stroke="#e2e8f0" stroke-width="1" />
+								<text x="10" y="184" class="axis-label">0</text>
+
+								<!-- X Axis Dates -->
+								<text x="50" y="198" class="axis-label">21 May</text>
+								<text x="120" y="198" class="axis-label">22 May</text>
+								<text x="190" y="198" class="axis-label">23 May</text>
+								<text x="260" y="198" class="axis-label">24 May</text>
+								<text x="330" y="198" class="axis-label">25 May</text>
+								<text x="400" y="198" class="axis-label">26 May</text>
+								<text x="455" y="198" class="axis-label">27 May</text>
+
+								<!-- Smooth curves -->
+								<path d="M 60 75 C 130 30, 200 50, 270 55 C 340 65, 400 90, 460 65" fill="none" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round" />
+								<path d="M 60 115 C 130 80, 200 70, 270 100 C 340 120, 400 130, 460 95" fill="none" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" />
+								<path d="M 60 135 C 130 110, 200 120, 270 130 C 340 135, 400 145, 460 125" fill="none" stroke="#8B5CF6" stroke-width="2.5" stroke-linecap="round" />
+								<path d="M 60 160 C 130 140, 200 145, 270 155 C 340 160, 400 165, 460 150" fill="none" stroke="#F97316" stroke-width="2.5" stroke-linecap="round" />
+
+								<!-- Dots on ends -->
+								<circle cx="60" cy="75" r="3.5" fill="#2563EB" />
+								<circle cx="200" cy="50" r="3.5" fill="#2563EB" />
+								<circle cx="460" cy="65" r="3.5" fill="#2563EB" />
 							</svg>
 						</div>
-						<div class="traffic-legend">
-							{#each trafficData as t}
-								<div class="legend-row">
-									<span class="legend-dot" style="background: {t.color}"></span>
-									<span class="legend-label">{t.label}</span>
-									<span class="legend-pct">{t.pct}%</span>
+					</div>
+
+					<!-- Articles by Category (Donut) -->
+					<div class="widget-box col-span-4">
+						<div class="widget-header">
+							<h3>Articles by Category</h3>
+						</div>
+						<div class="donut-flex-container">
+							<div class="donut-chart-box">
+								<svg width="140" height="140" viewBox="0 0 140 140">
+									<!-- Donut representation -->
+									<circle cx="70" cy="70" r="50" fill="none" stroke="#2563eb" stroke-width="24" stroke-dasharray="140 314" />
+									<circle cx="70" cy="70" r="50" fill="none" stroke="#8b5cf6" stroke-width="24" stroke-dasharray="80 314" stroke-dashoffset="-140" />
+									<circle cx="70" cy="70" r="50" fill="none" stroke="#10b981" stroke-width="24" stroke-dasharray="50 314" stroke-dashoffset="-220" />
+									<circle cx="70" cy="70" r="50" fill="none" stroke="#f43f5e" stroke-width="24" stroke-dasharray="44 314" stroke-dashoffset="-270" />
+									<text x="70" y="65" text-anchor="middle" class="donut-sub">Total Articles</text>
+									<text x="70" y="85" text-anchor="middle" class="donut-val">368</text>
+								</svg>
+							</div>
+							<div class="donut-legend">
+								<div class="leg-item">
+									<span class="bullet bg-blue-600"></span>
+									<span class="leg-text">Cancer Care</span>
+									<strong class="leg-pct">35%</strong>
 								</div>
-							{/each}
+								<div class="leg-item">
+									<span class="bullet bg-purple-600"></span>
+									<span class="leg-text">Treatment & Research</span>
+									<strong class="leg-pct">25%</strong>
+								</div>
+								<div class="leg-item">
+									<span class="bullet bg-emerald-500"></span>
+									<span class="leg-text">Patient Stories</span>
+									<strong class="leg-pct">15%</strong>
+								</div>
+								<div class="leg-item">
+									<span class="bullet bg-orange-500"></span>
+									<span class="leg-text">Nutrition & Wellness</span>
+									<strong class="leg-pct">10%</strong>
+								</div>
+								<div class="leg-item">
+									<span class="bullet bg-rose-500"></span>
+									<span class="leg-text">Mental Health</span>
+									<strong class="leg-pct">8%</strong>
+								</div>
+								<div class="leg-item">
+									<span class="bullet bg-amber-400"></span>
+									<span class="leg-text">Others</span>
+									<strong class="leg-pct">7%</strong>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Top Writers -->
+					<div class="widget-box col-span-3">
+						<div class="widget-header">
+							<h3>Top Writers</h3>
+							<a href="#writers" class="text-blue-600 text-sm font-semibold hover:underline">View all</a>
+						</div>
+						<div class="writers-list">
+							<div class="writer-row">
+								<img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=100&q=80" alt="Dr. Ananya" />
+								<span class="w-name">Dr. Ananya Sharma</span>
+								<span class="w-count">32 articles</span>
+							</div>
+							<div class="writer-row">
+								<img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80" alt="Rahul Verma" />
+								<span class="w-name">Rahul Verma</span>
+								<span class="w-count">28 articles</span>
+							</div>
+							<div class="writer-row">
+								<img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" alt="Priya Nair" />
+								<span class="w-name">Priya Nair</span>
+								<span class="w-count">20 articles</span>
+							</div>
+							<div class="writer-row">
+								<img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&q=80" alt="Aditya Menon" />
+								<span class="w-name">Aditya Menon</span>
+								<span class="w-count">18 articles</span>
+							</div>
+							<div class="writer-row">
+								<img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=100&q=80" alt="Neha Kapoor" />
+								<span class="w-name">Neha Kapoor</span>
+								<span class="w-count">15 articles</span>
+							</div>
 						</div>
 					</div>
 				</div>
 
-				<!-- Monthly Overview mini chart -->
-				<div class="card">
-					<h3 class="card-title">Monthly Overview</h3>
-					<div class="bar-chart">
-						{#each [{ month: 'Feb', users: 40, articles: 12 }, { month: 'Mar', users: 65, articles: 18 }, { month: 'Apr', users: 55, articles: 22 }, { month: 'May', users: 78, articles: 30 }, { month: 'Jun', users: 90, articles: 35 }, { month: 'Jul', users: 72, articles: 28 }] as bar}
-							<div class="bar-group">
-								<div class="bar-pair">
-									<div
-										class="bar users-bar"
-										style="height: {bar.users * 1.4}px"
-										title="{bar.users} users"
-									></div>
-									<div
-										class="bar articles-bar"
-										style="height: {bar.articles * 1.4}px"
-										title="{bar.articles} articles"
-									></div>
-								</div>
-								<span class="bar-label">{bar.month}</span>
-							</div>
-						{/each}
-					</div>
-					<div class="bar-legend">
-						<span><span class="legend-dot" style="background:#1e40af"></span> New Users</span>
-						<span><span class="legend-dot" style="background:#93c5fd"></span> Articles</span>
-					</div>
-				</div>
+				<!-- Bottom Section: Recent Articles & Quick Stats -->
+				<div class="bottom-widgets-row">
+					<!-- Recent Articles -->
+					<div class="widget-box col-span-8">
+						<h3 class="recent-title">Recent Articles</h3>
+						<div class="table-tabs">
+							<button class:active-tab={recentTab === 'All'} on:click={() => recentTab = 'All'}>All</button>
+							<button class:active-tab={recentTab === 'Pending'} on:click={() => recentTab = 'Pending'}>Pending (21)</button>
+							<button class:active-tab={recentTab === 'InReview'} on:click={() => recentTab = 'InReview'}>In Review (9)</button>
+							<button class:active-tab={recentTab === 'Changes'} on:click={() => recentTab = 'Changes'}>Needs Changes (4)</button>
+							<button class:active-tab={recentTab === 'Approved'} on:click={() => recentTab = 'Approved'}>Approved (42)</button>
+							<button class:active-tab={recentTab === 'Published'} on:click={() => recentTab = 'Published'}>Published (296)</button>
+						</div>
 
-				<!-- Recent Activity -->
-				<div class="card wide-card">
-					<h3 class="card-title">Recent Activity</h3>
-					<ul class="activity-list">
-						{#each recentActivity as item}
-							<li class="activity-item">
-								<div class="activity-dot {item.type}"></div>
-								<div class="activity-text">
-									<p>{item.text}</p>
-									<span class="activity-time">{item.time}</span>
+						<div class="ui-table-wrap">
+							<table class="recent-table">
+								<thead>
+									<tr>
+										<th>Article</th>
+										<th>Author</th>
+										<th>Category</th>
+										<th>Status</th>
+										<th>Submitted On</th>
+										<th></th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td>
+											<div class="art-col">
+												<img src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=100&q=80" alt="Thumb" class="art-thumb" />
+												<div class="art-meta">
+													<strong>Understanding Early Signs of Breast Cancer</strong>
+													<span>ART-2024-1258</span>
+												</div>
+											</div>
+										</td>
+										<td><span class="author-name">Dr. Ananya Sharma</span></td>
+										<td><span class="pill-badge bg-purple-pill">Cancer Care</span></td>
+										<td><span class="status-pill status-pending">Pending Review</span></td>
+										<td class="text-slate-500 text-xs">27 May 2024, 10:30 AM</td>
+										<td><button class="more-btn"><MoreVertical size={16} /></button></td>
+									</tr>
+									<tr>
+										<td>
+											<div class="art-col">
+												<img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=100&q=80" alt="Thumb" class="art-thumb" />
+												<div class="art-meta">
+													<strong>Immunotherapy: The Future of Cancer Treatment</strong>
+													<span>ART-2024-1257</span>
+												</div>
+											</div>
+										</td>
+										<td><span class="author-name">Rahul Verma</span></td>
+										<td><span class="pill-badge bg-blue-pill">Treatment & Research</span></td>
+										<td><span class="status-pill status-review">In Review</span></td>
+										<td class="text-slate-500 text-xs">26 May 2024, 04:15 PM</td>
+										<td><button class="more-btn"><MoreVertical size={16} /></button></td>
+									</tr>
+									<tr>
+										<td>
+											<div class="art-col">
+												<img src="https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=100&q=80" alt="Thumb" class="art-thumb" />
+												<div class="art-meta">
+													<strong>Nutrition Tips for Cancer Patients</strong>
+													<span>ART-2024-1256</span>
+												</div>
+											</div>
+										</td>
+										<td><span class="author-name">Priya Nair</span></td>
+										<td><span class="pill-badge bg-green-pill">Nutrition & Wellness</span></td>
+										<td><span class="status-pill status-approved">Approved</span></td>
+										<td class="text-slate-500 text-xs">26 May 2024, 11:20 AM</td>
+										<td><button class="more-btn"><MoreVertical size={16} /></button></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div class="table-footer-center">
+							<a href="#all" class="view-all-link">View all articles <ArrowRight size={14} /></a>
+						</div>
+					</div>
+
+					<!-- Quick Stats -->
+					<div class="widget-box col-span-4">
+						<h3 class="recent-title mb-4">Quick Stats</h3>
+						<div class="quick-stats-list">
+							<div class="qs-item">
+								<div class="qs-left">
+									<span class="qs-icon text-green-600 bg-green-50"><UserCheck size={18} /></span>
+									<span class="qs-label">Doctor Verifications</span>
 								</div>
-							</li>
-						{/each}
-					</ul>
+								<strong class="qs-val">8 pending</strong>
+							</div>
+							<div class="qs-item">
+								<div class="qs-left">
+									<span class="qs-icon text-orange-600 bg-orange-50"><FileText size={18} /></span>
+									<span class="qs-label">Articles Submitted Today</span>
+								</div>
+								<strong class="qs-val">6</strong>
+							</div>
+							<div class="qs-item">
+								<div class="qs-left">
+									<span class="qs-icon text-blue-600 bg-blue-50"><Users size={18} /></span>
+									<span class="qs-label">Active Users (This Week)</span>
+								</div>
+								<strong class="qs-val">48</strong>
+							</div>
+							<div class="qs-item">
+								<div class="qs-left">
+									<span class="qs-icon text-purple-600 bg-purple-50"><Presentation size={18} /></span>
+									<span class="qs-label">Webinar Registrations</span>
+								</div>
+								<strong class="qs-val">125</strong>
+							</div>
+							<div class="qs-item">
+								<div class="qs-left">
+									<span class="qs-icon text-amber-600 bg-amber-50"><DollarSign size={18} /></span>
+									<span class="qs-label">Revenue from Events</span>
+								</div>
+								<strong class="qs-val">₹ 62,450</strong>
+							</div>
+						</div>
+					</div>
 				</div>
-			</div>
-		{/if}
+			{/if}
 
 		<!-- ── Doctor Requests Section ────────────────────────────────── -->
 		{#if activeSection === 'requests'}
@@ -605,10 +1015,10 @@
 								<td colspan="5" class="text-center">No users found for this filter.</td>
 							</tr>
 						{/each}
-					</tbody>
 				</table>
 			</div>
 		{/if}
+		</div>
 	</main>
 </div>
 
@@ -650,6 +1060,596 @@
 		margin: 0;
 		padding: 0;
 	}
+
+	/* NEW DESIGN STYLES (MATCHING FIGMA PNG) */
+	.new-dashboard-root {
+		display: flex;
+		min-height: 100vh;
+		background: #F8FAFC;
+		font-family: 'DM Sans', sans-serif;
+		color: #1E293B;
+	}
+
+	.new-sidebar {
+		width: 265px;
+		background: #0B1729;
+		color: #CBD5E1;
+		display: flex;
+		flex-direction: column;
+		flex-shrink: 0;
+		border-right: 1px solid #1E293B;
+		height: 100vh;
+		position: sticky;
+		top: 0;
+	}
+
+	.sidebar-logo {
+		padding: 15px 20px;
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+	}
+
+	.logo-icon-wrap {
+		width: 32px;
+		height: 32px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.logo-img {
+		max-width: 100%;
+		max-height: 100%;
+	}
+
+	.logo-text {
+		display: flex;
+		flex-direction: column;
+		line-height: 1.2;
+	}
+
+	.main-title {
+		font-size: 17px;
+		font-weight: 700;
+		color: #FFFFFF;
+	}
+
+	.sub-title {
+		font-size: 11px;
+		color: #94A3B8;
+	}
+
+	.sidebar-scroll {
+		flex: 1;
+		overflow-y: auto;
+		padding: 12px 12px;
+	}
+
+	.sidebar-scroll::-webkit-scrollbar {
+		width: 4px;
+	}
+
+	.sidebar-scroll::-webkit-scrollbar-thumb {
+		background: rgba(255, 255, 255, 0.15);
+		border-radius: 4px;
+	}
+
+	.nav-btn {
+		width: 100%;
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		padding: 8px 14px;
+		border: none;
+		background: transparent;
+		color: #CBD5E1;
+		font-size: 14px;
+		font-weight: 500;
+		border-radius: 8px;
+		cursor: pointer;
+		text-align: left;
+		transition: all 0.2s;
+		margin-bottom: 2px;
+		text-decoration: none;
+		white-space: nowrap;
+	}
+
+	.nav-btn span {
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.nav-btn:hover {
+		background: rgba(255, 255, 255, 0.06);
+		color: #FFFFFF;
+	}
+
+	.nav-btn.active {
+		background: #2563EB;
+		color: #FFFFFF;
+		font-weight: 600;
+	}
+
+	.nav-section {
+		margin-top: 14px;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.nav-section-title {
+		font-size: 11px;
+		font-weight: 700;
+		color: #64748B;
+		letter-spacing: 0.06em;
+		padding: 3px 14px;
+		margin-bottom: 3px;
+	}
+
+	.flex-col-label {
+		display: flex;
+		flex-direction: column;
+		line-height: 1.2;
+	}
+
+	.flex-col-label .sub-text {
+		font-size: 11px;
+		color: #94A3B8;
+	}
+
+	.badge {
+		font-size: 11px;
+		font-weight: 600;
+		padding: 2px 8px;
+		border-radius: 999px;
+		flex-shrink: 0;
+	}
+
+	.purple-badge { background: #581C87; color: #E9D5FF; }
+	.yellow-badge { background: #713F12; color: #FEF08A; }
+	.red-badge { background: #DC2626; color: #FFFFFF; }
+
+	.sidebar-bottom {
+		padding: 12px;
+		border-top: 1px solid rgba(255, 255, 255, 0.08);
+	}
+
+	.main-body {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		min-width: 0;
+		overflow-x: hidden;
+	}
+
+	.new-topbar {
+		height: 64px;
+		background: #FFFFFF;
+		border-bottom: 1px solid #E2E8F0;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0 24px;
+		position: sticky;
+		top: 0;
+		z-index: 10;
+	}
+
+	.topbar-left {
+		display: flex;
+		align-items: center;
+		gap: 16px;
+		flex: 1;
+		max-width: 480px;
+	}
+
+	.menu-toggle {
+		display: none;
+		background: none;
+		border: none;
+		cursor: pointer;
+		color: #64748B;
+	}
+
+	.search-box {
+		flex: 1;
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		background: #F8FAFC;
+		border: 1px solid #E2E8F0;
+		border-radius: 8px;
+		padding: 8px 12px;
+	}
+
+	.search-box input {
+		border: none;
+		background: transparent;
+		outline: none;
+		flex: 1;
+		min-width: 80px;
+		font-size: 14px;
+		color: #334155;
+	}
+
+	.topbar-right {
+		display: flex;
+		align-items: center;
+		gap: 16px;
+	}
+
+	.icon-notification {
+		background: none;
+		border: none;
+		position: relative;
+		cursor: pointer;
+		color: #64748B;
+		padding: 6px;
+		border-radius: 8px;
+		transition: background 0.2s;
+	}
+
+	.icon-notification:hover {
+		background: #F1F5F9;
+	}
+
+	.dot-badge {
+		position: absolute;
+		top: -2px;
+		right: -2px;
+		background: #EF4444;
+		color: white;
+		font-size: 10px;
+		font-weight: 700;
+		width: 18px;
+		height: 18px;
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.red-dot { background: #E11D48; }
+
+	.profile-wrap {
+		position: relative;
+		margin-left: 8px;
+	}
+
+	.profile-trigger {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		cursor: pointer;
+		padding: 4px 8px;
+		border-radius: 999px;
+		border: 1px solid transparent;
+	}
+
+	.profile-trigger:hover {
+		background: #F8FAFC;
+		border-color: #E2E8F0;
+	}
+
+	.profile-avatar {
+		width: 36px;
+		height: 36px;
+		border-radius: 50%;
+		object-fit: cover;
+	}
+
+	.profile-names {
+		display: flex;
+		flex-direction: column;
+		line-height: 1.2;
+	}
+
+	.p-name {
+		font-size: 13px;
+		font-weight: 700;
+		color: #1E293B;
+	}
+
+	.p-role {
+		font-size: 11px;
+		color: #64748B;
+	}
+
+	.main-content-area {
+		padding: 28px 32px;
+	}
+
+	.welcome-bar {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 24px;
+	}
+
+	.welcome-title {
+		font-size: 22px;
+		font-weight: 700;
+		color: #0F172A;
+	}
+
+	.welcome-subtitle {
+		font-size: 14px;
+		color: #64748B;
+		margin-top: 4px;
+	}
+
+	.date-picker-btn {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		background: #FFFFFF;
+		border: 1px solid #E2E8F0;
+		padding: 8px 14px;
+		border-radius: 8px;
+		font-size: 13px;
+		font-weight: 500;
+		color: #334155;
+		cursor: pointer;
+		box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+	}
+
+	.stat-grid-6 {
+		display: grid;
+		grid-template-columns: repeat(6, 1fr);
+		gap: 16px;
+		margin-bottom: 28px;
+	}
+
+	@media (max-width: 1400px) {
+		.stat-grid-6 { grid-template-columns: repeat(3, 1fr); }
+	}
+
+	.ui-stat-card {
+		background: #FFFFFF;
+		border: 1px solid #E2E8F0;
+		border-radius: 12px;
+		padding: 16px;
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+		box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+	}
+
+	.stat-icon-box {
+		width: 44px;
+		height: 44px;
+		border-radius: 10px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.bg-purple { background: #FAF5FF; color: #9333EA; }
+	.bg-orange { background: #FFF7ED; color: #EA580C; }
+	.bg-blue { background: #EFF6FF; color: #2563EB; }
+	.bg-green { background: #F0FDF4; color: #16A34A; }
+	.bg-pink { background: #FFF1F2; color: #E11D48; }
+	.bg-indigo { background: #EEF2FF; color: #4F46E5; }
+
+	.stat-meta {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.meta-label { font-size: 12px; color: #64748B; font-weight: 500; }
+	.meta-value { font-size: 24px; font-weight: 800; color: #0F172A; margin: 2px 0; }
+	.meta-trend { font-size: 12px; display: flex; align-items: center; gap: 4px; font-weight: 600; }
+	.trend-green { color: #16A34A; }
+	.trend-red { color: #DC2626; }
+	.trend-neutral { color: #64748B; font-weight: 400; }
+	.view-schedule-link { font-size: 12px; color: #2563EB; font-weight: 600; text-decoration: none; margin-top: 4px; }
+
+	.mgmt-overview {
+		margin-bottom: 28px;
+	}
+
+	.section-hd {
+		font-size: 16px;
+		font-weight: 700;
+		color: #0F172A;
+		margin-bottom: 16px;
+	}
+
+	.mgmt-cards-row {
+		display: grid;
+		grid-template-columns: repeat(5, 1fr);
+		gap: 16px;
+	}
+
+	@media (max-width: 1400px) {
+		.mgmt-cards-row { grid-template-columns: repeat(3, 1fr); }
+	}
+
+	.mgmt-box {
+		background: #FFFFFF;
+		border: 1px solid #E2E8F0;
+		border-radius: 12px;
+		padding: 20px;
+		display: flex;
+		flex-direction: column;
+		cursor: pointer;
+		transition: transform 0.2s, box-shadow 0.2s;
+	}
+
+	.mgmt-box:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+	}
+
+	.mgmt-ico {
+		width: 48px;
+		height: 48px;
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin-bottom: 14px;
+	}
+
+	.bg-circle-green { background: #DCFCE7; }
+	.bg-circle-orange { background: #FFEDD5; }
+	.bg-circle-blue { background: #DBEAFE; }
+	.bg-circle-purple { background: #F3E8FF; }
+	.bg-circle-emerald { background: #D1FAE5; }
+
+	.mgmt-title { font-size: 15px; font-weight: 700; color: #0F172A; line-height: 1.3; }
+	.mgmt-desc { font-size: 12px; color: #64748B; margin: 6px 0 16px; flex: 1; line-height: 1.4; }
+	.mgmt-action { display: flex; align-items: center; justify-content: space-between; font-size: 13px; font-weight: 600; border-top: 1px solid #F1F5F9; padding-top: 12px; }
+
+	.middle-widgets-row {
+		display: grid;
+		grid-template-columns: repeat(12, 1fr);
+		gap: 20px;
+		margin-bottom: 28px;
+	}
+
+	.col-span-5 { grid-column: span 5; }
+	.col-span-4 { grid-column: span 4; }
+	.col-span-3 { grid-column: span 3; }
+
+	@media (max-width: 1200px) {
+		.col-span-5, .col-span-4, .col-span-3 { grid-column: span 12; }
+	}
+
+	.widget-box {
+		background: #FFFFFF;
+		border: 1px solid #E2E8F0;
+		border-radius: 12px;
+		padding: 20px;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.widget-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 16px;
+	}
+
+	.widget-header h3 { font-size: 15px; font-weight: 700; color: #0F172A; }
+	.filter-select { border: 1px solid #E2E8F0; background: #F8FAFC; font-size: 12px; padding: 4px 10px; border-radius: 6px; color: #475569; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+
+	.chart-legend {
+		display: flex;
+		gap: 16px;
+		font-size: 12px;
+		color: #64748B;
+		margin-bottom: 12px;
+	}
+
+	.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
+	.blue-dot { background: #2563EB; }
+	.orange-dot { background: #F97316; }
+	.green-dot { background: #10B981; }
+	.purple-dot { background: #8B5CF6; }
+
+	.line-chart { width: 100%; height: 160px; overflow: visible; }
+	.axis-label { font-size: 10px; fill: #94A3B8; }
+
+	.donut-flex-container {
+		display: flex;
+		align-items: center;
+		justify-content: space-around;
+		flex: 1;
+	}
+
+	.donut-chart-box { position: relative; }
+	.donut-sub { font-size: 10px; fill: #64748B; font-weight: 500; }
+	.donut-val { font-size: 22px; fill: #0F172A; font-weight: 800; }
+
+	.donut-legend {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+	}
+
+	.leg-item { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+	.bullet { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+	.leg-text { color: #475569; width: 120px; }
+	.leg-pct { color: #0F172A; margin-left: auto; }
+
+	.writers-list { display: flex; flex-direction: column; gap: 14px; margin-top: 8px; }
+	.writer-row { display: flex; align-items: center; gap: 12px; font-size: 13px; }
+	.writer-row img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+	.w-name { font-weight: 600; color: #1E293B; }
+	.w-count { margin-left: auto; color: #2563EB; font-weight: 600; font-size: 12px; }
+
+	.bottom-widgets-row {
+		display: grid;
+		grid-template-columns: repeat(12, 1fr);
+		gap: 20px;
+	}
+
+	.col-span-8 { grid-column: span 8; }
+	@media (max-width: 1200px) { .col-span-8 { grid-column: span 12; } }
+
+	.recent-title { font-size: 16px; font-weight: 700; color: #0F172A; margin-bottom: 12px; }
+
+	.table-tabs {
+		display: flex;
+		gap: 24px;
+		border-bottom: 1px solid #E2E8F0;
+		margin-bottom: 16px;
+	}
+
+	.table-tabs button {
+		background: none;
+		border: none;
+		padding-bottom: 10px;
+		font-size: 13px;
+		font-weight: 500;
+		color: #64748B;
+		cursor: pointer;
+		border-bottom: 2px solid transparent;
+	}
+
+	.table-tabs button.active-tab {
+		color: #2563EB;
+		border-color: #2563EB;
+		font-weight: 600;
+	}
+
+	.ui-table-wrap { overflow-x: auto; }
+	.recent-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+	.recent-table th { padding: 12px 16px; color: #64748B; font-weight: 600; font-size: 12px; border-bottom: 1px solid #F1F5F9; }
+	.recent-table td { padding: 14px 16px; border-bottom: 1px solid #F1F5F9; vertical-align: middle; }
+	.art-col { display: flex; align-items: center; gap: 12px; }
+	.art-thumb { width: 44px; height: 36px; border-radius: 6px; object-fit: cover; }
+	.art-meta { display: flex; flex-direction: column; max-width: 220px; }
+	.art-meta strong { font-size: 13px; color: #0F172A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+	.art-meta span { font-size: 11px; color: #64748B; margin-top: 2px; }
+	.author-name { font-weight: 500; color: #334155; }
+
+	.pill-badge { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+	.bg-purple-pill { background: #FAF5FF; color: #9333EA; border: 1px solid #F3E8FF; }
+	.bg-blue-pill { background: #EFF6FF; color: #2563EB; border: 1px solid #DBEAFE; }
+	.bg-green-pill { background: #F0FDF4; color: #16A34A; border: 1px solid #DCFCE7; }
+
+	.status-pill { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+	.status-pending { background: #FEF9C3; color: #854D0E; }
+	.status-review { background: #E0F2FE; color: #0369A1; }
+	.status-approved { background: #DCFCE7; color: #15803D; }
+
+	.more-btn { background: none; border: none; color: #94A3B8; cursor: pointer; }
+	.table-footer-center { padding: 16px; text-align: center; border-top: 1px solid #F1F5F9; }
+	.view-all-link { color: #2563EB; font-weight: 600; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+
+	.quick-stats-list { display: flex; flex-direction: column; gap: 16px; }
+	.qs-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #F8FAFC; }
+	.qs-left { display: flex; align-items: center; gap: 12px; }
+	.qs-icon { width: 38px; height: 38px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+	.qs-label { font-size: 13px; color: #475569; font-weight: 500; }
+	.qs-val { font-size: 14px; font-weight: 700; color: #0F172A; }
+
+	/* OLD CLASSES PRESERVATION FOR OTHER TABS */
 
 	.dashboard {
 		display: flex;
