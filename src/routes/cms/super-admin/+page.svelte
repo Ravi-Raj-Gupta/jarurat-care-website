@@ -1357,6 +1357,70 @@
 		color: #64748B;
 	}
 
+	.profile-dropdown {
+		position: absolute;
+		right: 0;
+		top: calc(100% + 8px);
+		width: 230px;
+		background: #FFFFFF;
+		border: 1px solid #E2E8F0;
+		border-radius: 12px;
+		box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+		padding: 8px 0;
+		z-index: 100;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.dd-head {
+		padding: 10px 16px;
+		display: flex;
+		flex-direction: column;
+		line-height: 1.3;
+	}
+
+	.dd-head strong {
+		font-size: 14px;
+		font-weight: 700;
+		color: #0F172A;
+	}
+
+	.dd-head span {
+		font-size: 12px;
+		color: #64748B;
+	}
+
+	.profile-dropdown hr {
+		margin: 6px 0;
+		border: none;
+		border-top: 1px solid #F1F5F9;
+	}
+
+	.profile-dropdown a {
+		padding: 8px 16px;
+		font-size: 13px;
+		color: #334155;
+		text-decoration: none;
+		display: flex;
+		align-items: center;
+		transition: all 0.15s;
+		font-weight: 500;
+	}
+
+	.profile-dropdown a:hover {
+		background: #F8FAFC;
+		color: #0F172A;
+	}
+
+	.profile-dropdown a.text-red-600 {
+		color: #DC2626;
+		font-weight: 600;
+	}
+
+	.profile-dropdown a.text-red-600:hover {
+		background: #FEF2F2;
+	}
+
 	.main-content-area {
 		padding: 28px 32px;
 	}
@@ -1619,21 +1683,21 @@
 
 	.ui-table-wrap { overflow-x: auto; }
 	.recent-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
-	.recent-table th { padding: 12px 16px; color: #64748B; font-weight: 600; font-size: 12px; border-bottom: 1px solid #F1F5F9; }
-	.recent-table td { padding: 14px 16px; border-bottom: 1px solid #F1F5F9; vertical-align: middle; }
+	.recent-table th { padding: 12px 16px; color: #64748B; font-weight: 600; font-size: 12px; border-bottom: 1px solid #F1F5F9; white-space: nowrap; }
+	.recent-table td { padding: 14px 16px; border-bottom: 1px solid #F1F5F9; vertical-align: middle; white-space: nowrap; }
 	.art-col { display: flex; align-items: center; gap: 12px; }
-	.art-thumb { width: 44px; height: 36px; border-radius: 6px; object-fit: cover; }
-	.art-meta { display: flex; flex-direction: column; max-width: 220px; }
+	.art-thumb { width: 44px; height: 36px; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
+	.art-meta { display: flex; flex-direction: column; max-width: 240px; }
 	.art-meta strong { font-size: 13px; color: #0F172A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-	.art-meta span { font-size: 11px; color: #64748B; margin-top: 2px; }
-	.author-name { font-weight: 500; color: #334155; }
+	.art-meta span { font-size: 11px; color: #64748B; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+	.author-name { font-weight: 500; color: #334155; white-space: nowrap; }
 
-	.pill-badge { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+	.pill-badge { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; display: inline-block; white-space: nowrap; }
 	.bg-purple-pill { background: #FAF5FF; color: #9333EA; border: 1px solid #F3E8FF; }
 	.bg-blue-pill { background: #EFF6FF; color: #2563EB; border: 1px solid #DBEAFE; }
 	.bg-green-pill { background: #F0FDF4; color: #16A34A; border: 1px solid #DCFCE7; }
 
-	.status-pill { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+	.status-pill { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; display: inline-block; white-space: nowrap; }
 	.status-pending { background: #FEF9C3; color: #854D0E; }
 	.status-review { background: #E0F2FE; color: #0369A1; }
 	.status-approved { background: #DCFCE7; color: #15803D; }
