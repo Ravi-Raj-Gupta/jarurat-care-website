@@ -20,21 +20,30 @@
 </div>
 
 <style>
-.admin-layout{
-    display:flex;
-    min-height:100vh;
-    background:#f7f9fc;
-}
+	@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
 
-.main-content{
-    flex:1;
-    display:flex;
-    flex-direction:column;
-}
+	* {
+		box-sizing: border-box;
+		font-family: 'DM Sans', sans-serif;
+	}
 
-.page-content{
-    flex:1;
-    padding:24px;
-    overflow:auto;
-}
+	.admin-layout {
+		display: flex;
+		min-height: 100vh;
+		background: #f8fafc;
+		color: #0f172a;
+	}
+
+	.main-content {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		min-width: 0;
+	}
+
+	.page-content {
+		flex: 1;
+		padding: 28px 32px;
+		overflow-y: auto;
+	}
 </style>
