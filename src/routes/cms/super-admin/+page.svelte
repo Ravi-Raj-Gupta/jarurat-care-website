@@ -5,12 +5,18 @@
 	import { 
 		Home, FileText, Folder, Tag, Image, UserCheck, CheckSquare, ShieldCheck,
 		Users, Calendar as CalendarIcon, BarChart2, Settings, GitPullRequest, 
-		Bell, Activity, Globe, ChevronsLeft, Search, Mail, Clock, CheckCircle, 
+		Bell, Activity, Globe, ChevronsLeft, LogOut, Search, Mail, Clock, CheckCircle, 
 		Presentation, ArrowRight, TrendingUp, TrendingDown, MoreVertical, 
 		ChevronDown, Menu as MenuIcon, DollarSign, ExternalLink
 	} from 'lucide-svelte';
 
 	export let data;
+	$: user = data.currentUser || {
+		name: 'Super Admin',
+		email: 'admin@jarurat.care',
+		role: 'Super_Admin',
+		avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'
+	};
 	// Active section in sidebar
 	let activeSection = 'analytics';
 	let recentTab = 'All';
@@ -135,8 +141,8 @@
 				<img src="/logo.png" alt="JCF Logo" class="logo-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3062/3062634.png'" />
 			</div>
 			<div class="logo-text">
-				<span class="main-title">Jarurat</span>
-				<span class="sub-title">Care Foundation</span>
+				<span class="main-title">Jarurat Care</span>
+				<span class="sub-title">Super Admin Portal</span>
 			</div>
 		</div>
 
@@ -248,10 +254,10 @@
 				<span>View Website</span>
 				<ExternalLink size={16} class="ml-auto opacity-60" />
 			</a>
-			<button class="nav-btn collapse-btn">
-				<ChevronsLeft size={18} />
-				<span>Collapse</span>
-			</button>
+			<a href="/cms/login" class="nav-btn logout-btn">
+				<LogOut size={18} />
+				<span>Logout</span>
+			</a>
 		</div>
 	</aside>
 
@@ -279,10 +285,10 @@
 				<!-- svelte-ignore a11y-no-static-element-interactions -->
 				<div class="profile-wrap" bind:this={dropdownRef}>
 					<div class="profile-trigger" on:click={() => showDropdown = !showDropdown}>
-						<img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" alt="Admin Avatar" class="profile-avatar" />
+						<img src={user.avatar} alt="Avatar" class="profile-avatar" onerror="this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'" />
 						<div class="profile-names">
-							<span class="p-name">Admin User</span>
-							<span class="p-role">Super Admin</span>
+							<span class="p-name">{user.name}</span>
+							<span class="p-role">{user.role}</span>
 						</div>
 						<ChevronDown size={14} class="text-slate-500" />
 					</div>
@@ -290,8 +296,8 @@
 					{#if showDropdown}
 						<div class="profile-dropdown">
 							<div class="dd-head">
-								<strong>Super Admin</strong>
-								<span>admin@jarurat.care</span>
+								<strong>{user.name}</strong>
+								<span>{user.email}</span>
 							</div>
 							<hr />
 							<a href="/cms/complete-profile" on:click={() => showDropdown = false}>View Profile</a>
@@ -314,7 +320,7 @@
 				<!-- Title Row -->
 				<div class="welcome-bar">
 					<div>
-						<h1 class="welcome-title">Welcome back, Admin! 👋</h1>
+						<h1 class="welcome-title">Welcome back, {user.name.split(' ')[0]}! 👋</h1>
 						<p class="welcome-subtitle">Here's what's happening with your platform today.</p>
 					</div>
 					<button class="date-picker-btn">
@@ -1111,9 +1117,10 @@
 	}
 
 	.main-title {
-		font-size: 17px;
-		font-weight: 700;
+		font-size: 20px;
+		font-weight: 800;
 		color: #FFFFFF;
+		letter-spacing: -0.02em;
 	}
 
 	.sub-title {
@@ -1215,6 +1222,9 @@
 		padding: 12px;
 		border-top: 1px solid rgba(255, 255, 255, 0.08);
 	}
+
+	.logout-btn { color: #F87171; }
+	.logout-btn:hover { background: rgba(239, 68, 68, 0.15); color: #EF4444; }
 
 	.main-body {
 		flex: 1;

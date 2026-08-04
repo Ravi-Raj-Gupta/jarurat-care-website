@@ -6,6 +6,7 @@
 	} from 'lucide-svelte';
 
 	export let data;
+	$: userName = data?.currentUser?.name?.split(' ')[0] || 'Admin';
 	let selectedTab = 'All';
 	const tabs = ['All', 'Blogs', 'News', 'Events', 'FAQs'];
 
@@ -43,7 +44,7 @@
 	<!-- Welcome Bar -->
 	<div class="welcome-bar">
 		<div>
-			<h1 class="welcome-title">Welcome back, Admin 👋</h1>
+			<h1 class="welcome-title">Welcome back, {userName} 👋</h1>
 			<p class="welcome-sub">Manage website content, blogs, FAQs and upcoming webinars from one central portal.</p>
 		</div>
 		<button class="date-range-btn">

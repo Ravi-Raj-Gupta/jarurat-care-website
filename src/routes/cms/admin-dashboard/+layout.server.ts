@@ -10,7 +10,7 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 
 	const { data: userProfile } = await locals.supabase
 		.from('profiles')
-		.select('role')
+		.select('*')
 		.eq('id', session.user.id)
 		.single();
 
@@ -23,7 +23,15 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 		.select('*')
 		.order('created_at', { ascending: false });
 
+	const currentUser = {
+		name: userProfile.full_name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'Admin User',
+		email: userProfile.email || session.user.email || 'admin@jarurat.care',
+		role: userProfile.role || 'Admin',
+		avatar: userProfile.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'
+	};
+
 	return { 
-		cmsContents: cmsContents || []
+		cmsContents: cmsContents || [],
+		currentUser
 	};
 };

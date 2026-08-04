@@ -2,7 +2,7 @@
 	import { page } from '$app/stores';
 	import { 
 		Home, FileText, Newspaper, HelpCircle, Calendar as CalendarIcon, 
-		Users, Settings, Globe, ExternalLink, ChevronsLeft 
+		Users, Settings, Globe, ExternalLink, LogOut 
 	} from 'lucide-svelte';
 
 	let collapsed = false;
@@ -14,8 +14,8 @@
 			<img src="/logo.png" alt="JCF Logo" class="logo-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3062/3062634.png'" />
 		</div>
 		<div class="logo-text">
-			<span class="main-title">Jarurat</span>
-			<span class="sub-title">Care Admin</span>
+			<span class="main-title">Jarurat Care</span>
+			<span class="sub-title">Admin Portal</span>
 		</div>
 	</div>
 
@@ -81,10 +81,10 @@
 			<span>View Website</span>
 			<ExternalLink size={16} class="ml-auto opacity-60" />
 		</a>
-		<button class="nav-btn collapse-btn" on:click={() => collapsed = !collapsed}>
-			<ChevronsLeft size={18} />
-			<span>Collapse</span>
-		</button>
+		<a href="/cms/login" class="nav-btn logout-btn">
+			<LogOut size={18} />
+			<span>Logout</span>
+		</a>
 	</div>
 </aside>
 
@@ -138,9 +138,10 @@
 	}
 
 	.main-title {
-		font-size: 17px;
-		font-weight: 700;
+		font-size: 20px;
+		font-weight: 800;
 		color: #FFFFFF;
+		letter-spacing: -0.02em;
 	}
 
 	.sub-title {
@@ -241,4 +242,7 @@
 		padding: 12px;
 		border-top: 1px solid rgba(255, 255, 255, 0.08);
 	}
+
+	.logout-btn { color: #F87171; }
+	.logout-btn:hover { background: rgba(239, 68, 68, 0.15); color: #EF4444; }
 </style>

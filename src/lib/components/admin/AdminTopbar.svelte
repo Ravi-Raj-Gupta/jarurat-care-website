@@ -1,8 +1,16 @@
 <script lang="ts">
+	import { page } from '$app/stores';
 	import { Search, Bell, Mail, ChevronDown, Menu as MenuIcon } from 'lucide-svelte';
 
 	let showDropdown = false;
 	let dropdownRef: HTMLElement;
+
+	$: user = $page.data.currentUser || {
+		name: 'Admin User',
+		email: 'admin@jarurat.care',
+		role: 'Admin',
+		avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'
+	};
 
 	function closeDropdown(e: MouseEvent) {
 		if (showDropdown && dropdownRef && !dropdownRef.contains(e.target as Node)) {
@@ -34,10 +42,10 @@
 		<!-- svelte-ignore a11y-no-static-element-interactions -->
 		<div class="profile-wrap" bind:this={dropdownRef}>
 			<div class="profile-trigger" on:click={() => showDropdown = !showDropdown}>
-				<img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" alt="Admin Avatar" class="profile-avatar" />
+				<img src={user.avatar} alt="Avatar" class="profile-avatar" onerror="this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'" />
 				<div class="profile-names">
-					<span class="p-name">Admin User</span>
-					<span class="p-role">Admin</span>
+					<span class="p-name">{user.name}</span>
+					<span class="p-role">{user.role}</span>
 				</div>
 				<ChevronDown size={14} class="text-slate-500" />
 			</div>
@@ -45,8 +53,8 @@
 			{#if showDropdown}
 				<div class="profile-dropdown">
 					<div class="dd-head">
-						<strong>Admin User</strong>
-						<span>admin@jarurat.care</span>
+						<strong>{user.name}</strong>
+						<span>{user.email}</span>
 					</div>
 					<hr />
 					<a href="/cms/complete-profile" on:click={() => showDropdown = false}>View Profile</a>
