@@ -1,257 +1,189 @@
 <script lang="ts">
-	import Sidebar from '$lib/components/dashboard/Sidebar.svelte';
-	import Topbar from '$lib/components/dashboard/Topbar.svelte';
-	export let data;
+    export let data;
 
-	$: profile = data.profile;
-	$: articleDrafts = data.articleDrafts;
-	$: researchDrafts = data.researchDrafts;
+    $: draftArticles = data?.draftArticles || [];
+    $: draftResearch = data?.draftResearch || [];
 
-	let activeTab: 'articles' | 'research' = 'articles';
+    $: allDrafts = [
+        ...draftArticles.map(a => ({ ...a, type: 'Article' })),
+        ...draftResearch.map(r => ({ ...r, type: 'Research' }))
+    ].sort((a, b) => new Date(b.updated_at || b.created_at).getTime() - new Date(a.updated_at || a.created_at).getTime());
 
-	function formatDate(dateStr: string) {
-		return new Date(dateStr).toLocaleDateString('en-US', {
-			month: 'short',
-			day: 'numeric',
-			year: 'numeric'
-		});
-	}
+    function formatDate(dateStr: string) {
+        if (!dateStr) return 'N/A';
+        return new Date(dateStr).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+        });
+    }
 </script>
 
 <svelte:head>
-	<title>My Drafts | Doctor Dashboard</title>
+    <title>Drafts | Doctor Dashboard</title>
 </svelte:head>
 
-<div class="dashboard">
-	<Sidebar isReviewer={profile?.is_reviewer === true} />
+<div class="header">
+    <div>
+        <h1>My Drafts</h1>
+        <p>Manage and continue working on your unpublished work.</p>
+    </div>
+</div>
 
-	<div class="content">
-		<Topbar doctorName={profile?.full_name || ''} unreadCount={0} />
-
-		<div class="page">
-			<div class="header">
-				<h1>My Drafts</h1>
-				<p>Review and continue working on your saved drafts.</p>
-			</div>
-
-			<div class="tabs">
-				<button 
-					class="tab-btn" 
-					class:active={activeTab === 'articles'} 
-					on:click={() => { activeTab = 'articles'; }}
-				>
-					Regular Articles ({articleDrafts.length})
-				</button>
-				<button 
-					class="tab-btn" 
-					class:active={activeTab === 'research'} 
-					on:click={() => { activeTab = 'research'; }}
-				>
-					Research Papers ({researchDrafts.length})
-				</button>
-			</div>
-
-			<div class="articles-card">
-				{#if activeTab === 'articles'}
-					{#if articleDrafts.length === 0}
-						<div class="empty-state">
-							<h4>No Article Drafts</h4>
-							<p>You don't have any saved regular article drafts.</p>
-							<a href="/cms/articles/create" class="btn-primary">Write an Article</a>
-						</div>
-					{:else}
-						<div class="table-responsive">
-							<table>
-								<thead>
-									<tr>
-										<th>Title</th>
-										<th>Category</th>
-										<th>Last Saved</th>
-										<th>Actions</th>
-									</tr>
-								</thead>
-								<tbody>
-									{#each articleDrafts as article}
-										<tr>
-											<td><span class="title">{article.title || 'Untitled Draft'}</span></td>
-											<td>{article.category || 'N/A'}</td>
-											<td>{formatDate(article.created_at)}</td>
-											<td>
-												<button class="btn-edit" disabled title="Editing coming soon">Edit</button>
-											</td>
-										</tr>
-									{/each}
-								</tbody>
-							</table>
-						</div>
-					{/if}
-				{:else}
-					{#if researchDrafts.length === 0}
-						<div class="empty-state">
-							<h4>No Research Drafts</h4>
-							<p>You don't have any saved research paper drafts.</p>
-							<a href="/cms/research/create" class="btn-primary">Write a Research Paper</a>
-						</div>
-					{:else}
-						<div class="table-responsive">
-							<table>
-								<thead>
-									<tr>
-										<th>Title</th>
-										<th>Last Saved</th>
-										<th>Actions</th>
-									</tr>
-								</thead>
-								<tbody>
-									{#each researchDrafts as paper}
-										<tr>
-											<td><span class="title">{paper.title || 'Untitled Draft'}</span></td>
-											<td>{formatDate(paper.created_at)}</td>
-											<td>
-												<button class="btn-edit" disabled title="Editing coming soon">Edit</button>
-											</td>
-										</tr>
-									{/each}
-								</tbody>
-							</table>
-						</div>
-					{/if}
-				{/if}
-			</div>
-		</div>
-	</div>
+<div class="card-container">
+    {#if allDrafts.length === 0}
+        <div class="empty-state">
+            <div class="empty-icon">📁</div>
+            <h4>No saved drafts</h4>
+            <p>You don't have any ongoing draft articles or research papers.</p>
+        </div>
+    {:else}
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Type</th>
+                        <th>Last Modified</th>
+                        <th class="text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {#each allDrafts as item}
+                        <tr>
+                            <td>
+                                <span class="item-title">{item.title || 'Untitled Draft'}</span>
+                            </td>
+                            <td>
+                                <span class="type-badge" class:research-type={item.type === 'Research'}>
+                                    {item.type}
+                                </span>
+                            </td>
+                            <td class="date-cell">{formatDate(item.updated_at || item.created_at)}</td>
+                            <td class="text-right">
+                                <a 
+                                    href={item.type === 'Research' ? `/cms/research/edit/${item.id}` : `/cms/articles/edit/${item.id}`} 
+                                    class="btn-edit"
+                                >
+                                    Continue Editing
+                                </a>
+                            </td>
+                        </tr>
+                    {/each}
+                </tbody>
+            </table>
+        </div>
+    {/if}
 </div>
 
 <style>
-	.dashboard {
-		display: flex;
-		min-height: 100vh;
-		background: #f5f7fb;
-	}
+    .header {
+        margin-bottom: 24px;
+    }
 
-	.content {
-		flex: 1;
-		display: flex;
-		flex-direction: column;
-		min-width: 0;
-	}
+    .header h1 {
+        font-size: 24px;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0 0 4px;
+    }
 
-	.page {
-		padding: 30px;
-		max-width: 1200px;
-		margin: 0 auto;
-		width: 100%;
-	}
+    .header p {
+        color: #64748b;
+        margin: 0;
+        font-size: 14px;
+    }
 
-	.header h1 {
-		font-size: 26px;
-		color: #0d2460;
-		margin: 0 0 5px;
-	}
+    .card-container {
+        background: #ffffff;
+        border-radius: 14px;
+        border: 1px solid #e2e8f0;
+        padding: 24px;
+    }
 
-	.header p {
-		color: #6b7280;
-		margin: 0 0 20px;
-		font-size: 15px;
-	}
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
 
-	.tabs {
-		display: flex;
-		gap: 15px;
-		margin-bottom: 25px;
-		border-bottom: 2px solid #e5e7eb;
-	}
+    th, td {
+        padding: 14px 16px;
+        border-bottom: 1px solid #e2e8f0;
+    }
 
-	.tab-btn {
-		background: none;
-		border: none;
-		padding: 10px 5px;
-		font-size: 15px;
-		font-weight: 600;
-		color: #6b7280;
-		cursor: pointer;
-		position: relative;
-		bottom: -2px;
-	}
+    th {
+        font-size: 12px;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
 
-	.tab-btn.active {
-		color: #0d2460;
-		border-bottom: 2px solid #0155bd;
-	}
+    .item-title {
+        font-weight: 600;
+        color: #0f172a;
+        font-size: 14px;
+    }
 
-	.articles-card {
-		background: white;
-		border-radius: 16px;
-		padding: 25px;
-		box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-	}
+    .type-badge {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 20px;
+        background: #e0e7ff;
+        color: #4f46e5;
+    }
 
-	.empty-state {
-		padding: 60px 20px;
-		text-align: center;
-	}
+    .type-badge.research-type {
+        background: #f3e8ff;
+        color: #7c3aed;
+    }
 
-	.empty-state h4 {
-		font-size: 18px;
-		color: #202866;
-		margin-bottom: 10px;
-	}
+    .date-cell {
+        font-size: 13px;
+        color: #64748b;
+    }
 
-	.empty-state p {
-		color: #6b7280;
-		margin-bottom: 20px;
-	}
+    .text-right {
+        text-align: right;
+    }
 
-	.btn-primary {
-		display: inline-block;
-		background: #0155bd;
-		color: white;
-		padding: 10px 20px;
-		border-radius: 8px;
-		text-decoration: none;
-		font-weight: 500;
-	}
+    .btn-edit {
+        background: #f1f5f9;
+        color: #0f172a;
+        padding: 6px 14px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 600;
+        transition: background 0.2s;
+    }
 
-	.table-responsive {
-		overflow-x: auto;
-	}
+    .btn-edit:hover {
+        background: #e2e8f0;
+    }
 
-	table {
-		width: 100%;
-		border-collapse: collapse;
-	}
+    .empty-state {
+        padding: 48px 20px;
+        text-align: center;
+    }
 
-	th {
-		text-align: left;
-		padding: 15px;
-		color: #6b7280;
-		font-weight: 600;
-		font-size: 13px;
-		text-transform: uppercase;
-		border-bottom: 2px solid #f3f4f6;
-	}
+    .empty-icon {
+        font-size: 36px;
+        margin-bottom: 12px;
+    }
 
-	td {
-		padding: 15px;
-		border-bottom: 1px solid #f3f4f6;
-		color: #374151;
-		font-size: 14px;
-	}
+    .empty-state h4 {
+        font-size: 16px;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0 0 6px;
+    }
 
-	.title {
-		font-weight: 500;
-		color: #111827;
-	}
-
-	.btn-edit {
-		background: #f3f4f6;
-		border: none;
-		padding: 6px 12px;
-		border-radius: 6px;
-		color: #4b5563;
-		font-weight: 600;
-		font-size: 13px;
-		cursor: not-allowed;
-		opacity: 0.7;
-	}
+    .empty-state p {
+        color: #64748b;
+        margin: 0;
+        font-size: 14px;
+    }
 </style>

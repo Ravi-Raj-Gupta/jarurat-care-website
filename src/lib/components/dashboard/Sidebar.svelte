@@ -1,115 +1,144 @@
 <script lang="ts">
-	import { cmsSupabase } from '$lib/cmsSupabase';
-	import { goto } from '$app/navigation';
+    import { page } from '$app/stores';
 
-	export let isReviewer: boolean = false;
+    export let isReviewer: boolean = false;
 
-	async function handleLogout() {
-		await cmsSupabase.auth.signOut();
-		goto('/cms/login');
-	}
-
-	const navItems = [
-	{ label: 'Dashboard', href: '/cms/doctor-dashboard' },
-
-	{ label: 'My Profile', href: '/cms/complete-profile' },
-
-	// COMMUNITY
-	{ label: 'Community - Doctors', href: '/cms/community/doctors' },
-
-	// CONTENT
-	{ label: 'Create Article', href: '/cms/articles/create' },
-	{ label: 'Create Research Paper', href: '/cms/research/create' },
-
-	{ label: 'My Articles', href: '/cms/doctor-dashboard/articles' },
-	{ label: 'My Research Papers', href: '/cms/doctor-dashboard/my-research-papers' },
-
-	{ label: 'Drafts', href: '/cms/doctor-dashboard/drafts' },
-
-	{ label: 'Saved Articles', href: '/cms/doctor-dashboard/saved' },
-
-	{ label: 'Notifications', href: '/cms/doctor-dashboard/notifications' },
-
-	{ label: 'Settings', href: '/cms/doctor-dashboard/settings' }
-];
+    $: currentPath = $page.url.pathname;
 </script>
 
 <aside class="sidebar">
-	<div class="logo">JCF</div>
-	<h3>Doctor Panel</h3>
+    <div class="brand">
+        <div class="logo-icon">J</div>
+        <h2>Jarurat Care</h2>
+    </div>
 
-	<nav>
-		{#each navItems as item}
-			<a href={item.href}>{item.label}</a>
-		{/each}
+    <nav class="nav-groups">
+        <div class="group-title">MAIN</div>
+        <a 
+            href="/cms/doctor-dashboard" 
+            class="nav-item" 
+            class:active={currentPath === '/cms/doctor-dashboard'}
+        >
+            Dashboard
+        </a>
 
-		{#if isReviewer}
-			<a href="/cms/doctor-dashboard/review">Review Articles</a>
-		{/if}
-	</nav>
+        <div class="group-title">CONTENT MANAGEMENT</div>
+        <a 
+            href="/cms/doctor-dashboard/articles" 
+            class="nav-item" 
+            class:active={currentPath.startsWith('/cms/doctor-dashboard/articles')}
+        >
+            My Articles
+        </a>
+        <a 
+            href="/cms/doctor-dashboard/my-research-papers" 
+            class="nav-item" 
+            class:active={currentPath.startsWith('/cms/doctor-dashboard/my-research-papers')}
+        >
+            Research Papers
+        </a>
+        <a 
+            href="/cms/doctor-dashboard/drafts" 
+            class="nav-item" 
+            class:active={currentPath.startsWith('/cms/doctor-dashboard/drafts')}
+        >
+            Drafts
+        </a>
 
-	<button class="logout-btn" on:click={handleLogout}>Logout</button>
+        {#if isReviewer}
+            <div class="group-title">VERIFICATION & REVIEW</div>
+            <a 
+                href="/cms/doctor-dashboard/review" 
+                class="nav-item" 
+                class:active={currentPath.startsWith('/cms/doctor-dashboard/review')}
+            >
+                Pending Reviews
+            </a>
+        {/if}
+
+        <div class="group-title">PREFERENCES</div>
+        <a 
+            href="/cms/doctor-dashboard/settings" 
+            class="nav-item" 
+            class:active={currentPath.startsWith('/cms/doctor-dashboard/settings')}
+        >
+            Settings
+        </a>
+    </nav>
 </aside>
 
 <style>
-	.sidebar {
-		width: 250px;
-		background: #202866;
-		color: white;
-		padding: 25px;
-		display: flex;
-		flex-direction: column;
-		gap: 12px;
-		position: sticky;
-		top: 0;
-		height: 100vh;
-	}
+    .sidebar {
+        width: 260px;
+        background: #0f172a;
+        color: #94a3b8;
+        padding: 24px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+        box-sizing: border-box;
+    }
 
-	.logo {
-		font-size: 28px;
-		font-weight: bold;
-		margin-bottom: 4px;
-	}
+    .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #ffffff;
+        padding: 0 8px;
+    }
 
-	h3 {
-		margin: 0 0 12px;
-		font-weight: 500;
-		opacity: 0.8;
-		font-size: 14px;
-	}
+    .logo-icon {
+        width: 32px;
+        height: 32px;
+        background: #4f46e5;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        color: #ffffff;
+    }
 
-	nav {
-		display: flex;
-		flex-direction: column;
-		gap: 4px;
-		flex: 1;
-	}
+    .brand h2 {
+        font-size: 18px;
+        font-weight: 700;
+        margin: 0;
+    }
 
-	nav a {
-		color: white;
-		text-decoration: none;
-		padding: 12px;
-		border-radius: 8px;
-		font-size: 15px;
-		transition: background 0.2s;
-	}
+    .nav-groups {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
 
-	nav a:hover {
-		background: rgba(255, 255, 255, 0.1);
-	}
+    .group-title {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        color: #475569;
+        margin: 16px 8px 4px 8px;
+    }
 
-	.logout-btn {
-		background: none;
-		border: 1px solid rgba(255, 255, 255, 0.3);
-		color: white;
-		text-align: left;
-		padding: 12px;
-		border-radius: 8px;
-		cursor: pointer;
-		font-size: 15px;
-	}
+    .nav-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 12px;
+        border-radius: 8px;
+        color: #94a3b8;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
 
-	.logout-btn:hover {
-		background: rgba(255, 255, 255, 0.1);
-	}
+    .nav-item:hover {
+        background: #1e293b;
+        color: #f8fafc;
+    }
+
+    .nav-item.active {
+        background: #4f46e5;
+        color: #ffffff;
+    }
 </style>

@@ -1,186 +1,196 @@
 <script lang="ts">
-	import Sidebar from '$lib/components/dashboard/Sidebar.svelte';
-	import Topbar from '$lib/components/dashboard/Topbar.svelte';
-	export let data;
-	$: profile = data.profile;
-	$: researchPapers = data.researchPapers;
+    export let data;
 
-	function formatDate(dateStr: string) {
-		return new Date(dateStr).toLocaleDateString('en-US', {
-			month: 'short',
-			day: 'numeric',
-			year: 'numeric'
-		});
-	}
+    $: researchPapers = data?.researchPapers || [];
 
-	function statusLabel(status: string) {
-		switch (status) {
-			case 'under_review': return 'Under Review';
-			case 'published': return 'Published';
-			case 'rejected': return 'Rejected';
-			default: return 'Draft';
-		}
-	}
+    function formatDate(dateStr: string) {
+        if (!dateStr) return 'N/A';
+        return new Date(dateStr).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+        });
+    }
+
+    function statusLabel(status: string) {
+        switch (status) {
+            case 'under_review': return 'Under Review';
+            case 'published': return 'Published';
+            case 'rejected': return 'Rejected';
+            default: return 'Draft';
+        }
+    }
 </script>
 
 <svelte:head>
-	<title>My Research Papers | Doctor Dashboard</title>
+    <title>My Research Papers | Doctor Dashboard</title>
 </svelte:head>
 
-<div class="dashboard">
-	<Sidebar isReviewer={profile?.is_reviewer === true} />
+<div class="header">
+    <div>
+        <h1>My Research Papers</h1>
+        <p>Overview of your authored medical research publications and submissions.</p>
+    </div>
+    <a href="/cms/research/create" class="btn-primary">+ New Research Paper</a>
+</div>
 
-	<div class="content">
-		<Topbar doctorName={profile?.full_name || ''} unreadCount={0} />
-
-		<div class="page">
-			<div class="header">
-				<h1>My Research Papers</h1>
-				<p>Manage all your submitted and drafted research papers.</p>
-			</div>
-
-			<div class="articles-card">
-				{#if researchPapers.length === 0}
-					<div class="empty-state">
-						<h4>No Research Papers Yet</h4>
-						<p>You haven't submitted any research papers.</p>
-						<a href="/cms/research/create" class="btn-primary">Write a Research Paper</a>
-					</div>
-				{:else}
-					<div class="table-responsive">
-						<table>
-							<thead>
-								<tr>
-									<th>Title</th>
-									<th>Status</th>
-									<th>Date</th>
-								</tr>
-							</thead>
-							<tbody>
-								{#each researchPapers as paper}
-									<tr>
-										<td><span class="title">{paper.title}</span></td>
-										<td><span class="status-badge status-{paper.status}">{statusLabel(paper.status)}</span></td>
-										<td>{formatDate(paper.created_at)}</td>
-									</tr>
-								{/each}
-							</tbody>
-						</table>
-					</div>
-				{/if}
-			</div>
-		</div>
-	</div>
+<div class="card-container">
+    {#if researchPapers.length === 0}
+        <div class="empty-state">
+            <div class="empty-icon">🔬</div>
+            <h4>No research papers yet</h4>
+            <p>Publish or submit your clinical research work to appear here.</p>
+        </div>
+    {:else}
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Status</th>
+                        <th>Submitted Date</th>
+                        <th class="text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {#each researchPapers as paper}
+                        <tr>
+                            <td>
+                                <span class="item-title">{paper.title || 'Untitled Paper'}</span>
+                            </td>
+                            <td>
+                                <span class="status-badge status-{paper.status}">
+                                    {statusLabel(paper.status)}
+                                </span>
+                            </td>
+                            <td class="date-cell">{formatDate(paper.created_at)}</td>
+                            <td class="text-right">
+                                <a href={`/cms/research/view/${paper.id}`} class="btn-view">
+                                    View Details
+                                </a>
+                            </td>
+                        </tr>
+                    {/each}
+                </tbody>
+            </table>
+        </div>
+    {/if}
 </div>
 
 <style>
-	.dashboard {
-		display: flex;
-		min-height: 100vh;
-		background: #f5f7fb;
-	}
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
 
-	.content {
-		flex: 1;
-		display: flex;
-		flex-direction: column;
-		min-width: 0;
-	}
+    .header h1 {
+        font-size: 24px;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0 0 4px;
+    }
 
-	.page {
-		padding: 30px;
-		max-width: 1200px;
-		margin: 0 auto;
-		width: 100%;
-	}
+    .header p {
+        color: #64748b;
+        margin: 0;
+        font-size: 14px;
+    }
 
-	.header h1 {
-		font-size: 26px;
-		color: #0d2460;
-		margin: 0 0 5px;
-	}
+    .btn-primary {
+        background: #4f46e5;
+        color: white;
+        padding: 10px 18px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 13px;
+    }
 
-	.header p {
-		color: #6b7280;
-		margin: 0 0 25px;
-		font-size: 15px;
-	}
+    .card-container {
+        background: #ffffff;
+        border-radius: 14px;
+        border: 1px solid #e2e8f0;
+        padding: 24px;
+    }
 
-	.articles-card {
-		background: white;
-		border-radius: 16px;
-		padding: 25px;
-		box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-	}
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
 
-	.empty-state {
-		padding: 60px 20px;
-		text-align: center;
-	}
+    th, td {
+        padding: 14px 16px;
+        border-bottom: 1px solid #e2e8f0;
+    }
 
-	.empty-state h4 {
-		font-size: 18px;
-		color: #202866;
-		margin-bottom: 10px;
-	}
+    th {
+        font-size: 12px;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
 
-	.empty-state p {
-		color: #6b7280;
-		margin-bottom: 20px;
-	}
+    .item-title {
+        font-weight: 600;
+        color: #0f172a;
+        font-size: 14px;
+    }
 
-	.btn-primary {
-		display: inline-block;
-		background: #0155bd;
-		color: white;
-		padding: 10px 20px;
-		border-radius: 8px;
-		text-decoration: none;
-		font-weight: 500;
-	}
+    .status-badge {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 20px;
+    }
 
-	.table-responsive {
-		overflow-x: auto;
-	}
+    .status-draft { background: #f1f5f9; color: #475569; }
+    .status-under_review { background: #fef3c7; color: #b45309; }
+    .status-published { background: #dcfce7; color: #15803d; }
+    .status-rejected { background: #fee2e2; color: #991b1b; }
 
-	table {
-		width: 100%;
-		border-collapse: collapse;
-	}
+    .date-cell {
+        font-size: 13px;
+        color: #64748b;
+    }
 
-	th {
-		text-align: left;
-		padding: 15px;
-		color: #6b7280;
-		font-weight: 600;
-		font-size: 13px;
-		text-transform: uppercase;
-		border-bottom: 2px solid #f3f4f6;
-	}
+    .text-right {
+        text-align: right;
+    }
 
-	td {
-		padding: 15px;
-		border-bottom: 1px solid #f3f4f6;
-		color: #374151;
-		font-size: 14px;
-	}
+    .btn-view {
+        background: #f1f5f9;
+        color: #0f172a;
+        padding: 6px 14px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 600;
+    }
 
-	.title {
-		font-weight: 500;
-		color: #111827;
-	}
+    .empty-state {
+        padding: 48px 20px;
+        text-align: center;
+    }
 
-	.status-badge {
-		font-size: 11px;
-		font-weight: 700;
-		text-transform: uppercase;
-		padding: 4px 12px;
-		border-radius: 20px;
-		white-space: nowrap;
-	}
+    .empty-icon {
+        font-size: 36px;
+        margin-bottom: 12px;
+    }
 
-	.status-draft { background: #f3f4f6; color: #4b5563; }
-	.status-under_review { background: #fef3c7; color: #92400e; }
-	.status-published { background: #dcfce7; color: #166534; }
-	.status-rejected { background: #fee2e2; color: #991b1b; }
+    .empty-state h4 {
+        font-size: 16px;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0 0 6px;
+    }
+
+    .empty-state p {
+        color: #64748b;
+        margin: 0;
+        font-size: 14px;
+    }
 </style>
