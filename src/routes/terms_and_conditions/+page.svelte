@@ -1,6 +1,5 @@
 <script>
 	import Nav from '$lib/components/nav.svelte';
-	import Footer from '$lib/components/footer.svelte';
 	import HeroBackground from './HeroBackground.svg';
 
 	const lastUpdated = 'March 15, 2026';
@@ -189,7 +188,7 @@
 <Nav />
 
 <main class="bg-[#F8FBFF] min-h-screen text-[#0D2561] font-sans pb-24">
-	<!-- Full Width Hero Banner (Added mt-8 to push it down from under the nav bar) -->
+	<!-- Full Width Hero Banner pushed down from under the nav bar -->
 	<section class="w-full pt-16 pb-0 mt-8 overflow-hidden">
 		<img 
 			src={HeroBackground} 
@@ -293,5 +292,3 @@
 		</section>
 	</div>
 </main>
-
-<Footer />
