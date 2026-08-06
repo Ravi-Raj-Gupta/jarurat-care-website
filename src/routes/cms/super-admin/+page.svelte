@@ -1823,22 +1823,22 @@
 	}
 
 	.logout-btn {
-		color: #ffffff;
+		color: #F87171;
 		font-size: 15px;
 		text-decoration: none;
 		display: flex;
 		align-items: center;
-		gap: 8px;
+		gap: 12px;
 		padding: 10px 14px;
 		border-radius: 8px;
 		transition: all 0.2s;
-		background: #1e40af;
-		font-weight: 600;
+		background: transparent;
+		font-weight: 500;
 	}
 
 	.logout-btn:hover {
-		background: #0d2460;
-		color: #fff;
+		background: rgba(239, 68, 68, 0.15);
+		color: #EF4444;
 	}
 
 	/* ── Main ──────────────────────────────────────────────────────── */
