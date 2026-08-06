@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { page } from '$app/stores';
     import Sidebar from '$lib/components/dashboard/Sidebar.svelte';
     import Topbar from '$lib/components/dashboard/Topbar.svelte';
 
@@ -16,7 +17,13 @@
     <Sidebar {isReviewer} />
 
     <div class="content">
-        <Topbar doctorName={profile?.full_name || 'Dr. Ananya Verma'} unreadCount={0} />
+        <Topbar 
+            doctorName={profile?.full_name || 'Dr. Ananya Verma'} 
+            unreadCount={0} 
+            {isReviewer} 
+            email={profile?.email || $page.data.session?.user?.email || 'doctor@jarurat.care'}
+            avatar={profile?.avatar_url || ''}
+        />
         
         <main class="page">
             <slot />

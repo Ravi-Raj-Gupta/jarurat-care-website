@@ -1,5 +1,9 @@
 <script lang="ts">
     import { page } from '$app/stores';
+    import { 
+        Home, FileText, BookOpen, Folder, ClipboardCheck, 
+        Settings, Globe, ExternalLink, LogOut, ShieldCheck 
+    } from 'lucide-svelte';
 
     export let isReviewer: boolean = false;
 
@@ -7,19 +11,25 @@
 </script>
 
 <aside class="sidebar">
-    <div class="brand">
-        <div class="logo-icon">J</div>
-        <h2>Jarurat Care</h2>
+    <div class="sidebar-logo">
+        <div class="logo-icon-wrap">
+            <img src="/logo.png" alt="JCF Logo" class="logo-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3062/3062634.png'" />
+        </div>
+        <div class="logo-text">
+            <span class="main-title">Jarurat Care</span>
+            <span class="sub-title">{isReviewer ? 'Reviewer Portal' : 'Doctor Portal'}</span>
+        </div>
     </div>
 
-    <nav class="nav-groups">
+    <div class="sidebar-scroll">
         <div class="group-title">MAIN</div>
         <a 
             href="/cms/doctor-dashboard" 
             class="nav-item" 
             class:active={currentPath === '/cms/doctor-dashboard'}
         >
-            Dashboard
+            <Home size={18} />
+            <span>Dashboard</span>
         </a>
 
         <div class="group-title">CONTENT MANAGEMENT</div>
@@ -28,31 +38,44 @@
             class="nav-item" 
             class:active={currentPath.startsWith('/cms/doctor-dashboard/articles')}
         >
-            My Articles
+            <FileText size={18} />
+            <span>My Articles</span>
         </a>
         <a 
             href="/cms/doctor-dashboard/my-research-papers" 
             class="nav-item" 
             class:active={currentPath.startsWith('/cms/doctor-dashboard/my-research-papers')}
         >
-            Research Papers
+            <BookOpen size={18} />
+            <span>Research Papers</span>
         </a>
         <a 
             href="/cms/doctor-dashboard/drafts" 
             class="nav-item" 
             class:active={currentPath.startsWith('/cms/doctor-dashboard/drafts')}
         >
-            Drafts
+            <Folder size={18} />
+            <span>Drafts</span>
         </a>
 
         {#if isReviewer}
-            <div class="group-title">VERIFICATION & REVIEW</div>
+            <div class="group-title reviewer-highlight">REVIEWER WORKSPACE</div>
             <a 
-                href="/cms/doctor-dashboard/review" 
-                class="nav-item" 
-                class:active={currentPath.startsWith('/cms/doctor-dashboard/review')}
+                href="/cms/doctor-dashboard/review-articles" 
+                class="nav-item reviewer-nav" 
+                class:active={currentPath.startsWith('/cms/doctor-dashboard/review-articles')}
             >
-                Pending Reviews
+                <ClipboardCheck size={18} class="text-amber" />
+                <span>Review Articles</span>
+                <span class="pulse-dot"></span>
+            </a>
+            <a 
+                href="/cms/doctor-dashboard/review-research" 
+                class="nav-item reviewer-nav" 
+                class:active={currentPath.startsWith('/cms/doctor-dashboard/review-research')}
+            >
+                <ShieldCheck size={18} class="text-amber" />
+                <span>Review Research Papers</span>
             </a>
         {/if}
 
@@ -62,83 +85,188 @@
             class="nav-item" 
             class:active={currentPath.startsWith('/cms/doctor-dashboard/settings')}
         >
-            Settings
+            <Settings size={18} />
+            <span>Settings</span>
         </a>
-    </nav>
+    </div>
+
+    <!-- Sidebar Bottom Actions -->
+    <div class="sidebar-bottom">
+        <a href="/" target="_blank" class="nav-item bottom-link">
+            <Globe size={18} />
+            <span>View Website</span>
+            <ExternalLink size={16} class="ml-auto opacity-60" />
+        </a>
+        <a href="/cms/login" class="nav-item logout-btn">
+            <LogOut size={18} />
+            <span>Logout</span>
+        </a>
+    </div>
 </aside>
 
 <style>
-    .sidebar {
-        width: 260px;
-        background: #0f172a;
-        color: #94a3b8;
-        padding: 24px 16px;
-        display: flex;
-        flex-direction: column;
-        gap: 32px;
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
+
+    * {
         box-sizing: border-box;
+        font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
-    .brand {
+    .sidebar {
+        width: 265px;
+        background: #0F172A;
+        color: #94A3B8;
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+        border-right: 1px solid #1E293B;
+        height: 100vh;
+        position: sticky;
+        top: 0;
+    }
+
+    .sidebar-logo {
+        padding: 18px 20px;
         display: flex;
         align-items: center;
         gap: 12px;
-        color: #ffffff;
-        padding: 0 8px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
 
-    .logo-icon {
-        width: 32px;
-        height: 32px;
-        background: #4f46e5;
-        border-radius: 8px;
+    .logo-icon-wrap {
+        width: 36px;
+        height: 36px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-weight: 700;
-        color: #ffffff;
+        flex-shrink: 0;
     }
 
-    .brand h2 {
-        font-size: 18px;
-        font-weight: 700;
-        margin: 0;
+    .logo-img {
+        max-width: 100%;
+        max-height: 100%;
     }
 
-    .nav-groups {
+    .logo-text {
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        line-height: 1.2;
+    }
+
+    .main-title {
+        font-size: 20px;
+        font-weight: 800;
+        color: #FFFFFF;
+        letter-spacing: -0.02em;
+    }
+
+    .sub-title {
+        font-size: 12px;
+        color: #94A3B8;
+        font-weight: 500;
+    }
+
+    .sidebar-scroll {
+        flex: 1;
+        overflow-y: auto;
+        padding: 12px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .sidebar-scroll::-webkit-scrollbar {
+        width: 5px;
+    }
+    .sidebar-scroll::-webkit-scrollbar-thumb {
+        background: #334155;
+        border-radius: 4px;
     }
 
     .group-title {
-        font-size: 10px;
+        font-size: 11px;
         font-weight: 700;
         letter-spacing: 0.05em;
-        color: #475569;
-        margin: 16px 8px 4px 8px;
+        color: #64748B;
+        margin: 14px 8px 6px 8px;
+    }
+
+    .reviewer-highlight {
+        color: #D97706;
     }
 
     .nav-item {
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        padding: 10px 12px;
+        gap: 12px;
+        padding: 10px 14px;
         border-radius: 8px;
-        color: #94a3b8;
+        color: #94A3B8;
         text-decoration: none;
-        font-size: 13px;
+        font-size: 14px;
         font-weight: 500;
         transition: all 0.2s ease;
     }
 
     .nav-item:hover {
-        background: #1e293b;
-        color: #f8fafc;
+        background: #1E293B;
+        color: #FFFFFF;
     }
 
     .nav-item.active {
-        background: #4f46e5;
-        color: #ffffff;
+        background: #2563EB;
+        color: #FFFFFF;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
     }
+
+    .reviewer-nav:hover {
+        background: #1E293B;
+        color: #FBBF24;
+    }
+
+    .reviewer-nav.active {
+        background: #D97706;
+        color: #FFFFFF;
+        box-shadow: 0 4px 12px rgba(217, 119, 6, 0.25);
+    }
+
+    .pulse-dot {
+        width: 8px;
+        height: 8px;
+        background: #F59E0B;
+        border-radius: 50%;
+        margin-left: auto;
+        box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+    }
+
+    .nav-item.active .pulse-dot {
+        background: #FFFFFF;
+        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+    }
+
+    .sidebar-bottom {
+        padding: 12px 14px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .bottom-link {
+        color: #94A3B8;
+    }
+    .bottom-link:hover {
+        color: #FFFFFF;
+    }
+
+    .logout-btn {
+        color: #F87171;
+    }
+    .logout-btn:hover {
+        background: rgba(239, 68, 68, 0.15);
+        color: #EF4444;
+    }
+
+    .ml-auto { margin-left: auto; }
 </style>

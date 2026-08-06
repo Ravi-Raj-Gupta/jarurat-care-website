@@ -26,18 +26,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 		.neq('review_feedback', 'APPROVED_BY_REVIEWER')
 		.order('created_at', { ascending: false });
 
-	// Fetch pending research articles
-	const { data: pendingResearch } = await supabaseAdmin
-		.from('research_articles')
-		.select('*')
-		.eq('status', 'under_review')
-		.neq('admin_feedback', 'APPROVED_BY_REVIEWER')
-		.order('created_at', { ascending: false });
-
 	return {
 		profile,
-		pendingArticles: pendingArticles || [],
-		pendingResearch: pendingResearch || []
+		pendingArticles: pendingArticles || []
 	};
 };
 
@@ -50,22 +41,11 @@ export const actions: Actions = {
 
 		const formData = await request.formData();
 		const articleId = formData.get('articleId') as string;
-		const articleType = formData.get('articleType') as string; // 'regular' or 'research'
-
-		if (!articleId || !articleType) return fail(400, { message: 'Missing parameters' });
-
-		const table = articleType === 'research' ? 'research_articles' : 'articles';
-
-		const updatePayload: any = {};
-		if (articleType === 'research') {
-			updatePayload.admin_feedback = 'APPROVED_BY_REVIEWER';
-		} else {
-			updatePayload.review_feedback = 'APPROVED_BY_REVIEWER';
-		}
+		if (!articleId) return fail(400, { message: 'Missing parameters' });
 
 		const { error } = await supabaseAdmin
-			.from(table)
-			.update(updatePayload)
+			.from('articles')
+			.update({ review_feedback: 'APPROVED_BY_REVIEWER' })
 			.eq('id', articleId);
 
 		if (error) {
@@ -84,27 +64,21 @@ export const actions: Actions = {
 
 		const formData = await request.formData();
 		const articleId = formData.get('articleId') as string;
-		const articleType = formData.get('articleType') as string;
 		const feedback = formData.get('feedback') as string;
 
-		if (!articleId || !articleType || !feedback) return fail(400, { message: 'Missing parameters' });
-
-		const table = articleType === 'research' ? 'research_articles' : 'articles';
-		const feedbackField = articleType === 'research' ? 'admin_feedback' : 'review_feedback';
-
-		const updateData: any = { 
-			status: 'changes_requested'
-		};
-		updateData[feedbackField] = feedback;
+		if (!articleId || !feedback) return fail(400, { message: 'Missing parameters' });
 
 		const { error } = await supabaseAdmin
-			.from(table)
-			.update(updateData)
+			.from('articles')
+			.update({ 
+				status: 'changes_requested',
+				review_feedback: feedback
+			})
 			.eq('id', articleId);
 
 		if (error) {
 			console.error("Reject error:", error);
-			return fail(500, { message: 'Could not request changes' });
+			return fail(500, { message: 'Could not reject article' });
 		}
 		
 		return { success: true };
