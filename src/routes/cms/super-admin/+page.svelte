@@ -222,26 +222,7 @@
 				</button>
 			</div>
 
-			<!-- OTHER -->
-			<div class="nav-section">
-				<span class="nav-section-title">OTHER</span>
-				<button class="nav-btn">
-					<Settings size={18} />
-					<span>Settings</span>
-				</button>
-				<button class="nav-btn">
-					<GitPullRequest size={18} />
-					<span>Workflow</span>
-				</button>
-				<button class="nav-btn">
-					<Bell size={18} />
-					<span>Notifications</span>
-				</button>
-				<button class="nav-btn">
-					<Activity size={18} />
-					<span>Activity Logs</span>
-				</button>
-			</div>
+
 
 		</div>
 
