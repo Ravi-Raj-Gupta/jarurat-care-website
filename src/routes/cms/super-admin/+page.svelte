@@ -333,9 +333,10 @@
 							<table class="data-table">
 								<thead>
 									<tr>
-										<th>Title</th>
-										<th>Category</th>
-										<th>Published Date</th>
+										<th style="width: 45%;">Title</th>
+										<th style="width: 20%;">Category</th>
+										<th style="width: 20%;">Published Date</th>
+										<th style="width: 15%; text-align: center;">Action</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -344,6 +345,11 @@
 											<td><strong>{item.title || 'Untitled'}</strong></td>
 											<td>{item.category || 'General'}</td>
 											<td>{new Date(item.created_at).toLocaleDateString()}</td>
+											<td style="text-align: center;">
+												<a href="/articles/{item.slug || item.id}" target="_blank" class="view-link">
+													Read Article ↗
+												</a>
+											</td>
 										</tr>
 									{/each}
 								</tbody>
@@ -378,9 +384,10 @@
 							<table class="data-table">
 								<thead>
 									<tr>
-										<th>Title</th>
-										<th>Category</th>
-										<th>Published Date</th>
+										<th style="width: 45%;">Title</th>
+										<th style="width: 20%;">Category</th>
+										<th style="width: 20%;">Published Date</th>
+										<th style="width: 15%; text-align: center;">Action</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -389,6 +396,11 @@
 											<td><strong>{item.title || 'Untitled'}</strong></td>
 											<td>{item.category || 'General'}</td>
 											<td>{new Date(item.created_at).toLocaleDateString()}</td>
+											<td style="text-align: center;">
+												<a href="/cancer-research/{item.id}" target="_blank" class="view-link">
+													View Paper ↗
+												</a>
+											</td>
 										</tr>
 									{/each}
 								</tbody>
@@ -2705,5 +2717,24 @@
 		.sidebar {
 			width: 200px;
 		}
+	}
+
+	.view-link {
+		display: inline-block;
+		padding: 6px 12px;
+		background-color: #eff6ff;
+		color: #1d4ed8;
+		border-radius: 6px;
+		font-size: 13px;
+		font-weight: 600;
+		text-decoration: none;
+		transition: all 0.2s ease;
+		white-space: nowrap;
+	}
+
+	.view-link:hover {
+		background-color: #dbeafe;
+		color: #1e40af;
+		text-decoration: none;
 	}
 </style>
