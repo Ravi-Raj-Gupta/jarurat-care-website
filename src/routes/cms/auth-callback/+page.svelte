@@ -11,7 +11,6 @@
       return;
     }
 
-    // Profile check karo — agar nahi hai toh banao
     const { data: profile } = await cmsSupabase
       .from('profiles')
       .select('role, profile_completed, verification_status')
@@ -30,19 +29,23 @@
       return;
     }
 
-    if (!profile.profile_completed) {
+    const { role, verification_status, profile_completed } = profile;
+    
+    // Super Admins and Admins bypass profile completion
+    if (role === 'Super_Admin') {
+      goto('/cms/super-admin');
+      return;
+    } else if (role === 'Admin') {
+      goto('/cms/admin');
+      return;
+    }
+
+    if (!profile_completed) {
       goto('/cms/complete-profile');
       return;
     }
 
-    // Role ke hisaab se redirect karo
-    const { role, verification_status } = profile;
-    
-    if (role === 'Super_Admin') {
-      goto('/cms/super-admin');
-    } else if (role === 'Admin') {
-      goto('/cms/admin');
-    } else if (role === 'Doctor') {
+    if (role === 'Doctor') {
       if (verification_status === 'approved') {
         goto('/cms/doctor-dashboard');
       } else {

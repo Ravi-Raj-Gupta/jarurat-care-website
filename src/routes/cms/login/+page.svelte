@@ -43,23 +43,24 @@
 	.maybeSingle();
 
 			if (profileError) throw profileError;
-			if (!profile?.profile_completed) {
-				goto('/cms/complete-profile');
-				return;
-			}
 
 			const { profile_completed, role, verification_status } = profile || {};
+
+			// Super Admins and Admins bypass profile completion
+			if (role === 'Super_Admin') {
+				goto('/cms/super-admin');
+				return;
+			} else if (role === 'Admin') {
+				goto('/cms/admin');
+				return;
+			}
 
 			if (!profile_completed) {
 				goto('/cms/complete-profile');
 				return;
 			}
 
-			if (role === 'Super_Admin') {
-				goto('/cms/super-admin');
-			} else if (role === 'Admin') {
-				goto('/cms/admin');
-			} else if (role === 'Doctor') {
+			if (role === 'Doctor') {
 				if (verification_status === 'approved') {
 					goto('/cms/doctor-dashboard');
 				} else {
