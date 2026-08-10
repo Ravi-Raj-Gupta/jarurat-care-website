@@ -16,6 +16,7 @@
 		{ title: 'Home', href: '/' },
 		{ title: 'About Us', href: '/about-us' },
 		{ title: 'Get Involved', href: '/get-involved' },
+		{ title: 'Community', href: '/knowledge-hub' },
 		{ title: 'Doctor Registration', href: '/doctor-form' },
 		{ title: 'Contact Us', href: '/contact-us' }
 	];
