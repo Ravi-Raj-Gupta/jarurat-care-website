@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
-	import CMSContentTab from '$lib/components/dashboard/CMSContentTab.svelte';
+
 	import { 
-		Home, FileText, Folder, Tag, Image, UserCheck, CheckSquare, ShieldCheck,
+		Home, FileText, BookOpen, Folder, Tag, Image, UserCheck, CheckSquare, ShieldCheck,
 		Users, Calendar as CalendarIcon, BarChart2, Settings, GitPullRequest, 
 		Bell, Activity, Globe, ChevronsLeft, LogOut, Search, Mail, Clock, CheckCircle, 
 		Presentation, ArrowRight, TrendingUp, TrendingDown, MoreVertical, 
@@ -20,6 +20,7 @@
 	// Active section in sidebar
 	let activeSection = 'analytics';
 	let recentTab = 'All';
+	let articleTab = 'Article';
 	let showDropdown = false;
 	let dropdownRef: HTMLElement;
 	let loading = false;
@@ -191,48 +192,7 @@
 				</button>
 			</div>
 
-			<!-- EVENTS -->
-			<div class="nav-section">
-				<span class="nav-section-title">EVENTS</span>
-				<button class="nav-btn">
-					<CalendarIcon size={18} />
-					<div class="flex-col-label">
-						<span>Events Management</span>
-						<span class="sub-text">(Webinars)</span>
-					</div>
-					<span class="badge red-badge ml-auto">New</span>
-				</button>
-			</div>
 
-			<!-- REPORTS -->
-			<div class="nav-section">
-				<span class="nav-section-title">REPORTS</span>
-				<button class="nav-btn">
-					<BarChart2 size={18} />
-					<span>Reports & Analytics</span>
-				</button>
-			</div>
-
-			<!-- OTHER -->
-			<div class="nav-section">
-				<span class="nav-section-title">OTHER</span>
-				<button class="nav-btn">
-					<Settings size={18} />
-					<span>Settings</span>
-				</button>
-				<button class="nav-btn">
-					<GitPullRequest size={18} />
-					<span>Workflow</span>
-				</button>
-				<button class="nav-btn">
-					<Bell size={18} />
-					<span>Notifications</span>
-				</button>
-				<button class="nav-btn">
-					<Activity size={18} />
-					<span>Activity Logs</span>
-				</button>
-			</div>
 		</div>
 
 		<!-- Sidebar Bottom Actions -->
@@ -298,9 +258,68 @@
 
 		<!-- Content Tabs -->
 		<div class="main-content-area">
-			<!-- ── CMS Content Section ── -->
+			<!-- ── Articles Section ── -->
 			{#if activeSection === 'cms_content'}
-				<CMSContentTab cmsContents={data.cmsContents} reloadCallback={reloadData} />
+				<div class="section-desc">
+					<p>View all published medical articles and research manuscripts on the platform.</p>
+				</div>
+
+				<div class="pill-tabs-container" style="margin-bottom: 24px; display: flex; gap: 12px; background: white; padding: 6px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); width: max-content;">
+					<button class="pill-btn" class:active={articleTab === 'Article'} on:click={() => articleTab = 'Article'}>
+						<FileText size={16} /> Regular Articles
+					</button>
+					<button class="pill-btn" class:active={articleTab === 'Research'} on:click={() => articleTab = 'Research'}>
+						<BookOpen size={16} /> Research Papers
+					</button>
+				</div>
+
+				<div class="table-card" style="margin-bottom: 30px; overflow: hidden;">
+					<div style="padding: 24px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 12px; background: linear-gradient(to right, #ffffff, #f8fafc);">
+						<div style="width: 40px; height: 40px; border-radius: 10px; background: {articleTab === 'Article' ? '#eff6ff' : '#faf5ff'}; color: {articleTab === 'Article' ? '#1d4ed8' : '#7e22ce'}; display: flex; align-items: center; justify-content: center;">
+							{#if articleTab === 'Article'}
+								<FileText size={20} />
+							{:else}
+								<BookOpen size={20} />
+							{/if}
+						</div>
+						<h3 style="margin: 0; color: #0d2460; font-size: 18px; font-weight: 700;">
+							{articleTab === 'Article' ? 'Published Articles' : 'Published Research Papers'}
+						</h3>
+					</div>
+					
+					{#if data.publishedContent.filter(c => c.type === articleTab).length === 0}
+						<div class="empty-state" style="padding: 40px; text-align: center; color: #64748b;">
+							No published {articleTab.toLowerCase()}s found.
+						</div>
+					{:else}
+						<div class="table-responsive">
+							<table class="data-table">
+								<thead>
+									<tr>
+										<th>Title</th>
+										<th>Type</th>
+										<th>Category</th>
+										<th>Published Date</th>
+									</tr>
+								</thead>
+								<tbody>
+									{#each data.publishedContent.filter(c => c.type === articleTab) as item}
+										<tr>
+											<td><strong>{item.title || 'Untitled'}</strong></td>
+											<td>
+												<span class="badge {item.type === 'Article' ? 'bg-blue' : 'bg-purple'}" style="padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; color: {item.type === 'Article' ? '#2563EB' : '#9333EA'}; border: 1px solid {item.type === 'Article' ? '#DBEAFE' : '#F3E8FF'};">
+													{item.type}
+												</span>
+											</td>
+											<td>{item.category || 'General'}</td>
+											<td>{new Date(item.created_at).toLocaleDateString()}</td>
+										</tr>
+									{/each}
+								</tbody>
+							</table>
+						</div>
+					{/if}
+				</div>
 			{/if}
 
 			<!-- ── Main Analytics / Dashboard UI ── -->
@@ -2249,6 +2268,63 @@
 	.activity-time {
 		font-size: 11px;
 		color: #9ca3af;
+	}
+
+	/* Tabs */
+	.tabs {
+		display: flex;
+		gap: 12px;
+		border-bottom: 2px solid #f1f5f9;
+		padding-bottom: 0;
+	}
+
+	.tab-btn {
+		padding: 10px 20px;
+		background: transparent;
+		border: none;
+		border-bottom: 2px solid transparent;
+		margin-bottom: -2px;
+		font-weight: 600;
+		color: #64748b;
+		cursor: pointer;
+		font-size: 14px;
+		transition: all 0.2s ease;
+	}
+
+	.tab-btn:hover {
+		color: #0d2460;
+	}
+
+	.tab-btn.active {
+		color: #1e40af;
+		border-bottom-color: #1e40af;
+	}
+
+	/* Pill Tabs */
+	.pill-btn {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding: 12px 24px;
+		background: transparent;
+		border: none;
+		border-radius: 8px;
+		font-weight: 600;
+		color: #64748b;
+		cursor: pointer;
+		font-size: 14px;
+		transition: all 0.2s ease;
+	}
+
+	.pill-btn:hover {
+		background: #f8fafc;
+		color: #0d2460;
+	}
+
+	.pill-btn.active {
+		background: #eff6ff;
+		color: #1d4ed8;
+		box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 	}
 
 	/* ── Filter Bar ─────────────────────────────────────────────── */

@@ -61,12 +61,15 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 	const { data: allArticles } = await supabaseAdmin
 		.from('articles')
-		.select('author_id')
-		.eq('status', 'published');
+		.select('*')
+		.eq('status', 'published')
+		.order('created_at', { ascending: false });
+		
 	const { data: allResearch } = await supabaseAdmin
 		.from('research_articles')
-		.select('author_id')
-		.eq('status', 'published');
+		.select('*')
+		.eq('status', 'published')
+		.order('created_at', { ascending: false });
 
 	const articleCounts: Record<string, number> = {};
 	(allArticles || []).forEach((a: any) => {
@@ -75,6 +78,11 @@ export const load: PageServerLoad = async ({ locals }) => {
 	(allResearch || []).forEach((a: any) => {
 		if (a.author_id) articleCounts[a.author_id] = (articleCounts[a.author_id] || 0) + 1;
 	});
+
+	const publishedContent = [
+		...(allArticles || []).map((a: any) => ({ ...a, type: 'Article' })),
+		...(allResearch || []).map((r: any) => ({ ...r, type: 'Research' }))
+	].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
 	const publishingDoctors = verifiedDoctors.map((doc: any) => ({
 		id: doc.id,
@@ -97,6 +105,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		approvedArticles: approvedArticles || [],
 		approvedResearch: approvedResearch || [],
 		cmsContents: cmsContents || [],
+		publishedContent,
 		publishingDoctors,
 		currentUser
 	};
