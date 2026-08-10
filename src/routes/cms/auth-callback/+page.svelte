@@ -14,7 +14,7 @@
     // Profile check karo — agar nahi hai toh banao
     const { data: profile } = await cmsSupabase
       .from('profiles')
-      .select('role')
+      .select('role, profile_completed, verification_status')
       .eq('id', user.id)
       .maybeSingle();
 
@@ -23,28 +23,35 @@
         id: user.id,
         email: user.email,
         full_name: user.user_metadata?.full_name || user.email?.split('@')[0],
-        role: 'user'
+        role: 'Reader',
+        profile_completed: false
       }]);
-      goto('/cms/author-request');
+      goto('/cms/complete-profile');
+      return;
+    }
+
+    if (!profile.profile_completed) {
+      goto('/cms/complete-profile');
       return;
     }
 
     // Role ke hisaab se redirect karo
-    const role = profile.role;
-    if (role === 'author') goto('/cms/author_dashboard');
-    else if (role === 'testimonial_writer') goto('/cms/testimonial_dashboard');
-    else if (role === 'cms_admin' || role === 'super_admin') goto('/cms/admin/admin_dashboard');
-    else {
-      const { data: request } = await cmsSupabase
-        .from('author_requests')
-        .select('status')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (!request) goto('/cms/author-request');
-      else goto('/cms/pending');
+    const { role, verification_status } = profile;
+    
+    if (role === 'Super_Admin') {
+      goto('/cms/super-admin');
+    } else if (role === 'Admin') {
+      goto('/cms/admin');
+    } else if (role === 'Doctor') {
+      if (verification_status === 'approved') {
+        goto('/cms/doctor-dashboard');
+      } else {
+        goto('/cms/pending');
+      }
+    } else if (role === 'Reader') {
+      goto('/cms/reader-dashboard');
+    } else {
+      goto('/');
     }
   });
 </script>
