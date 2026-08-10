@@ -54,6 +54,7 @@
 
 	let contentSearch = '';
 	let contentSort = 'newest';
+	let listFilterType: string | null = 'blog'; // Default to blog
 
 	$: if (contentTitle && !editingContent) {
 		contentSlug = contentTitle
@@ -66,6 +67,7 @@
 	$: filteredContents = cmsContents
 		.filter((c) => {
 			if (filterType && c.content_type !== filterType) return false;
+			if (listFilterType && listFilterType !== 'all' && c.content_type !== listFilterType) return false;
 			if (!contentSearch) return true;
 			const term = contentSearch.toLowerCase();
 			return c.title.toLowerCase().includes(term) ||
@@ -272,19 +274,40 @@
 </script>
 
 <div class="cms-container">
-	<div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:center;">
-		<input
-			bind:value={contentSearch}
-			placeholder="Search CMS content..."
-			class="search-input"
-		/>
-		<select bind:value={contentSort} class="sort-select">
-			<option value="newest">Newest First</option>
-			<option value="oldest">Oldest First</option>
-			<option value="alphabetical">Alphabetical</option>
-			<option value="recently_updated">Recently Updated</option>
-		</select>
-		<div style="margin-left:auto;">
+	<div style="display:flex; gap:12px; margin-bottom:24px; flex-wrap:wrap; align-items:center; justify-content: space-between; background: white; padding: 16px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); border: 1px solid #f1f5f9;">
+		{#if !showContentForm}
+		<div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center; flex: 1;">
+			<!-- All Content Box -->
+			<button 
+				class="color-box {listFilterType === 'all' ? 'active' : ''}" 
+				on:click={() => listFilterType = 'all'}
+				style="--box-color: #64748b;"
+			>
+				All Content
+			</button>
+
+			<!-- Individual Content Type Boxes -->
+			{#each CONTENT_TYPES as type}
+				<button 
+					class="color-box {listFilterType === type ? 'active' : ''}" 
+					on:click={() => listFilterType = type}
+					style="--box-color: {typeColors[type] || '#1e40af'};"
+				>
+					{type === 'news' ? 'News' : type + 's'}
+				</button>
+			{/each}
+		</div>
+		{/if}
+
+		<div style="display:flex; gap:12px; align-items:center; margin-left: auto;">
+			{#if !showContentForm}
+				<select bind:value={contentSort} class="sort-select">
+					<option value="newest">Newest First</option>
+					<option value="oldest">Oldest First</option>
+					<option value="alphabetical">Alphabetical</option>
+					<option value="recently_updated">Recently Updated</option>
+				</select>
+			{/if}
 			<button class="primary-btn" on:click={() => {
 				if(showContentForm) {
 					resetContentForm();
@@ -763,4 +786,58 @@
 
 	.cancel-btn { background: #f1f5f9; color: #475569; }
 	.confirm-btn { background: #ef4444; color: white; }
+
+	/* Pill Tabs */
+	.pill-btn {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding: 10px 20px;
+		background: transparent;
+		border: none;
+		border-radius: 8px;
+		font-weight: 600;
+		color: #64748b;
+		cursor: pointer;
+		font-size: 14px;
+		transition: all 0.2s ease;
+		white-space: nowrap;
+	}
+
+	.pill-btn:hover {
+		background: #f8fafc;
+		color: #0d2460;
+	}
+
+	.pill-btn.active {
+		background: #eff6ff;
+		color: #1d4ed8;
+		box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+	}
+
+	/* Colorful Box Tabs */
+	.color-box {
+		background: transparent;
+		border: 1px solid var(--box-color);
+		color: var(--box-color);
+		padding: 8px 16px;
+		border-radius: 8px;
+		font-weight: 600;
+		font-size: 13px;
+		cursor: pointer;
+		text-transform: capitalize;
+		transition: all 0.2s ease;
+	}
+
+	.color-box:hover {
+		background: var(--box-color);
+		color: white;
+	}
+
+	.color-box.active {
+		background: var(--box-color);
+		color: white;
+		box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+		transform: translateY(-1px);
+	}
 </style>
