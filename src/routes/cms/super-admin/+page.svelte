@@ -160,18 +160,6 @@
 					<span>Articles</span>
 					<ChevronDown size={14} class="ml-auto opacity-50" />
 				</button>
-				<button class="nav-btn">
-					<Folder size={18} />
-					<span>Categories</span>
-				</button>
-				<button class="nav-btn">
-					<Tag size={18} />
-					<span>Tags</span>
-				</button>
-				<button class="nav-btn">
-					<Image size={18} />
-					<span>Media Library</span>
-				</button>
 			</div>
 
 			<!-- VERIFICATION & REVIEW -->
