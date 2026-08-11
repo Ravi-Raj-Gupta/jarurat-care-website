@@ -80,9 +80,9 @@
 			
 			<div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-0 items-stretch">
 				{#each purposeCards as item, index}
-					<div class="flex flex-col justify-between text-left px-4 {index === 1 ? 'md:pl-6 md:pr-14' : 'md:px-10'} first:md:pl-0 last:md:pr-0 relative h-full pb-8 md:pb-0 border-b md:border-b-0 border-[#E2E8F0] last:border-b-0">
+					<div class="flex flex-col justify-between text-center md:text-left px-4 {index === 1 ? 'md:pl-6 md:pr-14' : 'md:px-10'} first:md:pl-0 last:md:pr-0 relative h-full pb-8 md:pb-0 border-b md:border-b-0 border-[#E2E8F0] last:border-b-0">
 						<div>
-							<div class="w-12 h-12 flex items-center justify-start mb-4 shrink-0">
+							<div class="w-12 h-12 flex items-center justify-center md:justify-start mb-4 shrink-0 mx-auto md:mx-0">
 								<img src={item.icon} alt={item.title} class="w-10 h-10 object-contain" />
 							</div>
 							<h3 class="text-lg md:text-xl font-bold text-[#0D2561] mb-2">
