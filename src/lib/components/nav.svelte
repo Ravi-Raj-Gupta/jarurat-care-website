@@ -62,7 +62,7 @@
 		</ul>
 
 		<div class="flex items-center gap-4">
-			<a href="/donate" class="hidden sm:block bg-[#1E4ED8] text-white px-5 lg:px-6 py-2 rounded-full text-xs lg:text-sm font-medium shadow-md hover:shadow-lg transition whitespace-nowrap">Donate Now</a>
+			<a href="/donate" class="hidden sm:flex items-center justify-center h-[62px] w-[154px] bg-[#1E4ED8] text-white rounded-full text-sm lg:text-base font-semibold shadow-md hover:shadow-lg transition whitespace-nowrap">Donate Now</a>
 
 			<!-- Hamburger toggle visible only when header links are hidden (< md) -->
 			<button class="md:hidden p-2 text-[#0D2561]" on:click={() => (isMenuOpen = !isMenuOpen)}>

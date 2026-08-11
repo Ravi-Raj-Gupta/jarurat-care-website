@@ -1,6 +1,8 @@
 <script>
 	import Nav from '$lib/components/nav.svelte';
+	import Footer from '$lib/components/footer.svelte';
 	import HeroBackground from './HeroBackground.svg';
+	import HeroBackgroundMobile from './HeroBackgroundMobile.svg';
 
 	const lastUpdated = 'March 15, 2026';
 
@@ -187,13 +189,20 @@
 
 <Nav />
 
-<main class="bg-[#F8FBFF] min-h-screen text-[#0D2561] font-sans pb-24">
-	<!-- Full Width Hero Banner pushed down from under the nav bar -->
-	<section class="w-full pt-16 pb-0 mt-8 overflow-hidden">
+<main class="bg-[#F8FBFF] min-h-screen text-[#0D2561] font-sans pb-24 pt-16 md:pt-24">
+	<!-- Responsive Hero Banner (Mobile vs Desktop) -->
+	<section class="w-full pb-0 overflow-hidden">
+		<!-- Mobile Banner (shown on small screens up to md) -->
+		<img 
+			src={HeroBackgroundMobile} 
+			alt="Terms & Conditions - Last updated March 15, 2026" 
+			class="w-full h-auto block md:hidden object-cover m-0 p-0"
+		/>
+		<!-- Desktop Banner (shown from md upwards) -->
 		<img 
 			src={HeroBackground} 
 			alt="Terms & Conditions - Last updated March 15, 2026" 
-			class="w-full h-auto block object-cover m-0 p-0"
+			class="w-full h-auto hidden md:block object-cover m-0 p-0"
 		/>
 	</section>
 
@@ -266,7 +275,7 @@
 									{#if item.title === 'Contact'}
 										<p class="text-[#596273] text-sm sm:text-base leading-relaxed">
 											If you have any questions regarding these Terms & Conditions, please contact us at:
-											<a href="mailto:Priyanka.joshi@jarurat.care" class="text-[#1E4ED8] font-medium hover:underline">
+											<a href="http://localhost:5173/about-us4" class="text-[#1E4ED8] font-medium hover:underline">
 												Priyanka.joshi@jarurat.care
 											</a>.
 										</p>
@@ -292,3 +301,5 @@
 		</section>
 	</div>
 </main>
+
+<Footer />
