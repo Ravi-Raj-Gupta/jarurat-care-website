@@ -1,9 +1,9 @@
 <script lang="ts">
     import { page } from '$app/stores';
-    import { 
-        Home, FileText, BookOpen, Folder, ClipboardCheck, 
-        Settings, Globe, ExternalLink, LogOut, ShieldCheck 
-    } from 'lucide-svelte';
+   import { 
+    Home, FileText, BookOpen, Folder, ClipboardCheck, 
+    Settings, Globe, ExternalLink, LogOut, ShieldCheck, Users
+} from 'lucide-svelte';
 
     export let isReviewer: boolean = false;
 
@@ -30,6 +30,17 @@
         >
             <Home size={18} />
             <span>Dashboard</span>
+        </a>
+
+        <div class="group-title">COMMUNITY</div>
+
+        <a 
+            href="/cms/community/doctors" 
+            class="nav-item" 
+            class:active={currentPath.startsWith('/cms/community/doctors')}
+        >
+            <Users size={18} />
+            <span>Community - Doctors</span>
         </a>
 
         <div class="group-title">CONTENT MANAGEMENT</div>
