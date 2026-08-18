@@ -5,7 +5,6 @@
 		FileText,
 		BookOpen,
 		ShieldCheck,
-		Settings,
 		LogOut,
 		Globe,
 		CheckCircle,
@@ -21,7 +20,9 @@
 		UserCheck,
 		Stethoscope,
 		Star,
-		ArrowUpRight
+		ArrowUpRight,
+		Download,
+		Share2
 	} from 'lucide-svelte';
 
 	export let data;
@@ -39,8 +40,82 @@
 	let activeSection = 'overview';
 	let searchTerm = '';
 
+	/* =========================================================
+	   SAFE ANALYTICS VALUES
+	   ========================================================= */
+
+	$: totalViews = Number(analytics.totalViews ?? 0);
+
+	$: uniqueVisitors = Number(
+		analytics.uniqueVisitors ??
+			analytics.uniqueVisitorCount ??
+			analytics.visitors ??
+			0
+	);
+
+	$: totalLikes = Number(
+		analytics.totalLikes ??
+			analytics.likes ??
+			0
+	);
+
+	$: totalSaves = Number(
+		analytics.totalSaves ??
+			analytics.saves ??
+			0
+	);
+
+	$: totalShares = Number(
+		analytics.totalShares ??
+			analytics.shares ??
+			0
+	);
+
+	$: totalDownloads = Number(
+		analytics.totalDownloads ??
+			analytics.downloads ??
+			0
+	);
+
+	$: totalComments = Number(
+		analytics.totalComments ??
+			analytics.comments ??
+			0
+	);
+
+	$: dailyActiveUsersTrend = Array.isArray(analytics.dailyActiveUsers)
+		? analytics.dailyActiveUsers
+		: [];
+
+	$: dailyActiveUsersValue = Array.isArray(analytics.dailyActiveUsers)
+		? Math.max(
+				...analytics.dailyActiveUsers.map((item: any) =>
+					Number(item.users ?? item.count ?? item.value ?? 0)
+				),
+				0
+			)
+		: Number(analytics.dailyActiveUsers ?? 0);
+
+	$: engagementTrend = Array.isArray(analytics.engagementTrend)
+		? analytics.engagementTrend
+		: [];
+
+	$: mostPopularContent = Array.isArray(analytics.mostPopularContent)
+		? analytics.mostPopularContent
+		: [];
+
+	$: articlesByCategory = Array.isArray(analytics.articlesByCategory)
+		? analytics.articlesByCategory
+		: [];
+
+	/* =========================================================
+	   USER FILTER
+	   ========================================================= */
+
 	$: filteredUsers = users.filter((user: any) => {
-		const search = searchTerm.toLowerCase();
+		const search = searchTerm.toLowerCase().trim();
+
+		if (!search) return true;
 
 		return (
 			(user.full_name || '').toLowerCase().includes(search) ||
@@ -49,33 +124,85 @@
 		);
 	});
 
-	function formatNumber(value: number | null | undefined) {
+	/* =========================================================
+	   HELPERS
+	   ========================================================= */
+
+	function formatNumber(value: number | string | null | undefined) {
 		return new Intl.NumberFormat('en-IN').format(Number(value) || 0);
 	}
 
-	function formatDate(date: string) {
+	function formatDate(date: string | null | undefined) {
 		if (!date) return 'N/A';
 
-		return new Date(date).toLocaleDateString('en-US', {
+		const parsed = new Date(date);
+
+		if (Number.isNaN(parsed.getTime())) {
+			return 'N/A';
+		}
+
+		return parsed.toLocaleDateString('en-US', {
 			month: 'short',
 			day: 'numeric',
 			year: 'numeric'
 		});
 	}
 
-	function getStatusClass(status: string) {
+	function formatShortDate(date: string | null | undefined) {
+		if (!date) return '';
+
+		const parsed = new Date(date);
+
+		if (Number.isNaN(parsed.getTime())) {
+			return '';
+		}
+
+		return parsed.toLocaleDateString('en-US', {
+			month: 'short',
+			day: 'numeric'
+		});
+	}
+
+	function getStatusClass(status: string | null | undefined) {
 		switch (status) {
 			case 'published':
 				return 'status published';
+
 			case 'approved':
 				return 'status approved';
+
 			case 'under_review':
 				return 'status review';
+
 			case 'changes_requested':
 				return 'status rejected';
+
+			case 'rejected':
+				return 'status rejected';
+
 			default:
 				return 'status';
 		}
+	}
+
+	function getPercentage(
+		value: number | string | null | undefined,
+		total: number | string | null | undefined
+	) {
+		const v = Number(value) || 0;
+		const t = Number(total) || 0;
+
+		if (!t) return 0;
+
+		return Math.min(100, Math.max(0, (v / t) * 100));
+	}
+
+	function getTrendHeight(value: number | string | null | undefined) {
+		const number = Number(value) || 0;
+
+		if (number <= 0) return 3;
+
+		return Math.min(100, number * 12 + 8);
 	}
 </script>
 
@@ -85,9 +212,9 @@
 
 <div class="dashboard">
 
-	<!-- ===================================================== -->
-	<!-- SIDEBAR -->
-	<!-- ===================================================== -->
+	<!-- =========================================================
+	     SIDEBAR
+	     ========================================================= -->
 
 	<aside class="sidebar">
 
@@ -107,6 +234,7 @@
 			<div class="menu-label">MAIN</div>
 
 			<button
+				type="button"
 				class:active={activeSection === 'overview'}
 				class="menu-item"
 				on:click={() => (activeSection = 'overview')}
@@ -118,6 +246,7 @@
 			<div class="menu-label">MANAGEMENT</div>
 
 			<button
+				type="button"
 				class:active={activeSection === 'doctor-verification'}
 				class="menu-item"
 				on:click={() => (activeSection = 'doctor-verification')}
@@ -133,6 +262,7 @@
 			</button>
 
 			<button
+				type="button"
 				class:active={activeSection === 'publishing'}
 				class="menu-item"
 				on:click={() => (activeSection = 'publishing')}
@@ -142,6 +272,7 @@
 			</button>
 
 			<button
+				type="button"
 				class:active={activeSection === 'articles'}
 				class="menu-item"
 				on:click={() => (activeSection = 'articles')}
@@ -151,6 +282,7 @@
 			</button>
 
 			<button
+				type="button"
 				class:active={activeSection === 'research'}
 				class="menu-item"
 				on:click={() => (activeSection = 'research')}
@@ -160,6 +292,7 @@
 			</button>
 
 			<button
+				type="button"
 				class:active={activeSection === 'cms'}
 				class="menu-item"
 				on:click={() => (activeSection = 'cms')}
@@ -169,6 +302,7 @@
 			</button>
 
 			<button
+				type="button"
 				class:active={activeSection === 'users'}
 				class="menu-item"
 				on:click={() => (activeSection = 'users')}
@@ -180,6 +314,7 @@
 			<div class="menu-label">ANALYTICS</div>
 
 			<button
+				type="button"
 				class:active={activeSection === 'analytics'}
 				class="menu-item"
 				on:click={() => (activeSection = 'analytics')}
@@ -188,18 +323,11 @@
 				<span>Analytics</span>
 			</button>
 
-			<div class="menu-label">SYSTEM</div>
-
-			<a href="/cms/admin/settings" class="menu-item">
-				<Settings size={18} />
-				<span>Settings</span>
-			</a>
-
 		</div>
 
 		<div class="sidebar-bottom">
 
-			<a href="/" target="_blank" class="website-link">
+			<a href="/" target="_blank" rel="noreferrer" class="website-link">
 				<Globe size={17} />
 				<span>View Website</span>
 				<ArrowUpRight size={14} />
@@ -214,18 +342,20 @@
 
 	</aside>
 
-
-	<!-- ===================================================== -->
-	<!-- MAIN CONTENT -->
-	<!-- ===================================================== -->
+	<!-- =========================================================
+	     MAIN
+	     ========================================================= -->
 
 	<main class="main">
 
-		<!-- TOPBAR -->
+		<!-- =====================================================
+		     TOPBAR
+		     ===================================================== -->
 
 		<header class="topbar">
 
 			<div>
+
 				<div class="breadcrumb">
 					Super Admin
 					<span>/</span>
@@ -248,89 +378,111 @@
 					{:else if activeSection === 'users'}
 						Manage Users
 					{:else if activeSection === 'analytics'}
-						Content Analytics
+						Analytics
 					{/if}
 				</h1>
+
 			</div>
 
 			<div class="admin-profile">
 
 				<div class="admin-avatar">
-					{#if currentUser.avatar}
-						<img src={currentUser.avatar} alt="Admin" />
+
+					{#if currentUser?.avatar}
+						<img
+							src={currentUser.avatar}
+							alt="Admin profile"
+						/>
+					{:else if currentUser?.avatar_url}
+						<img
+							src={currentUser.avatar_url}
+							alt="Admin profile"
+						/>
 					{:else}
-						{(currentUser.name || 'A').charAt(0)}
+						{(
+							currentUser?.full_name ||
+							currentUser?.name ||
+							'A'
+						).charAt(0).toUpperCase()}
 					{/if}
+
 				</div>
 
 				<div class="admin-info">
-					<strong>{currentUser.name || 'Super Admin'}</strong>
-					<span>{currentUser.role || 'Super_Admin'}</span>
+
+					<strong>
+						{currentUser?.full_name ||
+							currentUser?.name ||
+							'Super Admin'}
+					</strong>
+
+					<span>
+						{currentUser?.role || 'Super Admin'}
+					</span>
+
 				</div>
 
 			</div>
 
 		</header>
 
-
 		<div class="page-content">
 
-
-			<!-- ================================================= -->
-			<!-- OVERVIEW -->
-			<!-- ================================================= -->
+			<!-- =================================================
+			     OVERVIEW
+			     ================================================= -->
 
 			{#if activeSection === 'overview'}
 
 				<div class="section-heading">
-					<div>
-						<h2>Welcome back, {currentUser.name || 'Admin'} 👋</h2>
-						<p>Here's what's happening across the CMS today.</p>
-					</div>
-				</div>
 
+					<div>
+						<h2>Admin Overview</h2>
+						<p>
+							Monitor platform activity, content and administration.
+						</p>
+					</div>
+
+				</div>
 
 				<div class="overview-grid">
 
 					<div class="stat-card">
 						<div class="stat-icon blue">
-							<FileText size={21} />
-						</div>
-
-						<div>
-							<span>Total Articles</span>
-							<strong>{formatNumber(analytics.totalArticles)}</strong>
-						</div>
-					</div>
-
-
-					<div class="stat-card">
-						<div class="stat-icon purple">
-							<BookOpen size={21} />
-						</div>
-
-						<div>
-							<span>Research Papers</span>
-							<strong>{formatNumber(analytics.totalResearchPapers)}</strong>
-						</div>
-					</div>
-
-
-					<div class="stat-card">
-						<div class="stat-icon green">
-							<Users size={21} />
+							<Users size={20} />
 						</div>
 
 						<div>
 							<span>Total Users</span>
-							<strong>{formatNumber(analytics.totalUsers)}</strong>
+							<strong>{formatNumber(users.length)}</strong>
 						</div>
 					</div>
 
+					<div class="stat-card">
+						<div class="stat-icon purple">
+							<FileText size={20} />
+						</div>
+
+						<div>
+							<span>Articles</span>
+							<strong>{formatNumber(approvedArticles.length)}</strong>
+						</div>
+					</div>
+
+					<div class="stat-card">
+						<div class="stat-icon green">
+							<BookOpen size={20} />
+						</div>
+
+						<div>
+							<span>Research Papers</span>
+							<strong>{formatNumber(approvedResearch.length)}</strong>
+						</div>
+					</div>
 
 					<div class="stat-card">
 						<div class="stat-icon orange">
-							<ShieldCheck size={21} />
+							<ShieldCheck size={20} />
 						</div>
 
 						<div>
@@ -340,7 +492,6 @@
 					</div>
 
 				</div>
-
 
 				<div class="overview-two-column">
 
@@ -353,49 +504,53 @@
 							</div>
 
 							<button
+								type="button"
 								class="text-button"
 								on:click={() => (activeSection = 'articles')}
 							>
-								View All
+								View Articles
 							</button>
 						</div>
 
 						<div class="content-list">
 
-							{#if publishedContent.length === 0}
+							{#if publishedContent.length > 0}
 
-								<div class="empty-small">
-									No published content found.
-								</div>
-
-							{:else}
-
-								{#each publishedContent.slice(0, 5) as item}
+								{#each publishedContent.slice(0, 6) as content}
 
 									<div class="content-row">
 
 										<div class="content-type-icon">
-											{#if item.type === 'Research'}
-												<BookOpen size={17} />
-											{:else}
-												<FileText size={17} />
-											{/if}
+											<FileText size={16} />
 										</div>
 
 										<div class="content-row-main">
-											<strong>{item.title || 'Untitled'}</strong>
+											<strong>
+												{content.title || 'Untitled'}
+											</strong>
+
 											<span>
-												{item.type} · {formatDate(item.created_at)}
+												{content.content_type ||
+													content.type ||
+													'Content'}
+												•
+												{formatDate(content.created_at)}
 											</span>
 										</div>
 
-										<span class={getStatusClass(item.status)}>
-											{item.status || 'Published'}
+										<span class={getStatusClass(content.status)}>
+											{content.status || 'published'}
 										</span>
 
 									</div>
 
 								{/each}
+
+							{:else}
+
+								<div class="empty-small">
+									No published content available.
+								</div>
 
 							{/if}
 
@@ -403,36 +558,37 @@
 
 					</div>
 
-
 					<div class="panel">
 
 						<div class="panel-header">
+
 							<div>
-								<h3>Quick Statistics</h3>
-								<p>Current platform overview</p>
+								<h3>Quick Stats</h3>
+								<p>Platform summary</p>
 							</div>
+
 						</div>
 
 						<div class="quick-stats">
 
 							<div>
-								<span>Doctors</span>
-								<strong>{formatNumber(analytics.totalDoctors)}</strong>
+								<span>Doctor Requests</span>
+								<strong>{formatNumber(pendingDoctors.length)}</strong>
 							</div>
 
 							<div>
-								<span>Readers</span>
-								<strong>{formatNumber(analytics.totalReaders)}</strong>
+								<span>CMS Content</span>
+								<strong>{formatNumber(cmsContents.length)}</strong>
 							</div>
 
 							<div>
-								<span>Published Articles</span>
-								<strong>{formatNumber(analytics.totalArticles)}</strong>
+								<span>Views</span>
+								<strong>{formatNumber(totalViews)}</strong>
 							</div>
 
 							<div>
-								<span>Engagement</span>
-								<strong>{formatNumber(analytics.totalEngagement)}</strong>
+								<span>Likes</span>
+								<strong>{formatNumber(totalLikes)}</strong>
 							</div>
 
 						</div>
@@ -441,67 +597,127 @@
 
 				</div>
 
-
-			<!-- ================================================= -->
-			<!-- ANALYTICS -->
-			<!-- ================================================= -->
+			<!-- =================================================
+			     ANALYTICS
+			     ================================================= -->
 
 			{:else if activeSection === 'analytics'}
 
 				<div class="section-heading">
 
 					<div>
-						<h2>Content Analytics</h2>
+						<h2>Data Analytics</h2>
+
 						<p>
-							Track content performance and reader engagement
-							using your existing CMS data.
+							Monitor content performance, reader activity and
+							engagement across Jarurat Care.
 						</p>
 					</div>
 
 				</div>
 
-
-				<!-- KPI CARDS -->
+				<!-- =============================================
+				     1-8 PRIMARY ANALYTICS
+				     ============================================= -->
 
 				<div class="analytics-grid">
+
+					<!-- TOTAL VIEWS -->
 
 					<div class="analytics-card">
 
 						<div class="analytics-card-top">
+
 							<div class="analytics-icon views">
-								<Eye size={20} />
+								<Eye size={19} />
 							</div>
 
 							<span class="analytics-label">
 								TOTAL VIEWS
 							</span>
+
 						</div>
 
 						<strong>
-							{formatNumber(analytics.totalViews)}
+							{formatNumber(totalViews)}
 						</strong>
 
 						<span class="analytics-description">
-							Combined published article views
+							Total views across published content
 						</span>
 
 					</div>
 
+					<!-- UNIQUE VISITORS -->
 
 					<div class="analytics-card">
 
 						<div class="analytics-card-top">
-							<div class="analytics-icon likes">
-								<Heart size={20} />
+
+							<div class="analytics-icon visitors">
+								<Users size={19} />
 							</div>
 
 							<span class="analytics-label">
-								TOTAL LIKES
+								UNIQUE VISITORS
 							</span>
+
 						</div>
 
 						<strong>
-							{formatNumber(analytics.totalLikes)}
+							{formatNumber(uniqueVisitors)}
+						</strong>
+
+						<span class="analytics-description">
+							Distinct visitors from tracked sessions
+						</span>
+
+					</div>
+
+					<!-- DAU -->
+
+					<div class="analytics-card">
+
+						<div class="analytics-card-top">
+
+							<div class="analytics-icon active">
+								<TrendingUp size={19} />
+							</div>
+
+							<span class="analytics-label">
+								DAILY ACTIVE USERS
+							</span>
+
+						</div>
+
+						<strong>
+							{formatNumber(dailyActiveUsersValue)}
+						</strong>
+
+						<span class="analytics-description">
+							Active users from tracked activity
+						</span>
+
+					</div>
+
+					<!-- LIKES -->
+
+					<div class="analytics-card">
+
+						<div class="analytics-card-top">
+
+							<div class="analytics-icon likes">
+								<Heart size={19} />
+							</div>
+
+							<span class="analytics-label">
+								LIKES
+							</span>
+
+						</div>
+
+						<strong>
+							{formatNumber(totalLikes)}
 						</strong>
 
 						<span class="analytics-description">
@@ -510,21 +726,24 @@
 
 					</div>
 
+					<!-- SAVES -->
 
 					<div class="analytics-card">
 
 						<div class="analytics-card-top">
+
 							<div class="analytics-icon saves">
-								<Bookmark size={20} />
+								<Bookmark size={19} />
 							</div>
 
 							<span class="analytics-label">
-								TOTAL SAVES
+								SAVES
 							</span>
+
 						</div>
 
 						<strong>
-							{formatNumber(analytics.totalSaves)}
+							{formatNumber(totalSaves)}
 						</strong>
 
 						<span class="analytics-description">
@@ -533,21 +752,76 @@
 
 					</div>
 
+					<!-- SHARES -->
 
 					<div class="analytics-card">
 
 						<div class="analytics-card-top">
+
+							<div class="analytics-icon shares">
+								<Share2 size={19} />
+							</div>
+
+							<span class="analytics-label">
+								SHARES
+							</span>
+
+						</div>
+
+						<strong>
+							{formatNumber(totalShares)}
+						</strong>
+
+						<span class="analytics-description">
+							Content shares recorded
+						</span>
+
+					</div>
+
+					<!-- DOWNLOADS -->
+
+					<div class="analytics-card">
+
+						<div class="analytics-card-top">
+
+							<div class="analytics-icon downloads">
+								<Download size={19} />
+							</div>
+
+							<span class="analytics-label">
+								DOWNLOADS
+							</span>
+
+						</div>
+
+						<strong>
+							{formatNumber(totalDownloads)}
+						</strong>
+
+						<span class="analytics-description">
+							Content downloads recorded
+						</span>
+
+					</div>
+
+					<!-- COMMENTS -->
+
+					<div class="analytics-card">
+
+						<div class="analytics-card-top">
+
 							<div class="analytics-icon comments">
-								<MessageCircle size={20} />
+								<MessageCircle size={19} />
 							</div>
 
 							<span class="analytics-label">
 								COMMENTS
 							</span>
+
 						</div>
 
 						<strong>
-							{formatNumber(analytics.totalComments)}
+							{formatNumber(totalComments)}
 						</strong>
 
 						<span class="analytics-description">
@@ -556,58 +830,15 @@
 
 					</div>
 
-
-					<div class="analytics-card">
-
-						<div class="analytics-card-top">
-							<div class="analytics-icon users">
-								<Users size={20} />
-							</div>
-
-							<span class="analytics-label">
-								TOTAL USERS
-							</span>
-						</div>
-
-						<strong>
-							{formatNumber(analytics.totalUsers)}
-						</strong>
-
-						<span class="analytics-description">
-							Registered platform users
-						</span>
-
-					</div>
-
-
-					<div class="analytics-card">
-
-						<div class="analytics-card-top">
-							<div class="analytics-icon doctors">
-								<Stethoscope size={20} />
-							</div>
-
-							<span class="analytics-label">
-								DOCTORS
-							</span>
-						</div>
-
-						<strong>
-							{formatNumber(analytics.totalDoctors)}
-						</strong>
-
-						<span class="analytics-description">
-							Registered doctors
-						</span>
-
-					</div>
-
 				</div>
 
-
-				<!-- ENGAGEMENT TREND -->
+				<!-- =============================================
+				     9 + 10 TRENDS
+				     ============================================= -->
 
 				<div class="analytics-two-column">
+
+					<!-- READER ENGAGEMENT -->
 
 					<div class="panel large-panel">
 
@@ -615,6 +846,7 @@
 
 							<div>
 								<h3>Reader Engagement Trends</h3>
+
 								<p>
 									Likes, saves and comments recorded over time
 								</p>
@@ -641,12 +873,11 @@
 
 						</div>
 
-
-						{#if analytics.engagementTrend?.length}
+						{#if engagementTrend.length > 0}
 
 							<div class="trend-chart">
 
-								{#each analytics.engagementTrend as day}
+								{#each engagementTrend as day}
 
 									<div class="trend-column">
 
@@ -654,41 +885,26 @@
 
 											<div
 												class="bar likes-bar"
-												style={`height:${Math.min(
-													100,
-													day.likes * 12 + 8
-												)}%`}
-												title={`Likes: ${day.likes}`}
+												style={`height:${getTrendHeight(day.likes)}%`}
+												title={`Likes: ${day.likes || 0}`}
 											></div>
 
 											<div
 												class="bar saves-bar"
-												style={`height:${Math.min(
-													100,
-													day.saves * 12 + 8
-												)}%`}
-												title={`Saves: ${day.saves}`}
+												style={`height:${getTrendHeight(day.saves)}%`}
+												title={`Saves: ${day.saves || 0}`}
 											></div>
 
 											<div
 												class="bar comments-bar"
-												style={`height:${Math.min(
-													100,
-													day.comments * 12 + 8
-												)}%`}
-												title={`Comments: ${day.comments}`}
+												style={`height:${getTrendHeight(day.comments)}%`}
+												title={`Comments: ${day.comments || 0}`}
 											></div>
 
 										</div>
 
 										<span>
-											{new Date(day.date).toLocaleDateString(
-												'en-US',
-												{
-													month: 'short',
-													day: 'numeric'
-												}
-											)}
+											{formatShortDate(day.date)}
 										</span>
 
 									</div>
@@ -700,125 +916,97 @@
 						{:else}
 
 							<div class="chart-empty">
+
 								<BarChart3 size={34} />
-								<p>No engagement activity recorded yet.</p>
+
+								<p>
+									No engagement activity recorded yet.
+								</p>
+
 							</div>
 
 						{/if}
 
 					</div>
 
-
-					<!-- USER BREAKDOWN -->
+					<!-- DAU TREND -->
 
 					<div class="panel">
 
 						<div class="panel-header">
 
 							<div>
-								<h3>User Breakdown</h3>
-								<p>Registered account types</p>
+								<h3>Daily Active Users</h3>
+
+								<p>
+									Unique users active during tracked days
+								</p>
 							</div>
 
 						</div>
 
+						{#if dailyActiveUsersTrend.length > 0}
 
-						<div class="user-breakdown">
+							<div class="dau-chart">
 
-							<div class="breakdown-item">
+								{#each dailyActiveUsersTrend as day}
 
-								<div class="breakdown-icon reader">
-									<Users size={18} />
-								</div>
+									{@const dayUsers = Number(
+										day.users ??
+										day.count ??
+										day.value ??
+										0
+									)}
 
-								<div class="breakdown-main">
-									<span>Readers</span>
+									<div class="dau-row">
 
-									<div class="progress">
-										<div
-											style={`width:${
-												analytics.totalUsers
-													? (analytics.totalReaders /
-															analytics.totalUsers) *
-														100
-													: 0
-											}%`}
-										></div>
+										<div class="dau-row-top">
+
+											<span>
+												{formatShortDate(day.date)}
+											</span>
+
+											<strong>
+												{formatNumber(dayUsers)}
+											</strong>
+
+										</div>
+
+										<div class="dau-progress">
+
+											<div
+												style={`width:${getPercentage(dayUsers, dailyActiveUsersValue)}%`}
+											></div>
+
+										</div>
+
 									</div>
-								</div>
 
-								<strong>
-									{formatNumber(analytics.totalReaders)}
-								</strong>
+								{/each}
 
 							</div>
 
+						{:else}
 
-							<div class="breakdown-item">
+							<div class="chart-empty">
 
-								<div class="breakdown-icon doctor">
-									<Stethoscope size={18} />
-								</div>
+								<TrendingUp size={34} />
 
-								<div class="breakdown-main">
-									<span>Doctors</span>
-
-									<div class="progress">
-										<div
-											style={`width:${
-												analytics.totalUsers
-													? (analytics.totalDoctors /
-															analytics.totalUsers) *
-														100
-													: 0
-											}%`}
-										></div>
-									</div>
-								</div>
-
-								<strong>
-									{formatNumber(analytics.totalDoctors)}
-								</strong>
+								<p>
+									No daily active user events recorded yet.
+								</p>
 
 							</div>
 
-
-							<div class="breakdown-item">
-
-								<div class="breakdown-icon admin">
-									<ShieldCheck size={18} />
-								</div>
-
-								<div class="breakdown-main">
-									<span>Admins</span>
-
-									<div class="progress">
-										<div
-											style={`width:${
-												analytics.totalUsers
-													? (analytics.totalAdmins /
-															analytics.totalUsers) *
-														100
-													: 0
-											}%`}
-										></div>
-									</div>
-								</div>
-
-								<strong>
-									{formatNumber(analytics.totalAdmins)}
-								</strong>
-
-							</div>
-
-						</div>
+						{/if}
 
 					</div>
 
 				</div>
 
-
-				<!-- MOST POPULAR CONTENT -->
+				<!-- =============================================
+				     11 MOST POPULAR CONTENT
+				     ============================================= -->
 
 				<div class="panel">
 
@@ -826,19 +1014,22 @@
 
 						<div>
 							<h3>Most Popular Content</h3>
-							<p>Published articles ranked by total views</p>
+
+							<p>
+								Published content ranked by views
+							</p>
 						</div>
 
 					</div>
 
-
-					{#if analytics.mostPopularContent?.length}
+					{#if mostPopularContent.length > 0}
 
 						<div class="popular-table-wrapper">
 
 							<table class="popular-table">
 
 								<thead>
+
 									<tr>
 										<th>#</th>
 										<th>Content</th>
@@ -847,11 +1038,12 @@
 										<th>Likes</th>
 										<th>Saves</th>
 									</tr>
+
 								</thead>
 
 								<tbody>
 
-									{#each analytics.mostPopularContent as item, index}
+									{#each mostPopularContent as item, index}
 
 										<tr>
 
@@ -870,13 +1062,15 @@
 													</div>
 
 													<div>
+
 														<strong>
-															{item.title}
+															{item.title || 'Untitled'}
 														</strong>
 
 														<small>
 															{formatDate(item.created_at)}
 														</small>
+
 													</div>
 
 												</div>
@@ -885,7 +1079,7 @@
 
 											<td>
 												<span class="category-badge">
-													{item.category}
+													{item.category || 'General'}
 												</span>
 											</td>
 
@@ -922,18 +1116,26 @@
 					{:else}
 
 						<div class="chart-empty">
+
 							<Eye size={34} />
-							<p>No published content available yet.</p>
+
+							<p>
+								No published content available yet.
+							</p>
+
 						</div>
 
 					{/if}
 
 				</div>
 
-
-				<!-- CATEGORY + AUTHORS -->
+				<!-- =============================================
+				     12 + 13 CATEGORY + USER BREAKDOWN
+				     ============================================= -->
 
 				<div class="analytics-two-column">
+
+					<!-- CONTENT CATEGORIES -->
 
 					<div class="panel">
 
@@ -941,33 +1143,48 @@
 
 							<div>
 								<h3>Content Categories</h3>
-								<p>Published article distribution</p>
+
+								<p>
+									Published article distribution
+								</p>
 							</div>
 
 						</div>
 
-
 						<div class="category-list">
 
-							{#if analytics.articlesByCategory?.length}
+							{#if articlesByCategory.length > 0}
 
-								{#each analytics.articlesByCategory as category}
+								{#each articlesByCategory as category}
 
 									<div class="category-row">
 
 										<div class="category-row-top">
-											<span>{category.category}</span>
-											<strong>{category.count}</strong>
+
+											<span>
+												{category.category || 'General'}
+											</span>
+
+											<strong>
+												{formatNumber(category.count)}
+											</strong>
+
 										</div>
 
 										<div class="category-progress">
+
 											<div
-												style={`width:${category.percentage}%`}
+												style={`width:${Math.min(
+													100,
+													Number(category.percentage) || 0
+												)}%`}
 											></div>
+
 										</div>
 
 										<small>
-											{category.percentage}% of published articles
+											{Number(category.percentage) || 0}%
+											of published articles
 										</small>
 
 									</div>
@@ -986,56 +1203,110 @@
 
 					</div>
 
+					<!-- USER BREAKDOWN -->
 
 					<div class="panel">
 
 						<div class="panel-header">
 
 							<div>
-								<h3>Top Authors</h3>
-								<p>Doctors with most published content</p>
+								<h3>User Breakdown</h3>
+
+								<p>
+									Registered account types
+								</p>
 							</div>
 
 						</div>
 
+						<div class="user-breakdown">
 
-						<div class="author-list">
+							<div class="breakdown-item">
 
-							{#if analytics.topAuthors?.length}
+								<div class="breakdown-icon reader">
+									<Users size={18} />
+								</div>
 
-								{#each analytics.topAuthors as author, index}
+								<div class="breakdown-main">
 
-									<div class="author-row">
+									<span>Readers</span>
 
-										<div class="author-rank">
-											{index + 1}
-										</div>
+									<div class="progress">
 
-										<div class="author-avatar">
-											{author.name.charAt(0)}
-										</div>
-
-										<div class="author-main">
-											<strong>{author.name}</strong>
-											<span>Published content</span>
-										</div>
-
-										<div class="author-count">
-											<strong>{author.articles}</strong>
-											<span>posts</span>
-										</div>
+										<div
+											style={`width:${getPercentage(
+												analytics.totalReaders,
+												analytics.totalUsers
+											)}%`}
+										></div>
 
 									</div>
 
-								{/each}
-
-							{:else}
-
-								<div class="empty-small">
-									No author data available.
 								</div>
 
-							{/if}
+								<strong>
+									{formatNumber(analytics.totalReaders)}
+								</strong>
+
+							</div>
+
+							<div class="breakdown-item">
+
+								<div class="breakdown-icon doctor">
+									<Stethoscope size={18} />
+								</div>
+
+								<div class="breakdown-main">
+
+									<span>Doctors</span>
+
+									<div class="progress">
+
+										<div
+											style={`width:${getPercentage(
+												analytics.totalDoctors,
+												analytics.totalUsers
+											)}%`}
+										></div>
+
+									</div>
+
+								</div>
+
+								<strong>
+									{formatNumber(analytics.totalDoctors)}
+								</strong>
+
+							</div>
+
+							<div class="breakdown-item">
+
+								<div class="breakdown-icon admin">
+									<ShieldCheck size={18} />
+								</div>
+
+								<div class="breakdown-main">
+
+									<span>Admins</span>
+
+									<div class="progress">
+
+										<div
+											style={`width:${getPercentage(
+												analytics.totalAdmins,
+												analytics.totalUsers
+											)}%`}
+										></div>
+
+									</div>
+
+								</div>
+
+								<strong>
+									{formatNumber(analytics.totalAdmins)}
+								</strong>
+
+							</div>
 
 						</div>
 
@@ -1043,37 +1314,9 @@
 
 				</div>
 
-
-				<!-- NOT YET TRACKED -->
-
-				<div class="tracking-notice">
-
-					<div class="tracking-icon">
-						<AlertCircle size={21} />
-					</div>
-
-					<div>
-
-						<strong>
-							Some analytics require additional tracking
-						</strong>
-
-						<p>
-							Unique visitors, shares, downloads and true Daily
-							Active Users are not available from the current
-							database schema. These should be added through an
-							analytics event-tracking system rather than using
-							estimated values.
-						</p>
-
-					</div>
-
-				</div>
-
-
-			<!-- ================================================= -->
-			<!-- DOCTOR VERIFICATION -->
-			<!-- ================================================= -->
+			<!-- =================================================
+			     DOCTOR VERIFICATION
+			     ================================================= -->
 
 			{:else if activeSection === 'doctor-verification'}
 
@@ -1081,6 +1324,7 @@
 
 					<div>
 						<h2>Doctor Verification</h2>
+
 						<p>
 							Review and manage doctor verification requests.
 						</p>
@@ -1088,26 +1332,28 @@
 
 				</div>
 
-
 				<div class="panel">
 
 					<div class="panel-header">
 
 						<div>
+
 							<h3>Doctor Requests</h3>
+
 							<p>
 								{pendingDoctors.length} doctor records found
 							</p>
+
 						</div>
 
 					</div>
-
 
 					<div class="table-wrapper">
 
 						<table>
 
 							<thead>
+
 								<tr>
 									<th>Doctor</th>
 									<th>Email</th>
@@ -1115,6 +1361,7 @@
 									<th>Status</th>
 									<th>Action</th>
 								</tr>
+
 							</thead>
 
 							<tbody>
@@ -1124,39 +1371,65 @@
 									<tr>
 
 										<td>
+
 											<div class="user-cell">
+
 												<div class="user-avatar">
-													{(doctor.full_name || 'D').charAt(0)}
+													{(
+														doctor.full_name ||
+														'D'
+													).charAt(0)}
 												</div>
 
 												<div>
+
 													<strong>
-														{doctor.full_name || 'Unnamed Doctor'}
+														{doctor.full_name ||
+															'Unnamed Doctor'}
 													</strong>
+
 													<span>
-														{doctor.designation || 'Doctor'}
+														{doctor.designation ||
+															'Doctor'}
 													</span>
+
 												</div>
+
 											</div>
-										</td>
 
-										<td>{doctor.email || 'N/A'}</td>
-
-										<td>
-											{doctor.specialization || 'General'}
 										</td>
 
 										<td>
-											<span class={getStatusClass(doctor.verification_status)}>
-												{doctor.verification_status || 'Pending'}
+											{doctor.email || 'N/A'}
+										</td>
+
+										<td>
+											{doctor.specialization ||
+												'General'}
+										</td>
+
+										<td>
+
+											<span
+												class={getStatusClass(
+													doctor.verification_status
+												)}
+											>
+												{doctor.verification_status ||
+													'Pending'}
 											</span>
+
 										</td>
 
 										<td>
 
 											{#if doctor.verification_status !== 'approved'}
 
-												<form method="POST" action="?/approve" class="inline-form">
+												<form
+													method="POST"
+													action="?/approve"
+													class="inline-form"
+												>
 
 													<input
 														type="hidden"
@@ -1170,12 +1443,21 @@
 														value="author"
 													/>
 
-													<button class="action-button approve-button">
+													<button
+														type="submit"
+														class="action-button approve-button"
+													>
 														<CheckCircle size={14} />
 														Approve
 													</button>
 
 												</form>
+
+											{:else}
+
+												<span class="published-label">
+													Approved
+												</span>
 
 											{/if}
 
@@ -1193,24 +1475,25 @@
 
 				</div>
 
-
-			<!-- ================================================= -->
-			<!-- PUBLISHING POWER -->
-			<!-- ================================================= -->
+			<!-- =================================================
+			     PUBLISHING POWER
+			     ================================================= -->
 
 			{:else if activeSection === 'publishing'}
 
 				<div class="section-heading">
 
 					<div>
+
 						<h2>Publishing Power</h2>
+
 						<p>
 							Control which verified doctors can publish content.
 						</p>
+
 					</div>
 
 				</div>
-
 
 				<div class="panel">
 
@@ -1219,6 +1502,7 @@
 						<table>
 
 							<thead>
+
 								<tr>
 									<th>Doctor</th>
 									<th>Specialization</th>
@@ -1226,6 +1510,7 @@
 									<th>Permission</th>
 									<th>Action</th>
 								</tr>
+
 							</thead>
 
 							<tbody>
@@ -1235,37 +1520,63 @@
 									<tr>
 
 										<td>
+
 											<div class="user-cell">
 
 												<div class="user-avatar">
-													{doctor.name.charAt(0)}
+													{(
+														doctor.name || 'D'
+													).charAt(0)}
 												</div>
 
 												<div>
-													<strong>{doctor.name}</strong>
-													<span>Verified Doctor</span>
+
+													<strong>
+														{doctor.name ||
+															'Unnamed Doctor'}
+													</strong>
+
+													<span>
+														Verified Doctor
+													</span>
+
 												</div>
 
 											</div>
+
 										</td>
 
-										<td>{doctor.specialization}</td>
-
-										<td>{doctor.articles}</td>
+										<td>
+											{doctor.specialization ||
+												'General'}
+										</td>
 
 										<td>
+											{doctor.articles ?? 0}
+										</td>
+
+										<td>
+
 											<span
-												class:granted={doctor.status === 'granted'}
-												class:revoked={doctor.status === 'revoked'}
 												class="permission-badge"
+												class:granted={
+													doctor.status === 'granted'
+												}
+												class:revoked={
+													doctor.status === 'revoked'
+												}
 											>
-												{doctor.status}
+												{doctor.status || 'revoked'}
 											</span>
+
 										</td>
 
 										<td>
 
-											<form method="POST" action="?/togglePublishingPower">
+											<form
+												method="POST"
+												action="?/togglePublishingPower"
+											>
 
 												<input
 													type="hidden"
@@ -1276,10 +1587,18 @@
 												<input
 													type="hidden"
 													name="status"
-													value={doctor.status === 'granted' ? 'revoked' : 'granted'}
+													value={
+														doctor.status ===
+														'granted'
+															? 'revoked'
+															: 'granted'
+													}
 												/>
 
-												<button class="action-button">
+												<button
+													type="submit"
+													class="action-button"
+												>
 													{doctor.status === 'granted'
 														? 'Revoke'
 														: 'Grant'}
@@ -1301,22 +1620,25 @@
 
 				</div>
 
-
-			<!-- ================================================= -->
-			<!-- ARTICLES -->
-			<!-- ================================================= -->
+			<!-- =================================================
+			     ARTICLES
+			     ================================================= -->
 
 			{:else if activeSection === 'articles'}
 
 				<div class="section-heading">
 
 					<div>
+
 						<h2>Articles</h2>
-						<p>Manage article publication workflow.</p>
+
+						<p>
+							Manage article publication workflow.
+						</p>
+
 					</div>
 
 				</div>
-
 
 				<div class="panel">
 
@@ -1325,6 +1647,7 @@
 						<table>
 
 							<thead>
+
 								<tr>
 									<th>Title</th>
 									<th>Author</th>
@@ -1332,6 +1655,7 @@
 									<th>Created</th>
 									<th>Action</th>
 								</tr>
+
 							</thead>
 
 							<tbody>
@@ -1341,17 +1665,28 @@
 									<tr>
 
 										<td>
-											<strong>{article.title}</strong>
+											<strong>
+												{article.title ||
+													'Untitled'}
+											</strong>
 										</td>
 
 										<td>
-											{article.author_name_credentials || 'Unknown'}
+											{article.author_name_credentials ||
+												'Unknown'}
 										</td>
 
 										<td>
-											<span class={getStatusClass(article.status)}>
-												{article.status}
+
+											<span
+												class={getStatusClass(
+													article.status
+												)}
+											>
+												{article.status ||
+													'pending'}
 											</span>
+
 										</td>
 
 										<td>
@@ -1362,7 +1697,10 @@
 
 											{#if article.status !== 'published'}
 
-												<form method="POST" action="?/publishContent">
+												<form
+													method="POST"
+													action="?/publishContent"
+												>
 
 													<input
 														type="hidden"
@@ -1376,7 +1714,10 @@
 														value="article"
 													/>
 
-													<button class="action-button approve-button">
+													<button
+														type="submit"
+														class="action-button approve-button"
+													>
 														Publish
 													</button>
 
@@ -1404,22 +1745,25 @@
 
 				</div>
 
-
-			<!-- ================================================= -->
-			<!-- RESEARCH -->
-			<!-- ================================================= -->
+			<!-- =================================================
+			     RESEARCH
+			     ================================================= -->
 
 			{:else if activeSection === 'research'}
 
 				<div class="section-heading">
 
 					<div>
+
 						<h2>Research Papers</h2>
-						<p>Manage research publication workflow.</p>
+
+						<p>
+							Manage research publication workflow.
+						</p>
+
 					</div>
 
 				</div>
-
 
 				<div class="panel">
 
@@ -1428,6 +1772,7 @@
 						<table>
 
 							<thead>
+
 								<tr>
 									<th>Title</th>
 									<th>Author</th>
@@ -1435,6 +1780,7 @@
 									<th>Created</th>
 									<th>Action</th>
 								</tr>
+
 							</thead>
 
 							<tbody>
@@ -1444,28 +1790,44 @@
 									<tr>
 
 										<td>
-											<strong>{research.title}</strong>
+											<strong>
+												{research.title ||
+													'Untitled'}
+											</strong>
 										</td>
 
 										<td>
-											{research.author_name_credentials || 'Unknown'}
+											{research.author_name_credentials ||
+												'Unknown'}
 										</td>
 
 										<td>
-											<span class={getStatusClass(research.status)}>
-												{research.status}
+
+											<span
+												class={getStatusClass(
+													research.status
+												)}
+											>
+												{research.status ||
+													'pending'}
 											</span>
+
 										</td>
 
 										<td>
-											{formatDate(research.created_at)}
+											{formatDate(
+												research.created_at
+											)}
 										</td>
 
 										<td>
 
 											{#if research.status !== 'published'}
 
-												<form method="POST" action="?/publishContent">
+												<form
+													method="POST"
+													action="?/publishContent"
+												>
 
 													<input
 														type="hidden"
@@ -1479,7 +1841,10 @@
 														value="research"
 													/>
 
-													<button class="action-button approve-button">
+													<button
+														type="submit"
+														class="action-button approve-button"
+													>
 														Publish
 													</button>
 
@@ -1507,22 +1872,25 @@
 
 				</div>
 
-
-			<!-- ================================================= -->
-			<!-- CMS CONTENT -->
-			<!-- ================================================= -->
+			<!-- =================================================
+			     CMS CONTENT
+			     ================================================= -->
 
 			{:else if activeSection === 'cms'}
 
 				<div class="section-heading">
 
 					<div>
+
 						<h2>CMS Content</h2>
-						<p>Manage website content from the central CMS.</p>
+
+						<p>
+							Manage website content from the central CMS.
+						</p>
+
 					</div>
 
 				</div>
-
 
 				<div class="panel">
 
@@ -1531,6 +1899,7 @@
 						<table>
 
 							<thead>
+
 								<tr>
 									<th>Title</th>
 									<th>Type</th>
@@ -1538,6 +1907,7 @@
 									<th>Status</th>
 									<th>Created</th>
 								</tr>
+
 							</thead>
 
 							<tbody>
@@ -1547,13 +1917,19 @@
 									<tr>
 
 										<td>
-											<strong>{content.title}</strong>
+											<strong>
+												{content.title ||
+													'Untitled'}
+											</strong>
 										</td>
 
 										<td>
+
 											<span class="category-badge">
-												{content.content_type}
+												{content.content_type ||
+													'Content'}
 											</span>
+
 										</td>
 
 										<td>
@@ -1561,13 +1937,21 @@
 										</td>
 
 										<td>
-											<span class={getStatusClass(content.status)}>
-												{content.status}
+
+											<span
+												class={getStatusClass(
+													content.status
+												)}
+											>
+												{content.status || 'draft'}
 											</span>
+
 										</td>
 
 										<td>
-											{formatDate(content.created_at)}
+											{formatDate(
+												content.created_at
+											)}
 										</td>
 
 									</tr>
@@ -1582,30 +1966,38 @@
 
 				</div>
 
-
-			<!-- ================================================= -->
-			<!-- USERS -->
-			<!-- ================================================= -->
+			<!-- =================================================
+			     USERS
+			     ================================================= -->
 
 			{:else if activeSection === 'users'}
 
 				<div class="section-heading">
 
 					<div>
+
 						<h2>Manage Users</h2>
-						<p>View and manage registered platform users.</p>
+
+						<p>
+							View and manage registered platform users.
+						</p>
+
 					</div>
 
 				</div>
-
 
 				<div class="panel">
 
 					<div class="panel-header">
 
 						<div>
+
 							<h3>Users</h3>
-							<p>{users.length} registered users</p>
+
+							<p>
+								{users.length} registered users
+							</p>
+
 						</div>
 
 						<div class="search-box">
@@ -1622,12 +2014,12 @@
 
 					</div>
 
-
 					<div class="table-wrapper">
 
 						<table>
 
 							<thead>
+
 								<tr>
 									<th>User</th>
 									<th>Email</th>
@@ -1635,6 +2027,7 @@
 									<th>Verification</th>
 									<th>Joined</th>
 								</tr>
+
 							</thead>
 
 							<tbody>
@@ -1648,35 +2041,53 @@
 											<div class="user-cell">
 
 												<div class="user-avatar">
-													{(user.full_name || 'U').charAt(0)}
+													{(
+														user.full_name ||
+														'U'
+													).charAt(0)}
 												</div>
 
 												<div>
+
 													<strong>
-														{user.full_name || 'Unnamed User'}
+														{user.full_name ||
+															'Unnamed User'}
 													</strong>
 
 													<span>
-														{user.profession || 'User'}
+														{user.profession ||
+															'User'}
 													</span>
+
 												</div>
 
 											</div>
 
 										</td>
 
-										<td>{user.email}</td>
-
 										<td>
-											<span class="role-badge">
-												{user.role}
-											</span>
+											{user.email || 'N/A'}
 										</td>
 
 										<td>
-											<span class={getStatusClass(user.verification_status)}>
-												{user.verification_status || 'N/A'}
+
+											<span class="role-badge">
+												{user.role || 'user'}
 											</span>
+
+										</td>
+
+										<td>
+
+											<span
+												class={getStatusClass(
+													user.verification_status
+												)}
+											>
+												{user.verification_status ||
+													'N/A'}
+											</span>
+
 										</td>
 
 										<td>
@@ -1686,6 +2097,21 @@
 									</tr>
 
 								{/each}
+
+								{#if filteredUsers.length === 0}
+
+									<tr>
+
+										<td
+											colspan="5"
+											class="no-results"
+										>
+											No users found.
+										</td>
+
+									</tr>
+
+								{/if}
 
 							</tbody>
 
@@ -1703,9 +2129,7 @@
 
 </div>
 
-
 <style>
-
 	:global(*) {
 		box-sizing: border-box;
 	}
@@ -1722,21 +2146,15 @@
 		color: #0f172a;
 	}
 
-
-	/* ========================================================= */
-	/* LAYOUT */
-	/* ========================================================= */
-
 	.dashboard {
 		min-height: 100vh;
 		display: flex;
 		background: #f8fafc;
 	}
 
-
-	/* ========================================================= */
-	/* SIDEBAR */
-	/* ========================================================= */
+	/* =========================================================
+	   SIDEBAR
+	   ========================================================= */
 
 	.sidebar {
 		width: 260px;
@@ -1751,14 +2169,13 @@
 		height: 100vh;
 	}
 
-
 	.sidebar-brand {
 		height: 76px;
 		padding: 16px 20px;
 		display: flex;
 		align-items: center;
 		gap: 12px;
-		border-bottom: 1px solid rgba(255,255,255,0.07);
+		border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 	}
 
 	.brand-icon {
@@ -1770,6 +2187,7 @@
 		justify-content: center;
 		overflow: hidden;
 		background: white;
+		flex-shrink: 0;
 	}
 
 	.brand-icon img {
@@ -1790,13 +2208,11 @@
 		margin-top: 2px;
 	}
 
-
 	.sidebar-content {
 		flex: 1;
 		padding: 18px 12px;
 		overflow-y: auto;
 	}
-
 
 	.menu-label {
 		font-size: 10px;
@@ -1805,7 +2221,6 @@
 		color: #475569;
 		padding: 14px 12px 7px;
 	}
-
 
 	.menu-item {
 		width: 100%;
@@ -1835,7 +2250,7 @@
 		background: #2563eb;
 		color: white;
 		font-weight: 650;
-		box-shadow: 0 4px 12px rgba(37,99,235,0.22);
+		box-shadow: 0 4px 12px rgba(37, 99, 235, 0.22);
 	}
 
 	.menu-count {
@@ -1853,10 +2268,9 @@
 		font-weight: 700;
 	}
 
-
 	.sidebar-bottom {
 		padding: 12px;
-		border-top: 1px solid rgba(255,255,255,0.07);
+		border-top: 1px solid rgba(255, 255, 255, 0.07);
 	}
 
 	.website-link,
@@ -1889,19 +2303,17 @@
 	}
 
 	.logout-link:hover {
-		background: rgba(239,68,68,0.1);
+		background: rgba(239, 68, 68, 0.1);
 	}
 
-
-	/* ========================================================= */
-	/* MAIN */
-	/* ========================================================= */
+	/* =========================================================
+	   MAIN
+	   ========================================================= */
 
 	.main {
 		flex: 1;
 		min-width: 0;
 	}
-
 
 	.topbar {
 		height: 76px;
@@ -1936,7 +2348,6 @@
 		color: #0f172a;
 		text-transform: capitalize;
 	}
-
 
 	.admin-profile {
 		display: flex;
@@ -1979,17 +2390,15 @@
 		margin-top: 2px;
 	}
 
-
 	.page-content {
 		padding: 30px;
 		max-width: 1500px;
 		margin: 0 auto;
 	}
 
-
-	/* ========================================================= */
-	/* HEADINGS */
-	/* ========================================================= */
+	/* =========================================================
+	   HEADINGS
+	   ========================================================= */
 
 	.section-heading {
 		display: flex;
@@ -2011,10 +2420,9 @@
 		font-size: 13px;
 	}
 
-
-	/* ========================================================= */
-	/* OVERVIEW */
-	/* ========================================================= */
+	/* =========================================================
+	   OVERVIEW
+	   ========================================================= */
 
 	.overview-grid {
 		display: grid;
@@ -2075,7 +2483,6 @@
 		color: #0f172a;
 	}
 
-
 	.overview-two-column,
 	.analytics-two-column {
 		display: grid;
@@ -2084,10 +2491,9 @@
 		margin-bottom: 18px;
 	}
 
-
-	/* ========================================================= */
-	/* PANELS */
-	/* ========================================================= */
+	/* =========================================================
+	   PANELS
+	   ========================================================= */
 
 	.panel {
 		background: white;
@@ -2119,7 +2525,6 @@
 		margin: 0;
 	}
 
-
 	.text-button {
 		border: none;
 		background: transparent;
@@ -2129,10 +2534,9 @@
 		cursor: pointer;
 	}
 
-
-	/* ========================================================= */
-	/* CONTENT LIST */
-	/* ========================================================= */
+	/* =========================================================
+	   CONTENT LIST
+	   ========================================================= */
 
 	.content-list {
 		padding: 4px 20px;
@@ -2159,6 +2563,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		flex-shrink: 0;
 	}
 
 	.content-row-main {
@@ -2180,7 +2585,6 @@
 		color: #94a3b8;
 		margin-top: 3px;
 	}
-
 
 	.quick-stats {
 		padding: 12px 20px 20px;
@@ -2204,15 +2608,14 @@
 		font-size: 21px;
 	}
 
-
-	/* ========================================================= */
-	/* ANALYTICS */
-	/* ========================================================= */
+	/* =========================================================
+	   ANALYTICS
+	   ========================================================= */
 
 	.analytics-grid {
 		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		gap: 16px;
+		grid-template-columns: repeat(4, 1fr);
+		gap: 14px;
 		margin-bottom: 18px;
 	}
 
@@ -2220,14 +2623,21 @@
 		background: white;
 		border: 1px solid #e2e8f0;
 		border-radius: 12px;
-		padding: 18px;
+		padding: 17px;
+		transition: 0.18s ease;
+	}
+
+	.analytics-card:hover {
+		border-color: #cbd5e1;
+		box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
+		transform: translateY(-1px);
 	}
 
 	.analytics-card-top {
 		display: flex;
 		align-items: center;
 		gap: 9px;
-		margin-bottom: 12px;
+		margin-bottom: 11px;
 	}
 
 	.analytics-icon {
@@ -2237,11 +2647,22 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		flex-shrink: 0;
 	}
 
 	.analytics-icon.views {
 		background: #eff6ff;
 		color: #2563eb;
+	}
+
+	.analytics-icon.visitors {
+		background: #f5f3ff;
+		color: #7c3aed;
+	}
+
+	.analytics-icon.active {
+		background: #ecfdf5;
+		color: #059669;
 	}
 
 	.analytics-icon.likes {
@@ -2254,23 +2675,23 @@
 		color: #ea580c;
 	}
 
+	.analytics-icon.shares {
+		background: #eef2ff;
+		color: #4f46e5;
+	}
+
+	.analytics-icon.downloads {
+		background: #ecfeff;
+		color: #0891b2;
+	}
+
 	.analytics-icon.comments {
 		background: #f0fdf4;
 		color: #16a34a;
 	}
 
-	.analytics-icon.users {
-		background: #f5f3ff;
-		color: #7c3aed;
-	}
-
-	.analytics-icon.doctors {
-		background: #ecfeff;
-		color: #0891b2;
-	}
-
 	.analytics-label {
-		font-size: 10px;
+		font-size: 9px;
 		font-weight: 750;
 		color: #64748b;
 		letter-spacing: 0.05em;
@@ -2278,22 +2699,21 @@
 
 	.analytics-card > strong {
 		display: block;
-		font-size: 28px;
+		font-size: 26px;
 		font-weight: 800;
 		color: #0f172a;
 		margin-bottom: 4px;
 	}
 
 	.analytics-description {
-		font-size: 11px;
+		font-size: 10px;
 		color: #94a3b8;
+		line-height: 1.4;
 	}
-
 
 	.large-panel {
 		min-height: 300px;
 	}
-
 
 	.legend {
 		display: flex;
@@ -2327,7 +2747,6 @@
 		background: #16a34a;
 	}
 
-
 	.trend-chart {
 		height: 220px;
 		padding: 25px 25px 18px;
@@ -2335,6 +2754,7 @@
 		align-items: stretch;
 		gap: 8px;
 		border-top: 1px solid #f8fafc;
+		overflow-x: auto;
 	}
 
 	.trend-column {
@@ -2343,7 +2763,7 @@
 		flex-direction: column;
 		justify-content: flex-end;
 		align-items: center;
-		min-width: 25px;
+		min-width: 30px;
 	}
 
 	.bars {
@@ -2381,6 +2801,44 @@
 		white-space: nowrap;
 	}
 
+	.dau-chart {
+		padding: 12px 20px 18px;
+		max-height: 250px;
+		overflow-y: auto;
+	}
+
+	.dau-row {
+		padding: 10px 0;
+	}
+
+	.dau-row-top {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		font-size: 10px;
+		margin-bottom: 6px;
+	}
+
+	.dau-row-top span {
+		color: #64748b;
+	}
+
+	.dau-row-top strong {
+		color: #0f172a;
+	}
+
+	.dau-progress {
+		height: 6px;
+		background: #f1f5f9;
+		border-radius: 10px;
+		overflow: hidden;
+	}
+
+	.dau-progress div {
+		height: 100%;
+		background: #059669;
+		border-radius: 10px;
+	}
 
 	.chart-empty {
 		min-height: 220px;
@@ -2397,10 +2855,9 @@
 		font-size: 12px;
 	}
 
-
-	/* ========================================================= */
-	/* USER BREAKDOWN */
-	/* ========================================================= */
+	/* =========================================================
+	   USER BREAKDOWN
+	   ========================================================= */
 
 	.user-breakdown {
 		padding: 15px 20px 20px;
@@ -2477,10 +2934,9 @@
 		text-align: right;
 	}
 
-
-	/* ========================================================= */
-	/* POPULAR CONTENT */
-	/* ========================================================= */
+	/* =========================================================
+	   POPULAR CONTENT
+	   ========================================================= */
 
 	.popular-table-wrapper {
 		overflow-x: auto;
@@ -2588,10 +3044,9 @@
 		color: #ea580c;
 	}
 
-
-	/* ========================================================= */
-	/* CATEGORIES */
-	/* ========================================================= */
+	/* =========================================================
+	   CATEGORIES
+	   ========================================================= */
 
 	.category-list {
 		padding: 16px 20px 20px;
@@ -2637,129 +3092,9 @@
 		font-size: 9px;
 	}
 
-
-	/* ========================================================= */
-	/* AUTHORS */
-	/* ========================================================= */
-
-	.author-list {
-		padding: 7px 20px 15px;
-	}
-
-	.author-row {
-		display: flex;
-		align-items: center;
-		gap: 10px;
-		padding: 10px 0;
-		border-bottom: 1px solid #f8fafc;
-	}
-
-	.author-row:last-child {
-		border-bottom: none;
-	}
-
-	.author-rank {
-		width: 22px;
-		font-size: 10px;
-		font-weight: 750;
-		color: #94a3b8;
-		text-align: center;
-	}
-
-	.author-avatar {
-		width: 34px;
-		height: 34px;
-		border-radius: 50%;
-		background: #eff6ff;
-		color: #2563eb;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		font-size: 12px;
-		font-weight: 750;
-	}
-
-	.author-main {
-		flex: 1;
-		min-width: 0;
-	}
-
-	.author-main strong {
-		display: block;
-		font-size: 11px;
-		color: #0f172a;
-		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
-	}
-
-	.author-main span {
-		display: block;
-		font-size: 9px;
-		color: #94a3b8;
-		margin-top: 2px;
-	}
-
-	.author-count {
-		text-align: right;
-	}
-
-	.author-count strong {
-		display: block;
-		font-size: 13px;
-		color: #0f172a;
-	}
-
-	.author-count span {
-		font-size: 8px;
-		color: #94a3b8;
-	}
-
-
-	/* ========================================================= */
-	/* TRACKING NOTICE */
-	/* ========================================================= */
-
-	.tracking-notice {
-		display: flex;
-		align-items: flex-start;
-		gap: 12px;
-		background: #fffbeb;
-		border: 1px solid #fde68a;
-		border-radius: 10px;
-		padding: 15px 17px;
-		margin-bottom: 18px;
-	}
-
-	.tracking-icon {
-		width: 32px;
-		height: 32px;
-		border-radius: 8px;
-		background: #fef3c7;
-		color: #d97706;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		flex-shrink: 0;
-	}
-
-	.tracking-notice strong {
-		font-size: 12px;
-		color: #92400e;
-	}
-
-	.tracking-notice p {
-		font-size: 11px;
-		color: #a16207;
-		margin: 4px 0 0;
-		line-height: 1.5;
-		max-width: 850px;
-	}
-
-
-	/* ========================================================= */
-	/* TABLES */
-	/* ========================================================= */
+	/* =========================================================
+	   TABLES
+	   ========================================================= */
 
 	.table-wrapper {
 		overflow-x: auto;
@@ -2795,7 +3130,6 @@
 		background: #f8fafc;
 	}
 
-
 	.user-cell {
 		display: flex;
 		align-items: center;
@@ -2830,10 +3164,9 @@
 		margin-top: 2px;
 	}
 
-
-	/* ========================================================= */
-	/* STATUS */
-	/* ========================================================= */
+	/* =========================================================
+	   STATUS
+	   ========================================================= */
 
 	.status {
 		display: inline-flex;
@@ -2862,7 +3195,6 @@
 		color: #dc2626;
 	}
 
-
 	.permission-badge {
 		display: inline-flex;
 		padding: 4px 9px;
@@ -2882,7 +3214,6 @@
 		color: #dc2626;
 	}
 
-
 	.role-badge {
 		display: inline-block;
 		padding: 4px 8px;
@@ -2892,7 +3223,6 @@
 		font-size: 9px;
 		font-weight: 650;
 	}
-
 
 	.action-button {
 		border: 1px solid #dbe3ee;
@@ -2923,11 +3253,9 @@
 		background: #1d4ed8;
 	}
 
-
 	.inline-form {
 		display: inline;
 	}
-
 
 	.published-label {
 		font-size: 10px;
@@ -2935,10 +3263,9 @@
 		font-weight: 650;
 	}
 
-
-	/* ========================================================= */
-	/* SEARCH */
-	/* ========================================================= */
+	/* =========================================================
+	   SEARCH
+	   ========================================================= */
 
 	.search-box {
 		display: flex;
@@ -2961,10 +3288,11 @@
 		color: #334155;
 	}
 
-
-	/* ========================================================= */
-	/* EMPTY */
-	/* ========================================================= */
+	.no-results {
+		text-align: center;
+		padding: 30px;
+		color: #94a3b8;
+	}
 
 	.empty-small {
 		padding: 35px 20px;
@@ -2973,10 +3301,9 @@
 		font-size: 12px;
 	}
 
-
-	/* ========================================================= */
-	/* RESPONSIVE */
-	/* ========================================================= */
+	/* =========================================================
+	   RESPONSIVE
+	   ========================================================= */
 
 	@media (max-width: 1100px) {
 
@@ -2993,7 +3320,6 @@
 		}
 
 	}
-
 
 	@media (max-width: 850px) {
 
@@ -3032,7 +3358,6 @@
 
 	}
 
-
 	@media (max-width: 650px) {
 
 		.page-content {
@@ -3060,6 +3385,14 @@
 			display: none;
 		}
 
-	}
+		.panel-header {
+			align-items: flex-start;
+			flex-direction: column;
+		}
 
+		.search-box {
+			width: 100%;
+		}
+
+	}
 </style>
