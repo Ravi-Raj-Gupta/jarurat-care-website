@@ -1,20 +1,16 @@
 import { redirect } from '@sveltejs/kit';
 import { supabaseAdmin } from '$lib/supabaseAdmin';
+import { cmsSupabase } from '$lib/cmsSupabase';
 import type { PageServerLoad } from './$types';
 
-type Article = {
+type AuthorMap = Map<string, string>;
+
+type SavedArticle = {
 	id: string;
 	title: string;
 	category: string | null;
-	author_id: string | null;
-	created_at: string;
-	cover_image_url: string | null;
-	tags: string[] | null;
-	views: number | null;
-	likes_count: number | null;
-	saves_count: number | null;
-	content: string | null;
-	excerpt: string | null;
+	authorName: string;
+	savedAt: string;
 };
 
 type RecommendedArticle = {
@@ -24,168 +20,371 @@ type RecommendedArticle = {
 	authorName: string;
 	date: string;
 	thumbnail: string;
-	score: number;
+	type: 'article' | 'research';
 };
 
-const DEFAULT_THUMBNAIL =
-	'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=1200&q=80';
+type ReactedArticle = {
+	id: string;
+	title: string;
+	category: string | null;
+	authorName: string;
+	likedAt: string;
+};
+
+type FollowedDoctor = {
+	id: string;
+	name: string;
+	specialization: string | null;
+	organization: string | null;
+	avatar: string | null;
+};
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
 
 function normalize(value: unknown): string {
-	return String(value ?? '')
+	if (value === null || value === undefined) return '';
+
+	return String(value)
 		.toLowerCase()
 		.trim()
+		.replace(/[_-]+/g, ' ')
 		.replace(/\s+/g, ' ');
 }
 
-function normalizeInterests(interests: unknown): string[] {
-	if (!Array.isArray(interests)) return [];
-
+function normalizeInterests(interests: unknown[]): string[] {
 	return interests
 		.map((interest) => normalize(interest))
 		.filter(Boolean);
 }
 
-function calculateRecommendationScore(
-	article: Article,
+function arrayValues(value: unknown): string[] {
+	if (!Array.isArray(value)) return [];
+
+	return value
+		.map((item) => normalize(item))
+		.filter(Boolean);
+}
+
+/*
+ * Maps the reader's more specific interests to the broader
+ * article categories that actually exist in the CMS.
+ *
+ * Example:
+ *
+ * Cancer Research
+ *      -> Cancer Care
+ *
+ * Breast Cancer
+ *      -> Cancer Care
+ *
+ * Lung Cancer
+ *      -> Cancer Care
+ */
+function getRelatedCategories(interest: string): string[] {
+	const normalizedInterest = normalize(interest);
+
+	const categoryMap: Record<string, string[]> = {
+		'cancer research': ['cancer care'],
+		'cancer immunology': ['cancer care'],
+		'breast cancer': ['cancer care'],
+		'lung cancer': ['cancer care'],
+		'cancer treatment': ['cancer care'],
+		'cancer prevention': ['cancer care'],
+		'oncology': ['cancer care'],
+		'medical oncology': ['cancer care'],
+
+		'mental health': ['mental health'],
+		'mental wellness': ['mental health'],
+		'psychology': ['mental health'],
+		'psychiatry': ['mental health'],
+		'anxiety': ['mental health'],
+		'depression': ['mental health'],
+
+		'nutrition': ['nutrition'],
+		'diet': ['nutrition'],
+		'healthy diet': ['nutrition'],
+		'food': ['nutrition'],
+		'diet and nutrition': ['nutrition'],
+
+		'pediatrics': ['pediatrics'],
+		'child health': ['pediatrics'],
+		'children health': ['pediatrics'],
+		'childcare': ['pediatrics'],
+
+		'general health': ['general health'],
+		'wellness': ['general health'],
+		'healthy living': ['general health'],
+		'health': ['general health']
+	};
+
+	return categoryMap[normalizedInterest] ?? [];
+}
+
+/*
+ * Converts an interest into useful keywords.
+
+ * This allows:
+ *
+ * Cancer Immunology
+ *      -> cancer, immunology
+ *
+ * Breast Cancer
+ *      -> breast, cancer
+ *
+ * Cancer Research
+ *      -> cancer, research
+ */
+function getInterestKeywords(interest: string): string[] {
+	const normalizedInterest = normalize(interest);
+
+	const stopWords = new Set([
+		'and',
+		'or',
+		'the',
+		'of',
+		'for',
+		'in',
+		'to',
+		'with',
+		'care',
+		'health'
+	]);
+
+	const words = normalizedInterest
+		.split(' ')
+		.map((word) => word.trim())
+		.filter((word) => word.length >= 3 && !stopWords.has(word));
+
+	/*
+	 * Always keep cancer because it is extremely useful
+	 * for cancer-related interests.
+	 */
+	if (
+		normalizedInterest.includes('cancer') &&
+		!words.includes('cancer')
+	) {
+		words.push('cancer');
+	}
+
+	return [...new Set(words)];
+}
+
+/*
+ * Calculate how relevant an article is to the reader.
+ *
+ * Higher score = stronger recommendation.
+ */
+function calculateArticleScore(
+	article: {
+		title?: unknown;
+		category?: unknown;
+		tags?: unknown;
+		abstract?: unknown;
+		content?: unknown;
+	},
 	interests: string[]
 ): number {
+	if (!interests.length) return 0;
+
 	const title = normalize(article.title);
 	const category = normalize(article.category);
-	const excerpt = normalize(article.excerpt);
-	const content = normalize(article.content);
+	const tags = arrayValues(article.tags);
 
-	const tags = Array.isArray(article.tags)
-		? article.tags.map((tag) => normalize(tag))
-		: [];
+	const abstract = normalize(article.abstract);
+	const content = normalize(article.content);
 
 	let score = 0;
 
 	for (const interest of interests) {
-		if (!interest) continue;
+		const relatedCategories = getRelatedCategories(interest);
+		const keywords = getInterestKeywords(interest);
 
-		/*
-		 * Exact category match
-		 * Highest weight because category is a strong signal.
-		 */
+		/* -----------------------------------------------------
+		   1. EXACT CATEGORY MATCH
+		   ----------------------------------------------------- */
+
 		if (category === interest) {
-			score += 50;
+			score += 100;
 		}
 
-		/*
-		 * Category contains interest
-		 *
-		 * Example:
-		 * interest = "cancer"
-		 * category = "Cancer Research"
-		 */
-		if (
-			category.includes(interest) ||
-			interest.includes(category)
-		) {
-			score += 35;
+		/* -----------------------------------------------------
+		   2. RELATED CATEGORY MATCH
+		   ----------------------------------------------------- */
+
+		if (relatedCategories.includes(category)) {
+			score += 70;
 		}
 
-		/*
-		 * Exact tag match
-		 */
+		/* -----------------------------------------------------
+		   3. EXACT TAG MATCH
+		   ----------------------------------------------------- */
+
 		if (tags.includes(interest)) {
-			score += 40;
+			score += 90;
 		}
 
-		/*
-		 * Partial tag match
-		 */
-		if (
-			tags.some(
-				(tag) =>
-					tag.includes(interest) ||
-					interest.includes(tag)
-			)
-		) {
-			score += 25;
-		}
+		/* -----------------------------------------------------
+		   4. TAG PARTIAL MATCH
+		   ----------------------------------------------------- */
 
-		/*
-		 * Title match
-		 */
-		if (title.includes(interest)) {
-			score += 30;
-		}
-
-		/*
-		 * Excerpt match
-		 */
-		if (excerpt.includes(interest)) {
-			score += 15;
-		}
-
-		/*
-		 * Content match
-		 */
-		if (content.includes(interest)) {
-			score += 10;
-		}
-
-		/*
-		 * Support individual words.
-
-		 * Example:
-		 * interest = "breast cancer"
-		 *
-		 * Article title:
-		 * "New research in breast cancer treatment"
-		 */
-		const words = interest
-			.split(' ')
-			.map((word) => word.trim())
-			.filter((word) => word.length >= 4);
-
-		for (const word of words) {
-			if (title.includes(word)) {
-				score += 8;
+		for (const tag of tags) {
+			for (const keyword of keywords) {
+				if (tag === keyword) {
+					score += 45;
+				} else if (
+					tag.includes(keyword) ||
+					keyword.includes(tag)
+				) {
+					score += 25;
+				}
 			}
+		}
 
-			if (category.includes(word)) {
-				score += 8;
+		/* -----------------------------------------------------
+		   5. TITLE MATCH
+		   ----------------------------------------------------- */
+
+		for (const keyword of keywords) {
+			if (title.includes(keyword)) {
+				score += 35;
 			}
+		}
 
-			if (tags.some((tag) => tag.includes(word))) {
-				score += 8;
+		/* -----------------------------------------------------
+		   6. ABSTRACT MATCH
+		   ----------------------------------------------------- */
+
+		for (const keyword of keywords) {
+			if (abstract.includes(keyword)) {
+				score += 20;
+			}
+		}
+
+		/* -----------------------------------------------------
+		   7. CONTENT MATCH
+		   ----------------------------------------------------- */
+
+		for (const keyword of keywords) {
+			if (content.includes(keyword)) {
+				score += 10;
 			}
 		}
 	}
 
-	/*
-	 * Popularity signals
-	 *
-	 * These are deliberately small compared with
-	 * interest matching.
-	 */
-	score += Math.min(Number(article.views ?? 0) / 100, 15);
+	return score;
+}
 
-	score += Math.min(
-		Number(article.likes_count ?? 0) * 2,
-		10
-	);
+/*
+ * Calculate score for research papers.
+ *
+ * Research papers do not have a category, so we rely on:
+ * - title
+ * - tags
+ * - abstract
+ * - content
+ */
+function calculateResearchScore(
+	research: {
+		title?: unknown;
+		tags?: unknown;
+		abstract?: unknown;
+		content?: unknown;
+	},
+	interests: string[]
+): number {
+	if (!interests.length) return 0;
 
-	score += Math.min(
-		Number(article.saves_count ?? 0) * 2,
-		10
-	);
+	const title = normalize(research.title);
+	const tags = arrayValues(research.tags);
+	const abstract = normalize(research.abstract);
+	const content = normalize(research.content);
+
+	let score = 0;
+
+	for (const interest of interests) {
+		const keywords = getInterestKeywords(interest);
+
+		/*
+		 * Exact interest in title
+		 */
+		if (title.includes(interest)) {
+			score += 100;
+		}
+
+		/*
+		 * Individual keywords in title
+		 */
+		for (const keyword of keywords) {
+			if (title.includes(keyword)) {
+				score += 40;
+			}
+		}
+
+		/*
+		 * Exact tag
+		 */
+		if (tags.includes(interest)) {
+			score += 90;
+		}
+
+		/*
+		 * Tag keyword match
+		 */
+		for (const tag of tags) {
+			for (const keyword of keywords) {
+				if (tag === keyword) {
+					score += 45;
+				} else if (
+					tag.includes(keyword) ||
+					keyword.includes(tag)
+				) {
+					score += 25;
+				}
+			}
+		}
+
+		/*
+		 * Abstract
+		 */
+		for (const keyword of keywords) {
+			if (abstract.includes(keyword)) {
+				score += 20;
+			}
+		}
+
+		/*
+		 * Content
+		 */
+		for (const keyword of keywords) {
+			if (content.includes(keyword)) {
+				score += 10;
+			}
+		}
+	}
 
 	return score;
 }
 
+/* =========================================================
+   LOAD
+   ========================================================= */
+
 export const load: PageServerLoad = async ({ locals }) => {
+	/* -------------------------------------------------------
+	   AUTHENTICATION
+	   ------------------------------------------------------- */
+
 	const session = await locals.getSession();
 
 	if (!session) {
 		throw redirect(303, '/cms/login');
 	}
 
-	// ---------------------------------------------------------
-	// LOAD PROFILE
-	// ---------------------------------------------------------
+	/* -------------------------------------------------------
+	   PROFILE
+	   ------------------------------------------------------- */
 
 	const { data: profile, error: profileError } =
 		await supabaseAdmin
@@ -195,61 +394,44 @@ export const load: PageServerLoad = async ({ locals }) => {
 			.maybeSingle();
 
 	if (profileError || !profile) {
-		console.error(
-			'Error loading profile:',
-			profileError
-		);
-
+		console.error('Error loading profile:', profileError);
 		throw redirect(303, '/cms/login');
 	}
 
 	if (!profile.profile_completed) {
-		throw redirect(
-			303,
-			'/cms/complete-profile'
-		);
+		throw redirect(303, '/cms/complete-profile');
 	}
 
+	/* -------------------------------------------------------
+	   ROLE CHECK
+	   ------------------------------------------------------- */
+
 	if (profile.role === 'Doctor') {
-		throw redirect(
-			303,
-			'/cms/doctor-dashboard'
-		);
+		throw redirect(303, '/cms/doctor-dashboard');
 	}
 
 	if (profile.role !== 'Reader') {
-		throw redirect(
-			303,
-			'/cms/login'
-		);
+		throw redirect(303, '/cms/login');
 	}
 
-	// ---------------------------------------------------------
-	// AUTHOR MAP
-	// ---------------------------------------------------------
+	/* -------------------------------------------------------
+	   AUTHOR CACHE
+	   ------------------------------------------------------- */
 
-	let authorsById = new Map<string, string>();
+	const authorsById: AuthorMap = new Map();
 
-	// ---------------------------------------------------------
-	// SAVED ARTICLES
-	// ---------------------------------------------------------
+	/* =======================================================
+	   SAVED ARTICLES
+	   ======================================================= */
 
 	const {
 		data: savedRows,
 		error: savedError
 	} = await supabaseAdmin
 		.from('saved_articles')
-		.select(
-			'id, article_id, created_at'
-		)
-		.eq(
-			'user_id',
-			session.user.id
-		)
-		.order(
-			'created_at',
-			{ ascending: false }
-		);
+		.select('id, article_id, created_at')
+		.eq('user_id', session.user.id)
+		.order('created_at', { ascending: false });
 
 	if (savedError) {
 		console.error(
@@ -260,32 +442,20 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 	const savedRowsList = savedRows ?? [];
 
-	const savedArticleIds =
-		savedRowsList.map(
-			(row) => row.article_id
-		);
+	const articleIds = savedRowsList.map(
+		(row) => row.article_id
+	);
 
-	let savedArticles: Array<{
-		id: string;
-		title: string;
-		category: string | null;
-		authorName: string;
-		savedAt: string;
-	}> = [];
+	let savedArticles: SavedArticle[] = [];
 
-	if (savedArticleIds.length > 0) {
+	if (articleIds.length > 0) {
 		const {
 			data: articles,
 			error: articlesError
 		} = await supabaseAdmin
 			.from('articles')
-			.select(
-				'id, title, category, author_id'
-			)
-			.in(
-				'id',
-				savedArticleIds
-			);
+			.select('id, title, category, author_id')
+			.in('id', articleIds);
 
 		if (articlesError) {
 			console.error(
@@ -294,391 +464,283 @@ export const load: PageServerLoad = async ({ locals }) => {
 			);
 		}
 
-		const articlesList =
-			articles ?? [];
+		const articlesList = articles ?? [];
 
 		const authorIds = [
 			...new Set(
 				articlesList
-					.map(
-						(article) =>
-							article.author_id
-					)
+					.map((article) => article.author_id)
 					.filter(Boolean)
 			)
 		];
 
 		if (authorIds.length > 0) {
 			const {
-				data: authors
+				data: authors,
+				error: authorsError
 			} = await supabaseAdmin
 				.from('profiles')
-				.select(
-					'id, full_name'
-				)
-				.in(
-					'id',
-					authorIds
-				);
+				.select('id, full_name')
+				.in('id', authorIds);
 
-			authorsById =
-				new Map(
-					(authors ?? []).map(
-						(author) => [
-							author.id,
-							author.full_name
-						]
-					)
+			if (authorsError) {
+				console.error(
+					'Error loading article authors:',
+					authorsError
 				);
+			}
+
+			(authors ?? []).forEach((author) => {
+				authorsById.set(
+					author.id,
+					author.full_name || 'Unknown'
+				);
+			});
 		}
 
-		const articlesById =
-			new Map(
-				articlesList.map(
-					(article) => [
-						article.id,
-						article
-					]
-				)
-			);
+		const articlesById = new Map(
+			articlesList.map((article) => [
+				article.id,
+				article
+			])
+		);
 
-		savedArticles =
-			savedRowsList
-				.map((row) => {
-					const article =
-						articlesById.get(
-							row.article_id
-						);
-
-					if (!article)
-						return null;
-
-					return {
-						id: article.id,
-						title: article.title,
-						category:
-							article.category,
-						authorName:
-							authorsById.get(
-								article.author_id
-							) ||
-							'Unknown',
-						savedAt:
-							row.created_at
-					};
-				})
-				.filter(
-					(
-						article
-					): article is NonNullable<
-						typeof article
-					> => article !== null
+		savedArticles = savedRowsList
+			.map((row) => {
+				const article = articlesById.get(
+					row.article_id
 				);
+
+				if (!article) return null;
+
+				return {
+					id: article.id,
+					title: article.title,
+					category: article.category,
+					authorName:
+						authorsById.get(article.author_id) ||
+						'Unknown',
+					savedAt: row.created_at
+				};
+			})
+			.filter(
+				(article): article is SavedArticle =>
+					article !== null
+			);
 	}
 
-	// ---------------------------------------------------------
-	// RECOMMENDATIONS
-	// ---------------------------------------------------------
+	/* =======================================================
+	   READER INTERESTS
+	   ======================================================= */
 
-	const interests =
-		normalizeInterests(
-			profile.interests
-		);
+	const interests = normalizeInterests(
+		profile.interests ?? []
+	);
 
 	console.log(
 		'Normalized interests:',
 		interests
 	);
 
-	let recommendedArticles:
-		RecommendedArticle[] = [];
+	/* =======================================================
+	   RECOMMENDATIONS
+	   ======================================================= */
 
-	/*
-	 * Fetch published articles.
-	 *
-	 * IMPORTANT:
-	 * We are NOT requesting "image".
-	 *
-	 * Your database has cover_image_url,
-	 * not articles.image.
-	 */
+	let recommendedArticles: RecommendedArticle[] = [];
 
-	const {
-		data: publishedArticles,
-		error: recommendationError
-	} = await supabaseAdmin
-		.from('articles')
-		.select(`
-			id,
-			title,
-			category,
-			author_id,
-			created_at,
-			cover_image_url,
-			tags,
-			views,
-			likes_count,
-			saves_count,
-			content,
-			excerpt
-		`)
-		.eq(
-			'status',
-			'published'
-		)
-		.order(
-			'created_at',
-			{ ascending: false }
-		)
-		.limit(100);
+	if (interests.length > 0) {
+		/* ---------------------------------------------------
+		   FETCH PUBLISHED ARTICLES
 
-	if (recommendationError) {
-		console.error(
-			'Recommendation query error:',
-			recommendationError
-		);
-	} else {
-		const articles =
-			(publishedArticles ??
-				[]) as Article[];
+		   IMPORTANT:
+		   Do NOT request `image` because your articles table
+		   does not have an `image` column.
+		   --------------------------------------------------- */
+
+		const {
+			data: publishedArticles,
+			error: recommendationError
+		} = await supabaseAdmin
+			.from('articles')
+			.select(
+				`
+				id,
+				title,
+				category,
+				tags,
+				abstract,
+				content,
+				author_id,
+				created_at,
+				cover_image_url
+				`
+			)
+			.eq('status', 'published')
+			.order('created_at', {
+				ascending: false
+			})
+			.limit(100);
+
+		if (recommendationError) {
+			console.error(
+				'Recommendation query error:',
+				recommendationError
+			);
+		}
+
+		const articlesForRecommendation =
+			publishedArticles ?? [];
 
 		console.log(
 			'Published articles found:',
-			articles.length
+			articlesForRecommendation.length
 		);
 
-		/*
-		 * -----------------------------------------------------
-		 * SCORE ARTICLES
-		 * -----------------------------------------------------
-		 */
-
-		const scoredArticles =
-			articles.map(
-				(article) => ({
-					article,
-					score:
-						calculateRecommendationScore(
-							article,
-							interests
-						)
-				})
-			);
+		/* ---------------------------------------------------
+		   DEBUG: SHOW AVAILABLE ARTICLE DATA
+		   --------------------------------------------------- */
 
 		console.log(
-			'Scored articles:',
-			scoredArticles.map(
-				(item) => ({
-					title:
-						item.article.title,
-					score:
-						item.score
+			'Articles available for recommendation:',
+			articlesForRecommendation.map(
+				(article) => ({
+					id: article.id,
+					title: article.title,
+					category: article.category,
+					tags: article.tags
 				})
 			)
 		);
 
-		/*
-		 * -----------------------------------------------------
-		 * PERSONALIZED RECOMMENDATIONS
-		 * -----------------------------------------------------
-		 */
+		/* ---------------------------------------------------
+		   SCORE ARTICLES
+		   --------------------------------------------------- */
 
-		const personalized =
-			scoredArticles
-				.filter(
-					(item) =>
-						item.score > 0
+		const scoredArticles = articlesForRecommendation
+			.map((article) => ({
+				article,
+				score: calculateArticleScore(
+					article,
+					interests
 				)
-				.sort(
-					(a, b) =>
-						b.score -
-						a.score
-				)
-				.slice(0, 4);
+			}))
+			.filter((item) => item.score > 0)
+			.sort((a, b) => {
+				/*
+				 * Higher score first.
+				 *
+				 * If scores are equal, newer article first.
+				 */
+				if (b.score !== a.score) {
+					return b.score - a.score;
+				}
 
-		/*
-		 * -----------------------------------------------------
-		 * FALLBACK
-		 * -----------------------------------------------------
-		 *
-		 * If there are currently no cancer-related
-		 * articles, don't show an empty section.
-		 *
-		 * Instead recommend latest/popular content.
-		 */
-
-		let finalArticles =
-			personalized;
-
-		if (
-			finalArticles.length <
-			4
-		) {
-			const usedIds =
-				new Set(
-					finalArticles.map(
-						(item) =>
-							item.article.id
-					)
+				return (
+					new Date(
+						b.article.created_at
+					).getTime() -
+					new Date(
+						a.article.created_at
+					).getTime()
 				);
+			});
 
-			const fallback =
+		console.log(
+			'Scored recommendations:',
+			scoredArticles.map((item) => ({
+				id: item.article.id,
+				title: item.article.title,
+				category: item.article.category,
+				tags: item.article.tags,
+				score: item.score
+			}))
+		);
+
+		/* ---------------------------------------------------
+		   FETCH AUTHORS
+		   --------------------------------------------------- */
+
+		const recommendationAuthorIds = [
+			...new Set(
 				scoredArticles
-					.filter(
+					.map(
 						(item) =>
-							!usedIds.has(
-								item.article.id
-							)
+							item.article.author_id
 					)
-					.sort(
-						(a, b) => {
-							const aPopularity =
-								Number(
-									a.article
-										.views ??
-										0
-								) +
-								Number(
-									a.article
-										.likes_count ??
-										0
-								) *
-									10 +
-								Number(
-									a.article
-										.saves_count ??
-										0
-								) *
-									10;
+					.filter(Boolean)
+			)
+		];
 
-							const bPopularity =
-								Number(
-									b.article
-										.views ??
-										0
-								) +
-								Number(
-									b.article
-										.likes_count ??
-										0
-								) *
-									10 +
-								Number(
-									b.article
-										.saves_count ??
-										0
-								) *
-									10;
+		const newAuthorsToFetch =
+			recommendationAuthorIds.filter(
+				(id) => !authorsById.has(id)
+			);
 
-							return (
-								bPopularity -
-								aPopularity
-							);
-						}
-					)
-					.slice(
-						0,
-						4 -
-							finalArticles.length
-					);
-
-			finalArticles = [
-				...finalArticles,
-				...fallback
-			];
-		}
-
-		/*
-		 * -----------------------------------------------------
-		 * FETCH AUTHORS
-		 * -----------------------------------------------------
-		 */
-
-		const recommendationAuthorIds =
-			[
-				...new Set(
-					finalArticles
-						.map(
-							(item) =>
-								item
-									.article
-									.author_id
-						)
-						.filter(Boolean)
-				)
-			];
-
-		if (
-			recommendationAuthorIds.length >
-			0
-		) {
+		if (newAuthorsToFetch.length > 0) {
 			const {
-				data: authors
+				data: recommendationAuthors,
+				error: recommendationAuthorsError
 			} = await supabaseAdmin
 				.from('profiles')
-				.select(
-					'id, full_name'
-				)
+				.select('id, full_name')
 				.in(
 					'id',
-					recommendationAuthorIds
+					newAuthorsToFetch
 				);
 
-			for (const author of
-				authors ?? []) {
-				authorsById.set(
-					author.id,
-					author.full_name
+			if (recommendationAuthorsError) {
+				console.error(
+					'Error loading recommendation authors:',
+					recommendationAuthorsError
 				);
 			}
+
+			(
+				recommendationAuthors ?? []
+			).forEach((author) => {
+				authorsById.set(
+					author.id,
+					author.full_name ||
+						'Unknown'
+				);
+			});
 		}
 
-		/*
-		 * -----------------------------------------------------
-		 * FINAL RECOMMENDATION OBJECT
-		 * -----------------------------------------------------
-		 */
+		/* ---------------------------------------------------
+		   FINAL TOP 4 RECOMMENDATIONS
+		   --------------------------------------------------- */
 
-		recommendedArticles =
-			finalArticles.map(
-				(item) => {
-					const article =
-						item.article;
+		recommendedArticles = scoredArticles
+			.slice(0, 4)
+			.map((item) => {
+				const article = item.article;
 
-					return {
-						id: String(
-							article.id
-						),
-						title:
-							article.title,
-						category:
-							article.category,
-						authorName:
-							authorsById.get(
-								article.author_id ??
-									''
-							) ||
-							'Unknown',
-						date:
-							article.created_at,
-						thumbnail:
-							article.cover_image_url ||
-							DEFAULT_THUMBNAIL,
-						score:
-							item.score
-					};
-				}
-			);
+				return {
+					id: String(article.id),
+					title: article.title,
+					category:
+						article.category,
+					authorName:
+						authorsById.get(
+							article.author_id
+						) || 'Unknown',
+					date: article.created_at,
+					thumbnail:
+						article.cover_image_url ||
+						'',
+					type: 'article'
+				};
+			});
+
+		console.log(
+			'Final recommendations:',
+			recommendedArticles.length
+		);
 	}
 
-	console.log(
-		'Final recommendations:',
-		recommendedArticles.length
-	);
-
-	// ---------------------------------------------------------
-	// LIKED ARTICLES
-	// ---------------------------------------------------------
+	/* =======================================================
+	   LIKED ARTICLES
+	   ======================================================= */
 
 	const {
 		data: likedRows,
@@ -692,10 +754,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 			'user_id',
 			session.user.id
 		)
-		.order(
-			'created_at',
-			{ ascending: false }
-		);
+		.order('created_at', {
+			ascending: false
+		});
 
 	if (likedError) {
 		console.error(
@@ -704,29 +765,19 @@ export const load: PageServerLoad = async ({ locals }) => {
 		);
 	}
 
-	const likedRowsList =
-		likedRows ?? [];
+	const likedRowsList = likedRows ?? [];
 
 	const likedArticleIds =
 		likedRowsList.map(
-			(row) =>
-				row.article_id
+			(row) => row.article_id
 		);
 
-	let reactedArticles: Array<{
-		id: string;
-		title: string;
-		category: string | null;
-		authorName: string;
-		likedAt: string;
-	}> = [];
+	let reactedArticles: ReactedArticle[] =
+		[];
 
-	if (
-		likedArticleIds.length >
-		0
-	) {
+	if (likedArticleIds.length > 0) {
 		const {
-			data: likedArticleData,
+			data: likedArticles,
 			error: likedArticlesError
 		} = await supabaseAdmin
 			.from('articles')
@@ -738,22 +789,19 @@ export const load: PageServerLoad = async ({ locals }) => {
 				likedArticleIds
 			);
 
-		if (
-			likedArticlesError
-		) {
+		if (likedArticlesError) {
 			console.error(
 				'Error loading liked article details:',
 				likedArticlesError
 			);
 		}
 
-		const articlesList =
-			likedArticleData ??
-			[];
+		const likedArticlesList =
+			likedArticles ?? [];
 
-		const authorIds = [
+		const likedAuthorIds = [
 			...new Set(
-				articlesList
+				likedArticlesList
 					.map(
 						(article) =>
 							article.author_id
@@ -762,18 +810,18 @@ export const load: PageServerLoad = async ({ locals }) => {
 			)
 		];
 
-		const newAuthors =
-			authorIds.filter(
+		const newLikedAuthors =
+			likedAuthorIds.filter(
 				(id) =>
 					!authorsById.has(id)
 			);
 
 		if (
-			newAuthors.length >
-			0
+			newLikedAuthors.length > 0
 		) {
 			const {
-				data: authors
+				data: moreAuthors,
+				error: moreAuthorsError
 			} = await supabaseAdmin
 				.from('profiles')
 				.select(
@@ -781,21 +829,30 @@ export const load: PageServerLoad = async ({ locals }) => {
 				)
 				.in(
 					'id',
-					newAuthors
+					newLikedAuthors
 				);
 
-			for (const author of
-				authors ?? []) {
-				authorsById.set(
-					author.id,
-					author.full_name
+			if (moreAuthorsError) {
+				console.error(
+					'Error loading liked article authors:',
+					moreAuthorsError
 				);
 			}
+
+			(
+				moreAuthors ?? []
+			).forEach((author) => {
+				authorsById.set(
+					author.id,
+					author.full_name ||
+						'Unknown'
+				);
+			});
 		}
 
-		const articlesById =
+		const likedArticlesById =
 			new Map(
-				articlesList.map(
+				likedArticlesList.map(
 					(article) => [
 						article.id,
 						article
@@ -807,7 +864,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 			likedRowsList
 				.map((row) => {
 					const article =
-						articlesById.get(
+						likedArticlesById.get(
 							row.article_id
 						);
 
@@ -816,7 +873,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 					return {
 						id: article.id,
-						title: article.title,
+						title:
+							article.title,
 						category:
 							article.category,
 						authorName:
@@ -829,34 +887,24 @@ export const load: PageServerLoad = async ({ locals }) => {
 					};
 				})
 				.filter(
-					(
-						article
-					): article is NonNullable<
-						typeof article
-					> => article !== null
+					(article): article is ReactedArticle =>
+						article !== null
 				);
 	}
 
-	// ---------------------------------------------------------
-	// FOLLOWED DOCTORS
-	// ---------------------------------------------------------
+	/* =======================================================
+	   FOLLOWED DOCTORS
+	   ======================================================= */
 
-	let followedDoctors: Array<{
-		id: string;
-		name: string;
-		specialization: string | null;
-		organization: string | null;
-		avatar: string | null;
-	}> = [];
+	let followedDoctors: FollowedDoctor[] =
+		[];
 
 	const {
 		data: followedRows,
 		error: followedError
 	} = await supabaseAdmin
 		.from('doctor_followers')
-		.select(
-			'doctor_id'
-		)
+		.select('doctor_id')
 		.eq(
 			'follower_id',
 			session.user.id
@@ -869,18 +917,16 @@ export const load: PageServerLoad = async ({ locals }) => {
 		);
 	}
 
+	const followedRowsList =
+		followedRows ?? [];
+
 	const followedDoctorIds =
-		(
-			followedRows ??
-			[]
-		).map(
-			(row) =>
-				row.doctor_id
+		followedRowsList.map(
+			(row) => row.doctor_id
 		);
 
 	if (
-		followedDoctorIds.length >
-		0
+		followedDoctorIds.length > 0
 	) {
 		const {
 			data: doctorsData,
@@ -897,7 +943,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 		if (doctorsError) {
 			console.error(
-				'Error loading doctors:',
+				'Error loading doctors details:',
 				doctorsError
 			);
 		}
@@ -920,19 +966,15 @@ export const load: PageServerLoad = async ({ locals }) => {
 		}
 	}
 
-	// ---------------------------------------------------------
-	// RETURN
-	// ---------------------------------------------------------
+	/* =======================================================
+	   RETURN
+	   ======================================================= */
 
 	return {
 		profile,
-
 		savedArticles,
-
 		recommendedArticles,
-
 		reactedArticles,
-
 		followedDoctors,
 
 		savedCount:
