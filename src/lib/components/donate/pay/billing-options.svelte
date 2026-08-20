@@ -132,13 +132,13 @@
 	</div>
 
 	<!-- Additional Checkboxes -->
-	<div class="w-full flex flex-col gap-2 text-left text-xs text-black-600 pt-1">
+	<div class="w-full flex flex-col gap-2 text-left text-xs text-deep-blue-600 pt-1">
 		<label class="flex items-center gap-2 cursor-pointer">
 			<input
 				type="checkbox"
 				bind:checked={isHonor}
 				on:change={() => onChange({ isHonor })}
-				class="w-3.5 h-3.5 rounded text-[#0D2561] focus:ring-[#0D2561] border-black-300"
+				class="w-3.5 h-3.5 rounded text-[#0D132442] focus:ring-[#0D132442] border-deep-blue-300"
 			/>
 			<span>This donation is in honor or memory of someone</span>
 		</label>
@@ -148,7 +148,7 @@
 				type="checkbox"
 				bind:checked={writeComment}
 				on:change={() => onChange({ writeComment })}
-				class="w-3.5 h-3.5 rounded text-[#0D2561] focus:ring-[#0D2561] border-black-300"
+				class="w-3.5 h-3.5 rounded text-[#0D132442] focus:ring-[#0D132442] border-deep-blue-300"
 			/>
 			<span>Write us a comment</span>
 		</label>
