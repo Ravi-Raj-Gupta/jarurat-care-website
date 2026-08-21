@@ -62,6 +62,10 @@ export const actions: Actions = {
 		});
 
 		if (error) {
+			if (error.code === '23505') {
+				// Already following, treat as success
+				return { success: true };
+			}
 			console.error('Follow error:', error);
 			return fail(500, { error: 'Failed to follow doctor' });
 		}

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { enhance } from '$app/forms';
 	import { supabase } from '$lib/supabase';
 	import { MapPin, Building2, GraduationCap, Stethoscope, UserPlus, UserCheck } from 'lucide-svelte';
 	import toast from 'svelte-french-toast';
@@ -7,6 +8,7 @@
 	export let doctor: any;
 	export let isFollowed: boolean = false;
 	export let isSelf: boolean = false;
+	export let currentUserId: string | null = null;
 
 	let following = isFollowed;
 	let loadingFollow = false;
@@ -65,72 +67,7 @@
 		goto(`/cms/community/doctors/${doctor.id}`);
 	}
 
-	async function toggleFollow() {
-		if (loadingFollow || isSelf) return;
 
-		loadingFollow = true;
-
-		try {
-			const {
-				data: {
-					user
-				}
-			} = await supabase.auth.getUser();
-
-			if (!user) {
-				toast.error('Please login to follow a doctor.');
-				goto('/cms/login');
-				return;
-			}
-
-			if (following) {
-				// UNFOLLOW
-				const { error } = await supabase
-					.from('doctor_follows')
-					.delete()
-					.eq('follower_id', user.id)
-					.eq('doctor_id', doctor.id);
-
-				if (error) {
-					console.error('Unfollow error:', error);
-					toast.error('Could not unfollow doctor.');
-					return;
-				}
-
-				following = false;
-				toast.success(`Unfollowed ${fullName}`);
-			} else {
-				// FOLLOW
-				const { error } = await supabase
-					.from('doctor_follows')
-					.insert({
-						follower_id: user.id,
-						doctor_id: doctor.id
-					});
-
-				if (error) {
-					console.error('Follow error:', error);
-
-					// Handles duplicate follow gracefully
-					if (error.code === '23505') {
-						following = true;
-						return;
-					}
-
-					toast.error('Could not follow doctor.');
-					return;
-				}
-
-				following = true;
-				toast.success(`You are now following ${fullName}`);
-			}
-		} catch (error) {
-			console.error('Follow action error:', error);
-			toast.error('Something went wrong.');
-		} finally {
-			loadingFollow = false;
-		}
-	}
 </script>
 
 <article class="doctor-card">
@@ -240,23 +177,43 @@
 
 
 		{#if !isSelf}
-			<button
-				class:following={following}
-				class="follow-btn"
-				on:click={toggleFollow}
-				disabled={loadingFollow}
-				type="button"
+			<form 
+				method="POST" 
+				action={following ? '?/unfollow' : '?/follow'} 
+				use:enhance={() => {
+					loadingFollow = true;
+					return async ({ result }) => {
+						loadingFollow = false;
+						if (result.type === 'success') {
+							following = !following;
+							if (following) {
+								toast.success(`Awesome! You are now following ${fullName}`, { duration: 3000 });
+							} else {
+								toast.success(`You unfollowed ${fullName}.`, { duration: 3000 });
+							}
+						} else {
+							toast.error('Oops! Could not update follow status. Please try again.', { duration: 4000 });
+						}
+					};
+				}}
+				style="display: contents;"
 			>
-
-				{#if following}
-					<UserCheck size={16} />
-					<span>{loadingFollow ? 'Updating...' : 'Following'}</span>
-				{:else}
-					<UserPlus size={16} />
-					<span>{loadingFollow ? 'Following...' : 'Follow'}</span>
-				{/if}
-
-			</button>
+				<input type="hidden" name="doctor_id" value={doctor.id} />
+				<button
+					class:following={following}
+					class="follow-btn"
+					disabled={loadingFollow}
+					type="submit"
+				>
+					{#if following}
+						<UserCheck size={16} />
+						<span>{loadingFollow ? 'Updating...' : 'Following'}</span>
+					{:else}
+						<UserPlus size={16} />
+						<span>{loadingFollow ? 'Following...' : 'Follow'}</span>
+					{/if}
+				</button>
+			</form>
 		{:else}
 			<div class="your-profile">
 				Your Profile
@@ -596,16 +553,15 @@
 
 
 	.follow-btn.following {
-		background: #ffffff;
-
-		color: #30358f;
-
-		border: 1px solid #30358f;
+		background: #10b981;
+		color: #ffffff;
+		border: 1px solid #10b981;
 	}
 
 
 	.follow-btn.following:hover:not(:disabled) {
-		background: #f0f2ff;
+		background: #059669;
+		border-color: #059669;
 	}
 
 

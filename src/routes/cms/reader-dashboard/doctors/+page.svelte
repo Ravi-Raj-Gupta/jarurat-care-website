@@ -66,6 +66,7 @@
 						{doctor} 
 						isFollowed={followedDoctorIds.has(doctor.id)} 
 						isSelf={doctor.id === profile?.id}
+						currentUserId={profile?.id}
 					/>
 				{/each}
 			</div>
