@@ -7,6 +7,7 @@
 	import RecommendedArticlesCard from '$lib/components/dashboard/RecommendedArticlesCard.svelte';
 	import ReactedArticlesCard from '$lib/components/dashboard/ReactedArticlesCard.svelte';
 	import FollowedDoctorsCard from '$lib/components/dashboard/FollowedDoctorsCard.svelte';
+	import PopularArticlesCard from '$lib/components/dashboard/PopularArticlesCard.svelte';
 
 	import {
 		MessageSquare,
@@ -25,6 +26,7 @@
 	$: recommendedArticles = data.recommendedArticles || [];
 	$: reactedArticles = data.reactedArticles || [];
 	$: followedDoctors = data.followedDoctors || [];
+	$: popularArticles = data.popularArticles || [];
 </script>
 
 <svelte:head>
@@ -107,6 +109,12 @@
 			<div class="dashboard-card">
 				<RecommendedArticlesCard
 					articles={recommendedArticles}
+				/>
+			</div>
+
+			<div class="dashboard-card" style="margin-top: 20px;">
+				<PopularArticlesCard
+					articles={popularArticles}
 				/>
 			</div>
 

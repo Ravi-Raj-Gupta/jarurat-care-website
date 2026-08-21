@@ -19,7 +19,7 @@
 				<div class="article-item">
 					<div class="article-info">
 						<span class="category">{article.category || 'General'}</span>
-						<a href="/articles/{article.id}" class="title">{article.title}</a>
+						<a href={article.type === 'research' ? `/content/research/${article.id}` : `/content/${article.type || 'article'}/${article.slug || article.id}`} class="title">{article.title}</a>
 						<div class="meta">
 							<span>By {article.authorName}</span>
 							<span class="dot">•</span>

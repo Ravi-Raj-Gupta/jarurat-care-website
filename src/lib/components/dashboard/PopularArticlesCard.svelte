@@ -4,28 +4,28 @@
 		title: string;
 		category: string | null;
 		authorName: string;
-		date: string;
+		views: number;
 		thumbnail: string;
-		type: string;
-		slug?: string;
+        type: string;
+        slug?: string;
 	}> = [];
 </script>
 
-<div class="recommended-card">
+<div class="popular-card">
 	<div class="card-header">
-		<h3>Recommended for You</h3>
-		<p class="subtitle">Based on your Area of Interest</p>
+		<h3>Popular Content</h3>
+		<p class="subtitle">Most viewed by the community</p>
 	</div>
 
 	{#if articles.length === 0}
 		<div class="empty-state">
-			<h4>No recommendations yet</h4>
-			<p>We'll suggest articles when they match your interests.</p>
+			<h4>No popular content yet</h4>
+			<p>Check back later for trending articles.</p>
 		</div>
 	{:else}
 		<div class="article-list">
 			{#each articles as article}
-				<a href={article.type === 'research' ? `/content/research/${article.id}` : `/content/${article.type || 'article'}/${article.slug || article.id}`} class="article-row">
+				<a href={article.type === 'research' ? `/content/research/${article.id}` : `/content/article/${article.slug || article.id}`} class="article-row">
 					<div class="article-info">
 						<span class="article-title">{article.title}</span>
 						<span class="article-meta">
@@ -33,9 +33,10 @@
 							{#if article.category}
 								• {article.category}
 							{/if}
+                            • {article.views} views
 						</span>
 					</div>
-					<img src={article.thumbnail} alt={article.title} class="article-thumb" />
+					<img src={article.thumbnail || '/defaults/Articles/article-1.jpeg'} alt={article.title} class="article-thumb" />
 				</a>
 			{/each}
 		</div>
@@ -43,7 +44,7 @@
 </div>
 
 <style>
-	.recommended-card {
+	.popular-card {
 		background: white;
 		border-radius: 16px;
 		padding: 24px;
@@ -101,35 +102,30 @@
 		border-radius: 8px;
 	}
 
-	.article-row:hover {
-		background: #f9fafb;
-	}
-
 	.article-row:last-child {
 		border-bottom: none;
+	}
+
+	.article-row:hover {
+		background: #f8fafc;
 	}
 
 	.article-info {
 		display: flex;
 		flex-direction: column;
 		gap: 4px;
-		min-width: 0;
-		flex: 1;
 	}
 
 	.article-title {
-		font-size: 14px;
 		font-weight: 600;
-		color: #111827;
-		display: -webkit-box;
-		-webkit-line-clamp: 2;
-		-webkit-box-orient: vertical;
-		overflow: hidden;
+		font-size: 14px;
+		color: #0f172a;
+		line-height: 1.4;
 	}
 
 	.article-meta {
 		font-size: 12px;
-		color: #6b7280;
+		color: #64748b;
 	}
 
 	.article-thumb {
@@ -138,5 +134,6 @@
 		border-radius: 8px;
 		object-fit: cover;
 		flex-shrink: 0;
+		background: #f1f5f9;
 	}
 </style>

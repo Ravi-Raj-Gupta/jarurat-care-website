@@ -5,6 +5,8 @@
 		category: string | null;
 		authorName: string;
 		savedAt: string;
+		type: string;
+		slug?: string;
 	}> = [];
 
 	function timeAgo(dateStr: string) {
@@ -34,7 +36,7 @@
 	{:else}
 		<div class="article-list">
 			{#each articles as article}
-				<a href="/cms/articles/{article.id}" class="article-row">
+				<a href={article.type === 'research' ? `/content/research/${article.id}` : `/content/${article.type || 'article'}/${article.slug || article.id}`} class="article-row">
 					<div class="article-info">
 						<span class="article-title">{article.title}</span>
 						<span class="article-meta">

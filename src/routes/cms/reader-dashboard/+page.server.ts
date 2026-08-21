@@ -991,6 +991,76 @@ export const load: PageServerLoad = async ({ locals }) => {
 	}
 
 	/* =======================================================
+	   POPULAR CONTENT
+	   ======================================================= */
+
+	let popularArticles: any[] = [];
+
+	const { data: topArticles } = await supabaseAdmin
+		.from('articles')
+		.select('id, title, category, author_id, views, cover_image_url')
+		.order('views', { ascending: false })
+		.limit(4);
+
+	const { data: topResearch } = await cmsSupabase
+		.from('research_articles')
+		.select('id, title, user_id, views_count, featured_image')
+		.order('views_count', { ascending: false })
+		.limit(4);
+
+	const popAuthorIds = new Set<string>();
+	if (topArticles) {
+		topArticles.forEach(a => { if (a.author_id) popAuthorIds.add(a.author_id); });
+	}
+	if (topResearch) {
+		topResearch.forEach(r => { if (r.user_id) popAuthorIds.add(r.user_id); });
+	}
+
+	const newPopAuthors = Array.from(popAuthorIds).filter(id => !authorsById.has(id));
+	if (newPopAuthors.length > 0) {
+		const { data: popAuthorsData } = await supabaseAdmin
+			.from('profiles')
+			.select('id, full_name')
+			.in('id', newPopAuthors);
+		if (popAuthorsData) {
+			popAuthorsData.forEach(author => {
+				authorsById.set(author.id, author.full_name || 'Unknown');
+			});
+		}
+	}
+
+	let combinedPopular: any[] = [];
+	if (topArticles) {
+		topArticles.forEach(a => {
+			combinedPopular.push({
+				id: a.id,
+				title: a.title,
+				category: a.category || 'Article',
+				authorName: authorsById.get(a.author_id) || 'Unknown Author',
+				views: a.views || 0,
+				thumbnail: a.cover_image_url || '/defaults/Articles/article-1.jpeg',
+				type: 'article',
+				slug: a.id
+			});
+		});
+	}
+	if (topResearch) {
+		topResearch.forEach(r => {
+			combinedPopular.push({
+				id: r.id,
+				title: r.title,
+				category: 'Research',
+				authorName: authorsById.get(r.user_id) || 'Unknown Researcher',
+				views: r.views_count || 0,
+				thumbnail: r.featured_image || '/defaults/Articles/article-2.jpeg',
+				type: 'research'
+			});
+		});
+	}
+
+	popularArticles = combinedPopular.sort((a, b) => b.views - a.views).slice(0, 4);
+
+	/* =======================================================
 	   RETURN
 	   ======================================================= */
 
@@ -1000,6 +1070,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		recommendedArticles,
 		reactedArticles,
 		followedDoctors,
+		popularArticles,
 
 		savedCount:
 			savedRowsList.length,
