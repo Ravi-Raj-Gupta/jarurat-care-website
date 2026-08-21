@@ -39,6 +39,7 @@
 
 	let activeSection = 'overview';
 	let searchTerm = '';
+	let doctorToApprove: any = null;
 
 	/* =========================================================
 	   SAFE ANALYTICS VALUES
@@ -1425,39 +1426,39 @@
 
 											{#if doctor.verification_status !== 'approved'}
 
-												<form
-													method="POST"
-													action="?/approve"
-													class="inline-form"
+												<button
+													type="button"
+													class="action-button approve-button"
+													on:click={() => doctorToApprove = doctor}
 												>
-
-													<input
-														type="hidden"
-														name="doctorId"
-														value={doctor.id}
-													/>
-
-													<input
-														type="hidden"
-														name="assignedRole"
-														value="author"
-													/>
-
-													<button
-														type="submit"
-														class="action-button approve-button"
-													>
-														<CheckCircle size={14} />
-														Approve
-													</button>
-
-												</form>
+													<CheckCircle size={14} />
+													Approve
+												</button>
 
 											{:else}
 
-												<span class="published-label">
-													Approved
-												</span>
+												<div class="inline-form">
+													<span class="published-label">
+														Approved
+													</span>
+													<form
+														method="POST"
+														action="?/reject"
+														style="display:inline;"
+													>
+														<input
+															type="hidden"
+															name="doctorId"
+															value={doctor.id}
+														/>
+														<button
+															type="submit"
+															class="action-button reject-button"
+														>
+															Reject
+														</button>
+													</form>
+												</div>
 
 											{/if}
 
@@ -2128,6 +2129,48 @@
 	</main>
 
 </div>
+
+{#if doctorToApprove}
+	<div class="modal-backdrop" on:click={() => doctorToApprove = null}>
+		<div class="modal-content" on:click|stopPropagation>
+			<div class="modal-header">
+				<h2>Approve Doctor</h2>
+				<button class="close-btn" on:click={() => doctorToApprove = null}>&times;</button>
+			</div>
+			
+			<p class="modal-desc">
+				Please assign a role to <strong>{doctorToApprove.full_name || 'this user'}</strong> before approving their account:
+			</p>
+			
+			<form method="POST" action="?/approve">
+				<input type="hidden" name="doctorId" value={doctorToApprove.id} />
+				
+				<div class="role-options">
+					<label class="role-card">
+						<input type="radio" name="assignedRole" value="author" checked />
+						<div class="role-info">
+							<strong>Doctor (Author)</strong>
+							<span>Can write and submit articles.</span>
+						</div>
+					</label>
+					
+					<label class="role-card">
+						<input type="radio" name="assignedRole" value="reviewer" />
+						<div class="role-info">
+							<strong>Reviewer</strong>
+							<span>Can review and approve articles.</span>
+						</div>
+					</label>
+				</div>
+				
+				<div class="modal-actions">
+					<button type="button" class="btn-cancel" on:click={() => doctorToApprove = null}>Cancel</button>
+					<button type="submit" class="btn-confirm" on:click={() => doctorToApprove = null}>Confirm Approval</button>
+				</div>
+			</form>
+		</div>
+	</div>
+{/if}
 
 <style>
 	:global(*) {
@@ -3253,8 +3296,37 @@
 		background: #1d4ed8;
 	}
 
+	.reject-button {
+		background: #ef4444;
+		border-color: #ef4444;
+		color: white;
+	}
+
+	.reject-button:hover {
+		background: #dc2626;
+	}
+
 	.inline-form {
-		display: inline;
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
+
+	.role-select {
+		padding: 6px 12px;
+		border: 1px solid #e2e8f0;
+		border-radius: 6px;
+		font-size: 13px;
+		color: #334155;
+		background: #f8fafc;
+		cursor: pointer;
+		outline: none;
+		transition: all 0.2s;
+	}
+
+	.role-select:focus {
+		border-color: #2563eb;
+		box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
 	}
 
 	.published-label {
@@ -3394,5 +3466,150 @@
 			width: 100%;
 		}
 
+	}
+
+	/* Modal CSS */
+	.modal-backdrop {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: rgba(0,0,0,0.4);
+		backdrop-filter: blur(4px);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 9999;
+	}
+
+	.modal-content {
+		background: white;
+		border-radius: 12px;
+		width: 100%;
+		max-width: 480px;
+		padding: 30px;
+		box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+		animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+	}
+
+	@keyframes popIn {
+		0% { opacity: 0; transform: scale(0.95); }
+		100% { opacity: 1; transform: scale(1); }
+	}
+
+	.modal-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 15px;
+	}
+
+	.modal-header h2 {
+		margin: 0;
+		font-size: 22px;
+		color: #1e293b;
+	}
+
+	.close-btn {
+		background: none;
+		border: none;
+		font-size: 28px;
+		line-height: 1;
+		color: #94a3b8;
+		cursor: pointer;
+		transition: 0.2s;
+	}
+
+	.close-btn:hover {
+		color: #ef4444;
+	}
+
+	.modal-desc {
+		color: #64748b;
+		font-size: 14px;
+		margin-bottom: 25px;
+		line-height: 1.5;
+	}
+
+	.role-options {
+		display: flex;
+		flex-direction: column;
+		gap: 15px;
+		margin-bottom: 30px;
+	}
+
+	.role-card {
+		display: flex;
+		align-items: flex-start;
+		gap: 15px;
+		padding: 15px;
+		border: 1px solid #e2e8f0;
+		border-radius: 8px;
+		cursor: pointer;
+		transition: 0.2s;
+	}
+
+	.role-card:hover {
+		border-color: #3b82f6;
+		background: #f8fafc;
+	}
+
+	.role-card input[type="radio"] {
+		margin-top: 4px;
+		accent-color: #3b82f6;
+		transform: scale(1.2);
+	}
+
+	.role-info {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+	}
+
+	.role-info strong {
+		color: #1e293b;
+		font-size: 15px;
+	}
+
+	.role-info span {
+		color: #64748b;
+		font-size: 13px;
+	}
+
+	.modal-actions {
+		display: flex;
+		justify-content: flex-end;
+		gap: 15px;
+	}
+
+	.btn-cancel {
+		padding: 10px 20px;
+		border: 1px solid #cbd5e1;
+		background: white;
+		border-radius: 6px;
+		color: #475569;
+		font-weight: 500;
+		cursor: pointer;
+		transition: 0.2s;
+	}
+
+	.btn-cancel:hover {
+		background: #f1f5f9;
+	}
+
+	.btn-confirm {
+		padding: 10px 20px;
+		border: none;
+		background: #2563eb;
+		color: white;
+		border-radius: 6px;
+		font-weight: 500;
+		cursor: pointer;
+		transition: 0.2s;
+	}
+
+	.btn-confirm:hover {
+		background: #1d4ed8;
 	}
 </style>
