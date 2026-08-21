@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Nav from '$lib/components/nav.svelte';
+
 	import ReaderProfileHeader from '$lib/components/dashboard/ReaderProfileHeader.svelte';
 	import AboutCard from '$lib/components/dashboard/AboutCard.svelte';
 	import InterestsCard from '$lib/components/dashboard/InterestsCard.svelte';
@@ -12,21 +13,54 @@
 	import {
 		MessageSquare,
 		ArrowRight,
-		Sparkles
+		Sparkles,
+		BookOpen,
+		Heart,
+		Bookmark
 	} from 'lucide-svelte';
 
 	import type { PageData } from './$types';
 
 	export let data: PageData;
 
+	/* =====================================================
+	   DATA
+	===================================================== */
+
 	$: profile = data.profile;
-	$: savedArticles = data.savedArticles;
-	$: savedCount = data.savedCount;
-	$: interestsCount = data.interestsCount;
-	$: recommendedArticles = data.recommendedArticles || [];
-	$: reactedArticles = data.reactedArticles || [];
-	$: followedDoctors = data.followedDoctors || [];
-	$: popularArticles = data.popularArticles || [];
+
+	$: savedArticles =
+		data.savedArticles ?? [];
+
+	$: savedResearchPapers =
+		data.savedResearchPapers ?? [];
+
+	$: savedArticlesAndResearch =
+		data.savedArticlesAndResearch ?? [];
+
+	$: reactedArticles =
+		data.reactedArticles ?? [];
+
+	$: reactedResearchPapers =
+		data.reactedResearchPapers ?? [];
+
+	$: reactedArticlesAndResearch =
+		data.reactedArticlesAndResearch ?? [];
+
+	$: savedCount =
+		data.savedCount ?? 0;
+
+	$: interestsCount =
+		data.interestsCount ?? 0;
+
+	$: recommendedArticles =
+		data.recommendedArticles ?? [];
+
+	$: popularArticles =
+		data.popularArticles ?? [];
+
+	$: followedDoctors =
+		data.followedDoctors ?? [];
 </script>
 
 <svelte:head>
@@ -38,14 +72,21 @@
 <div class="page">
 	<div class="container">
 
-		<!-- PROFILE HEADER -->
+		<!-- =====================================================
+		     PROFILE HEADER
+		===================================================== -->
+
 		<ReaderProfileHeader
 			{profile}
 			{savedCount}
 			{interestsCount}
 		/>
 
-		<!-- WELCOME -->
+
+		<!-- =====================================================
+		     WELCOME
+		===================================================== -->
+
 		<section class="welcome-card">
 			<div class="welcome-content">
 
@@ -55,9 +96,10 @@
 
 				<div>
 					<h2>
-						Welcome back{profile?.full_name
-							? `, ${profile.full_name}`
-							: ''}
+						Welcome back
+						{#if profile?.full_name}
+							, {profile.full_name}
+						{/if}
 					</h2>
 
 					<p>
@@ -71,7 +113,10 @@
 		</section>
 
 
-		<!-- ABOUT + INTERESTS -->
+		<!-- =====================================================
+		     ABOUT + INTERESTS
+		===================================================== -->
+
 		<div class="grid">
 
 			<div class="dashboard-card">
@@ -82,72 +127,402 @@
 
 			<div class="dashboard-card">
 				<InterestsCard
-					interests={profile?.interests || []}
+					interests={
+						profile?.interests || []
+					}
 				/>
 			</div>
 
 		</div>
 
 
-		<!-- RECOMMENDED ARTICLES -->
+		<!-- =====================================================
+		     RECOMMENDED
+		===================================================== -->
+
 		<section class="section-block">
 
 			<div class="section-heading">
+
 				<div>
 					<span class="section-label">
 						EXPLORE
 					</span>
 
-					<h2>Recommended for You</h2>
+					<h2>
+						Recommended for You
+					</h2>
 
 					<p>
-						Articles selected based on your interests.
+						Articles and research papers selected
+						based on your interests.
 					</p>
 				</div>
+
 			</div>
+
 
 			<div class="dashboard-card">
-				<RecommendedArticlesCard
-					articles={recommendedArticles}
-				/>
-			</div>
 
-			<div class="dashboard-card" style="margin-top: 20px;">
-				<PopularArticlesCard
-					articles={popularArticles}
+				<RecommendedArticlesCard
+					articles={
+						recommendedArticles
+					}
 				/>
+
 			</div>
 
 		</section>
 
 
-		<!-- FOLLOWED DOCTORS -->
+		<!-- =====================================================
+		     POPULAR
+		===================================================== -->
+
 		<section class="section-block">
 
 			<div class="section-heading">
+
+				<div>
+					<span class="section-label">
+						TRENDING
+					</span>
+
+					<h2>
+						Popular Content
+					</h2>
+
+					<p>
+						Popular articles and research papers
+						based on views, likes and saves.
+					</p>
+				</div>
+
+			</div>
+
+
+			<div class="dashboard-card">
+
+				<PopularArticlesCard
+					articles={
+						popularArticles
+					}
+				/>
+
+			</div>
+
+		</section>
+
+
+		<!-- =====================================================
+		     FOLLOWED DOCTORS
+		===================================================== -->
+
+		<section class="section-block">
+
+			<div class="section-heading">
+
 				<div>
 					<span class="section-label">
 						COMMUNITY
 					</span>
 
-					<h2>Doctors You Follow</h2>
+					<h2>
+						Doctors You Follow
+					</h2>
 
 					<p>
-						Stay connected with doctors from the community.
+						Stay connected with doctors from
+						the community.
 					</p>
 				</div>
+
 			</div>
 
+
 			<div class="dashboard-card">
+
 				<FollowedDoctorsCard
-					doctors={followedDoctors}
+					doctors={
+						followedDoctors
+					}
 				/>
+
 			</div>
 
 		</section>
 
 
-		<!-- TESTIMONIAL -->
+		<!-- =====================================================
+		     SAVED CONTENT
+		===================================================== -->
+
+		<section class="section-block">
+
+			<div class="section-heading">
+
+				<div>
+					<span class="section-label">
+						YOUR LIBRARY
+					</span>
+
+					<h2>
+						Saved Content
+					</h2>
+
+					<p>
+						Articles and research papers you saved
+						for later.
+					</p>
+				</div>
+
+
+				<div class="section-stat">
+
+					<Bookmark size={15} />
+
+					<span>
+						{savedCount}
+						{savedCount === 1
+							? ' item'
+							: ' items'}
+					</span>
+
+				</div>
+
+			</div>
+
+
+			<!-- SAVED ARTICLES -->
+
+			{#if savedArticles.length > 0}
+
+				<div class="content-subsection">
+
+					<div class="subsection-title">
+
+						<BookOpen size={16} />
+
+						<h3>
+							Saved Articles
+						</h3>
+
+						<span>
+							{savedArticles.length}
+						</span>
+
+					</div>
+
+
+					<div class="dashboard-card">
+
+						<SavedArticlesCard
+							articles={
+								savedArticles
+							}
+						/>
+
+					</div>
+
+				</div>
+
+			{/if}
+
+
+			<!-- SAVED RESEARCH -->
+
+			{#if savedResearchPapers.length > 0}
+
+				<div class="content-subsection">
+
+					<div
+						class="subsection-title research-title"
+					>
+
+						<BookOpen size={16} />
+
+						<h3>
+							Saved Research Papers
+						</h3>
+
+						<span>
+							{savedResearchPapers.length}
+						</span>
+
+					</div>
+
+
+					<div class="dashboard-card">
+
+						<SavedArticlesCard
+							articles={
+								savedResearchPapers
+							}
+						/>
+
+					</div>
+
+				</div>
+
+			{/if}
+
+
+			<!-- NOTHING SAVED -->
+
+			{#if savedArticles.length === 0 &&
+				savedResearchPapers.length === 0}
+
+				<div class="empty-content-card">
+
+					<Bookmark size={25} />
+
+					<h3>
+						No saved content yet
+					</h3>
+
+					<p>
+						Save articles or research papers
+						you want to read later.
+					</p>
+
+				</div>
+
+			{/if}
+
+		</section>
+
+
+		<!-- =====================================================
+		     LIKED CONTENT
+		===================================================== -->
+
+		<section class="section-block">
+
+			<div class="section-heading">
+
+				<div>
+
+					<span class="section-label">
+						YOUR ACTIVITY
+					</span>
+
+					<h2>
+						Liked Content
+					</h2>
+
+					<p>
+						Articles and research papers you
+						have liked.
+					</p>
+
+				</div>
+
+			</div>
+
+
+			<!-- LIKED ARTICLES -->
+
+			{#if reactedArticles.length > 0}
+
+				<div class="content-subsection">
+
+					<div class="subsection-title">
+
+						<Heart size={16} />
+
+						<h3>
+							Liked Articles
+						</h3>
+
+						<span>
+							{reactedArticles.length}
+						</span>
+
+					</div>
+
+
+					<div class="dashboard-card">
+
+						<ReactedArticlesCard
+							articles={
+								reactedArticles
+							}
+						/>
+
+					</div>
+
+				</div>
+
+			{/if}
+
+
+			<!-- LIKED RESEARCH -->
+
+			{#if reactedResearchPapers.length > 0}
+
+				<div class="content-subsection">
+
+					<div
+						class="subsection-title research-title"
+					>
+
+						<Heart size={16} />
+
+						<h3>
+							Liked Research Papers
+						</h3>
+
+						<span>
+							{reactedResearchPapers.length}
+						</span>
+
+					</div>
+
+
+					<div class="dashboard-card">
+
+						<ReactedArticlesCard
+							articles={
+								reactedResearchPapers
+							}
+						/>
+
+					</div>
+
+				</div>
+
+			{/if}
+
+
+			<!-- NOTHING LIKED -->
+
+			{#if reactedArticles.length === 0 &&
+				reactedResearchPapers.length === 0}
+
+				<div class="empty-content-card">
+
+					<Heart size={25} />
+
+					<h3>
+						No liked content yet
+					</h3>
+
+					<p>
+						Like articles and research papers
+						to find them here.
+					</p>
+
+				</div>
+
+			{/if}
+
+		</section>
+
+
+		<!-- =====================================================
+		     TESTIMONIAL
+		===================================================== -->
+
 		<section class="testimonial-section">
 
 			<div class="testimonial-content">
@@ -156,18 +531,23 @@
 					<MessageSquare size={23} />
 				</div>
 
+
 				<div class="testimonial-text">
 
-					<span class="section-label testimonial-label">
+					<span
+						class="section-label testimonial-label"
+					>
 						YOUR EXPERIENCE
 					</span>
 
-					<h2>Share Your Experience</h2>
+					<h2>
+						Share Your Experience
+					</h2>
 
 					<p>
-						Have something to share about your experience
-						with Jarurat Care? Write a testimonial and let
-						our community know.
+						Have something to share about your
+						experience with Jarurat Care? Write a
+						testimonial and let our community know.
 					</p>
 
 				</div>
@@ -175,59 +555,20 @@
 			</div>
 
 
-			<!-- IMPORTANT:
-			     Reader has its own testimonial route.
-			     This does NOT open the Doctor testimonial dashboard.
-			-->
 			<a
 				href="/cms/reader-dashboard/testimonials"
 				class="testimonial-button"
 			>
+
 				<MessageSquare size={16} />
 
-				<span>Write Testimonial</span>
+				<span>
+					Write Testimonial
+				</span>
 
 				<ArrowRight size={16} />
+
 			</a>
-
-		</section>
-
-
-		<!-- YOUR ACTIVITY -->
-		<section class="section-block">
-
-			<div class="section-heading">
-
-				<div>
-					<span class="section-label">
-						YOUR ACTIVITY
-					</span>
-
-					<h2>Your Articles</h2>
-
-					<p>
-						Access your saved and liked articles.
-					</p>
-				</div>
-
-			</div>
-
-
-			<div class="grid">
-
-				<div class="dashboard-card">
-					<SavedArticlesCard
-						articles={savedArticles}
-					/>
-				</div>
-
-				<div class="dashboard-card">
-					<ReactedArticlesCard
-						articles={reactedArticles}
-					/>
-				</div>
-
-			</div>
 
 		</section>
 
@@ -244,6 +585,7 @@
 
 	:global(body) {
 		margin: 0;
+
 		font-family:
 			'DM Sans',
 			-apple-system,
@@ -281,7 +623,9 @@
 	}
 
 
-	/* WELCOME */
+	/* =====================================================
+	   WELCOME
+	===================================================== */
 
 	.welcome-card {
 		background: #ffffff;
@@ -290,7 +634,8 @@
 		padding: 20px 22px;
 
 		box-shadow:
-			0 2px 8px rgba(15, 23, 42, 0.04);
+			0 2px 8px
+			rgba(15, 23, 42, 0.04);
 	}
 
 
@@ -339,13 +684,18 @@
 	}
 
 
-	/* GRID */
+	/* =====================================================
+	   GRID
+	===================================================== */
 
 	.grid {
 		display: grid;
 
 		grid-template-columns:
-			repeat(2, minmax(0, 1fr));
+			repeat(
+				2,
+				minmax(0, 1fr)
+			);
 
 		gap: 20px;
 	}
@@ -359,7 +709,8 @@
 		border: 1px solid #e2e8f0;
 
 		box-shadow:
-			0 2px 7px rgba(15, 23, 42, 0.035);
+			0 2px 7px
+			rgba(15, 23, 42, 0.035);
 
 		overflow: hidden;
 
@@ -373,25 +724,34 @@
 		transform: translateY(-1px);
 
 		box-shadow:
-			0 5px 15px rgba(15, 23, 42, 0.06);
+			0 5px 15px
+			rgba(15, 23, 42, 0.06);
 	}
 
 
-	/* SECTIONS */
+	/* =====================================================
+	   SECTIONS
+	===================================================== */
 
 	.section-block {
 		display: flex;
+
 		flex-direction: column;
+
 		gap: 12px;
 	}
 
 
 	.section-heading {
 		display: flex;
+
 		align-items: flex-end;
+
 		justify-content: space-between;
 
 		padding: 0 2px;
+
+		gap: 15px;
 	}
 
 
@@ -401,6 +761,7 @@
 		margin-bottom: 4px;
 
 		font-size: 10px;
+
 		font-weight: 800;
 
 		letter-spacing: 0.08em;
@@ -413,6 +774,7 @@
 		margin: 0;
 
 		font-size: 18px;
+
 		font-weight: 750;
 
 		color: #0f172a;
@@ -430,7 +792,151 @@
 	}
 
 
-	/* TESTIMONIAL */
+	.section-stat {
+		display: flex;
+
+		align-items: center;
+
+		gap: 6px;
+
+		padding: 7px 11px;
+
+		border-radius: 8px;
+
+		background: #eff6ff;
+
+		color: #2563eb;
+
+		border: 1px solid #dbeafe;
+
+		font-size: 12px;
+
+		font-weight: 700;
+
+		white-space: nowrap;
+	}
+
+
+	/* =====================================================
+	   SUBSECTIONS
+	===================================================== */
+
+	.content-subsection {
+		display: flex;
+
+		flex-direction: column;
+
+		gap: 8px;
+	}
+
+
+	.subsection-title {
+		display: flex;
+
+		align-items: center;
+
+		gap: 7px;
+
+		padding: 0 3px;
+
+		color: #2563eb;
+	}
+
+
+	.subsection-title h3 {
+		margin: 0;
+
+		font-size: 13px;
+
+		font-weight: 750;
+
+		color: #334155;
+	}
+
+
+	.subsection-title span {
+		min-width: 22px;
+
+		height: 22px;
+
+		display: flex;
+
+		align-items: center;
+
+		justify-content: center;
+
+		padding: 0 6px;
+
+		border-radius: 999px;
+
+		background: #f1f5f9;
+
+		color: #64748b;
+
+		font-size: 10px;
+
+		font-weight: 700;
+	}
+
+
+	.research-title {
+		color: #7c3aed;
+	}
+
+
+	/* =====================================================
+	   EMPTY CONTENT
+	===================================================== */
+
+	.empty-content-card {
+		display: flex;
+
+		flex-direction: column;
+
+		align-items: center;
+
+		justify-content: center;
+
+		padding: 45px 20px;
+
+		background: #ffffff;
+
+		border: 1px solid #e2e8f0;
+
+		border-radius: 13px;
+
+		text-align: center;
+
+		color: #94a3b8;
+	}
+
+
+	.empty-content-card svg {
+		margin-bottom: 10px;
+	}
+
+
+	.empty-content-card h3 {
+		margin: 0 0 5px;
+
+		font-size: 15px;
+
+		color: #334155;
+	}
+
+
+	.empty-content-card p {
+		margin: 0;
+
+		font-size: 12px;
+
+		color: #64748b;
+	}
+
+
+	/* =====================================================
+	   TESTIMONIAL
+	===================================================== */
 
 	.testimonial-section {
 		display: flex;
@@ -450,7 +956,8 @@
 		border-radius: 14px;
 
 		box-shadow:
-			0 2px 8px rgba(15, 23, 42, 0.04);
+			0 2px 8px
+			rgba(15, 23, 42, 0.04);
 
 		position: relative;
 
@@ -509,6 +1016,7 @@
 		margin: 0;
 
 		font-size: 18px;
+
 		font-weight: 750;
 
 		color: #0f172a;
@@ -521,6 +1029,7 @@
 		max-width: 600px;
 
 		font-size: 12px;
+
 		line-height: 1.55;
 
 		color: #64748b;
@@ -538,6 +1047,7 @@
 		display: inline-flex;
 
 		align-items: center;
+
 		justify-content: center;
 
 		gap: 7px;
@@ -557,7 +1067,8 @@
 		font-weight: 700;
 
 		box-shadow:
-			0 3px 8px rgba(37, 99, 235, 0.18);
+			0 3px 8px
+			rgba(37, 99, 235, 0.18);
 
 		transition:
 			background 0.2s ease,
@@ -572,13 +1083,17 @@
 		transform: translateY(-1px);
 
 		box-shadow:
-			0 5px 12px rgba(37, 99, 235, 0.24);
+			0 5px 12px
+			rgba(37, 99, 235, 0.24);
 	}
 
 
-	/* RESPONSIVE */
+	/* =====================================================
+	   RESPONSIVE
+	===================================================== */
 
 	@media (max-width: 900px) {
+
 		.container {
 			max-width: 100%;
 		}
@@ -590,12 +1105,20 @@
 
 
 	@media (max-width: 700px) {
+
 		.page {
-			padding: 90px 16px 40px;
+			padding:
+				90px 16px 40px;
 		}
 
 		.welcome-content {
 			align-items: flex-start;
+		}
+
+		.section-heading {
+			align-items: flex-start;
+
+			flex-direction: column;
 		}
 
 		.testimonial-section {
@@ -617,6 +1140,7 @@
 
 
 	@media (max-width: 480px) {
+
 		.welcome-card {
 			padding: 17px;
 		}

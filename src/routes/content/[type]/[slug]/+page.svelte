@@ -4,10 +4,12 @@
 		ArrowUp,
 		Link as LinkIcon,
 		Calendar,
-		Share2
+		Share2,
+		Heart,
+		Bookmark
 	} from 'lucide-svelte';
 	import { onMount } from 'svelte';
-	import { trackEvent } from '$lib/utils/analytics';
+	import { enhance } from '$app/forms';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -15,6 +17,21 @@
 	$: article = data.article;
 	$: type = data.type;
 	$: comments = data.comments ?? [];
+
+	let isLiked = data.isLiked ?? false;
+	let isSaved = data.isSaved ?? false;
+
+	let likesCount = Number(
+		data.article?.likes_count ?? 0
+	);
+
+	let savesCount = Number(
+		data.article?.saves_count ?? 0
+	);
+
+	let viewsCount = Number(
+		data.article?.views_count ?? 0
+	);
 
 	let readingProgress = 0;
 	let showScrollTop = false;
@@ -24,40 +41,39 @@
 		const onScroll = () => {
 			if (!articleEl) return;
 
-			const rect = articleEl.getBoundingClientRect();
-			const total = articleEl.offsetHeight;
+			const rect =
+				articleEl.getBoundingClientRect();
 
-			const scrolled = Math.max(0, -rect.top);
+			const total =
+				articleEl.offsetHeight;
+
+			const scrolled =
+				Math.max(0, -rect.top);
 
 			readingProgress = Math.min(
 				100,
-				Math.round((scrolled / total) * 100)
+				Math.round(
+					(scrolled / total) * 100
+				)
 			);
 
-			showScrollTop = window.scrollY > 600;
+			showScrollTop =
+				window.scrollY > 600;
 		};
 
-		window.addEventListener('scroll', onScroll, {
-			passive: true
-		});
+		window.addEventListener(
+			'scroll',
+			onScroll,
+			{ passive: true }
+		);
 
-		/*
-		 * Track article view
-		 */
-		if (article?.id) {
-			trackEvent('view', {
-				contentId: String(article.id),
-				contentType: type
-			}).catch((error) => {
-				console.error(
-					'Failed to track article view:',
-					error
-				);
-			});
-		}
+		onScroll();
 
 		return () => {
-			window.removeEventListener('scroll', onScroll);
+			window.removeEventListener(
+				'scroll',
+				onScroll
+			);
 		};
 	});
 
@@ -68,15 +84,22 @@
 		});
 	}
 
-	function formatDate(date: string | null | undefined) {
+	function formatDate(
+		date: string | null | undefined
+	) {
 		if (!date) return '';
 
 		try {
-			return new Date(date).toLocaleDateString('en-IN', {
-				day: 'numeric',
-				month: 'long',
-				year: 'numeric'
-			});
+			return new Date(
+				date
+			).toLocaleDateString(
+				'en-IN',
+				{
+					day: 'numeric',
+					month: 'long',
+					year: 'numeric'
+				}
+			);
 		} catch {
 			return '';
 		}
@@ -95,19 +118,78 @@
 
 		const shareData = {
 			title: article.title,
-			text: article.excerpt || article.title,
+			text:
+				article.excerpt ||
+				article.abstract ||
+				article.title,
 			url: window.location.href
 		};
 
 		if (navigator.share) {
-			navigator.share(shareData).catch(() => {});
+			navigator
+				.share(shareData)
+				.catch(() => {});
 		} else {
 			navigator.clipboard
-				.writeText(window.location.href)
+				.writeText(
+					window.location.href
+				)
 				.then(() => {
-					alert('Article link copied!');
+					alert(
+						'Article link copied!'
+					);
 				})
 				.catch(() => {});
+		}
+	}
+
+	function handleLikeResult({
+		result
+	}: any) {
+		if (
+			result?.type !== 'success' ||
+			!result.data
+		) {
+			return;
+		}
+
+		if (
+			result.data.success &&
+			typeof result.data.liked ===
+				'boolean'
+		) {
+			isLiked =
+				result.data.liked;
+
+			likesCount = Number(
+				result.data.likesCount ??
+					likesCount
+			);
+		}
+	}
+
+	function handleSaveResult({
+		result
+	}: any) {
+		if (
+			result?.type !== 'success' ||
+			!result.data
+		) {
+			return;
+		}
+
+		if (
+			result.data.success &&
+			typeof result.data.saved ===
+				'boolean'
+		) {
+			isSaved =
+				result.data.saved;
+
+			savesCount = Number(
+				result.data.savesCount ??
+					savesCount
+			);
 		}
 	}
 </script>
@@ -116,7 +198,7 @@
 	<title>
 		{article?.title
 			? `${article.title} | Jarurat Care Foundation`
-			: 'Article | Jarurat Care Foundation'}
+			: 'Content | Jarurat Care Foundation'}
 	</title>
 
 	{#if article?.seo_description}
@@ -134,7 +216,8 @@
 
 <Nav />
 
-<!-- Reading progress -->
+<!-- READING PROGRESS -->
+
 <div
 	class="fixed top-0 left-0 right-0 z-[100] h-1 bg-gray-100"
 >
@@ -156,32 +239,36 @@
 			class="max-w-4xl mx-auto px-6"
 		>
 
-			<!-- ARTICLE HEADER -->
+			<!-- HEADER -->
+
 			<header class="mb-10">
 
-				<!-- CATEGORY -->
 				{#if article.category}
 					<div class="mb-4">
-
 						<span
 							class="inline-block px-3 py-1 rounded-full bg-blue-50 text-[#004085] text-sm font-semibold"
 						>
 							{article.category}
 						</span>
-
 					</div>
 				{/if}
 
+				{#if type === 'research'}
+					<div class="mb-4">
+						<span
+							class="inline-block px-3 py-1 rounded-full bg-purple-50 text-purple-700 text-sm font-semibold"
+						>
+							Research Paper
+						</span>
+					</div>
+				{/if}
 
-				<!-- TITLE -->
 				<h1
 					class="text-4xl md:text-6xl font-bold text-gray-900 leading-tight mb-6"
 				>
 					{article.title}
 				</h1>
 
-
-				<!-- EXCERPT -->
 				{#if article.excerpt}
 					<p
 						class="text-lg md:text-xl text-gray-600 leading-relaxed mb-6"
@@ -190,8 +277,6 @@
 					</p>
 				{/if}
 
-
-				<!-- META -->
 				<div
 					class="flex flex-wrap items-center gap-5 text-sm text-gray-500"
 				>
@@ -201,11 +286,12 @@
 							<Calendar size={16} />
 
 							<span>
-								{formatDate(getArticleDate())}
+								{formatDate(
+									getArticleDate()
+								)}
 							</span>
 						</div>
 					{/if}
-
 
 					{#if article.author_name_credentials}
 						<div>
@@ -215,7 +301,6 @@
 							</span>
 						</div>
 					{/if}
-
 
 					<button
 						type="button"
@@ -232,6 +317,7 @@
 
 
 			<!-- FEATURED IMAGE -->
+
 			{#if article.featured_image}
 				<div class="mb-12">
 
@@ -245,7 +331,121 @@
 			{/if}
 
 
+			<!-- INTERACTION BAR -->
+
+			<div
+				class="flex flex-wrap items-center gap-3 mb-12 p-4 bg-white rounded-xl border border-gray-200 shadow-sm"
+			>
+
+				<form
+					method="POST"
+					action="?/toggleLike"
+					use:enhance={handleLikeResult}
+				>
+
+					<input
+						type="hidden"
+						name="contentId"
+						value={article.id}
+					/>
+
+					<input
+						type="hidden"
+						name="contentType"
+						value={type}
+					/>
+
+					<button
+						type="submit"
+						class:active={isLiked}
+						class="interaction-button"
+						aria-label="Like content"
+					>
+						<Heart
+							size={19}
+							fill={
+								isLiked
+									? 'currentColor'
+									: 'none'
+							}
+						/>
+
+						<span>
+							{isLiked
+								? 'Liked'
+								: 'Like'}
+						</span>
+
+						<span class="count">
+							{likesCount}
+						</span>
+					</button>
+
+				</form>
+
+
+				<form
+					method="POST"
+					action="?/toggleSave"
+					use:enhance={handleSaveResult}
+				>
+
+					<input
+						type="hidden"
+						name="contentId"
+						value={article.id}
+					/>
+
+					<input
+						type="hidden"
+						name="contentType"
+						value={type}
+					/>
+
+					<button
+						type="submit"
+						class:saved={isSaved}
+						class="interaction-button"
+						aria-label="Save content"
+					>
+						<Bookmark
+							size={19}
+							fill={
+								isSaved
+									? 'currentColor'
+									: 'none'
+							}
+						/>
+
+						<span>
+							{isSaved
+								? 'Saved'
+								: 'Save'}
+						</span>
+
+						<span class="count">
+							{savesCount}
+						</span>
+					</button>
+
+				</form>
+
+
+				<div class="content-stat">
+					<span class="stat-label">
+						Views
+					</span>
+
+					<strong>
+						{viewsCount}
+					</strong>
+				</div>
+
+			</div>
+
+
 			<!-- ABSTRACT -->
+
 			{#if article.abstract}
 				<section
 					class="mb-12 p-7 md:p-9 bg-white rounded-2xl border border-gray-100 shadow-sm"
@@ -267,17 +467,88 @@
 			{/if}
 
 
-			<!-- ARTICLE BODY -->
-			<div
-				class="article-body prose prose-lg max-w-none text-gray-800"
-			>
+			<!-- RESEARCH PAPER SECTIONS -->
 
-				{@html article.content || ''}
+			{#if type === 'research'}
 
-			</div>
+				{#if article.introduction}
+					<section class="research-section">
+						<h2>Introduction</h2>
+						<div>
+							{article.introduction}
+						</div>
+					</section>
+				{/if}
+
+				{#if article.literature_review}
+					<section class="research-section">
+						<h2>Literature Review</h2>
+						<div>
+							{article.literature_review}
+						</div>
+					</section>
+				{/if}
+
+				{#if article.methods}
+					<section class="research-section">
+						<h2>Methods</h2>
+						<div>
+							{article.methods}
+						</div>
+					</section>
+				{/if}
+
+				{#if article.results}
+					<section class="research-section">
+						<h2>Results</h2>
+						<div>
+							{article.results}
+						</div>
+					</section>
+				{/if}
+
+				{#if article.discussion}
+					<section class="research-section">
+						<h2>Discussion</h2>
+						<div>
+							{article.discussion}
+						</div>
+					</section>
+				{/if}
+
+				{#if article.conclusion}
+					<section class="research-section">
+						<h2>Conclusion</h2>
+						<div>
+							{article.conclusion}
+						</div>
+					</section>
+				{/if}
+
+				{#if article.references_text}
+					<section class="research-section">
+						<h2>References</h2>
+						<div class="whitespace-pre-line">
+							{article.references_text}
+						</div>
+					</section>
+				{/if}
+
+			{:else}
+
+				<!-- NORMAL CONTENT BODY -->
+
+				<div
+					class="article-body prose prose-lg max-w-none text-gray-800"
+				>
+					{@html article.content || ''}
+				</div>
+
+			{/if}
 
 
 			<!-- TAGS -->
+
 			{#if article.tags && article.tags.length > 0}
 
 				<div
@@ -307,49 +578,8 @@
 			{/if}
 
 
-			<!-- REFERENCES -->
-			{#if article.citations && article.citations.length > 0}
-
-				<div
-					class="mt-16 p-8 bg-gray-50 rounded-2xl border border-gray-100"
-				>
-
-					<h3
-						class="flex items-center gap-2 text-lg font-bold text-[#004085] mb-5"
-					>
-						<LinkIcon size={18} />
-
-						References
-					</h3>
-
-
-					<ul class="space-y-3">
-
-						{#each article.citations as cite}
-							<li
-								class="text-sm text-gray-600 break-words"
-							>
-
-								<a
-									href={cite}
-									target="_blank"
-									rel="noopener noreferrer"
-									class="hover:underline hover:text-[#004085]"
-								>
-									{cite}
-								</a>
-
-							</li>
-						{/each}
-
-					</ul>
-
-				</div>
-
-			{/if}
-
-
 			<!-- COMMENTS -->
+
 			{#if comments.length > 0}
 
 				<section
@@ -361,7 +591,6 @@
 					>
 						Comments
 					</h2>
-
 
 					<div class="space-y-5">
 
@@ -394,7 +623,6 @@
 
 								</div>
 
-
 								<p
 									class="text-gray-600 leading-relaxed"
 								>
@@ -416,7 +644,8 @@
 	</div>
 
 
-	<!-- SCROLL TO TOP -->
+	<!-- SCROLL TOP -->
+
 	{#if showScrollTop}
 
 		<button
@@ -425,9 +654,7 @@
 			class="fixed bottom-8 right-8 z-50 w-11 h-11 rounded-full bg-[#004085] text-white flex items-center justify-center shadow-lg hover:bg-[#003366] transition"
 			aria-label="Scroll to top"
 		>
-
 			<ArrowUp size={19} />
-
 		</button>
 
 	{/if}
@@ -443,11 +670,11 @@
 			<h1
 				class="text-2xl font-bold text-gray-800 mb-2"
 			>
-				Article Not Found
+				Content Not Found
 			</h1>
 
 			<p class="text-gray-500">
-				The article you're looking for could not be found.
+				The content you're looking for could not be found.
 			</p>
 
 		</div>
@@ -458,6 +685,77 @@
 
 
 <style>
+	.interaction-button {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		padding: 9px 14px;
+		border-radius: 9px;
+		border: 1px solid #e2e8f0;
+		background: white;
+		color: #475569;
+		font-size: 13px;
+		font-weight: 600;
+		cursor: pointer;
+		transition: all 0.2s ease;
+	}
+
+	.interaction-button:hover {
+		border-color: #2563eb;
+		color: #2563eb;
+		background: #eff6ff;
+	}
+
+	.interaction-button.active,
+	.interaction-button.saved {
+		background: #eff6ff;
+		border-color: #bfdbfe;
+		color: #2563eb;
+	}
+
+	.count {
+		font-size: 12px;
+		color: #64748b;
+	}
+
+	.content-stat {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		margin-left: auto;
+		padding: 9px 14px;
+		border-radius: 9px;
+		background: #f8fafc;
+		color: #475569;
+		font-size: 13px;
+	}
+
+	.content-stat strong {
+		color: #0f172a;
+	}
+
+	.stat-label {
+		color: #64748b;
+	}
+
+	.research-section {
+		margin-bottom: 42px;
+	}
+
+	.research-section h2 {
+		font-size: 1.75rem;
+		font-weight: 700;
+		color: #111827;
+		margin-bottom: 16px;
+	}
+
+	.research-section > div {
+		color: #374151;
+		font-size: 1.05rem;
+		line-height: 1.9;
+		white-space: pre-line;
+	}
+
 	.article-body :global(h1),
 	.article-body :global(h2),
 	.article-body :global(h3),
@@ -509,5 +807,13 @@
 		margin: 2rem 0;
 		color: #4b5563;
 		font-style: italic;
+	}
+
+	@media (max-width: 640px) {
+		.content-stat {
+			margin-left: 0;
+			width: 100%;
+			justify-content: center;
+		}
 	}
 </style>
