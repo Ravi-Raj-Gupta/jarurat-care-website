@@ -22,8 +22,10 @@
 		Star,
 		ArrowUpRight,
 		Download,
-		Share2
+		Share2,
+		XCircle
 	} from 'lucide-svelte';
+	import { enhance } from '$app/forms';
 
 	export let data;
 
@@ -1359,6 +1361,7 @@
 									<th>Doctor</th>
 									<th>Email</th>
 									<th>Specialization</th>
+									<th>Role</th>
 									<th>Status</th>
 									<th>Action</th>
 								</tr>
@@ -1410,6 +1413,16 @@
 										</td>
 
 										<td>
+											{#if doctor.is_reviewer}
+												<span class="role-badge reviewer">Reviewer</span>
+											{:else if doctor.is_author}
+												<span class="role-badge author">Author</span>
+											{:else}
+												<span class="role-badge pending">Pending</span>
+											{/if}
+										</td>
+
+										<td>
 
 											<span
 												class={getStatusClass(
@@ -1437,28 +1450,44 @@
 
 											{:else}
 
-												<div class="inline-form">
-													<span class="published-label">
-														Approved
-													</span>
-													<form
-														method="POST"
-														action="?/reject"
-														style="display:inline;"
+												<form
+													method="POST"
+													action="?/reject"
+													use:enhance={() => {
+														const rejectingId = doctor.id;
+														
+														if (data.pendingDoctors) {
+															data.pendingDoctors = data.pendingDoctors.map((d) => 
+																d.id === rejectingId ? { 
+																	...d, 
+																	verification_status: 'rejected',
+																	is_author: false,
+																	is_reviewer: false 
+																} : d
+															);
+														}
+
+														return async ({ result, update }) => {
+															if (result.type === 'failure' || result.type === 'error') {
+																alert('Error: Failed to reject');
+																update();
+															}
+														};
+													}}
+												>
+													<input
+														type="hidden"
+														name="doctorId"
+														value={doctor.id}
+													/>
+													<button
+														type="submit"
+														class="action-button reject-button"
 													>
-														<input
-															type="hidden"
-															name="doctorId"
-															value={doctor.id}
-														/>
-														<button
-															type="submit"
-															class="action-button reject-button"
-														>
-															Reject
-														</button>
-													</form>
-												</div>
+														<XCircle size={14} />
+														Reject
+													</button>
+												</form>
 
 											{/if}
 
@@ -2131,7 +2160,11 @@
 </div>
 
 {#if doctorToApprove}
+	<!-- svelte-ignore a11y-click-events-have-key-events -->
+	<!-- svelte-ignore a11y-no-static-element-interactions -->
 	<div class="modal-backdrop" on:click={() => doctorToApprove = null}>
+		<!-- svelte-ignore a11y-click-events-have-key-events -->
+		<!-- svelte-ignore a11y-no-static-element-interactions -->
 		<div class="modal-content" on:click|stopPropagation>
 			<div class="modal-header">
 				<h2>Approve Doctor</h2>
@@ -2142,7 +2175,33 @@
 				Please assign a role to <strong>{doctorToApprove.full_name || 'this user'}</strong> before approving their account:
 			</p>
 			
-			<form method="POST" action="?/approve">
+			<form method="POST" action="?/approve" use:enhance={({ formData }) => {
+				const assignedRole = formData.get('assignedRole');
+				const approvingId = doctorToApprove.id;
+				doctorToApprove = null;
+				
+				if (data.pendingDoctors) {
+					data.pendingDoctors = data.pendingDoctors.map((d) => {
+						if (d.id === approvingId) {
+							return { 
+								...d, 
+								verification_status: 'approved',
+								is_author: true,
+								is_reviewer: assignedRole === 'reviewer'
+							};
+						}
+						return d;
+					});
+				}
+
+				return async ({ result, update }) => {
+					if (result.type === 'failure' || result.type === 'error') {
+						alert('Error: Failed to approve');
+						// On failure, update() will naturally revert the UI back to the real server state
+						update();
+					}
+				};
+			}}>
 				<input type="hidden" name="doctorId" value={doctorToApprove.id} />
 				
 				<div class="role-options">
@@ -2165,7 +2224,7 @@
 				
 				<div class="modal-actions">
 					<button type="button" class="btn-cancel" on:click={() => doctorToApprove = null}>Cancel</button>
-					<button type="submit" class="btn-confirm" on:click={() => doctorToApprove = null}>Confirm Approval</button>
+					<button type="submit" class="btn-confirm">Confirm Approval</button>
 				</div>
 			</form>
 		</div>
@@ -3223,9 +3282,30 @@
 	}
 
 	.status.published,
-	.status.approved {
-		background: #f0fdf4;
-		color: #16a34a;
+	.status-badge.approved {
+		background: #ecfdf5;
+		color: #10b981;
+	}
+
+	/* NEW ROLE BADGE STYLES */
+	.role-badge {
+		padding: 0.25rem 0.6rem;
+		border-radius: 9999px;
+		font-size: 0.75rem;
+		font-weight: 600;
+		display: inline-block;
+	}
+	.role-badge.reviewer {
+		background: #ede9fe;
+		color: #6d28d9;
+	}
+	.role-badge.author {
+		background: #e0f2fe;
+		color: #0369a1;
+	}
+	.role-badge.pending {
+		background: #f1f5f9;
+		color: #64748b;
 	}
 
 	.status.review {
