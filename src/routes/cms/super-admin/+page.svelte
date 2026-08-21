@@ -207,11 +207,21 @@
 
 		return Math.min(100, number * 12 + 8);
 	}
+	let showProfileDropdown = false;
+	let profileDropdownRef: HTMLElement;
+
+	function closeProfileDropdown(e: MouseEvent) {
+		if (showProfileDropdown && profileDropdownRef && !profileDropdownRef.contains(e.target as Node)) {
+			showProfileDropdown = false;
+		}
+	}
 </script>
 
 <svelte:head>
 	<title>Super Admin Dashboard | Jarurat Care</title>
 </svelte:head>
+
+<svelte:window on:click={closeProfileDropdown} />
 
 <div class="dashboard">
 
@@ -387,44 +397,62 @@
 
 			</div>
 
-			<div class="admin-profile">
+			<!-- svelte-ignore a11y-click-events-have-key-events -->
+			<!-- svelte-ignore a11y-no-static-element-interactions -->
+			<div class="admin-profile-wrap" bind:this={profileDropdownRef}>
+				<div class="admin-profile" on:click={() => showProfileDropdown = !showProfileDropdown}>
 
-				<div class="admin-avatar">
+					<div class="admin-avatar">
 
-					{#if currentUser?.avatar}
-						<img
-							src={currentUser.avatar}
-							alt="Admin profile"
-						/>
-					{:else if currentUser?.avatar_url}
-						<img
-							src={currentUser.avatar_url}
-							alt="Admin profile"
-						/>
-					{:else}
-						{(
-							currentUser?.full_name ||
-							currentUser?.name ||
-							'A'
-						).charAt(0).toUpperCase()}
-					{/if}
+						{#if currentUser?.avatar}
+							<img
+								src={currentUser.avatar}
+								alt="Admin profile"
+							/>
+						{:else if currentUser?.avatar_url}
+							<img
+								src={currentUser.avatar_url}
+								alt="Admin profile"
+							/>
+						{:else}
+							{(
+								currentUser?.full_name ||
+								currentUser?.name ||
+								'A'
+							).charAt(0).toUpperCase()}
+						{/if}
+
+					</div>
+
+					<div class="admin-info">
+
+						<strong>
+							{currentUser?.full_name ||
+								currentUser?.name ||
+								'Super Admin'}
+						</strong>
+
+						<span>
+							{currentUser?.role || 'Super Admin'}
+						</span>
+
+					</div>
 
 				</div>
 
-				<div class="admin-info">
-
-					<strong>
-						{currentUser?.full_name ||
-							currentUser?.name ||
-							'Super Admin'}
-					</strong>
-
-					<span>
-						{currentUser?.role || 'Super Admin'}
-					</span>
-
-				</div>
-
+				{#if showProfileDropdown}
+					<div class="profile-dropdown">
+						<div class="dd-head">
+							<strong>{currentUser?.full_name || currentUser?.name || 'Super Admin'}</strong>
+							<span>{currentUser?.email || 'admin@jarurat.care'}</span>
+						</div>
+						<hr />
+						<a href="/cms/complete-profile" on:click={() => showProfileDropdown = false}>View Profile</a>
+						<a href="/cms/doctor-dashboard/settings" on:click={() => showProfileDropdown = false}>Account Settings</a>
+						<hr />
+						<a href="/cms/login" class="text-red-600 font-medium">Logout</a>
+					</div>
+				{/if}
 			</div>
 
 		</header>
@@ -3691,5 +3719,63 @@
 
 	.btn-confirm:hover {
 		background: #1d4ed8;
+	}
+
+	/* PROFILE DROPDOWN STYLES */
+	.admin-profile-wrap {
+		position: relative;
+	}
+	.admin-profile {
+		cursor: pointer;
+	}
+	.profile-dropdown {
+		position: absolute;
+		top: calc(100% + 15px);
+		right: 0;
+		background: #ffffff;
+		border: 1px solid #e2e8f0;
+		border-radius: 8px;
+		width: 240px;
+		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+		padding: 8px 0;
+		z-index: 100;
+	}
+	.profile-dropdown .dd-head {
+		padding: 12px 18px;
+		display: flex;
+		flex-direction: column;
+	}
+	.profile-dropdown .dd-head strong {
+		font-size: 14px;
+		color: #0f172a;
+		margin-bottom: 3px;
+	}
+	.profile-dropdown .dd-head span {
+		font-size: 12px;
+		color: #64748b;
+	}
+	.profile-dropdown hr {
+		border: 0;
+		border-top: 1px solid #f1f5f9;
+		margin: 6px 0;
+	}
+	.profile-dropdown a {
+		display: block;
+		padding: 10px 18px;
+		color: #334155;
+		font-size: 13px;
+		font-weight: 500;
+		text-decoration: none;
+		transition: 0.2s ease;
+	}
+	.profile-dropdown a:hover {
+		background: #f8fafc;
+		color: #0f172a;
+	}
+	.profile-dropdown a.text-red-600 {
+		color: #dc2626;
+	}
+	.profile-dropdown a.text-red-600:hover {
+		background: #fef2f2;
 	}
 </style>

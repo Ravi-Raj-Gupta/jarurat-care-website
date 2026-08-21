@@ -16,6 +16,7 @@
 	<div class="content">
 		<Topbar
 			doctorName={profile?.full_name || ''}
+			email={profile?.email || ''}
 			unreadCount={0}
 		/>
 
