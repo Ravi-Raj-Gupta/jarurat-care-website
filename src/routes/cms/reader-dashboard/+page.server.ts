@@ -449,22 +449,37 @@ export const load: PageServerLoad = async ({ locals }) => {
 	let savedArticles: SavedArticle[] = [];
 
 	if (articleIds.length > 0) {
-		const {
-			data: articles,
-			error: articlesError
-		} = await supabaseAdmin
-			.from('articles')
-			.select('id, title, category, author_id')
-			.in('id', articleIds);
+		const [articlesRes, cmsRes, researchRes] = await Promise.all([
+			supabaseAdmin
+				.from('articles')
+				.select('id, title, category, author_id')
+				.in('id', articleIds),
+			cmsSupabase
+				.from('cms_content')
+				.select('id, title, category, content_type, author_id')
+				.in('id', articleIds),
+			cmsSupabase
+				.from('research_articles')
+				.select('id, title, category, author_id')
+				.in('id', articleIds)
+		]);
 
-		if (articlesError) {
-			console.error(
-				'Error loading saved article details:',
-				articlesError
-			);
-		}
+		const rawArticles = articlesRes.data ?? [];
+		const rawCms = cmsRes.data ?? [];
+		const rawResearch = researchRes.data ?? [];
 
-		const articlesList = articles ?? [];
+		// Normalize fields so they all look the same
+		const articlesList = [
+			...rawArticles.map(a => ({ ...a, type: 'article' })),
+			...rawCms.map(c => ({ 
+				id: c.id, 
+				title: c.title, 
+				category: c.category || c.content_type, 
+				author_id: c.author_id,
+				type: c.content_type
+			})),
+			...rawResearch.map(r => ({ ...r, type: 'research' }))
+		];
 
 		const authorIds = [
 			...new Set(
@@ -776,28 +791,37 @@ export const load: PageServerLoad = async ({ locals }) => {
 		[];
 
 	if (likedArticleIds.length > 0) {
-		const {
-			data: likedArticles,
-			error: likedArticlesError
-		} = await supabaseAdmin
-			.from('articles')
-			.select(
-				'id, title, category, author_id'
-			)
-			.in(
-				'id',
-				likedArticleIds
-			);
+		const [articlesRes, cmsRes, researchRes] = await Promise.all([
+			supabaseAdmin
+				.from('articles')
+				.select('id, title, category, author_id')
+				.in('id', likedArticleIds),
+			cmsSupabase
+				.from('cms_content')
+				.select('id, title, category, content_type, author_id')
+				.in('id', likedArticleIds),
+			cmsSupabase
+				.from('research_articles')
+				.select('id, title, category, author_id')
+				.in('id', likedArticleIds)
+		]);
 
-		if (likedArticlesError) {
-			console.error(
-				'Error loading liked article details:',
-				likedArticlesError
-			);
-		}
+		const rawArticles = articlesRes.data ?? [];
+		const rawCms = cmsRes.data ?? [];
+		const rawResearch = researchRes.data ?? [];
 
-		const likedArticlesList =
-			likedArticles ?? [];
+		// Normalize fields so they all look the same
+		const likedArticlesList = [
+			...rawArticles.map(a => ({ ...a, type: 'article' })),
+			...rawCms.map(c => ({ 
+				id: c.id, 
+				title: c.title, 
+				category: c.category || c.content_type, 
+				author_id: c.author_id,
+				type: c.content_type
+			})),
+			...rawResearch.map(r => ({ ...r, type: 'research' }))
+		];
 
 		const likedAuthorIds = [
 			...new Set(

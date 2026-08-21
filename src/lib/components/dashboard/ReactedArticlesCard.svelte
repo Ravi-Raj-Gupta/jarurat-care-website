@@ -88,6 +88,24 @@
 		display: flex;
 		flex-direction: column;
 		gap: 16px;
+		max-height: 280px;
+		overflow-y: auto;
+		padding-right: 8px;
+	}
+
+	.article-list::-webkit-scrollbar {
+		width: 6px;
+	}
+	.article-list::-webkit-scrollbar-track {
+		background: #f8fafc;
+		border-radius: 4px;
+	}
+	.article-list::-webkit-scrollbar-thumb {
+		background: #cbd5e1;
+		border-radius: 4px;
+	}
+	.article-list::-webkit-scrollbar-thumb:hover {
+		background: #94a3b8;
 	}
 
 	.article-item {

@@ -74,14 +74,54 @@ export const actions = {
 		if (!articleId) return fail(400, { message: 'Missing articleId' });
 
 		if (isSaved) {
-			await supabaseAdmin
+			const { error } = await supabaseAdmin
 				.from('saved_articles')
 				.delete()
 				.match({ user_id: session.user.id, article_id: articleId });
+			if (error) {
+				console.error('Delete save error:', error);
+				return fail(500, { message: 'Database error' });
+			}
 		} else {
-			await supabaseAdmin
+			const { error } = await supabaseAdmin
 				.from('saved_articles')
 				.insert({ user_id: session.user.id, article_id: articleId });
+			if (error) {
+				console.error('Insert save error:', error);
+				return fail(500, { message: 'Database error' });
+			}
+		}
+		
+		return { success: true };
+	},
+
+	toggleLike: async ({ request, locals }) => {
+		const session = await locals.getSession();
+		if (!session) return fail(401, { message: 'Unauthorized' });
+
+		const formData = await request.formData();
+		const articleId = formData.get('articleId') as string;
+		const isLiked = formData.get('isLiked') === 'true';
+
+		if (!articleId) return fail(400, { message: 'Missing articleId' });
+
+		if (isLiked) {
+			const { error } = await supabaseAdmin
+				.from('article_likes')
+				.delete()
+				.match({ user_id: session.user.id, article_id: articleId });
+			if (error) {
+				console.error('Delete like error:', error);
+				return fail(500, { message: 'Database error' });
+			}
+		} else {
+			const { error } = await supabaseAdmin
+				.from('article_likes')
+				.insert({ user_id: session.user.id, article_id: articleId });
+			if (error) {
+				console.error('Insert like error:', error);
+				return fail(500, { message: 'Database error' });
+			}
 		}
 		
 		return { success: true };
@@ -91,6 +131,7 @@ export const actions = {
 export const load: PageServerLoad = async ({ locals }) => {
 	const session = await locals.getSession();
 	let savedArticleIds: string[] = [];
+	let likedArticleIds: string[] = [];
 
 	if (session) {
 		const { data: savedRows } = await supabaseAdmin
@@ -100,6 +141,15 @@ export const load: PageServerLoad = async ({ locals }) => {
 		
 		if (savedRows) {
 			savedArticleIds = savedRows.map(r => String(r.article_id));
+		}
+
+		const { data: likedRows } = await supabaseAdmin
+			.from('article_likes')
+			.select('article_id')
+			.eq('user_id', session.user.id);
+		
+		if (likedRows) {
+			likedArticleIds = likedRows.map(r => String(r.article_id));
 		}
 	}
 
@@ -177,6 +227,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	return {
 		publications,
 		savedArticleIds,
+		likedArticleIds,
 		session
 	};
 };

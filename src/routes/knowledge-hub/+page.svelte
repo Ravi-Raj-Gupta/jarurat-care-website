@@ -244,6 +244,12 @@
 			});
 		}
 
+		if (data?.likedArticleIds) {
+			data.likedArticleIds.forEach((id: string) => {
+				localLikes[id] = true;
+			});
+		}
+
 		const {
 			data: { user }
 		} = await cmsSupabase.auth.getUser();
@@ -334,13 +340,46 @@
 		}
 	}
 
-	function toggleLike(e: Event, item: ContentItem) {
+	async function toggleLike(e: Event, item: ContentItem) {
 		e.stopPropagation();
 
-		localLikes[item.id] = !localLikes[item.id];
+		if (!isLoggedIn) {
+			toast.error('Please login to like articles!');
+			return;
+		}
 
-		if (localLikes[item.id]) {
-			toast.success('Liked! ❤️');
+		const previousState = localLikes[item.id] || false;
+
+		localLikes[item.id] = !previousState;
+
+		const formData = new FormData();
+		formData.append('articleId', item.id);
+		formData.append('isLiked', String(previousState));
+
+		try {
+			const response = await fetch('?/toggleLike', {
+				method: 'POST',
+				body: formData,
+				headers: {
+					'x-sveltekit-action': 'true'
+				}
+			});
+
+			const result = deserialize(await response.text());
+
+			if (result.type === 'success') {
+				toast.success(
+					localLikes[item.id]
+						? 'Liked! ❤️'
+						: 'Removed like'
+				);
+			} else {
+				localLikes[item.id] = previousState;
+				toast.error('Failed to like article.');
+			}
+		} catch (error) {
+			localLikes[item.id] = previousState;
+			toast.error('Network error liking article.');
 		}
 	}
 
