@@ -6,13 +6,13 @@
 		BookOpen,
 		Folder,
 		ClipboardCheck,
-		Settings,
 		Globe,
 		ExternalLink,
 		LogOut,
 		ShieldCheck,
 		Users,
-		MessageSquare
+		MessageSquare,
+		Bookmark
 	} from 'lucide-svelte';
 
 	export let isReviewer: boolean = false;
@@ -103,6 +103,17 @@
 			<span>Drafts</span>
 		</a>
 
+		<a
+			href="/cms/doctor-dashboard/saved-articles"
+			class="nav-item"
+			class:active={currentPath.startsWith(
+				'/cms/doctor-dashboard/saved-articles'
+			)}
+		>
+			<Bookmark size={18} />
+			<span>Saved Articles</span>
+		</a>
+
 		<!-- TESTIMONIAL -->
 		<a
 			href="/cms/doctor-dashboard/testimonials"
@@ -147,19 +158,6 @@
 		{/if}
 
 
-		<!-- PREFERENCES -->
-		<div class="group-title">PREFERENCES</div>
-
-		<a
-			href="/cms/doctor-dashboard/settings"
-			class="nav-item"
-			class:active={currentPath.startsWith(
-				'/cms/doctor-dashboard/settings'
-			)}
-		>
-			<Settings size={18} />
-			<span>Settings</span>
-		</a>
 	</div>
 
 
