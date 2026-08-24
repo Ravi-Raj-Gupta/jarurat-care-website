@@ -362,11 +362,6 @@
         border-color: #CBD5E1;
     }
 
-    .stat-card:hover .arrow-hover {
-        color: #64748B;
-        transform: translateX(3px);
-    }
-
     .reviewer-card {
         background: #FFFBEB;
         border-color: #FDE68A;

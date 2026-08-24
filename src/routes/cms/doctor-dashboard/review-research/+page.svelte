@@ -263,6 +263,11 @@
 		white-space: nowrap;
 	}
 
+	td:first-child {
+		white-space: normal;
+		min-width: 300px;
+	}
+
 	tbody tr:last-child td {
 		border-bottom: none;
 	}
@@ -275,6 +280,7 @@
 		font-size: 14px;
 		font-weight: 700;
 		color: #0f172a;
+		line-height: 1.5;
 	}
 
 	.type-badge.research-type {

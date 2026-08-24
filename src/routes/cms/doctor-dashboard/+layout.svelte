@@ -21,7 +21,6 @@
             doctorName={profile?.full_name || 'Dr. Ananya Verma'} 
             unreadCount={0} 
             {isReviewer} 
-            email={profile?.email || ''}
             email={profile?.email || $page.data.session?.user?.email || 'doctor@jarurat.care'}
             avatar={profile?.avatar_url || ''}
         />
