@@ -1774,7 +1774,7 @@
 		sans-serif;
 
 	/* Space for the main JCF website navbar */
-	padding-top: 132px;
+	padding-top: 64px;
 }
 
 	/* =========================================================
@@ -1787,7 +1787,7 @@
 
 	/* Keep community toolbar completely below main navbar */
 	position: sticky;
-	top: 132px;
+	top: 64px;
 	z-index: 40;
 }
 

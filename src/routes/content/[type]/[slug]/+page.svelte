@@ -431,12 +431,12 @@
 				</form>
 
 
-				<div class="content-stat">
-					<span class="stat-label">
+				<div class="views-pill ml-auto flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-lg text-sm">
+					<span class="text-slate-500">
 						Views
 					</span>
 
-					<strong>
+					<strong class="text-slate-900 font-semibold">
 						{viewsCount}
 					</strong>
 				</div>
@@ -713,9 +713,9 @@
 		color: #2563eb;
 	}
 
-	.count {
-		font-size: 12px;
+	.interaction-button .count {
 		color: #64748b;
+		margin-left: 4px;
 	}
 
 	.content-stat {
@@ -810,10 +810,5 @@
 	}
 
 	@media (max-width: 640px) {
-		.content-stat {
-			margin-left: 0;
-			width: 100%;
-			justify-content: center;
-		}
 	}
 </style>
