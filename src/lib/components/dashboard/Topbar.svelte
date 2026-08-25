@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Search, Bell, ChevronDown } from 'lucide-svelte';
+	import { goto } from '$app/navigation';
 
 	export let doctorName: string = '';
 	export let unreadCount: number = 0;
@@ -15,6 +16,31 @@
 			showDropdown = false;
 		}
 	}
+
+	import { page } from '$app/stores';
+
+	let query = '';
+	
+	// Keep input synced with URL if it changes externally
+	$: {
+		const currentQ = $page.url.searchParams.get('q');
+		if (currentQ !== null && query === '') {
+			query = currentQ;
+		}
+	}
+
+	function handleSearch(e: KeyboardEvent) {
+		if (e.key === 'Enter') {
+			if (query.trim()) {
+				goto(`?q=${encodeURIComponent(query.trim())}`);
+			} else {
+				// Clear search from URL
+				const url = new URL($page.url);
+				url.searchParams.delete('q');
+				goto(url.pathname + url.search);
+			}
+		}
+	}
 </script>
 
 <svelte:window on:click={closeDropdown} />
@@ -22,7 +48,12 @@
 <header class="topbar">
 	<div class="search-box">
 		<Search size={16} class="text-slate-400" />
-		<input type="text" placeholder="Search articles, research papers, topics..." />
+		<input 
+			type="text" 
+			placeholder="Search here..." 
+			bind:value={query}
+			on:keydown={handleSearch}
+		/>
 	</div>
 
 	<div class="actions">

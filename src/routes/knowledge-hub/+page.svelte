@@ -3,6 +3,7 @@
 	import Nav from '$lib/components/nav.svelte';
 	import NewsFooter from '$lib/components/news-footer.svelte';
 	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 	import {
 		Search,
 		LayoutGrid,
@@ -136,7 +137,7 @@
 	let loading = false;
 	let errorMsg = '';
 
-	let searchQuery = '';
+	let searchQuery = $page.url.searchParams.get('q') || '';
 	let activeFilter = 'all';
 
 	let viewMode: 'grid' | 'list' = 'grid';
