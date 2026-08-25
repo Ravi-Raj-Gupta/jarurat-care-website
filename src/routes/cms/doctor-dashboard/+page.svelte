@@ -1,7 +1,8 @@
 <script lang="ts">
     import { 
         FileText, BookOpen, Folder, ClipboardCheck, ShieldCheck,
-        ArrowRight, CheckCircle, Clock, Edit3, PlusCircle, ExternalLink 
+        ArrowRight, CheckCircle, Clock, Edit3, PlusCircle, ExternalLink,
+        Eye, Bookmark
     } from 'lucide-svelte';
 
     export let data;
@@ -92,6 +93,22 @@
             </div>
             <ArrowRight size={16} class="ml-auto text-slate-300 arrow-hover" />
         </a>
+
+        <div class="stat-card">
+			<div class="stat-icon orange-bg"><Eye size={22} class="text-orange" /></div>
+			<div class="stat-info">
+				<span class="stat-value">{stats.views || 0}</span>
+				<span class="stat-label">Total Views</span>
+			</div>
+		</div>
+
+		<div class="stat-card">
+			<div class="stat-icon red-bg"><Bookmark size={22} class="text-red" /></div>
+			<div class="stat-info">
+				<span class="stat-value">{stats.bookmarks || 0}</span>
+				<span class="stat-label">Total Bookmarks</span>
+			</div>
+		</div>
 
         <!-- REVIEWER ONLY STAT CARDS (SPLIT INTO TWO) -->
         {#if isReviewer}
@@ -357,7 +374,7 @@
         transition: all 0.2s ease;
     }
 
-    .stat-card:hover {
+    .stat-card.clickable:hover {
         transform: translateY(-2px);
         box-shadow: 0 6px 16px rgba(0,0,0,0.05);
         border-color: #CBD5E1;
@@ -392,6 +409,13 @@
     .text-green { color: #16A34A; }
     .text-amber { color: #D97706; }
     .text-amber-dark { color: #B45309; }
+
+    .text-orange { color: #F97316; }
+    .orange-bg { background: rgba(249, 115, 22, 0.1); }
+
+    .text-red { color: #EF4444; }
+    .red-bg { background: rgba(239, 68, 68, 0.1); }
+
     .text-slate-300 { color: #CBD5E1; transition: all 0.2s; }
 
     .stat-info { display: flex; flex-direction: column; }
