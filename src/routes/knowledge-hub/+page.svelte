@@ -21,7 +21,10 @@
 		BookOpen,
 		CalendarDays,
 		MessageCircleQuestion,
-		Newspaper
+		Newspaper,
+		User,
+		LayoutDashboard,
+		LogOut
 	} from 'lucide-svelte';
 	import { cmsSupabase } from '$lib/cmsSupabase';
 	import toast from 'svelte-french-toast';
@@ -588,29 +591,38 @@
 							<div class="dropdown-overlay" on:click={() => (isDropdownOpen = false)}></div>
 							<div class="dropdown-menu">
 								<div class="dropdown-header">
-									<p class="user-email">{userEmail || 'User'}</p>
+									<p class="user-email" title={userEmail || 'User'}>{userEmail || 'User'}</p>
 									<p class="user-role-label">{userRole || 'Member'}</p>
 								</div>
 								
-								<a class="dropdown-item" href="/cms/view-profile">View Profile</a>
-								
-								<a
-									class="dropdown-item"
-									href={
-										userRole === 'Super_Admin' ||
-										userRole === 'Admin'
-											? '/cms/admin-dashboard'
-											: userRole === 'Doctor'
-												? '/cms/doctor-dashboard'
-												: '/cms/reader-dashboard'
-									}
-								>
-									Dashboard
-								</a>
+								<div class="dropdown-actions">
+									<a class="dropdown-item" href="/cms/view-profile">
+										<User size={16} />
+										<span>View Profile</span>
+									</a>
+									
+									<a
+										class="dropdown-item"
+										href={
+											userRole === 'Super_Admin' ||
+											userRole === 'Admin'
+												? '/cms/admin-dashboard'
+												: userRole === 'Doctor'
+													? '/cms/doctor-dashboard'
+													: '/cms/reader-dashboard'
+										}
+									>
+										<LayoutDashboard size={16} />
+										<span>View Dashboard</span>
+									</a>
+								</div>
 
-								<button class="dropdown-item logout" on:click={logout}>
-									Logout
-								</button>
+								<div class="dropdown-footer">
+									<button class="dropdown-item logout" on:click={logout}>
+										<LogOut size={16} />
+										<span>Logout</span>
+									</button>
+								</div>
 							</div>
 						{/if}
 					</div>
@@ -2002,22 +2014,28 @@
 
 	.dropdown-menu {
 		position: absolute;
-		top: calc(100% + 10px);
+		top: calc(100% + 12px);
 		right: 0;
 		background: white;
 		border: 1px solid #e2e8f0;
-		border-radius: 8px;
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-		min-width: 200px;
+		border-radius: 12px;
+		box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+		min-width: 230px;
 		z-index: 100;
 		display: flex;
 		flex-direction: column;
 		overflow: hidden;
+		animation: slideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+	}
+
+	@keyframes slideDown {
+		from { opacity: 0; transform: translateY(-8px); }
+		to { opacity: 1; transform: translateY(0); }
 	}
 
 	.dropdown-header {
-		padding: 12px 16px;
-		border-bottom: 1px solid #e2e8f0;
+		padding: 12px 14px;
+		border-bottom: 1px solid #f1f5f9;
 		background: #f8fafc;
 	}
 
@@ -2026,40 +2044,65 @@
 		font-size: 14px;
 		font-weight: 600;
 		color: #0f172a;
-		word-break: break-all;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 
 	.user-role-label {
 		margin: 4px 0 0;
-		font-size: 12px;
+		font-size: 11px;
+		font-weight: 500;
 		color: #64748b;
 		text-transform: capitalize;
+		display: inline-flex;
+		padding: 2px 8px;
+		background: #e2e8f0;
+		border-radius: 12px;
+	}
+
+	.dropdown-actions {
+		padding: 4px 6px;
+		display: flex;
+		flex-direction: column;
+		gap: 0px;
+	}
+
+	.dropdown-footer {
+		padding: 4px 6px;
+		border-top: 1px solid #f1f5f9;
 	}
 
 	.dropdown-item {
-		padding: 12px 16px;
+		padding: 8px 10px;
 		text-decoration: none;
-		color: #334155;
-		font-size: 14px;
+		color: #475569;
+		font-size: 13.5px;
 		font-weight: 500;
-		background: none;
+		background: transparent;
 		border: none;
+		border-radius: 6px;
 		text-align: left;
 		cursor: pointer;
-		transition: background 0.2s;
+		transition: all 0.2s;
+		display: flex;
+		align-items: center;
+		gap: 8px;
 	}
 
 	.dropdown-item:hover {
 		background: #f1f5f9;
+		color: #0f172a;
 	}
 
 	.dropdown-item.logout {
 		color: #ef4444;
-		border-top: 1px solid #e2e8f0;
+		width: 100%;
 	}
 
 	.dropdown-item.logout:hover {
 		background: #fef2f2;
+		color: #dc2626;
 	}
 
 	.avatar {
