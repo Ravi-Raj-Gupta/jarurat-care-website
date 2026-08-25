@@ -2,7 +2,7 @@
     import { 
         FileText, BookOpen, Folder, ClipboardCheck, ShieldCheck,
         ArrowRight, CheckCircle, Clock, Edit3, PlusCircle, ExternalLink,
-        Eye, Bookmark
+        Eye, Bookmark, Heart
     } from 'lucide-svelte';
 
     export let data;
@@ -107,6 +107,14 @@
 			<div class="stat-info">
 				<span class="stat-value">{stats.bookmarks || 0}</span>
 				<span class="stat-label">Total Bookmarks</span>
+			</div>
+		</div>
+
+		<div class="stat-card">
+			<div class="stat-icon pink-bg"><Heart size={22} class="text-pink" /></div>
+			<div class="stat-info">
+				<span class="stat-value">{stats.likes || 0}</span>
+				<span class="stat-label">Total Likes</span>
 			</div>
 		</div>
 
@@ -415,6 +423,9 @@
 
     .text-red { color: #EF4444; }
     .red-bg { background: rgba(239, 68, 68, 0.1); }
+
+    .text-pink { color: #EC4899; }
+    .pink-bg { background: rgba(236, 72, 153, 0.1); }
 
     .text-slate-300 { color: #CBD5E1; transition: all 0.2s; }
 

@@ -69,7 +69,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 		views: 
 			allArticles.reduce((sum, a) => sum + (a.views ?? 0), 0) +
 			allResearchPapers.reduce((sum, r) => sum + (r.views_count ?? 0), 0),
-		bookmarks: 0
+		bookmarks: 0,
+		likes: 0
 	};
 
 	// Bookmarks = how many times other users saved this doctor's articles or research papers
@@ -87,6 +88,18 @@ export const load: PageServerLoad = async ({ locals }) => {
 			console.error('Error loading bookmark count:', bookmarkError);
 		} else {
 			stats.bookmarks = bookmarkCount ?? 0;
+		}
+
+		// Likes = how many times other users liked this doctor's articles or research papers
+		const { count: likeCount, error: likeError } = await supabaseAdmin
+			.from('article_likes')
+			.select('id', { count: 'exact', head: true })
+			.in('article_id', allItemIds);
+
+		if (likeError) {
+			console.error('Error loading like count:', likeError);
+		} else {
+			stats.likes = likeCount ?? 0;
 		}
 	}
 
