@@ -145,7 +145,7 @@
 
 	let viewMode: 'grid' | 'list' = 'grid';
 
-	let sortBy: 'date' | 'date_asc' | 'title' | 'title_desc' = 'date';
+	let sortBy: 'date' | 'date_asc' | 'title' | 'title_desc' | 'views_desc' = 'date';
 
 	const PAGE_SIZE = 9;
 	let currentPage = 1;
@@ -206,6 +206,10 @@
 	});
 
 	$: sorted = [...filtered].sort((a, b) => {
+		if (sortBy === 'views_desc') {
+			return (b.views_count || 0) - (a.views_count || 0);
+		}
+
 		if (sortBy === 'title') {
 			return a.title.localeCompare(b.title);
 		}
@@ -632,7 +636,7 @@
 
 				<button
 					class="sidebar-item"
-					class:active={activeFilter === 'all'}
+					class:active={activeFilter === 'all' && sortBy !== 'views_desc'}
 					on:click={goToLatest}
 				>
 					<Clock size={15} />
@@ -641,16 +645,16 @@
 
 				<button
 					class="sidebar-item"
+					class:active={sortBy === 'views_desc'}
 					on:click={() => {
-						document
-							.getElementById('trending-section')
-							?.scrollIntoView({
-								behavior: 'smooth'
-							});
+						activeFilter = 'all';
+						sortBy = 'views_desc';
+						searchQuery = '';
+						currentPage = 1;
 					}}
 				>
 					<TrendingUp size={15} />
-					<span>Hot Topics</span>
+					<span>Popular Content</span>
 				</button>
 
 			</div>
@@ -1082,6 +1086,16 @@
 
 						<button
 							class:topic-active={
+								activeFilter === 'blogs'
+							}
+							on:click={() =>
+								selectFilter('blogs')}
+						>
+							Blogs
+						</button>
+
+						<button
+							class:topic-active={
 								activeFilter === 'event'
 							}
 							on:click={() =>
@@ -1101,11 +1115,13 @@
 					<div>
 
 						<h2>
-							{activeFilter === 'all'
-								? 'Latest Research'
-								: TYPE_LABELS[
-										activeFilter
-									] || activeFilter}
+							{#if sortBy === 'views_desc'}
+								Popular Content
+							{:else if activeFilter === 'all'}
+								Latest Research
+							{:else}
+								{TYPE_LABELS[activeFilter] || activeFilter}
+							{/if}
 						</h2>
 
 						<p>
@@ -1147,6 +1163,10 @@
 						</div>
 
 						<select bind:value={sortBy}>
+							<option value="views_desc">
+								Most Views
+							</option>
+
 							<option value="date">
 								Newest First
 							</option>
