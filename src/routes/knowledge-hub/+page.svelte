@@ -152,6 +152,8 @@
 
 	let isLoggedIn = false;
 	let userRole = '';
+	let userEmail = '';
+	let isDropdownOpen = false;
 
 	let localLikes: Record<string, boolean> = {};
 	let localSaves: Record<string, boolean> = {};
@@ -264,6 +266,7 @@
 
 		if (user) {
 			isLoggedIn = true;
+			userEmail = user.email || '';
 
 			const { data: profile } = await cmsSupabase
 				.from('profiles')
@@ -278,6 +281,7 @@
 			isLoggedIn = !!session?.user;
 
 			if (session?.user) {
+				userEmail = session.user.email || '';
 				const { data: profile } = await cmsSupabase
 					.from('profiles')
 					.select('role')
@@ -296,6 +300,8 @@
 
 		isLoggedIn = false;
 		userRole = '';
+		userEmail = '';
+		isDropdownOpen = false;
 
 		toast.success('Logged out successfully');
 
@@ -560,27 +566,54 @@
 
 				{#if isLoggedIn}
 
-					<a
-						class="profile-button"
-						href={
-							userRole === 'Super_Admin' ||
-							userRole === 'Admin'
-								? '/cms/admin-dashboard'
-								: userRole === 'Doctor'
-									? '/cms/doctor-dashboard'
-									: '/cms/reader-dashboard'
-						}
-					>
-						<span class="avatar">
-							{userRole
-								? userRole.charAt(0).toUpperCase()
-								: 'U'}
-						</span>
+					<div class="profile-dropdown-container">
+						<button
+							class="profile-button"
+							on:click={() => (isDropdownOpen = !isDropdownOpen)}
+						>
+							<span class="avatar">
+								{userRole
+									? userRole.charAt(0).toUpperCase()
+									: 'U'}
+							</span>
 
-						<span class="profile-label">
-							{userRole || 'Account'}
-						</span>
-					</a>
+							<span class="profile-label">
+								{userRole || 'Account'}
+							</span>
+						</button>
+
+						{#if isDropdownOpen}
+							<!-- svelte-ignore a11y-click-events-have-key-events -->
+							<!-- svelte-ignore a11y-no-static-element-interactions -->
+							<div class="dropdown-overlay" on:click={() => (isDropdownOpen = false)}></div>
+							<div class="dropdown-menu">
+								<div class="dropdown-header">
+									<p class="user-email">{userEmail || 'User'}</p>
+									<p class="user-role-label">{userRole || 'Member'}</p>
+								</div>
+								
+								<a class="dropdown-item" href="/cms/view-profile">View Profile</a>
+								
+								<a
+									class="dropdown-item"
+									href={
+										userRole === 'Super_Admin' ||
+										userRole === 'Admin'
+											? '/cms/admin-dashboard'
+											: userRole === 'Doctor'
+												? '/cms/doctor-dashboard'
+												: '/cms/reader-dashboard'
+									}
+								>
+									Dashboard
+								</a>
+
+								<button class="dropdown-item logout" on:click={logout}>
+									Logout
+								</button>
+							</div>
+						{/if}
+					</div>
 
 				{:else}
 
@@ -1940,6 +1973,10 @@
 		padding: 7px;
 	}
 
+	.profile-dropdown-container {
+		position: relative;
+	}
+
 	.profile-button {
 		display: flex;
 		align-items: center;
@@ -1948,6 +1985,81 @@
 		color: #172554;
 		font-size: 13px;
 		font-weight: 600;
+		background: none;
+		border: none;
+		cursor: pointer;
+		padding: 0;
+	}
+
+	.dropdown-overlay {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100vw;
+		height: 100vh;
+		z-index: 99;
+	}
+
+	.dropdown-menu {
+		position: absolute;
+		top: calc(100% + 10px);
+		right: 0;
+		background: white;
+		border: 1px solid #e2e8f0;
+		border-radius: 8px;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+		min-width: 200px;
+		z-index: 100;
+		display: flex;
+		flex-direction: column;
+		overflow: hidden;
+	}
+
+	.dropdown-header {
+		padding: 12px 16px;
+		border-bottom: 1px solid #e2e8f0;
+		background: #f8fafc;
+	}
+
+	.user-email {
+		margin: 0;
+		font-size: 14px;
+		font-weight: 600;
+		color: #0f172a;
+		word-break: break-all;
+	}
+
+	.user-role-label {
+		margin: 4px 0 0;
+		font-size: 12px;
+		color: #64748b;
+		text-transform: capitalize;
+	}
+
+	.dropdown-item {
+		padding: 12px 16px;
+		text-decoration: none;
+		color: #334155;
+		font-size: 14px;
+		font-weight: 500;
+		background: none;
+		border: none;
+		text-align: left;
+		cursor: pointer;
+		transition: background 0.2s;
+	}
+
+	.dropdown-item:hover {
+		background: #f1f5f9;
+	}
+
+	.dropdown-item.logout {
+		color: #ef4444;
+		border-top: 1px solid #e2e8f0;
+	}
+
+	.dropdown-item.logout:hover {
+		background: #fef2f2;
 	}
 
 	.avatar {
