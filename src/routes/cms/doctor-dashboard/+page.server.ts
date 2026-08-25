@@ -43,21 +43,45 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 	const allArticles = articles ?? [];
 
+	// Fetch all of this doctor's research papers
+	const { data: researchPapersData, error: researchError } = await supabaseAdmin
+		.from('research_articles')
+		.select('id, title, status, views_count, created_at')
+		.eq('user_id', session.user.id)
+		.order('created_at', { ascending: false });
+
+	if (researchError) {
+		console.error('Error loading research papers:', researchError);
+	}
+
+	const allResearchPapers = researchPapersData ?? [];
+
 	const stats = {
-		published: allArticles.filter((a) => a.status === 'published').length,
-		draft: allArticles.filter((a) => a.status === 'draft').length,
-		pendingReview: allArticles.filter((a) => a.status === 'under_review').length,
-		views: allArticles.reduce((sum, a) => sum + (a.views ?? 0), 0),
+		published: 
+			allArticles.filter((a) => a.status === 'published').length +
+			allResearchPapers.filter((r) => r.status === 'published').length,
+		draft: 
+			allArticles.filter((a) => a.status === 'draft').length +
+			allResearchPapers.filter((r) => r.status === 'draft').length,
+		pendingReview: 
+			allArticles.filter((a) => a.status === 'under_review').length +
+			allResearchPapers.filter((r) => r.status === 'under_review').length,
+		views: 
+			allArticles.reduce((sum, a) => sum + (a.views ?? 0), 0) +
+			allResearchPapers.reduce((sum, r) => sum + (r.views_count ?? 0), 0),
 		bookmarks: 0
 	};
 
-	// Bookmarks = how many times other users saved this doctor's articles
+	// Bookmarks = how many times other users saved this doctor's articles or research papers
 	const articleIds = allArticles.map((a) => a.id);
-	if (articleIds.length > 0) {
+	const researchIds = allResearchPapers.map((r) => r.id);
+	const allItemIds = [...articleIds, ...researchIds];
+
+	if (allItemIds.length > 0) {
 		const { count: bookmarkCount, error: bookmarkError } = await supabaseAdmin
 			.from('saved_articles')
 			.select('id', { count: 'exact', head: true })
-			.in('article_id', articleIds);
+			.in('article_id', allItemIds);
 
 		if (bookmarkError) {
 			console.error('Error loading bookmark count:', bookmarkError);
@@ -126,10 +150,42 @@ export const load: PageServerLoad = async ({ locals }) => {
 		}
 	}
 
+	let pendingArticles: any[] = [];
+	let pendingResearch: any[] = [];
+
+	if (profile.is_reviewer) {
+		const [{ data: pendingArtData, error: artErr }, { data: pendingResData, error: resErr }] = await Promise.all([
+			supabaseAdmin
+				.from('articles')
+				.select('id, title, created_at, author_name_credentials')
+				.eq('status', 'under_review'),
+			supabaseAdmin
+				.from('research_articles')
+				.select('id, title, created_at, authors_and_affiliations')
+				.eq('status', 'under_review')
+		]);
+
+		if (artErr) console.error('Error loading pending articles:', artErr);
+		if (resErr) console.error('Error loading pending research:', resErr);
+
+		pendingArticles = (pendingArtData ?? []).map(a => ({
+			...a,
+			author_name: a.author_name_credentials || 'Unknown Author'
+		}));
+
+		pendingResearch = (pendingResData ?? []).map(r => ({
+			...r,
+			author_name: r.authors_and_affiliations || 'Unknown Researcher'
+		}));
+	}
+
 	return {
 		profile,
 		stats,
-		recentArticles,
+		articles: allArticles,
+		researchPapers: allResearchPapers,
+		pendingArticles,
+		pendingResearch,
 		notifications: notifications ?? [],
 		unreadCount: unreadCount ?? 0,
 		followedDoctors

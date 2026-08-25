@@ -11,6 +11,7 @@
     $: researchPapers = data.researchPapers || [];
     $: pendingArticles = data.pendingArticles || [];
     $: pendingResearch = data.pendingResearch || [];
+    $: stats = data.stats || {};
 
     $: isReviewer = profile?.is_reviewer === true;
     $: totalPendingReviews = pendingArticles.length + pendingResearch.length;
@@ -86,8 +87,8 @@
         <a href="/cms/doctor-dashboard/drafts" class="stat-card clickable">
             <div class="stat-icon green-bg"><Folder size={22} class="text-green" /></div>
             <div class="stat-info">
-                <span class="stat-value">Drafts</span>
-                <span class="stat-label">View Saved Drafts</span>
+                <span class="stat-value">{stats.draft || 0}</span>
+                <span class="stat-label">Saved Drafts</span>
             </div>
             <ArrowRight size={16} class="ml-auto text-slate-300 arrow-hover" />
         </a>
