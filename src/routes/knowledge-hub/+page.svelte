@@ -47,6 +47,9 @@
 		date: string;
 		author: string;
 		slug?: string;
+		likes_count?: number;
+		saves_count?: number;
+		views_count?: number;
 
 		abstract?: string;
 		introduction?: string;
@@ -306,16 +309,21 @@
 		}
 
 		const previousState = localSaves[item.id] || false;
-
 		localSaves[item.id] = !previousState;
+		localSaves = localSaves; // Trigger reactivity
+		
+		if (item.saves_count !== undefined) {
+			item.saves_count = Math.max(0, item.saves_count + (localSaves[item.id] ? 1 : -1));
+			allContent = allContent;
+		}
 
 		const formData = new FormData();
-
-		formData.append('articleId', item.id);
-		formData.append('isSaved', String(previousState));
+		formData.append('contentId', item.id);
+		formData.append('contentType', item.type);
 
 		try {
-			const response = await fetch('?/toggleSave', {
+			const endpoint = `/content/${item.type}/${item.slug || item.id}?/toggleSave`;
+			const response = await fetch(endpoint, {
 				method: 'POST',
 				body: formData,
 				headers: {
@@ -333,10 +341,20 @@
 				);
 			} else {
 				localSaves[item.id] = previousState;
+				localSaves = localSaves;
+				if (item.saves_count !== undefined) {
+					item.saves_count = Math.max(0, item.saves_count + (previousState ? 1 : -1));
+					allContent = allContent;
+				}
 				toast.error('Failed to save article.');
 			}
 		} catch (error) {
 			localSaves[item.id] = previousState;
+			localSaves = localSaves;
+			if (item.saves_count !== undefined) {
+				item.saves_count = Math.max(0, item.saves_count + (previousState ? 1 : -1));
+				allContent = allContent;
+			}
 			toast.error('Network error saving article.');
 		}
 	}
@@ -350,15 +368,21 @@
 		}
 
 		const previousState = localLikes[item.id] || false;
-
 		localLikes[item.id] = !previousState;
+		localLikes = localLikes; // Trigger reactivity
+		
+		if (item.likes_count !== undefined) {
+			item.likes_count = Math.max(0, item.likes_count + (localLikes[item.id] ? 1 : -1));
+			allContent = allContent;
+		}
 
 		const formData = new FormData();
-		formData.append('articleId', item.id);
-		formData.append('isLiked', String(previousState));
+		formData.append('contentId', item.id);
+		formData.append('contentType', item.type);
 
 		try {
-			const response = await fetch('?/toggleLike', {
+			const endpoint = `/content/${item.type}/${item.slug || item.id}?/toggleLike`;
+			const response = await fetch(endpoint, {
 				method: 'POST',
 				body: formData,
 				headers: {
@@ -376,10 +400,20 @@
 				);
 			} else {
 				localLikes[item.id] = previousState;
+				localLikes = localLikes;
+				if (item.likes_count !== undefined) {
+					item.likes_count = Math.max(0, item.likes_count + (previousState ? 1 : -1));
+					allContent = allContent;
+				}
 				toast.error('Failed to like article.');
 			}
 		} catch (error) {
 			localLikes[item.id] = previousState;
+			localLikes = localLikes;
+			if (item.likes_count !== undefined) {
+				item.likes_count = Math.max(0, item.likes_count + (previousState ? 1 : -1));
+				allContent = allContent;
+			}
 			toast.error('Network error liking article.');
 		}
 	}
@@ -1060,9 +1094,7 @@
 
 				</section>
 
-				<!-- =================================================
-				     CONTENT TOOLBAR
-				================================================= -->
+				<!-- =====    CONTENT TOOLBAR   ======= -->
 
 				<section class="content-toolbar">
 
@@ -1162,9 +1194,7 @@
 
 				</section>
 
-				<!-- =================================================
-				     CONTENT
-				================================================= -->
+				<!-- CONTENT  -->
 
 				{#if loading}
 
@@ -1225,6 +1255,7 @@
 
 						{#each paged as item}
 
+							<!-- svelte-ignore a11y-no-noninteractive-element-to-interactive-role -->
 							<article
 								class="content-card"
 								on:click={() =>
@@ -1318,12 +1349,15 @@
 
 										</div>
 
+										<!-- svelte-ignore a11y-click-events-have-key-events -->
+										<!-- svelte-ignore a11y-no-static-element-interactions -->
 										<div
 											class="card-actions"
 											on:click|stopPropagation
 										>
 
 											<button
+												class="flex items-center gap-1.5"
 												class:liked={
 													localLikes[
 														item.id
@@ -1346,6 +1380,9 @@
 															: 'none'
 													}
 												/>
+												{#if item.likes_count}
+													<span class="text-xs font-medium">{item.likes_count}</span>
+												{/if}
 											</button>
 
 											<button
@@ -1472,12 +1509,15 @@
 
 								</div>
 
+								<!-- svelte-ignore a11y-click-events-have-key-events -->
+								<!-- svelte-ignore a11y-no-static-element-interactions -->
 								<div
 									class="list-actions"
 									on:click|stopPropagation
 								>
 
 									<button
+										class="flex items-center gap-1.5"
 										class:liked={
 											localLikes[
 												item.id
@@ -1500,6 +1540,9 @@
 													: 'none'
 											}
 										/>
+										{#if item.likes_count}
+											<span class="text-xs font-medium">{item.likes_count}</span>
+										{/if}
 									</button>
 
 									<button
@@ -1655,6 +1698,8 @@
 										)}
 									</span>
 
+									<!-- svelte-ignore a11y-click-events-have-key-events -->
+									<!-- svelte-ignore a11y-no-static-element-interactions -->
 									<div
 										class="recent-actions"
 										on:click|stopPropagation
@@ -1749,6 +1794,17 @@
 </div>
 
 <style>
+	/* Optimistic UI Animation */
+	@keyframes pop-icon {
+		0% { transform: scale(1); }
+		50% { transform: scale(1.4); }
+		100% { transform: scale(1); }
+	}
+	button.liked svg,
+	button.saved svg,
+	button.active svg {
+		animation: pop-icon 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+	}
 	:global(body) {
 		margin: 0;
 	}
@@ -1774,7 +1830,7 @@
 		sans-serif;
 
 	/* Space for the main JCF website navbar */
-	padding-top: 64px;
+	padding-top: 96px;
 }
 
 	/* =========================================================
@@ -1787,7 +1843,7 @@
 
 	/* Keep community toolbar completely below main navbar */
 	position: sticky;
-	top: 64px;
+	top: 96px;
 	z-index: 40;
 }
 

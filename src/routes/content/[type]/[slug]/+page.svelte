@@ -10,6 +10,7 @@
 	} from 'lucide-svelte';
 	import { onMount } from 'svelte';
 	import { enhance } from '$app/forms';
+	import toast from 'svelte-french-toast';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -143,54 +144,36 @@
 		}
 	}
 
-	function handleLikeResult({
-		result
-	}: any) {
-		if (
-			result?.type !== 'success' ||
-			!result.data
-		) {
-			return;
-		}
+	function handleLikeResult() {
+		const previousState = isLiked;
+		const previousCount = likesCount;
 
-		if (
-			result.data.success &&
-			typeof result.data.liked ===
-				'boolean'
-		) {
-			isLiked =
-				result.data.liked;
+		isLiked = !previousState;
+		likesCount = Math.max(0, likesCount + (isLiked ? 1 : -1));
 
-			likesCount = Number(
-				result.data.likesCount ??
-					likesCount
-			);
-		}
+		return async ({ result }: any) => {
+			if (result?.type !== 'success' || !result.data || !result.data.success) {
+				isLiked = previousState;
+				likesCount = previousCount;
+				toast.error(result?.data?.message || 'Failed to like article.');
+			}
+		};
 	}
 
-	function handleSaveResult({
-		result
-	}: any) {
-		if (
-			result?.type !== 'success' ||
-			!result.data
-		) {
-			return;
-		}
+	function handleSaveResult() {
+		const previousState = isSaved;
+		const previousCount = savesCount;
 
-		if (
-			result.data.success &&
-			typeof result.data.saved ===
-				'boolean'
-		) {
-			isSaved =
-				result.data.saved;
+		isSaved = !previousState;
+		savesCount = Math.max(0, savesCount + (isSaved ? 1 : -1));
 
-			savesCount = Number(
-				result.data.savesCount ??
-					savesCount
-			);
-		}
+		return async ({ result }: any) => {
+			if (result?.type !== 'success' || !result.data || !result.data.success) {
+				isSaved = previousState;
+				savesCount = previousCount;
+				toast.error(result?.data?.message || 'Failed to save article.');
+			}
+		};
 	}
 </script>
 
@@ -711,6 +694,17 @@
 		background: #eff6ff;
 		border-color: #bfdbfe;
 		color: #2563eb;
+	}
+
+	/* Optimistic UI Animation */
+	@keyframes pop-icon {
+		0% { transform: scale(1); }
+		50% { transform: scale(1.4); }
+		100% { transform: scale(1); }
+	}
+	.interaction-button.active svg,
+	.interaction-button.saved svg {
+		animation: pop-icon 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
 	}
 
 	.interaction-button .count {

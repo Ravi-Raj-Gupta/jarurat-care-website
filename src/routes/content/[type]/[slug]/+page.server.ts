@@ -65,7 +65,8 @@ export const load: PageServerLoad = async ({
 			featured_image:
 				data.cover_image_url || data.image || null,
 			source_table: 'articles',
-			abstract: data.abstract || data.content || ''
+			abstract: data.abstract || data.content || '',
+			views_count: data.views || 0
 		};
 	} else {
 		let { data, error: dbError } = await cmsSupabase
@@ -213,7 +214,7 @@ export const load: PageServerLoad = async ({
 			}
 		} else if (type === 'article') {
 			const currentViews = Number(
-				articleData.views || 0
+				articleData.views_count || 0
 			);
 
 			await supabaseAdmin

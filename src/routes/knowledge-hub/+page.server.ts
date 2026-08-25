@@ -173,7 +173,10 @@ export const load: PageServerLoad = async ({ locals }) => {
 			type: 'research',
 			date: formatDate(r.created_at),
 			date_raw: new Date(r.created_at).getTime(),
-			author: r.author_name_credentials || r.author || 'Research Team'
+			author: r.author_name_credentials || r.author || 'Research Team',
+			likes_count: Number(r.likes_count || 0),
+			saves_count: Number(r.saves_count || 0),
+			views_count: Number(r.views_count || 0)
 		}));
 
 		// 2. Fetch CMS Content (Blogs, News, Events, Campaigns, Testimonials, FAQs)
@@ -193,7 +196,10 @@ export const load: PageServerLoad = async ({ locals }) => {
 			type: c.content_type,
 			date: formatDate(c.created_at),
 			date_raw: new Date(c.created_at).getTime(),
-			author: c.author_name_credentials || c.author || 'Editorial Team'
+			author: c.author_name_credentials || c.author || 'Editorial Team',
+			likes_count: Number(c.likes_count || 0),
+			saves_count: Number(c.saves_count || 0),
+			views_count: Number(c.views_count || 0)
 		}));
 
 		// 3. Fetch CMS Articles (New DB)
@@ -214,7 +220,10 @@ export const load: PageServerLoad = async ({ locals }) => {
 				type: 'article',
 				date: formatDate(a.created_at),
 				date_raw: new Date(a.created_at).getTime(),
-				author: a.author_name_credentials || a.author || 'JCF Team'
+				author: a.author_name_credentials || a.author || 'JCF Team',
+				likes_count: Number(a.likes_count || 0),
+				saves_count: Number(a.saves_count || 0),
+				views_count: Number(a.views_count || a.views || 0)
 			}));
 
 		// Combine and sort
