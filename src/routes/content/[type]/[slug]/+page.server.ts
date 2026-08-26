@@ -318,13 +318,16 @@ export const load: PageServerLoad = async ({
 	let comments: any[] = [];
 
 	try {
+		const tableName = type === 'research' ? 'research_article_comments' : 'article_comments';
+		const idColumn = type === 'research' ? 'research_article_id' : 'article_id';
+
 		const { data: commentsData, error: commentsError } =
 			await supabaseAdmin
-				.from('article_comments')
+				.from(tableName)
 				.select(
 					'id, content, created_at, user_id'
 				)
-				.eq('article_id', articleData.id)
+				.eq(idColumn, articleData.id)
 				.order('created_at', {
 					ascending: true
 				});
@@ -391,7 +394,8 @@ export const load: PageServerLoad = async ({
 		type,
 		comments,
 		isLiked,
-		isSaved
+		isSaved,
+		isLoggedIn: !!userId
 	};
 };
 
@@ -915,20 +919,30 @@ export const actions: Actions = {
 				formData.get('articleId') || ''
 			);
 
+		const contentType = String(formData.get('contentType') || '');
+
 		if (!content || !articleId) {
 			return fail(400, {
 				message: 'Missing data'
 			});
 		}
 
+		const tableName = contentType === 'research' ? 'research_article_comments' : 'article_comments';
+		const insertData: any = {
+			user_id: user.id,
+			content
+		};
+		
+		if (contentType === 'research') {
+			insertData.research_article_id = articleId;
+		} else {
+			insertData.article_id = articleId;
+		}
+
 		const { error: insertError } =
 			await supabaseAdmin
-				.from('article_comments')
-				.insert({
-					article_id: articleId,
-					user_id: user.id,
-					content
-				});
+				.from(tableName)
+				.insert(insertData);
 
 		if (insertError) {
 			console.error(

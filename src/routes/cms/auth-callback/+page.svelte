@@ -36,7 +36,7 @@
       goto('/cms/super-admin');
       return;
     } else if (role === 'Admin') {
-      goto('/cms/admin');
+      goto('/cms/admin-dashboard');
       return;
     }
 

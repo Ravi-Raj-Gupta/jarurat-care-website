@@ -6,7 +6,9 @@
 		Calendar,
 		Share2,
 		Heart,
-		Bookmark
+		Bookmark,
+		Send,
+		MessageCircle
 	} from 'lucide-svelte';
 	import { onMount } from 'svelte';
 	import { enhance } from '$app/forms';
@@ -18,9 +20,12 @@
 	$: article = data.article;
 	$: type = data.type;
 	$: comments = data.comments ?? [];
+	$: isLoggedIn = data.isLoggedIn;
 
 	let isLiked = data.isLiked ?? false;
 	let isSaved = data.isSaved ?? false;
+	
+	let isSubmittingComment = false;
 
 	let likesCount = Number(
 		data.article?.likes_count ?? 0
@@ -172,6 +177,19 @@
 				isSaved = previousState;
 				savesCount = previousCount;
 				toast.error(result?.data?.message || 'Failed to save article.');
+			}
+		};
+	}
+
+	function handleCommentResult() {
+		isSubmittingComment = true;
+		return async ({ result, update }: any) => {
+			isSubmittingComment = false;
+			if (result?.type === 'success' && result?.data?.success) {
+				toast.success('Comment posted successfully!');
+				update();
+			} else {
+				toast.error(result?.data?.message || 'Failed to post comment.');
 			}
 		};
 	}
@@ -563,64 +581,99 @@
 
 			<!-- COMMENTS -->
 
-			{#if comments.length > 0}
+			<section class="mt-16 pt-10 border-t border-gray-200">
+				<h2 class="text-2xl font-bold text-gray-900 mb-6">
+					Comments
+				</h2>
 
-				<section
-					class="mt-16 pt-10 border-t border-gray-200"
-				>
-
-					<h2
-						class="text-2xl font-bold text-gray-900 mb-6"
-					>
-						Comments
-					</h2>
-
-					<div class="space-y-5">
-
-						{#each comments as comment}
-
-							<div
-								class="bg-white rounded-xl border border-gray-100 p-5"
-							>
-
-								<div
-									class="flex items-center justify-between mb-2"
-								>
-
-									<span
-										class="font-semibold text-gray-800"
-									>
-										{comment.profiles?.full_name ||
-											'Anonymous'}
-									</span>
-
-									{#if comment.created_at}
-										<span
-											class="text-xs text-gray-400"
-										>
-											{formatDate(
-												comment.created_at
-											)}
-										</span>
-									{/if}
-
-								</div>
-
-								<p
-									class="text-gray-600 leading-relaxed"
-								>
-									{comment.content}
-								</p>
-
+				<!-- Comment Form -->
+				{#if isLoggedIn}
+					<div class="mb-12 bg-white p-6 sm:p-8 rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 transition-all duration-300 focus-within:shadow-[0_8px_30px_-4px_rgba(6,81,237,0.15)] focus-within:border-[#0d2460]/20">
+						<h3 class="flex items-center gap-2.5 text-lg font-bold text-gray-800 mb-5">
+							<MessageCircle size={22} class="text-[#0d2460]" />
+							Join the discussion
+						</h3>
+						<form
+							method="POST"
+							action="?/submitComment"
+							use:enhance={handleCommentResult}
+						>
+							<input type="hidden" name="articleId" value={article.id} />
+							<input type="hidden" name="contentType" value={type} />
+							
+							<div class="relative mb-4 group">
+								<label for="comment" class="sr-only">Leave a comment</label>
+								<textarea
+									id="comment"
+									name="content"
+									rows="3"
+									class="w-full px-5 py-4 bg-gray-50/50 border border-gray-200 rounded-xl text-gray-700 placeholder-gray-400 focus:bg-white focus:ring-4 focus:ring-[#0d2460]/10 focus:border-[#0d2460] transition-all duration-300 resize-none outline-none"
+									placeholder="What are your thoughts on this?"
+									required
+									disabled={isSubmittingComment}
+								></textarea>
 							</div>
-
-						{/each}
-
+							
+							<div class="flex justify-end">
+								<button
+									type="submit"
+									disabled={isSubmittingComment}
+									class="flex items-center gap-2 px-7 py-2.5 bg-[#0d2460] text-white font-medium rounded-xl hover:bg-[#1a367d] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:hover:translate-y-0 disabled:cursor-not-allowed"
+								>
+									{#if isSubmittingComment}
+										<div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+										<span>Posting...</span>
+									{:else}
+										<Send size={18} />
+										<span>Post Comment</span>
+									{/if}
+								</button>
+							</div>
+						</form>
 					</div>
+				{:else}
+					<div class="mb-12 p-8 bg-gradient-to-br from-gray-50 to-[#f8fafc] rounded-2xl border border-gray-200 text-center shadow-sm">
+						<div class="w-14 h-14 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border border-gray-100">
+							<MessageCircle size={26} class="text-[#0d2460]" />
+						</div>
+						<h3 class="text-xl font-bold text-gray-800 mb-2">Join the Conversation</h3>
+						<p class="text-gray-500 mb-6 max-w-md mx-auto">You must be logged in to share your thoughts and interact with the community.</p>
+						<a href="/cms/login" class="inline-flex items-center gap-2 px-8 py-3 bg-[#0d2460] text-white font-semibold rounded-xl hover:bg-[#1a367d] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+							Log In to Comment
+						</a>
+					</div>
+				{/if}
 
-				</section>
-
-			{/if}
+				{#if comments.length > 0}
+					<div class="space-y-6">
+						{#each comments as comment}
+							<div class="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-shadow duration-300 flex gap-4 sm:gap-5">
+								<!-- User Avatar (Initials) -->
+								<div class="flex-shrink-0 w-11 h-11 rounded-full bg-gradient-to-br from-[#0d2460] to-[#1e40af] text-white flex items-center justify-center font-bold shadow-inner">
+									{(comment.profiles?.full_name || 'A')[0].toUpperCase()}
+								</div>
+								
+								<div class="flex-1">
+									<div class="flex flex-col sm:flex-row sm:items-center justify-between mb-2">
+										<span class="font-bold text-gray-900 text-[15px]">
+											{comment.profiles?.full_name || 'Anonymous'}
+										</span>
+										{#if comment.created_at}
+											<span class="text-xs font-medium text-gray-400 mt-1 sm:mt-0">
+												{formatDate(comment.created_at)}
+											</span>
+										{/if}
+									</div>
+									
+									<p class="text-gray-700 leading-relaxed text-[15px] whitespace-pre-wrap">
+										{comment.content}
+									</p>
+								</div>
+							</div>
+						{/each}
+					</div>
+				{/if}
+			</section>
 
 		</article>
 
