@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { enhance } from '$app/forms';
+	import toast from 'svelte-french-toast';
 	import {
 		LayoutDashboard,
 		Users,
@@ -65,17 +67,21 @@
 	let searchTerm = '';
 
 	$: filteredUsers = users.filter((user: any) => {
-		const search = searchTerm.toLowerCase();
+		const search = (searchTerm || '').toString().toLowerCase();
 
 		return (
-			(user.full_name || '').toLowerCase().includes(search) ||
-			(user.email || '').toLowerCase().includes(search) ||
-			(user.role || '').toLowerCase().includes(search)
+			String(user.full_name || '').toLowerCase().includes(search) ||
+			String(user.email || '').toLowerCase().includes(search) ||
+			String(user.role || '').toLowerCase().includes(search)
 		);
 	});
 
 	function formatNumber(value: number | null | undefined) {
-		return new Intl.NumberFormat('en-IN').format(Number(value) || 0);
+		if (!value) return '0';
+		return new Intl.NumberFormat('en-US', {
+			notation: 'compact',
+			maximumFractionDigits: 1
+		}).format(value);
 	}
 
 	function formatDate(date: string) {
@@ -102,6 +108,36 @@
 				return 'status';
 		}
 	}
+
+	const handleRoleUpdate = () => {
+		return async ({ formElement, formData, cancel }: any) => {
+			const userId = formData.get('userId');
+			const newRole = formData.get('newRole');
+			
+			const userIndex = users.findIndex((u: any) => u.id === userId);
+			let oldRole = null;
+			
+			if (userIndex !== -1) {
+				oldRole = users[userIndex].role;
+				users[userIndex].role = newRole;
+				users = [...users]; 
+			}
+
+			return async ({ result, update }: any) => {
+				if (result.type === 'success') {
+					toast.success('Role updated successfully!');
+					await update({ reset: false });
+				} else {
+					if (userIndex !== -1 && oldRole) {
+						users[userIndex].role = oldRole;
+						users = [...users];
+					}
+					toast.error('Failed to update role.');
+					await update();
+				}
+			};
+		};
+	};
 </script>
 
 <svelte:head>
@@ -1136,7 +1172,7 @@
 										<td>{user.email}</td>
 
 										<td>
-											<form method="POST" action="?/updateRole" class="role-form">
+											<form method="POST" use:enhance={handleRoleUpdate} action="?/updateRole" class="role-form">
 												<input type="hidden" name="userId" value={user.id} />
 												<select name="newRole" value={user.role} disabled={user.id === currentUser.id}>
 													<option value="Reader">Reader</option>
@@ -1144,7 +1180,7 @@
 													<option value="Admin">Admin</option>
 													<option value="Super_Admin">Super_Admin</option>
 												</select>
-												{#if user.id !== currentUser.id}<button class="action-button">Save</button>{/if}
+												{#if user.id !== currentUser.id}<button class="save-button"><CheckCircle size={14} /> Save</button>{/if}
 											</form>
 										</td>
 
@@ -2561,6 +2597,28 @@
 
 	.action-button:hover {
 		background: #f8fafc;
+	}
+
+	.save-button {
+		background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+		border: none;
+		color: white;
+		padding: 7px 12px;
+		border-radius: 6px;
+		font-size: 11px;
+		font-weight: 700;
+		cursor: pointer;
+		display: inline-flex;
+		align-items: center;
+		gap: 5px;
+		transition: all 0.2s ease;
+		box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+	}
+
+	.save-button:hover {
+		transform: translateY(-1px);
+		box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);
+		background: linear-gradient(135deg, #059669 0%, #047857 100%);
 	}
 
 	.approve-button {

@@ -85,7 +85,7 @@
 								</button>
 							</form>
 						{:else}
-							<form method="POST" action="?/follow">
+							<form method="POST" use:enhance action="?/follow">
 								<!-- This will redirect to login from server side -->
 								<button type="submit" class="follow-btn">Follow Doctor</button>
 							</form>
