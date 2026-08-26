@@ -258,12 +258,7 @@
 				<span>Analytics</span>
 			</button>
 
-			<div class="menu-label">SYSTEM</div>
 
-			<a href="/cms/admin/settings" class="menu-item">
-				<Settings size={18} />
-				<span>Settings</span>
-			</a>
 
 		</div>
 
