@@ -2,6 +2,8 @@
 	import { cmsSupabase } from '$lib/cmsSupabase';
 	import RichTextEditor from '$lib/components/RichEditor.svelte';
 	import toast from 'svelte-french-toast';
+	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
 
 	export let cmsContents: any[] = [];
 	export let reloadCallback: () => Promise<void>;
@@ -54,7 +56,22 @@
 
 	let contentSearch = '';
 	let contentSort = 'newest';
-	let listFilterType: string | null = 'blog'; // Default to blog
+	let listFilterType: string | null = filterType || 'all'; // Default to passed filterType or all
+
+	const handleTabClick = (type: string) => {
+		if ($page.url.pathname.includes('/cms/admin-dashboard/') && type !== 'all') {
+			const pathMap: Record<string, string> = {
+				blog: 'blogs',
+				news: 'news',
+				event: 'events',
+				faq: 'faqs',
+				campaign: 'campaigns'
+			};
+			goto(`/cms/admin-dashboard/${pathMap[type]}`);
+		} else {
+			listFilterType = type;
+		}
+	};
 
 	$: if (contentTitle && !editingContent) {
 		contentSlug = contentTitle
@@ -66,7 +83,6 @@
 
 	$: filteredContents = cmsContents
 		.filter((c) => {
-			if (filterType && c.content_type !== filterType) return false;
 			if (listFilterType && listFilterType !== 'all' && c.content_type !== listFilterType) return false;
 			if (!contentSearch) return true;
 			const term = contentSearch.toLowerCase();
@@ -280,7 +296,7 @@
 			<!-- All Content Box -->
 			<button 
 				class="color-box {listFilterType === 'all' ? 'active' : ''}" 
-				on:click={() => listFilterType = 'all'}
+				on:click={() => handleTabClick('all')}
 				style="--box-color: #64748b;"
 			>
 				All Content
@@ -290,7 +306,7 @@
 			{#each CONTENT_TYPES as type}
 				<button 
 					class="color-box {listFilterType === type ? 'active' : ''}" 
-					on:click={() => listFilterType = type}
+					on:click={() => handleTabClick(type)}
 					style="--box-color: {typeColors[type] || '#1e40af'};"
 				>
 					{type === 'news' ? 'News' : type + 's'}

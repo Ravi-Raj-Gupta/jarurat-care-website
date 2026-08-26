@@ -2,7 +2,7 @@
 	import { page } from '$app/stores';
 	import { 
 		Home, FileText, Newspaper, HelpCircle, Calendar as CalendarIcon, 
-		Users, Settings, Globe, ExternalLink, LogOut 
+		Users, Settings, Globe, ExternalLink, LogOut, Megaphone 
 	} from 'lucide-svelte';
 
 	let collapsed = false;
@@ -51,6 +51,12 @@
 					<span>Events Management</span>
 					<span class="sub-text">(Webinars)</span>
 				</div>
+			</a>
+			<a href="/cms/admin-dashboard/campaigns" class="nav-btn" class:active={$page.url.pathname === '/cms/admin-dashboard/campaigns'}>
+				<Megaphone size={18} />
+				<div class="flex-col-label">
+					<span>Campaigns</span>
+				</div>
 				<span class="badge red-badge ml-auto">New</span>
 			</a>
 		</div>
@@ -64,14 +70,8 @@
 			</a>
 		</div>
 
-		<!-- SYSTEM -->
-		<div class="nav-section">
-			<span class="nav-section-title">SYSTEM</span>
-			<a href="/cms/admin-dashboard/settings" class="nav-btn" class:active={$page.url.pathname === '/cms/admin-dashboard/settings'}>
-				<Settings size={18} />
-				<span>Settings</span>
-			</a>
-		</div>
+
+
 	</div>
 
 	<!-- Sidebar Bottom Actions -->
@@ -239,6 +239,7 @@
 	.ml-auto { margin-left: auto; }
 
 	.sidebar-bottom {
+		margin-top: auto;
 		padding: 12px;
 		border-top: 1px solid rgba(255, 255, 255, 0.08);
 	}

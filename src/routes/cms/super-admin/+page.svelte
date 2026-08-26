@@ -138,6 +138,31 @@
 			};
 		};
 	};
+
+	const handleCMSCreate = () => {
+		return async ({ result, update }: any) => {
+			if (result.type === 'success') {
+				toast.success('CMS content created successfully!');
+				await update();
+			} else {
+				toast.error('Failed to create CMS content.');
+				await update();
+			}
+		};
+	};
+
+	const handleCMSPublish = () => {
+		return async ({ result, update }: any) => {
+			if (result.type === 'success') {
+				const status = result.data?.action === 'cms_published' ? 'published' : 'draft';
+				toast.success(`Content successfully marked as ${status}.`);
+				await update();
+			} else {
+				toast.error('Failed to change content status.');
+				await update();
+			}
+		};
+	};
 </script>
 
 <svelte:head>
@@ -973,8 +998,8 @@
 
 				<div class="panel">
 					<div class="panel-header"><div><h3>Create CMS Content</h3><p>Publish blogs, news, events, FAQs and other website content.</p></div></div>
-					<form method="POST" action="?/createCMSContent" class="cms-create-form">
-						<select name="contentType"><option value="blog">Blog</option><option value="news">News</option><option value="event">Event</option><option value="faq">FAQ</option></select>
+					<form method="POST" use:enhance={handleCMSCreate} action="?/createCMSContent" class="cms-create-form">
+						<select name="contentType"><option value="blog">Blog</option><option value="news">News</option><option value="event">Event</option><option value="faq">FAQ</option><option value="campaign">Campaign</option></select>
 						<input name="title" placeholder="Title" required />
 						<input name="slug" placeholder="Slug (optional)" />
 						<input name="category" placeholder="Category" />
@@ -1002,6 +1027,7 @@
 									<th>Category</th>
 									<th>Status</th>
 									<th>Created</th>
+									<th>Actions</th>
 								</tr>
 							</thead>
 
@@ -1033,6 +1059,30 @@
 
 										<td>
 											{formatDate(content.created_at)}
+										</td>
+
+										<td class="cms-actions-cell">
+											<form method="POST" use:enhance={handleCMSPublish} action="?/toggleCMSPublish" class="inline-form">
+												<input type="hidden" name="id" value={content.id} />
+												<input type="hidden" name="newStatus" value={content.status === 'published' ? 'draft' : 'published'} />
+												<button class="action-button approve-button" type="submit">
+													{content.status === 'published' ? 'Unpublish' : 'Publish'}
+												</button>
+											</form>
+
+											<form method="POST" action="?/deleteCMSContent" class="inline-form" use:enhance={({ cancel }) => {
+												if (!confirm('Are you sure you want to delete this content?')) {
+													cancel();
+												}
+												return async ({ result, update }) => {
+													if (result.type === 'success') { toast.success('Content deleted.'); }
+													else { toast.error('Failed to delete content.'); }
+													await update();
+												};
+											}}>
+												<input type="hidden" name="id" value={content.id} />
+												<button class="action-button reject-button" type="submit">Delete</button>
+											</form>
 										</td>
 
 									</tr>
@@ -2778,6 +2828,8 @@
 	.cms-create-form textarea { resize:vertical; }
 	.cms-create-form textarea[name="content"] { grid-column:1 / -1; }
 	.cms-create-form button { width:max-content; }
+	.cms-actions-cell { display:flex; gap:6px; align-items:center; }
+	.inline-form { margin:0; padding:0; display:inline-block; }
 	@media(max-width:900px){ .cms-create-form{grid-template-columns:1fr;} .cms-create-form textarea[name="content"]{grid-column:auto;} }
 
 </style>
