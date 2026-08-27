@@ -1,5 +1,6 @@
 import { redirect, fail } from '@sveltejs/kit';
 import { supabaseAdmin } from '$lib/supabaseAdmin';
+import { createAdminNotification } from '$lib/server/notifications';
 import type { PageServerLoad, Actions } from './$types';
 
 export const load: PageServerLoad = async ({ locals, params }) => {
@@ -72,18 +73,31 @@ export const actions: Actions = {
 			return fail(403, { message: 'Forbidden' });
 		}
 
-		const { error } = await supabaseAdmin
+		const { data: updatedArticle, error } = await supabaseAdmin
 			.from('articles')
 			.update({
-				status: 'published',
-				admin_feedback: 'APPROVED_BY_REVIEWER'
+				status: 'under_review',
+				review_feedback: 'APPROVED_BY_REVIEWER'
 			})
 			.eq('id', params.id)
-			.eq('status', 'under_review');
+			.eq('status', 'under_review')
+			.select('title, author_id')
+			.single();
 
-		if (error) {
-			console.error('Approve article error:', error);
-			return fail(500, { message: 'Could not approve article' });
+		if (error || !updatedArticle) {
+			return fail(500, { message: 'Failed to approve article.' });
+		}
+
+		try {
+			await createAdminNotification(
+				'Article Approved',
+				`Your article "${updatedArticle.title}" has been approved by the reviewer and is awaiting final publishing.`,
+				'success',
+				updatedArticle.author_id,
+				'/cms/doctor-dashboard/my-articles'
+			);
+		} catch (err) {
+			console.error('Notification error:', err);
 		}
 
 		throw redirect(303, '/cms/doctor-dashboard/review-articles');
@@ -114,8 +128,8 @@ export const actions: Actions = {
 		const { error } = await supabaseAdmin
 			.from('articles')
 			.update({
-				status: 'changes_requested',
-				admin_feedback: feedback.trim()
+				status: 'under_review',
+				review_feedback: feedback.trim()
 			})
 			.eq('id', params.id)
 			.eq('status', 'under_review');

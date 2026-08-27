@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { ArrowLeft, CheckCircle, XCircle, AlertCircle } from 'lucide-svelte';
+	import toast from 'svelte-french-toast';
 
 	export let data;
+	export let form;
 	const { research } = data;
 
 	let showRejectForm = false;
@@ -100,11 +102,27 @@
 	</div>
 
 	<!-- REVIEWER ACTIONS -->
+	
+	{#if form?.message}
+		<div class="error-message">
+			{form.message}
+		</div>
+	{/if}
+
 	<div class="action-bar">
 		<h3>Reviewer Actions</h3>
 		
 		{#if showRejectForm}
-			<form method="POST" action="?/rejectResearch" class="reject-form" use:enhance>
+			<form method="POST" action="?/rejectResearch" class="reject-form" use:enhance={() => {
+				return async ({ result, update }) => {
+					if (result.type === 'redirect' || result.type === 'success') {
+						toast.success('Changes requested successfully!');
+					} else {
+						toast.error(result.data?.message || 'Could not request changes');
+					}
+					await update();
+				};
+			}}>
 				<label for="feedback">Please provide feedback or changes requested:</label>
 				<textarea id="feedback" name="feedback" required rows="4" placeholder="Explain why this is being rejected or what changes are required..."></textarea>
 				
@@ -118,10 +136,19 @@
 			</form>
 		{:else}
 			<div class="action-buttons">
-				<form method="POST" action="?/approveResearch" use:enhance>
+				<form method="POST" action="?/approveResearch" use:enhance={() => {
+					return async ({ result, update }) => {
+						if (result.type === 'redirect' || result.type === 'success') {
+							toast.success('Research Paper successfully approved!');
+						} else {
+							toast.error(result.data?.message || 'Could not approve research paper');
+						}
+						await update();
+					};
+				}}>
 					<button type="submit" class="btn-approve">
 						<CheckCircle size={18} />
-						Approve & Publish
+						Approve
 					</button>
 				</form>
 
@@ -222,6 +249,57 @@
 		padding: 24px;
 		border-radius: 8px;
 		border-left: 4px solid #3b82f6;
+	}
+
+	.action-bar {
+		margin-top: 32px;
+		background: #f8fafc;
+		border-radius: 12px;
+		padding: 24px;
+		border: 1px solid #e2e8f0;
+	}
+
+	.success-message {
+		margin-top: 32px;
+		background: #ecfdf5;
+		color: #059669;
+		padding: 40px;
+		border-radius: 12px;
+		border: 1px solid #a7f3d0;
+		text-align: center;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 16px;
+	}
+
+	.success-message h3 {
+		margin: 0;
+		font-size: 24px;
+	}
+
+	.btn-return {
+		margin-top: 16px;
+		padding: 12px 24px;
+		background: #059669;
+		color: #ffffff;
+		text-decoration: none;
+		border-radius: 8px;
+		font-weight: 600;
+		transition: all 0.2s;
+	}
+
+	.btn-return:hover {
+		background: #047857;
+	}
+
+	.error-message {
+		background: #fee2e2;
+		color: #b91c1c;
+		padding: 12px 16px;
+		border-radius: 8px;
+		margin-bottom: 16px;
+		font-weight: 500;
 	}
 
 	.action-bar {

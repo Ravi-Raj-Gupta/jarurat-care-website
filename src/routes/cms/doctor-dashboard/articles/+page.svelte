@@ -52,8 +52,16 @@
                                 <span class="category-badge">{article.category || 'General Health'}</span>
                             </td>
                             <td>
-                                <span class="status-badge status-{article.status || 'published'}">
-                                    {article.status ? article.status.charAt(0).toUpperCase() + article.status.slice(1) : 'Published'}
+                                <span class="status-badge {
+                                    article.status === 'under_review' && article.review_feedback === 'APPROVED_BY_REVIEWER' ? 'status-approved' : 
+                                    article.status === 'under_review' && article.review_feedback ? 'status-changes_requested' : 
+                                    'status-' + (article.status || 'published')
+                                }">
+                                    {
+                                        article.status === 'under_review' && article.review_feedback === 'APPROVED_BY_REVIEWER' ? 'Approved' :
+                                        article.status === 'under_review' && article.review_feedback ? 'Changes Requested' :
+                                        article.status ? article.status.split('_').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : 'Published'
+                                    }
                                 </span>
                             </td>
                             <td class="text-muted">{article.views || 0}</td>
@@ -163,7 +171,9 @@
 
     .status-draft { background: #f1f5f9; color: #475569; }
     .status-under_review { background: #fef3c7; color: #b45309; }
-    .status-published { background: #dcfce7; color: #15803d; }
+    .status-approved { background: #dcfce7; color: #15803d; }
+    .status-published { background: #dbeafe; color: #1e40af; }
+    .status-changes_requested { background: #fee2e2; color: #991b1b; }
     .status-rejected { background: #fee2e2; color: #991b1b; }
 
     .empty-state {

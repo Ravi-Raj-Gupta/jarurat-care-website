@@ -27,15 +27,21 @@ export const load: PageServerLoad = async ({ locals }) => {
 	}
 
 	// Fetch ALL articles currently waiting for reviewer action
-	const { data: pendingArticles, error: articlesError } = await supabaseAdmin
+	const { data: rawPendingArticles, error: articlesError } = await supabaseAdmin
 		.from('articles')
 		.select('*')
 		.eq('status', 'under_review')
 		.order('created_at', { ascending: false });
 
 	if (articlesError) {
-		console.error('Error loading pending articles:', articlesError);
+		console.error('Error fetching pending articles:', articlesError);
 	}
+
+	// Filter out articles that have already been reviewed (approved or changes requested)
+	// We check this via review_feedback because the DB constraint doesn't allow 'approved' or 'changes_requested' statuses
+	const pendingArticles = (rawPendingArticles || []).filter(
+		(a: any) => !a.review_feedback
+	);
 
 	const articlesList = pendingArticles ?? [];
 	const authorIds = [...new Set(articlesList.map(a => a.author_id).filter(Boolean))];

@@ -1,5 +1,6 @@
 import { redirect, fail } from '@sveltejs/kit';
 import { supabaseAdmin } from '$lib/supabaseAdmin';
+import { createAdminNotification } from '$lib/server/notifications';
 import type { PageServerLoad, Actions } from './$types';
 
 export const load: PageServerLoad = async ({ locals, params }) => {
@@ -70,18 +71,32 @@ export const actions: Actions = {
 			return fail(403, { message: 'Forbidden' });
 		}
 
-		const { error } = await supabaseAdmin
+		const { data: updatedResearch, error } = await supabaseAdmin
 			.from('research_articles')
 			.update({
-				status: 'published',
+				status: 'approved',
 				admin_feedback: 'APPROVED_BY_REVIEWER'
 			})
 			.eq('id', params.id)
-			.eq('status', 'under_review');
+			.eq('status', 'under_review')
+			.select('title, user_id')
+			.single();
 
-		if (error) {
+		if (error || !updatedResearch) {
 			console.error('Approve research error:', error);
 			return fail(500, { message: 'Could not approve research paper' });
+		}
+
+		try {
+			await createAdminNotification(
+				'Research Paper Approved',
+				`Your research paper "${updatedResearch.title}" has been approved by the reviewer and is awaiting final publishing.`,
+				'success',
+				updatedResearch.user_id,
+				'/cms/doctor-dashboard/my-research-papers'
+			);
+		} catch (err) {
+			console.error('Notification error:', err);
 		}
 
 		throw redirect(303, '/cms/doctor-dashboard/review-research');
