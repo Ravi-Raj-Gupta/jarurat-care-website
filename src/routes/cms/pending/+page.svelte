@@ -25,14 +25,11 @@
 
     // Redirect if already approved as author
     if (profile?.role === 'author') {
-      goto('/cms/author_dashboard');
+      goto('/cms/doctor-dashboard');
       return;
     }
 
-    if (profile?.role === 'testimonial_writer') {
-    goto('/cms/testimonial_dashboard');
-    return;
-    }
+
 
     // Check author request status
     const { data: request } = await cmsSupabase
@@ -69,7 +66,7 @@
         <a href="/cms/author-request" class="btn">Submit New Request</a>
 
       {:else if requestStatus === 'approved'}
-        <!-- Approved — redirect hoga author_dashboard pe -->
+        <!-- Approved — redirect hoga doctor-dashboard pe -->
         <div class="status-icon approved"></div>
         <h1>Request Approved!</h1>
         <p class="desc">Your author access has been approved. Redirecting...</p>

@@ -25,6 +25,7 @@
 		Star,
 		ArrowUpRight
 	} from 'lucide-svelte';
+	import AdminTopbar from '$lib/components/admin/AdminTopbar.svelte';
 
 	export let data;
 
@@ -312,55 +313,7 @@
 	<main class="main">
 
 		<!-- TOPBAR -->
-
-		<header class="topbar">
-
-			<div>
-				<div class="breadcrumb">
-					Super Admin
-					<span>/</span>
-					{activeSection.replaceAll('-', ' ')}
-				</div>
-
-				<h1>
-					{#if activeSection === 'overview'}
-						Admin Overview
-					{:else if activeSection === 'doctor-verification'}
-						Doctor Verification
-					{:else if activeSection === 'publishing'}
-						Publishing Power
-					{:else if activeSection === 'articles'}
-						Articles
-					{:else if activeSection === 'research'}
-						Research Papers
-					{:else if activeSection === 'cms'}
-						CMS Content
-					{:else if activeSection === 'users'}
-						Manage Users
-					{:else if activeSection === 'community'}
-						Community
-					{:else if activeSection === 'analytics'}
-						Analytics
-					{/if}
-				</h1>
-			</div>
-
-			<div class="admin-profile">
-				<div class="admin-avatar">
-					{#if currentUser.avatar}
-						<img src={currentUser.avatar} alt={currentUser.name} />
-					{:else}
-						{(currentUser.name || 'A').charAt(0)}
-					{/if}
-				</div>
-
-				<div class="admin-info">
-					<strong>{currentUser.name}</strong>
-					<span>{currentUser.role}</span>
-				</div>
-			</div>
-
-		</header>
+		<AdminTopbar />
 
 
 		<div class="page-content">

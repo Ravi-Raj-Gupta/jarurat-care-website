@@ -387,18 +387,10 @@
 		transition: all 0.2s;
 	}
 
-	.btn-read .arrow {
-		transition: transform 0.2s;
-	}
-
 	.btn-read:hover {
 		background: #0f172a;
 		color: #ffffff;
 		border-color: #0f172a;
-	}
-
-	.item-row:hover .btn-read .arrow {
-		transform: translateX(4px);
 	}
 
 	.btn-icon {

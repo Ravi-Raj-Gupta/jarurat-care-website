@@ -33,8 +33,7 @@
       .eq('id', user.id)
       .single();
 
-    if (profile?.role === 'author') { goto('/cms/author_dashboard'); return; }
-    if (profile?.role === 'testimonial_writer') { goto('/cms/testimonial_dashboard'); return; }
+    if (profile?.role === 'author') { goto('/cms/doctor-dashboard'); return; }
 
     // Check pending requests
     const { data: existingAuthor } = await cmsSupabase

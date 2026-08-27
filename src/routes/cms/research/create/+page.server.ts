@@ -1,5 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { supabaseAdmin } from '$lib/supabaseAdmin';
+import { createAdminNotification } from '$lib/server/notifications';
 import type { PageServerLoad, Actions } from './$types';
 export const actions: Actions = {
 	submitResearchPaper: async ({ request, locals }) => {
@@ -74,6 +75,16 @@ export const actions: Actions = {
 			return fail(500, {
 				message: error.message
 			});
+		}
+
+		if (status === 'under_review') {
+			await createAdminNotification(
+				'New Research Paper Submitted',
+				`Doctor has submitted a new research paper "${title}" for review.`,
+				'info',
+				undefined,
+				'/cms/admin-dashboard/research'
+			);
 		}
 
 		throw redirect(303, '/cms/doctor-dashboard');

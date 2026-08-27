@@ -116,6 +116,13 @@
       });
       if (res.ok) {
         submitted = true;
+        try {
+            await fetch('/api/notify-contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: formData.firstName + ' ' + formData.lastName })
+            });
+        } catch(e) {}
         setTimeout(() => location.reload(), 900);
       } else {
         let json = null;

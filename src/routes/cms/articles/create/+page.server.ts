@@ -1,5 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { supabaseAdmin } from '$lib/supabaseAdmin';
+import { createAdminNotification } from '$lib/server/notifications';
 import type { PageServerLoad, Actions } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
@@ -101,6 +102,17 @@ export const actions: Actions = {
 			if (error) {
 				console.error("Insert article error:", error);
 				return fail(500, { message: 'Failed to save regular article' });
+			}
+
+			// NOTIFICATION TRIGGER
+			if (status === 'under_review') {
+				await createAdminNotification(
+					'New Article Submitted',
+					`Doctor has submitted a new article "${title}" for review.`,
+					'info',
+					undefined,
+					'/cms/admin-dashboard/articles'
+				);
 			}
 
 		// Redirect to dashboard on success

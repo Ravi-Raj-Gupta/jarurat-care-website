@@ -7,7 +7,7 @@
     <a href="/cms/admin/admin_panel">Admin Panel</a>
     <a href="/cms/admin_dashboard">Admin Dashboard</a>
   {:else if role === 'author'}
-    <a href="/cms/author_dashboard">Author Dashboard</a>
+    <a href="/cms/doctor-dashboard">Author Dashboard</a>
   {:else if role === 'editor'}
     <a href="/cms/editor_dashboard">Editor Dashboard</a>
   {:else}

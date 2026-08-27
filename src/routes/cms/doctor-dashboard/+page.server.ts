@@ -10,8 +10,9 @@ type DoctorPerson = {
 	avatar: string | null;
 };
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async ({ locals, url }) => {
 	const session = await locals.getSession();
+	const searchQuery = url.searchParams.get('q');
 
 	if (!session) {
 		throw redirect(303, '/cms/login');
@@ -49,14 +50,20 @@ export const load: PageServerLoad = async ({ locals }) => {
 	// ARTICLES
 	// =========================================================
 
-	const {
-		data: articles,
-		error: articlesError
-	} = await supabaseAdmin
+	let articlesQuery = supabaseAdmin
 		.from('articles')
 		.select('id, title, status, views, created_at')
 		.eq('author_id', currentUserId)
 		.order('created_at', { ascending: false });
+		
+	if (searchQuery) {
+		articlesQuery = articlesQuery.ilike('title', `%${searchQuery}%`);
+	}
+
+	const {
+		data: articles,
+		error: articlesError
+	} = await articlesQuery;
 
 	if (articlesError) {
 		console.error(
@@ -71,16 +78,22 @@ export const load: PageServerLoad = async ({ locals }) => {
 	// RESEARCH PAPERS
 	// =========================================================
 
-	const {
-		data: researchPapersData,
-		error: researchError
-	} = await supabaseAdmin
+	let researchQuery = supabaseAdmin
 		.from('research_articles')
 		.select(
 			'id, title, status, views_count, created_at'
 		)
 		.eq('user_id', currentUserId)
 		.order('created_at', { ascending: false });
+
+	if (searchQuery) {
+		researchQuery = researchQuery.ilike('title', `%${searchQuery}%`);
+	}
+
+	const {
+		data: researchPapersData,
+		error: researchError
+	} = await researchQuery;
 
 	if (researchError) {
 		console.error(

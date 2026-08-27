@@ -2,11 +2,20 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { Search, Bell, Mail, ChevronDown, Menu as MenuIcon } from 'lucide-svelte';
+	import { onMount, onDestroy } from 'svelte';
+	import { cmsSupabase } from '$lib/cmsSupabase';
 
 	let showDropdown = false;
 	let dropdownRef: HTMLElement;
+	let showNotifDropdown = false;
+	let notifDropdownRef: HTMLElement;
+
+	let notifications: any[] = [];
+	let unreadCount = 0;
+	let realtimeChannel: any;
 
 	$: user = $page.data.currentUser || {
+		id: '00000000-0000-0000-0000-000000000000',
 		name: 'Admin User',
 		email: 'admin@jarurat.care',
 		role: 'Admin',
@@ -16,6 +25,9 @@
 	function closeDropdown(e: MouseEvent) {
 		if (showDropdown && dropdownRef && !dropdownRef.contains(e.target as Node)) {
 			showDropdown = false;
+		}
+		if (showNotifDropdown && notifDropdownRef && !notifDropdownRef.contains(e.target as Node)) {
+			showNotifDropdown = false;
 		}
 	}
 
@@ -41,6 +53,110 @@
 			}
 		}
 	}
+
+	let pollInterval: any;
+	let isInitialized = false;
+
+	async function loadNotifications() {
+		try {
+			const res = await fetch('/api/notifications', { cache: 'no-store' });
+			if (res.ok) {
+				const { notifications: data } = await res.json();
+				notifications = data;
+				unreadCount = data.filter((n: any) => !n.is_read).length;
+			}
+		} catch (err) {
+			console.error('Failed to load notifications', err);
+		}
+	}
+
+	async function markAsRead(id: string) {
+		try {
+			const res = await fetch('/api/notifications', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ id })
+			});
+			if (res.ok) {
+				notifications = notifications.map(n => n.id === id ? { ...n, is_read: true } : n);
+				unreadCount = notifications.filter(n => !n.is_read).length;
+			}
+		} catch (err) {
+			console.error('Failed to mark as read', err);
+		}
+	}
+
+	async function markAllAsRead() {
+		try {
+			const res = await fetch('/api/notifications', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ id: 'all' })
+			});
+			if (res.ok) {
+				notifications = notifications.map(n => ({ ...n, is_read: true }));
+				unreadCount = 0;
+			}
+		} catch (err) {
+			console.error('Failed to mark all as read', err);
+		}
+	}
+
+	$: if (!isInitialized) {
+		isInitialized = true;
+		loadNotifications();
+		setupRealtime();
+	}
+
+	function setupRealtime() {
+		if (pollInterval) return; // already setup
+		pollInterval = setInterval(() => {
+			loadNotifications();
+		}, 10000);
+	}
+
+	onMount(() => {
+		if (!isInitialized) {
+			isInitialized = true;
+			loadNotifications();
+			setupRealtime();
+		}
+	});
+
+	onDestroy(() => {
+		if (pollInterval) clearInterval(pollInterval);
+	});
+
+	$: notificationGroups = [
+		{ label: 'Today', items: [] as any[] },
+		{ label: 'Yesterday', items: [] as any[] },
+		{ label: 'Older', items: [] as any[] }
+	];
+
+	$: {
+		const today = new Date();
+		const yesterday = new Date(today);
+		yesterday.setDate(yesterday.getDate() - 1);
+		
+		const groups = { Today: [] as any[], Yesterday: [] as any[], Older: [] as any[] };
+		
+		notifications.forEach(notif => {
+			const date = new Date(notif.created_at);
+			if (date.toDateString() === today.toDateString()) {
+				groups.Today.push(notif);
+			} else if (date.toDateString() === yesterday.toDateString()) {
+				groups.Yesterday.push(notif);
+			} else {
+				groups.Older.push(notif);
+			}
+		});
+		
+		notificationGroups = [
+			{ label: 'Today', items: groups.Today },
+			{ label: 'Yesterday', items: groups.Yesterday },
+			{ label: 'Older', items: groups.Older }
+		].filter(g => g.items.length > 0);
+	}
 </script>
 
 <svelte:window on:click={closeDropdown} />
@@ -59,24 +175,84 @@
 		</div>
 	</div>
 	<div class="topbar-right">
-		<button class="icon-notification" aria-label="Notifications">
-			<Bell size={20} />
-			<span class="dot-badge">5</span>
-		</button>
-		<button class="icon-notification" aria-label="Messages">
-			<Mail size={20} />
-			<span class="dot-badge red-dot">2</span>
-		</button>
+		<div class="notif-wrap" bind:this={notifDropdownRef}>
+			<!-- svelte-ignore a11y-no-static-element-interactions -->
+			<!-- svelte-ignore a11y-click-events-have-key-events -->
+			<button class="icon-notification" aria-label="Notifications" on:click={() => showNotifDropdown = !showNotifDropdown}>
+				<Bell size={20} />
+				{#if unreadCount > 0}
+					<span class="dot-badge">{unreadCount > 9 ? '9+' : unreadCount}</span>
+				{/if}
+			</button>
+			{#if showNotifDropdown}
+				<div class="notif-dropdown">
+					<div class="notif-header">
+						<div class="header-left">
+							<strong>Notifications</strong>
+							{#if unreadCount > 0}
+								<span class="notif-badge-header">{unreadCount} New</span>
+							{/if}
+						</div>
+						{#if unreadCount > 0}
+							<!-- svelte-ignore a11y-click-events-have-key-events -->
+							<!-- svelte-ignore a11y-no-static-element-interactions -->
+							<span class="mark-all-read" on:click={markAllAsRead}>Mark all read</span>
+						{/if}
+					</div>
+					<div class="notif-list">
+						{#if notifications.length === 0}
+							<div class="empty-notif">
+								<div class="empty-icon">
+									<Bell size={24} class="text-slate-300" />
+								</div>
+								<p>No notifications yet.</p>
+								<span>When you get notifications, they'll show up here.</span>
+							</div>
+						{:else}
+							{#each notificationGroups as group}
+								<div class="notif-group-label">{group.label}</div>
+								{#each group.items as notif}
+									<!-- svelte-ignore a11y-click-events-have-key-events -->
+									<!-- svelte-ignore a11y-no-static-element-interactions -->
+									<div class="notif-item {notif.is_read ? 'read' : 'unread'}" on:click={() => markAsRead(notif.id)}>
+										<div class="notif-icon-wrap">
+											<div class="notif-icon">
+												<Bell size={16} />
+											</div>
+											{#if !notif.is_read}
+												<div class="unread-dot"></div>
+											{/if}
+										</div>
+										<div class="notif-content-wrap">
+											<div class="notif-title">{notif.title}</div>
+											<div class="notif-msg">{notif.message}</div>
+										</div>
+									</div>
+								{/each}
+							{/each}
+						{/if}
+					</div>
+					<div class="notif-footer">
+						<a href="#">View all activity</a>
+					</div>
+				</div>
+			{/if}
+		</div>
 		<!-- svelte-ignore a11y-click-events-have-key-events -->
 		<!-- svelte-ignore a11y-no-static-element-interactions -->
 		<div class="profile-wrap" bind:this={dropdownRef}>
 			<div class="profile-trigger" on:click={() => showDropdown = !showDropdown}>
-				<img src={user.avatar} alt="Avatar" class="profile-avatar" onerror="this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'" />
-				<div class="profile-names">
-					<span class="p-name">{user.name}</span>
-					<span class="p-role">{user.role}</span>
+				<div class="admin-avatar">
+					{#if user.avatar && user.avatar !== 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'}
+						<img src={user.avatar} alt={user.name} />
+					{:else}
+						{(user.name || 'A').charAt(0).toUpperCase()}
+					{/if}
 				</div>
-				<ChevronDown size={14} class="text-slate-500" />
+				<div class="admin-info">
+					<strong>{user.name}</strong>
+					<span>{user.role ? user.role.replace('_', ' ') : 'Admin'}</span>
+				</div>
 			</div>
 
 			{#if showDropdown}
@@ -196,6 +372,226 @@
 
 	.red-dot { background: #E11D48; }
 
+	.notif-wrap {
+		position: relative;
+	}
+
+	.notif-dropdown {
+		position: absolute;
+		right: 0;
+		top: calc(100% + 12px);
+		width: 420px;
+		background: rgba(255, 255, 255, 0.98);
+		backdrop-filter: blur(12px);
+		border: 1px solid rgba(226, 232, 240, 0.8);
+		border-radius: 16px;
+		box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1), 0 10px 20px -5px rgba(0, 0, 0, 0.05);
+		z-index: 100;
+		display: flex;
+		flex-direction: column;
+		overflow: hidden;
+		animation: slideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+	}
+
+	@keyframes slideDown {
+		from { opacity: 0; transform: translateY(-10px) scale(0.98); }
+		to { opacity: 1; transform: translateY(0) scale(1); }
+	}
+
+	.notif-header {
+		padding: 16px 20px;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		border-bottom: 1px solid #F1F5F9;
+		background: #FAFAF9;
+	}
+
+	.header-left {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
+
+	.notif-header strong {
+		font-size: 15px;
+		font-weight: 700;
+		color: #0F172A;
+		letter-spacing: -0.01em;
+	}
+
+	.notif-badge-header {
+		background: #EEF2FF;
+		color: #4F46E5;
+		font-size: 11px;
+		font-weight: 700;
+		padding: 4px 8px;
+		border-radius: 100px;
+	}
+
+	.mark-all-read {
+		font-size: 12px;
+		font-weight: 600;
+		color: #3B82F6;
+		cursor: pointer;
+		transition: color 0.2s;
+	}
+
+	.mark-all-read:hover {
+		color: #2563EB;
+		text-decoration: underline;
+	}
+
+	.notif-list {
+		max-height: 380px;
+		overflow-y: auto;
+	}
+
+	.notif-list::-webkit-scrollbar {
+		width: 6px;
+	}
+	.notif-list::-webkit-scrollbar-thumb {
+		background: #CBD5E1;
+		border-radius: 10px;
+	}
+
+	.empty-notif {
+		padding: 40px 20px;
+		text-align: center;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 8px;
+	}
+
+	.empty-icon {
+		width: 48px;
+		height: 48px;
+		border-radius: 50%;
+		background: #F8FAFC;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin-bottom: 8px;
+	}
+
+	.empty-notif p {
+		margin: 0;
+		font-size: 14px;
+		font-weight: 600;
+		color: #334155;
+	}
+
+	.empty-notif span {
+		font-size: 13px;
+		color: #94A3B8;
+	}
+
+	.notif-item {
+		padding: 16px 20px;
+		cursor: pointer;
+		display: flex;
+		gap: 14px;
+		border-bottom: 1px solid #F8FAFC;
+		transition: all 0.2s;
+	}
+
+	.notif-item:last-child {
+		border-bottom: none;
+	}
+
+	.notif-item:hover {
+		background: #F8FAFC;
+	}
+
+	.notif-icon-wrap {
+		position: relative;
+		flex-shrink: 0;
+	}
+
+	.notif-icon {
+		width: 36px;
+		height: 36px;
+		border-radius: 50%;
+		background: #F1F5F9;
+		color: #64748B;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition: all 0.2s;
+	}
+
+	.notif-item.unread .notif-icon {
+		background: #EFF6FF;
+		color: #3B82F6;
+	}
+
+	.notif-item.unread:hover .notif-icon {
+		background: #DBEAFE;
+	}
+
+	.unread-dot {
+		position: absolute;
+		top: -2px;
+		right: -2px;
+		width: 10px;
+		height: 10px;
+		background: #EF4444;
+		border: 2px solid #FFFFFF;
+		border-radius: 50%;
+	}
+
+	.notif-content-wrap {
+		flex: 1;
+		min-width: 0;
+	}
+
+	.notif-title {
+		font-size: 14px;
+		font-weight: 700;
+		color: #0F172A;
+		margin-bottom: 4px;
+	}
+
+	.notif-msg {
+		font-size: 13px;
+		color: #475569;
+		line-height: 1.5;
+	}
+
+	.notif-group-label {
+		padding: 12px 20px 8px;
+		font-size: 12px;
+		font-weight: 700;
+		color: #94A3B8;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.notif-item.read .notif-title,
+	.notif-item.read .notif-msg {
+		opacity: 0.7;
+	}
+
+	.notif-footer {
+		padding: 12px;
+		text-align: center;
+		border-top: 1px solid #E2E8F0;
+		background: #F8FAFC;
+	}
+
+	.notif-footer a {
+		font-size: 13px;
+		font-weight: 600;
+		color: #3B82F6;
+		text-decoration: none;
+	}
+
+	.notif-footer a:hover {
+		color: #2563EB;
+		text-decoration: underline;
+	}
+
 	.profile-wrap {
 		position: relative;
 		margin-left: 8px;
@@ -206,9 +602,10 @@
 		align-items: center;
 		gap: 10px;
 		cursor: pointer;
-		padding: 4px 8px;
+		padding: 4px 12px 4px 6px;
 		border-radius: 999px;
 		border: 1px solid transparent;
+		transition: all 0.2s;
 	}
 
 	.profile-trigger:hover {
@@ -216,28 +613,42 @@
 		border-color: #E2E8F0;
 	}
 
-	.profile-avatar {
-		width: 36px;
-		height: 36px;
+	.admin-avatar {
+		width: 38px;
+		height: 38px;
 		border-radius: 50%;
+		overflow: hidden;
+		background: #eff6ff;
+		color: #2563eb;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-weight: 700;
+		font-size: 16px;
+	}
+
+	.admin-avatar img {
+		width: 100%;
+		height: 100%;
 		object-fit: cover;
 	}
 
-	.profile-names {
+	.admin-info {
 		display: flex;
 		flex-direction: column;
 		line-height: 1.2;
 	}
 
-	.p-name {
-		font-size: 13px;
-		font-weight: 700;
-		color: #1E293B;
+	.admin-info strong {
+		font-size: 14px;
+		font-weight: 600;
+		color: #0f172a;
 	}
 
-	.p-role {
-		font-size: 11px;
-		color: #64748B;
+	.admin-info span {
+		font-size: 12px;
+		color: #64748b;
+		margin-top: 2px;
 	}
 
 	.profile-dropdown {

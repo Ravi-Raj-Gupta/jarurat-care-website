@@ -58,6 +58,9 @@
 	let contentSort = 'newest';
 	let listFilterType: string | null = filterType || 'all'; // Default to passed filterType or all
 
+	// Sync contentSearch with the URL query parameter populated by AdminTopbar
+	$: contentSearch = $page.url.searchParams.get('q') || '';
+
 	const handleTabClick = (type: string) => {
 		if ($page.url.pathname.includes('/cms/admin-dashboard/') && type !== 'all') {
 			const pathMap: Record<string, string> = {

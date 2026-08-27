@@ -1,5 +1,4 @@
 <script lang="ts">
-	import Nav from '$lib/components/nav.svelte';
 	import {
 		BookOpen,
 		FileText,
@@ -124,8 +123,6 @@
 <svelte:head>
 	<title>Doctor Dashboard | Jarurat Care Foundation</title>
 </svelte:head>
-
-<Nav />
 
 <div class="page">
 	<div class="container">
@@ -287,7 +284,7 @@
 				</div>
 
 				<a
-					href="/cms/doctors"
+					href="/cms/community/doctors"
 					class="outline-button"
 				>
 					<Search size={15} />
@@ -398,7 +395,7 @@
 							</p>
 
 							<a
-								href="/cms/doctors"
+								href="/cms/community/doctors"
 								class="small-button"
 							>
 								Find Doctors
@@ -956,7 +953,7 @@
 	.page {
 		min-height: 100vh;
 
-		padding: 100px 24px 70px;
+		padding: 30px 24px 70px;
 
 		background:
 			linear-gradient(
@@ -1886,7 +1883,7 @@
 	@media (max-width: 600px) {
 
 		.page {
-			padding: 90px 15px 45px;
+			padding: 24px 15px 45px;
 		}
 
 

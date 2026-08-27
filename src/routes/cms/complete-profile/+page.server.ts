@@ -1,4 +1,5 @@
 import { fail, redirect } from '@sveltejs/kit';
+import { createAdminNotification } from '$lib/server/notifications';
 import type { PageServerLoad, Actions } from './$types';
 
 /*
@@ -277,13 +278,23 @@ export const actions: Actions = {
 			});
 		}
 
+		if (profileData.role === 'Doctor') {
+			await createAdminNotification(
+				'Doctor Verification Request',
+				`Doctor ${profileData.name} has submitted a profile for verification.`,
+				'info',
+				undefined,
+				'/cms/admin-dashboard' // or /cms/super-admin depending on role
+			);
+		}
+
 		/*
 		 * Redirect according to role
 		 */
 		if (profileData.role === 'Doctor') {
 			throw redirect(
 				303,
-				'/cms/author_dashboard'
+				'/cms/doctor-dashboard'
 			);
 		}
 

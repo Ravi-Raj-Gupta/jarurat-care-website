@@ -604,12 +604,13 @@
 									<a
 										class="dropdown-item"
 										href={
-											userRole === 'Super_Admin' ||
-											userRole === 'Admin'
-												? '/cms/admin-dashboard'
-												: userRole === 'Doctor'
-													? '/cms/doctor-dashboard'
-													: '/cms/reader-dashboard'
+											userRole === 'Super_Admin' 
+												? '/cms/super-admin'
+												: userRole === 'Admin'
+													? '/cms/admin-dashboard'
+													: userRole === 'Doctor'
+														? '/cms/doctor-dashboard'
+														: '/cms/reader-dashboard'
 										}
 									>
 										<LayoutDashboard size={16} />

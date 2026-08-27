@@ -1,6 +1,7 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { supabaseAdmin } from '$lib/supabaseAdmin';
 import { cmsSupabase } from '$lib/cmsSupabase';
+import { createGlobalNotification } from '$lib/server/notifications';
 import type { PageServerLoad, Actions } from './$types';
 
 /* =========================================================
@@ -1836,6 +1837,20 @@ export const actions: Actions = {
 						error.message ||
 						'Could not create CMS content'
 				});
+			}
+
+			// Broadcast event notification if the content is an event and is published immediately
+			if (contentType === 'event' && status === 'published') {
+				try {
+					await createGlobalNotification(
+						'New Event Announced',
+						`A new event "${title}" has been announced. Click to view details.`,
+						'info',
+						`/cms/events/${finalSlug}`
+					);
+				} catch (err) {
+					console.error('Failed to create global notification for event:', err);
+				}
 			}
 
 			return {
