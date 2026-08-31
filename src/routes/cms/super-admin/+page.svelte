@@ -28,7 +28,8 @@
 
 	export let data;
 
-	$: pendingDoctors = data?.pendingDoctors || [];
+	$: pendingDoctors = (data?.pendingDoctors || []).filter((d: any) => d.verification_status !== 'approved');
+	$: verifiedDoctors = (data?.pendingDoctors || []).filter((d: any) => d.verification_status === 'approved');
 	$: users = data?.users || [];
 	$: approvedArticles = data?.approvedArticles || [];
 	$: approvedResearch = data?.approvedResearch || [];
@@ -437,6 +438,21 @@
 				{#if pendingDoctors.length > 0}
 					<span class="menu-count">
 						{pendingDoctors.length}
+					</span>
+				{/if}
+			</button>
+
+			<button
+				class:active={activeSection === 'verified-doctors'}
+				class="menu-item"
+				on:click={() => (activeSection = 'verified-doctors')}
+			>
+				<CheckCircle size={18} />
+				<span>Verified Doctors</span>
+
+				{#if verifiedDoctors.length > 0}
+					<span class="menu-count">
+						{verifiedDoctors.length}
 					</span>
 				{/if}
 			</button>
@@ -1152,6 +1168,90 @@
 
 					{/if}
 
+				</div>
+
+			<!-- ================================================= -->
+			<!-- VERIFIED DOCTORS -->
+			<!-- ================================================= -->
+
+			{:else if activeSection === 'verified-doctors'}
+
+				<div class="section-heading">
+
+					<div>
+						<h2>Verified Doctors</h2>
+						<p>
+							List of all fully verified doctors on the platform.
+						</p>
+					</div>
+
+				</div>
+
+				<div class="panel">
+
+					<div class="panel-header">
+
+						<div>
+							<h3>Verified Doctors</h3>
+							<p>
+								{verifiedDoctors.length} verified doctor records found
+							</p>
+						</div>
+
+					</div>
+
+					<div class="table-wrapper">
+
+						<table class="popular-table">
+
+							<thead>
+								<tr>
+									<th>Doctor</th>
+									<th>Email</th>
+									<th>Specialization</th>
+									<th>Status</th>
+								</tr>
+							</thead>
+
+							<tbody>
+
+								{#each verifiedDoctors as doctor}
+
+									<tr>
+
+										<td>
+											<div class="user-cell">
+												<div class="user-avatar">
+													{(doctor.full_name || 'D').charAt(0)}
+												</div>
+												<div>
+													<strong>{doctor.full_name}</strong>
+													<div class="meta">{doctor.specialization || ''}</div>
+												</div>
+											</div>
+										</td>
+
+										<td>
+											<div class="meta">{doctor.email}</div>
+										</td>
+
+										<td>
+											<div class="meta">{doctor.specialization || 'Not specified'}</div>
+										</td>
+
+										<td>
+											<span class={getStatusClass(doctor.verification_status)}>
+												{doctor.verification_status.replace('_', ' ')}
+											</span>
+										</td>
+
+									</tr>
+
+								{/each}
+
+							</tbody>
+						</table>
+					</div>
 				</div>
 
 			<!-- ================================================= -->
