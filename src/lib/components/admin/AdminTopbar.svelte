@@ -102,12 +102,6 @@
 		}
 	}
 
-	$: if (!isInitialized) {
-		isInitialized = true;
-		loadNotifications();
-		setupRealtime();
-	}
-
 	function setupRealtime() {
 		if (pollInterval) return; // already setup
 		pollInterval = setInterval(() => {

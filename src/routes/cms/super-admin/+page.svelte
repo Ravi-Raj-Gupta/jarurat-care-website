@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+	import { browser } from '$app/environment';
 	import { enhance } from '$app/forms';
 	import toast from 'svelte-french-toast';
 	import {
@@ -29,7 +31,8 @@
 
 	export let data;
 
-	$: pendingDoctors = data?.pendingDoctors || [];
+	$: pendingDoctors = (data?.pendingDoctors || []).filter((d: any) => d.verification_status !== 'approved');
+	$: verifiedDoctors = (data?.pendingDoctors || []).filter((d: any) => d.verification_status === 'approved');
 	$: users = data?.users || [];
 	$: approvedArticles = data?.approvedArticles || [];
 	$: approvedResearch = data?.approvedResearch || [];
@@ -65,6 +68,21 @@
 		.slice(0, 5);
 
 	let activeSection = 'overview';
+	let isTabInitialized = false;
+	
+	onMount(() => {
+		const saved = localStorage.getItem('superAdminActiveSection');
+		if (saved) {
+			activeSection = saved;
+		}
+		// Allow reactivity to update localStorage only after initial read
+		setTimeout(() => { isTabInitialized = true; }, 0);
+	});
+
+	$: if (browser && isTabInitialized && activeSection) {
+		localStorage.setItem('superAdminActiveSection', activeSection);
+	}
+
 	let searchTerm = '';
 
 	$: filteredUsers = users.filter((user: any) => {
@@ -215,6 +233,21 @@
 				{#if pendingDoctors.length > 0}
 					<span class="menu-count">
 						{pendingDoctors.length}
+					</span>
+				{/if}
+			</button>
+
+			<button
+				class:active={activeSection === 'verified-doctors'}
+				class="menu-item"
+				on:click={() => (activeSection = 'verified-doctors')}
+			>
+				<CheckCircle size={18} />
+				<span>Verified Doctors</span>
+
+				{#if verifiedDoctors.length > 0}
+					<span class="menu-count">
+						{verifiedDoctors.length}
 					</span>
 				{/if}
 			</button>
@@ -558,7 +591,7 @@
 
 												<div class="verification-actions">
 
-													<form method="POST" action="?/approve" class="inline-form">
+													<form method="POST" action="?/approve" class="inline-form" use:enhance>
 
 														<input
 															type="hidden"
@@ -579,7 +612,7 @@
 
 													</form>
 
-													<form method="POST" action="?/approve" class="inline-form">
+													<form method="POST" action="?/approve" class="inline-form" use:enhance>
 
 														<input
 															type="hidden"
@@ -618,6 +651,90 @@
 
 				</div>
 
+
+			<!-- ================================================= -->
+			<!-- VERIFIED DOCTORS -->
+			<!-- ================================================= -->
+
+			{:else if activeSection === 'verified-doctors'}
+
+				<div class="section-heading">
+
+					<div>
+						<h2>Verified Doctors</h2>
+						<p>
+							List of all fully verified doctors on the platform.
+						</p>
+					</div>
+
+				</div>
+
+				<div class="panel">
+
+					<div class="panel-header">
+
+						<div>
+							<h3>Verified Doctors</h3>
+							<p>
+								{verifiedDoctors.length} verified doctor records found
+							</p>
+						</div>
+
+					</div>
+
+					<div class="table-wrapper">
+
+						<table>
+
+							<thead>
+								<tr>
+									<th>Doctor</th>
+									<th>Email</th>
+									<th>Specialization</th>
+									<th>Status</th>
+								</tr>
+							</thead>
+
+							<tbody>
+
+								{#each verifiedDoctors as doctor}
+
+									<tr>
+
+										<td>
+											<div class="user-cell">
+												<div class="user-avatar">
+													{(doctor.full_name || 'D').charAt(0)}
+												</div>
+												<div>
+													<strong>{doctor.full_name}</strong>
+													<div class="meta">{doctor.specialization || ''}</div>
+												</div>
+											</div>
+										</td>
+
+										<td>
+											<div class="meta">{doctor.email}</div>
+										</td>
+
+										<td>
+											<div class="meta">{doctor.specialization || 'Not specified'}</div>
+										</td>
+
+										<td>
+											<span class={getStatusClass(doctor.verification_status)}>
+												{doctor.verification_status.replace('_', ' ')}
+											</span>
+										</td>
+
+									</tr>
+
+								{/each}
+
+							</tbody>
+						</table>
+					</div>
+				</div>
 
 			<!-- ================================================= -->
 			<!-- PUBLISHING POWER -->
@@ -690,7 +807,7 @@
 
 										<td>
 
-											<form method="POST" action="?/togglePublishingPower">
+											<form method="POST" action="?/togglePublishingPower" use:enhance>
 
 												<input
 													type="hidden"
@@ -787,7 +904,7 @@
 
 											{#if article.status !== 'published'}
 
-												<form method="POST" action="?/publishContent">
+												<form method="POST" action="?/publishContent" use:enhance>
 
 													<input
 														type="hidden"
@@ -890,7 +1007,7 @@
 
 											{#if research.status !== 'published'}
 
-												<form method="POST" action="?/publishContent">
+												<form method="POST" action="?/publishContent" use:enhance>
 
 													<input
 														type="hidden"
@@ -1588,7 +1705,7 @@
 
 	.sidebar-content {
 		flex: 1;
-		padding: 18px 12px;
+		padding: 14px 12px;
 		overflow-y: auto;
 	}
 
@@ -1598,7 +1715,7 @@
 		font-weight: 800;
 		letter-spacing: 0.08em;
 		color: #475569;
-		padding: 14px 12px 7px;
+		padding: 12px 12px 6px;
 	}
 
 
@@ -1610,7 +1727,7 @@
 		display: flex;
 		align-items: center;
 		gap: 11px;
-		padding: 10px 12px;
+		padding: 9px 12px;
 		border-radius: 8px;
 		font-size: 13px;
 		font-weight: 500;
@@ -1650,7 +1767,7 @@
 
 
 	.sidebar-bottom {
-		padding: 12px;
+		padding: 10px 12px;
 		border-top: 1px solid rgba(255,255,255,0.07);
 	}
 
@@ -1659,7 +1776,7 @@
 		display: flex;
 		align-items: center;
 		gap: 9px;
-		padding: 10px 12px;
+		padding: 9px 12px;
 		text-decoration: none;
 		font-size: 13px;
 		border-radius: 8px;
