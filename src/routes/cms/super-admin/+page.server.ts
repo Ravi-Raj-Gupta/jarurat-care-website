@@ -203,7 +203,10 @@ export const load: PageServerLoad = async ({ locals }) => {
 	   PENDING / REGISTERED DOCTORS
 	======================================================= */
 
-	const pendingDoctors = doctors;
+	const pendingDoctors = doctors.filter(
+	(doctor: any) =>
+		doctor.verification_status === 'pending'
+);
 
 	/* =======================================================
 	   PUBLISHED ARTICLES
@@ -1149,296 +1152,160 @@ export const actions: Actions = {
 	   APPROVE DOCTOR
 	========================================================= */
 
-	approve: async ({
-		request,
-		locals
-	}) => {
-		const auth =
-			await requireAdmin(
-				locals
-			);
-
-		if (!auth.ok) {
-			return fail(
-				auth.status,
-				{
-					message:
-						auth.message
-				}
-			);
-		}
-
-		const formData =
-			await request.formData();
-
-		const doctorId =
-			String(
-				formData.get(
-					'doctorId'
-				) ?? ''
-			);
-
-		const assignedRole =
-			String(
-				formData.get(
-					'assignedRole'
-				) ?? ''
-			);
-
-		if (!doctorId) {
-			return fail(400, {
-				message:
-					'Missing doctor ID'
-			});
-		}
-
-		const updateData: any = {
-			role: 'Doctor',
-			verification_status:
-				'approved'
-		};
-
-		if (
-			assignedRole ===
-			'author'
-		) {
-			updateData.is_author =
-				true;
-
-			updateData.is_reviewer =
-				false;
-		} else if (
-			assignedRole ===
-			'reviewer'
-		) {
-			updateData.is_author =
-				true;
-
-			updateData.is_reviewer =
-				true;
-		}
-
-		const { error } =
-			await supabaseAdmin
-				.from('profiles')
-				.update(updateData)
-				.eq(
-					'id',
-					doctorId
-				);
-
-		if (error) {
-			console.error(
-				'Approve doctor error:',
-				error
-			);
-
-			return fail(500, {
-				message:
-					'Could not approve doctor'
-			});
-		}
-
-		return {
-			success: true,
-			action: 'doctor_approved'
-		};
-	},
-
 	/* =========================================================
-	   REJECT DOCTOR
-	========================================================= */
+   APPROVE DOCTOR
+   Super Admin only.
+========================================================= */
 
-	reject: async ({
-		request,
-		locals
-	}) => {
-		const auth =
-			await requireAdmin(
-				locals
-			);
+approve: async ({ request, locals }) => {
+	const auth = await requireSuperAdmin(locals);
 
-		if (!auth.ok) {
-			return fail(
-				auth.status,
-				{
-					message:
-						auth.message
-				}
-			);
-		}
+	if (!auth.ok) {
+		return fail(auth.status, {
+			message: auth.message
+		});
+	}
 
-		const formData =
-			await request.formData();
+	const formData = await request.formData();
 
-		const doctorId =
-			String(
-				formData.get(
-					'doctorId'
-				) ?? ''
-			);
+	const doctorId = String(
+		formData.get('doctorId') ?? ''
+	).trim();
 
-		if (!doctorId) {
-			return fail(400, {
-				message:
-					'Missing doctor ID'
-			});
-		}
+	const assignedRole = String(
+		formData.get('assignedRole') ?? ''
+	).trim().toLowerCase();
 
-		const { error } =
-			await supabaseAdmin
-				.from('profiles')
-				.update({
-					verification_status:
-						'rejected'
-				})
-				.eq(
-					'id',
-					doctorId
-				);
+	if (!doctorId) {
+		return fail(400, {
+			message: 'Missing doctor ID'
+		});
+	}
 
-		if (error) {
-			console.error(
-				'Reject doctor error:',
-				error
-			);
+	if (
+		assignedRole !== 'author' &&
+		assignedRole !== 'reviewer'
+	) {
+		return fail(400, {
+			message: 'Please select Author or Reviewer'
+		});
+	}
 
-			return fail(500, {
-				message:
-					'Could not reject doctor'
-			});
-		}
+	/*
+	 * Author:
+	 * - Can publish/write content
+	 * - Is NOT a reviewer
+	 *
+	 * Reviewer:
+	 * - Can publish/write content
+	 * - Can also review content
+	 */
+	const updateData = {
+		role: 'Doctor',
+		verification_status: 'approved',
+		is_author: true,
+		is_reviewer: assignedRole === 'reviewer'
+	};
 
-		return {
-			success: true,
-			action: 'doctor_rejected'
-		};
-	},
+	const { data: updatedDoctor, error } =
+		await supabaseAdmin
+			.from('profiles')
+			.update(updateData)
+			.eq('id', doctorId)
+			.eq('role', 'Doctor')
+			.eq('verification_status', 'pending')
+			.select('id, full_name, email')
+			.maybeSingle();
 
+	if (error) {
+		console.error(
+			'Approve doctor error:',
+			error
+		);
+
+		return fail(500, {
+			message: 'Could not approve doctor'
+		});
+	}
+
+	if (!updatedDoctor) {
+		return fail(404, {
+			message:
+				'Doctor not found or has already been processed'
+		});
+	}
+
+	return {
+		success: true,
+		action: 'doctor_approved',
+		doctorId,
+		assignedRole
+	};
+},
 	/* =========================================================
-	   UPDATE USER ROLE
-	   
-	   Super Admin only.
-	========================================================= */
+   REJECT DOCTOR
+   Super Admin only.
+========================================================= */
 
-	updateRole: async ({
-		request,
-		locals
-	}) => {
-		const auth =
-			await requireSuperAdmin(
-				locals
-			);
+reject: async ({ request, locals }) => {
+	const auth = await requireSuperAdmin(locals);
 
-		if (!auth.ok) {
-			return fail(
-				auth.status,
-				{
-					message:
-						auth.message
-				}
-			);
-		}
+	if (!auth.ok) {
+		return fail(auth.status, {
+			message: auth.message
+		});
+	}
 
-		const formData =
-			await request.formData();
+	const formData = await request.formData();
 
-		const userId =
-			String(
-				formData.get(
-					'userId'
-				) ?? ''
-			);
+	const doctorId = String(
+		formData.get('doctorId') ?? ''
+	).trim();
 
-		const newRole =
-			String(
-				formData.get(
-					'newRole'
-				) ?? ''
-			);
+	if (!doctorId) {
+		return fail(400, {
+			message: 'Missing doctor ID'
+		});
+	}
 
-		const allowedRoles = [
-			'Reader',
-			'Doctor',
-			'Admin',
-			'Super_Admin'
-		];
+	const { data: rejectedDoctor, error } =
+		await supabaseAdmin
+			.from('profiles')
+			.update({
+				verification_status: 'rejected',
+				is_author: false,
+				is_reviewer: false
+			})
+			.eq('id', doctorId)
+			.eq('role', 'Doctor')
+			.eq('verification_status', 'pending')
+			.select('id, full_name, email')
+			.maybeSingle();
 
-		if (
-			!userId ||
-			!newRole
-		) {
-			return fail(400, {
-				message:
-					'User ID and role are required'
-			});
-		}
+	if (error) {
+		console.error(
+			'Reject doctor error:',
+			error
+		);
 
-		if (
-			!allowedRoles.includes(
-				newRole
-			)
-		) {
-			return fail(400, {
-				message:
-					'Invalid role'
-			});
-		}
+		return fail(500, {
+			message: 'Could not reject doctor'
+		});
+	}
 
-		/* Prevent changing own Super Admin role accidentally */
-		if (
-			userId ===
-			auth.session.user.id &&
-			newRole !==
-				'Super_Admin'
-		) {
-			return fail(400, {
-				message:
-					'You cannot remove your own Super Admin role.'
-			});
-		}
+	if (!rejectedDoctor) {
+		return fail(404, {
+			message:
+				'Doctor not found or has already been processed'
+		});
+	}
 
-		const updateData: any = {
-			role: newRole
-		};
-
-		if (
-			newRole !==
-			'Doctor'
-		) {
-			updateData.is_author =
-				false;
-
-			updateData.is_reviewer =
-				false;
-		}
-
-		const { error } =
-			await supabaseAdmin
-				.from('profiles')
-				.update(updateData)
-				.eq(
-					'id',
-					userId
-				);
-
-		if (error) {
-			console.error(
-				'Update user role error:',
-				error
-			);
-
-			return fail(500, {
-				message:
-					'Could not update user role'
-			});
-		}
-
-		return {
-			success: true,
-			action: 'role_updated'
-		};
-	},
+	return {
+		success: true,
+		action: 'doctor_rejected',
+		doctorId
+	};
+},
 
 	/* =========================================================
 	   UPDATE DOCTOR PERMISSIONS
@@ -2362,4 +2229,4 @@ export const actions: Actions = {
 					'publishing_power_updated'
 			};
 		}
-};
+}
