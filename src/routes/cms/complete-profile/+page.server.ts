@@ -152,11 +152,7 @@ function extractFormData(formData: FormData) {
 			formData.getAll('expertise') as string[],
 
 		/*
-		 * NEW:
 		 * Doctors can also select cancer interests.
-		 *
-		 * This uses the same profiles.interests
-		 * column as Readers.
 		 */
 		interests:
 			formData.getAll('interests') as string[],
@@ -232,7 +228,7 @@ export const actions: Actions = {
 		const profileData = extractFormData(formData);
 
 		/*
-		 * Doctors must confirm their information
+		 * Doctors must confirm their information.
 		 */
 		if (
 			profileData.role === 'Doctor' &&
@@ -247,13 +243,38 @@ export const actions: Actions = {
 		}
 
 		/*
-		 * Doctors need admin verification.
-		 * Readers are approved immediately.
+		 * ============================
+		 * VERIFICATION STATUS
+		 * ============================
+		 *
+		 * Doctors:
+		 *     pending
+		 *
+		 * Readers:
+		 *     approved immediately
 		 */
 		const verification_status =
 			profileData.role === 'Doctor'
 				? 'pending'
 				: 'approved';
+
+		/*
+		 * ============================
+		 * REVIEWER STATUS
+		 * ============================
+		 *
+		 * A newly registered doctor must
+		 * NEVER become a reviewer before
+		 * Super Admin approval.
+		 *
+		 * Super Admin will later change
+		 * this to true when approving
+		 * the doctor as a Reviewer.
+		 */
+		const is_reviewer =
+			profileData.role === 'Doctor'
+				? false
+				: false;
 
 		const { error } = await locals.supabase
 			.from('profiles')
@@ -261,8 +282,23 @@ export const actions: Actions = {
 				{
 					id: session.user.id,
 					...profileData,
+
+					/*
+					 * Profile is now complete.
+					 */
 					profile_completed: true,
-					verification_status
+
+					/*
+					 * Doctor = pending
+					 * Reader = approved
+					 */
+					verification_status,
+
+					/*
+					 * New doctors are NOT reviewers
+					 * until Super Admin approves them.
+					 */
+					is_reviewer
 				},
 				{
 					onConflict: 'id'
@@ -278,23 +314,55 @@ export const actions: Actions = {
 			});
 		}
 
+		/*
+		 * ============================
+		 * ADMIN NOTIFICATION
+		 * ============================
+		 *
+		 * Notify Super Admin that a
+		 * doctor is waiting for approval.
+		 */
 		if (profileData.role === 'Doctor') {
-			await createAdminNotification(
-				'Doctor Verification Request',
-				`Doctor ${profileData.name} has submitted a profile for verification.`,
-				'info',
-				undefined,
-				'/cms/admin-dashboard' // or /cms/super-admin depending on role
-			);
+			try {
+				await createAdminNotification(
+					'Doctor Verification Request',
+					`Doctor ${profileData.full_name || 'Unknown Doctor'} has submitted a profile for verification.`,
+					'info',
+					undefined,
+					'/cms/super-admin'
+				);
+			} catch (notificationError) {
+				/*
+				 * Do not fail profile submission
+				 * just because notification failed.
+				 */
+				console.error(
+					'Error creating admin notification:',
+					notificationError
+				);
+			}
 		}
 
 		/*
-		 * Redirect according to role
+		 * ============================
+		 * REDIRECT
+		 * ============================
+		 *
+		 * IMPORTANT:
+		 *
+		 * Doctor:
+		 *     /cms/pending
+		 *
+		 * Reader:
+		 *     /
+		 *
+		 * Doctor cannot enter the dashboard
+		 * until Super Admin approves them.
 		 */
 		if (profileData.role === 'Doctor') {
 			throw redirect(
 				303,
-				'/cms/doctor-dashboard'
+				'/cms/pending'
 			);
 		}
 

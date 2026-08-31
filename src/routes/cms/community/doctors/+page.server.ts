@@ -9,32 +9,114 @@ export const load: PageServerLoad = async ({ locals }) => {
 		throw redirect(303, '/cms/login');
 	}
 
-	const { data: profile } = await locals.supabase
+	// Logged-in user
+	const { data: profile, error: profileError } = await locals.supabase
 		.from('profiles')
 		.select('*')
 		.eq('id', session.user.id)
-		.single();
+		.maybeSingle();
 
-	const { data: doctors, error } = await locals.supabase
-	.from('profiles')
-	.select('*')
-	.eq('role', 'Doctor')
-	.order('full_name');
-
-	if (error) {
-		console.error(error);
+	if (profileError || !profile) {
+		console.error('Community profile error:', profileError);
+		throw redirect(303, '/cms/login');
 	}
 
-	const { data: followedRows } = await supabaseAdmin
+	// Get all doctors
+	const { data: doctors, error: doctorsError } = await supabaseAdmin
+		.from('profiles')
+		.select('*')
+		.eq('role', 'Doctor')
+		.order('full_name', { ascending: true });
+
+	if (doctorsError) {
+		console.error('Community doctors error:', doctorsError);
+	}
+
+	const doctorList = doctors ?? [];
+	const doctorIds = doctorList.map((doctor) => doctor.id);
+
+	// ---------------------------------------------------------
+	// FOLLOWED DOCTORS
+	// ---------------------------------------------------------
+
+	const { data: followedRows, error: followedError } = await supabaseAdmin
 		.from('doctor_followers')
 		.select('doctor_id')
 		.eq('follower_id', session.user.id);
 
-	const followedDoctorIds = (followedRows ?? []).map((r) => r.doctor_id);
+	if (followedError) {
+		console.error('Followed doctors error:', followedError);
+	}
+
+	const followedDoctorIds = (followedRows ?? []).map((row) => row.doctor_id);
+
+	// ---------------------------------------------------------
+	// FOLLOWER COUNTS
+	// ---------------------------------------------------------
+
+	const followerCounts: Record<string, number> = {};
+
+	// Initialise every doctor with 0
+	for (const id of doctorIds) {
+		followerCounts[id] = 0;
+	}
+
+	if (doctorIds.length > 0) {
+		const { data: followerRows, error: followerError } = await supabaseAdmin
+			.from('doctor_followers')
+			.select('doctor_id')
+			.in('doctor_id', doctorIds);
+
+		if (followerError) {
+			console.error('Follower counts error:', followerError);
+		} else {
+			for (const row of followerRows ?? []) {
+				if (row.doctor_id) {
+					followerCounts[row.doctor_id] =
+						(followerCounts[row.doctor_id] ?? 0) + 1;
+				}
+			}
+		}
+	}
+
+	// ---------------------------------------------------------
+	// FOLLOWING COUNTS
+	// ---------------------------------------------------------
+
+	const followingCounts: Record<string, number> = {};
+
+	for (const id of doctorIds) {
+		followingCounts[id] = 0;
+	}
+
+	if (doctorIds.length > 0) {
+		const { data: followingRows, error: followingError } = await supabaseAdmin
+			.from('doctor_followers')
+			.select('follower_id')
+			.in('follower_id', doctorIds);
+
+		if (followingError) {
+			console.error('Following counts error:', followingError);
+		} else {
+			for (const row of followingRows ?? []) {
+				if (row.follower_id) {
+					followingCounts[row.follower_id] =
+						(followingCounts[row.follower_id] ?? 0) + 1;
+				}
+			}
+		}
+	}
+
+	// Add counts to each doctor
+	const doctorsWithCounts = doctorList.map((doctor) => ({
+		...doctor,
+		followers_count: followerCounts[doctor.id] ?? 0,
+		following_count: followingCounts[doctor.id] ?? 0
+	}));
 
 	return {
 		profile,
-		doctors: doctors ?? [],
+		doctors: doctorsWithCounts,
 		followedDoctorIds
 	};
 };
@@ -42,57 +124,129 @@ export const load: PageServerLoad = async ({ locals }) => {
 export const actions: Actions = {
 	follow: async ({ request, locals }) => {
 		const session = await locals.getSession();
-		if (!session) return fail(401, { error: 'Unauthorized' });
+
+		if (!session) {
+			return fail(401, {
+				error: 'Unauthorized'
+			});
+		}
 
 		const formData = await request.formData();
-		const doctor_id = formData.get('doctor_id');
+		const doctorId = formData.get('doctor_id');
 
-		if (!doctor_id || typeof doctor_id !== 'string') {
-			return fail(400, { error: 'Invalid doctor ID' });
+		if (!doctorId || typeof doctorId !== 'string') {
+			return fail(400, {
+				error: 'Invalid doctor ID'
+			});
 		}
 
-		// Prevent self-following
-		if (doctor_id === session.user.id) {
-			return fail(400, { error: 'You cannot follow yourself' });
+		// Prevent following yourself
+		if (doctorId === session.user.id) {
+			return fail(400, {
+				error: 'You cannot follow yourself'
+			});
 		}
 
-		const { error } = await supabaseAdmin.from('doctor_followers').insert({
-			follower_id: session.user.id,
-			doctor_id
-		});
+		// Make sure target is actually a doctor
+		const { data: doctor, error: doctorError } = await supabaseAdmin
+			.from('profiles')
+			.select('id, role')
+			.eq('id', doctorId)
+			.eq('role', 'Doctor')
+			.maybeSingle();
 
-		if (error) {
-			if (error.code === '23505') {
-				// Already following, treat as success
-				return { success: true };
+		if (doctorError || !doctor) {
+			return fail(404, {
+				error: 'Doctor not found'
+			});
+		}
+
+		// Check if already following
+		const { data: existingFollow, error: existingError } =
+			await supabaseAdmin
+				.from('doctor_followers')
+				.select('id')
+				.eq('follower_id', session.user.id)
+				.eq('doctor_id', doctorId)
+				.maybeSingle();
+
+		if (existingError) {
+			console.error('Existing follow check error:', existingError);
+			return fail(500, {
+				error: 'Could not check follow status'
+			});
+		}
+
+		if (existingFollow) {
+			return {
+				success: true,
+				following: true
+			};
+		}
+
+		const { error: insertError } = await supabaseAdmin
+			.from('doctor_followers')
+			.insert({
+				follower_id: session.user.id,
+				doctor_id: doctorId
+			});
+
+		if (insertError) {
+			console.error('Follow insert error:', insertError);
+
+			if (insertError.code === '23505') {
+				return {
+					success: true,
+					following: true
+				};
 			}
-			console.error('Follow error:', error);
-			return fail(500, { error: 'Failed to follow doctor' });
+
+			return fail(500, {
+				error: 'Failed to follow doctor'
+			});
 		}
 
-		return { success: true };
+		return {
+			success: true,
+			following: true
+		};
 	},
+
 	unfollow: async ({ request, locals }) => {
 		const session = await locals.getSession();
-		if (!session) return fail(401, { error: 'Unauthorized' });
+
+		if (!session) {
+			return fail(401, {
+				error: 'Unauthorized'
+			});
+		}
 
 		const formData = await request.formData();
-		const doctor_id = formData.get('doctor_id');
+		const doctorId = formData.get('doctor_id');
 
-		if (!doctor_id || typeof doctor_id !== 'string') {
-			return fail(400, { error: 'Invalid doctor ID' });
+		if (!doctorId || typeof doctorId !== 'string') {
+			return fail(400, {
+				error: 'Invalid doctor ID'
+			});
 		}
 
 		const { error } = await supabaseAdmin
 			.from('doctor_followers')
 			.delete()
-			.match({ follower_id: session.user.id, doctor_id });
+			.eq('follower_id', session.user.id)
+			.eq('doctor_id', doctorId);
 
 		if (error) {
 			console.error('Unfollow error:', error);
-			return fail(500, { error: 'Failed to unfollow doctor' });
+
+			return fail(500, {
+				error: 'Failed to unfollow doctor'
+			});
 		}
 
-		return { success: true };
+		return {
+			success: true,
+			following: false
+		};
 	}
 };
