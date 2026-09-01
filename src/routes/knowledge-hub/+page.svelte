@@ -1127,17 +1127,17 @@
 							on:click={() =>
 								selectFilter('blog')}
 						>
-							Health & Wellness
+							Blogs
 						</button>
 
 						<button
 							class:topic-active={
-								activeFilter === 'blogs'
+								activeFilter === 'faq'
 							}
 							on:click={() =>
-								selectFilter('blogs')}
+								selectFilter('faq')}
 						>
-							Blogs
+							FAQs
 						</button>
 
 						<button
