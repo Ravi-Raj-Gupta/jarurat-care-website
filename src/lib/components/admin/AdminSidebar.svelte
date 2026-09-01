@@ -1,86 +1,135 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { 
-		Home, FileText, Newspaper, HelpCircle, Calendar as CalendarIcon, 
-		Users, Settings, Globe, ExternalLink, LogOut, Megaphone 
+	import {
+		Home,
+		FileText,
+		Newspaper,
+		HelpCircle,
+		Calendar as CalendarIcon,
+		Settings,
+		Globe,
+		ExternalLink,
+		LogOut,
+		Megaphone,
+		MessageCircle
 	} from 'lucide-svelte';
 
 	let collapsed = false;
 </script>
 
 <aside class="new-sidebar" class:collapsed>
+	<!-- ==================== LOGO ==================== -->
 	<div class="sidebar-logo">
 		<div class="logo-icon-wrap">
-			<img src="/logo.png" alt="JCF Logo" class="logo-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3062/3062634.png'" />
+			<img
+				src="/logo.png"
+				alt="JCF Logo"
+				class="logo-img"
+				onerror="this.src='https://cdn-icons-png.flaticon.com/512/3062/3062634.png'"
+			/>
 		</div>
+
 		<div class="logo-text">
 			<span class="main-title">Jarurat Care</span>
 			<span class="sub-title">Admin Portal</span>
 		</div>
 	</div>
 
+	<!-- ==================== NAVIGATION ==================== -->
 	<div class="sidebar-scroll">
-		<a href="/cms/admin-dashboard" class="nav-btn" class:active={$page.url.pathname === '/cms/admin-dashboard'}>
+		<!-- DASHBOARD -->
+		<a
+			href="/cms/admin-dashboard"
+			class="nav-btn"
+			class:active={$page.url.pathname === '/cms/admin-dashboard'}
+		>
 			<Home size={18} />
 			<span>Dashboard</span>
 		</a>
 
-		<!-- CONTENT -->
+		<!-- ==================== CONTENT ==================== -->
 		<div class="nav-section">
 			<span class="nav-section-title">CONTENT</span>
-			<a href="/cms/admin-dashboard/blogs" class="nav-btn" class:active={$page.url.pathname === '/cms/admin-dashboard/blogs'}>
+
+			<a
+				href="/cms/admin-dashboard/blogs"
+				class="nav-btn"
+				class:active={$page.url.pathname.startsWith('/cms/admin-dashboard/blogs')}
+			>
 				<FileText size={18} />
 				<span>Blogs</span>
 			</a>
-			<a href="/cms/admin-dashboard/news" class="nav-btn" class:active={$page.url.pathname === '/cms/admin-dashboard/news'}>
+
+			<a
+				href="/cms/admin-dashboard/news"
+				class="nav-btn"
+				class:active={$page.url.pathname.startsWith('/cms/admin-dashboard/news')}
+			>
 				<Newspaper size={18} />
 				<span>News</span>
 			</a>
-			<a href="/cms/admin-dashboard/faqs" class="nav-btn" class:active={$page.url.pathname === '/cms/admin-dashboard/faqs'}>
+
+			<a
+				href="/cms/admin-dashboard/faqs"
+				class="nav-btn"
+				class:active={$page.url.pathname.startsWith('/cms/admin-dashboard/faqs')}
+			>
 				<HelpCircle size={18} />
 				<span>FAQs</span>
 			</a>
+
+			<!-- TESTIMONIALS -->
+			<a
+				href="/cms/admin-dashboard/testimonials"
+				class="nav-btn"
+				class:active={$page.url.pathname.startsWith('/cms/admin-dashboard/testimonials')}
+			>
+				<MessageCircle size={18} />
+				<span>Testimonials</span>
+			</a>
 		</div>
 
-		<!-- EVENTS -->
+		<!-- ==================== EVENTS ==================== -->
 		<div class="nav-section">
 			<span class="nav-section-title">EVENTS</span>
-			<a href="/cms/admin-dashboard/events" class="nav-btn" class:active={$page.url.pathname === '/cms/admin-dashboard/events'}>
+
+			<a
+				href="/cms/admin-dashboard/events"
+				class="nav-btn"
+				class:active={$page.url.pathname.startsWith('/cms/admin-dashboard/events')}
+			>
 				<CalendarIcon size={18} />
+
 				<div class="flex-col-label">
 					<span>Events Management</span>
 					<span class="sub-text">(Webinars)</span>
 				</div>
 			</a>
-			<a href="/cms/admin-dashboard/campaigns" class="nav-btn" class:active={$page.url.pathname === '/cms/admin-dashboard/campaigns'}>
+
+			<a
+				href="/cms/admin-dashboard/campaigns"
+				class="nav-btn"
+				class:active={$page.url.pathname.startsWith('/cms/admin-dashboard/campaigns')}
+			>
 				<Megaphone size={18} />
+
 				<div class="flex-col-label">
 					<span>Campaigns</span>
 				</div>
+
 				<span class="badge red-badge ml-auto">New</span>
 			</a>
 		</div>
-
-		<!-- USERS -->
-		<div class="nav-section">
-			<span class="nav-section-title">USERS</span>
-			<a href="/cms/admin-dashboard/users" class="nav-btn" class:active={$page.url.pathname === '/cms/admin-dashboard/users'}>
-				<Users size={18} />
-				<span>User Management</span>
-			</a>
-		</div>
-
-
-
 	</div>
 
-	<!-- Sidebar Bottom Actions -->
+	<!-- ==================== SIDEBAR BOTTOM ==================== -->
 	<div class="sidebar-bottom">
 		<a href="/" target="_blank" class="nav-btn bottom-link">
 			<Globe size={18} />
 			<span>View Website</span>
 			<ExternalLink size={16} class="ml-auto opacity-60" />
 		</a>
+
 		<a href="/cms/login" class="nav-btn logout-btn">
 			<LogOut size={18} />
 			<span>Logout</span>
@@ -98,12 +147,12 @@
 
 	.new-sidebar {
 		width: 265px;
-		background: #0B1729;
-		color: #CBD5E1;
+		background: #0b1729;
+		color: #cbd5e1;
 		display: flex;
 		flex-direction: column;
 		flex-shrink: 0;
-		border-right: 1px solid #1E293B;
+		border-right: 1px solid #1e293b;
 		height: 100vh;
 		position: sticky;
 		top: 0;
@@ -124,6 +173,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		flex-shrink: 0;
 	}
 
 	.logo-img {
@@ -140,13 +190,13 @@
 	.main-title {
 		font-size: 20px;
 		font-weight: 800;
-		color: #FFFFFF;
+		color: #ffffff;
 		letter-spacing: -0.02em;
 	}
 
 	.sub-title {
 		font-size: 11px;
-		color: #94A3B8;
+		color: #94a3b8;
 	}
 
 	.sidebar-scroll {
@@ -172,7 +222,7 @@
 		padding: 10px 14px;
 		border: none;
 		background: transparent;
-		color: #CBD5E1;
+		color: #cbd5e1;
 		font-size: 14px;
 		font-weight: 500;
 		border-radius: 8px;
@@ -192,12 +242,12 @@
 
 	.nav-btn:hover {
 		background: rgba(255, 255, 255, 0.06);
-		color: #FFFFFF;
+		color: #ffffff;
 	}
 
 	.nav-btn.active {
-		background: #2563EB;
-		color: #FFFFFF;
+		background: #2563eb;
+		color: #ffffff;
 		font-weight: 600;
 	}
 
@@ -210,7 +260,7 @@
 	.nav-section-title {
 		font-size: 11px;
 		font-weight: 700;
-		color: #64748B;
+		color: #64748b;
 		letter-spacing: 0.06em;
 		padding: 4px 14px;
 		margin-bottom: 4px;
@@ -224,7 +274,7 @@
 
 	.flex-col-label .sub-text {
 		font-size: 11px;
-		color: #94A3B8;
+		color: #94a3b8;
 	}
 
 	.badge {
@@ -235,8 +285,18 @@
 		flex-shrink: 0;
 	}
 
-	.red-badge { background: #DC2626; color: #FFFFFF; }
-	.ml-auto { margin-left: auto; }
+	.red-badge {
+		background: #dc2626;
+		color: #ffffff;
+	}
+
+	.ml-auto {
+		margin-left: auto;
+	}
+
+	.opacity-60 {
+		opacity: 0.6;
+	}
 
 	.sidebar-bottom {
 		margin-top: auto;
@@ -244,6 +304,16 @@
 		border-top: 1px solid rgba(255, 255, 255, 0.08);
 	}
 
-	.logout-btn { color: #F87171; }
-	.logout-btn:hover { background: rgba(239, 68, 68, 0.15); color: #EF4444; }
+	.bottom-link {
+		margin-bottom: 2px;
+	}
+
+	.logout-btn {
+		color: #f87171;
+	}
+
+	.logout-btn:hover {
+		background: rgba(239, 68, 68, 0.15);
+		color: #ef4444;
+	}
 </style>
