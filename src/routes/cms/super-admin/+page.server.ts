@@ -1124,6 +1124,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 	return {
 		pendingDoctors,
+		verifiedDoctors,
 		users,
 
 		approvedArticles,

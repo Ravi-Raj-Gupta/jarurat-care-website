@@ -28,8 +28,8 @@
 
 	export let data;
 
-	$: pendingDoctors = (data?.pendingDoctors || []).filter((d: any) => d.verification_status !== 'approved');
-	$: verifiedDoctors = (data?.pendingDoctors || []).filter((d: any) => d.verification_status === 'approved');
+	$: pendingDoctors = data?.pendingDoctors || [];
+	$: verifiedDoctors = data?.verifiedDoctors || [];
 	$: users = data?.users || [];
 	$: approvedArticles = data?.approvedArticles || [];
 	$: approvedResearch = data?.approvedResearch || [];
