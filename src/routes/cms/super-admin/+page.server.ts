@@ -425,7 +425,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		data: followRows,
 		error: followError
 	} = await supabaseAdmin
-		.from('doctor_follows')
+		.from('doctor_followers')
 		.select('id, follower_id, doctor_id');
 
 	if (followError) {
