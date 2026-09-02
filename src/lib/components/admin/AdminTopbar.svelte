@@ -227,7 +227,7 @@
 						{/if}
 					</div>
 					<div class="notif-footer">
-						<a href="#">View all activity</a>
+						<button class="notif-footer-btn">View all activity</button>
 					</div>
 				</div>
 			{/if}
@@ -363,8 +363,6 @@
 		align-items: center;
 		justify-content: center;
 	}
-
-	.red-dot { background: #E11D48; }
 
 	.notif-wrap {
 		position: relative;
@@ -684,7 +682,8 @@
 		border-top: 1px solid #F1F5F9;
 	}
 
-	.profile-dropdown a {
+	.profile-dropdown a,
+	.profile-dropdown button {
 		padding: 8px 16px;
 		font-size: 13px;
 		color: #334155;
@@ -693,22 +692,27 @@
 		align-items: center;
 		transition: all 0.15s;
 		font-weight: 500;
+		border: none;
+		background: none;
+		text-align: left;
+		cursor: pointer;
+		width: 100%;
 	}
 
-	.profile-dropdown a:hover {
+	.profile-dropdown a:hover,
+	.profile-dropdown button:hover {
 		background: #F8FAFC;
 		color: #0F172A;
 	}
 
-	.profile-dropdown a.text-red-600 {
+	.profile-dropdown button.text-red-600 {
 		color: #DC2626;
 		font-weight: 600;
 	}
 
-	.profile-dropdown a.text-red-600:hover {
+	.profile-dropdown button.text-red-600:hover {
 		background: #FEF2F2;
 	}
 
-	.text-slate-500 { color: #64748B; }
 	.text-slate-400 { color: #94A3B8; }
 </style>

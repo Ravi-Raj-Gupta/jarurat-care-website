@@ -3187,7 +3187,7 @@
 
 	.sidebar-content {
 		flex: 1;
-		padding: 18px 12px;
+		padding: 16px;
 		overflow-y: auto;
 	}
 
@@ -3196,7 +3196,7 @@
 		font-weight: 800;
 		letter-spacing: 0.08em;
 		color: #475569;
-		padding: 14px 12px 7px;
+		padding: 10px 12px 5px;
 	}
 
 	.menu-item {
@@ -3206,15 +3206,15 @@
 		color: #94a3b8;
 		display: flex;
 		align-items: center;
-		gap: 11px;
-		padding: 10px 12px;
+		gap: 12px;
+		padding: 10px 14px;
 		border-radius: 8px;
 		font-size: 13px;
 		font-weight: 500;
 		cursor: pointer;
 		text-align: left;
 		text-decoration: none;
-		transition: 0.18s ease;
+		transition: all 0.2s;
 		margin-bottom: 2px;
 	}
 
