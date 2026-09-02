@@ -19,9 +19,66 @@
 		{ id: 5, title: 'Nutritional Guidelines During Oncology Treatment', type: 'Blog', category: 'Nutrition', author: 'Dr. Priya Nair', date: '25 Jul 2026', status: 'In Review' }
 	];
 
+	// --- Dynamic Chart Data ---
+	$: totalItems = cmsList.length;
+	
+	$: blogsCount = cmsList.filter(item => item.type?.toLowerCase().includes('blog')).length;
+	$: newsCount = cmsList.filter(item => item.type?.toLowerCase().includes('news') || item.type?.toLowerCase().includes('campaign')).length;
+	$: faqsEventsCount = cmsList.filter(item => item.type?.toLowerCase().includes('faq') || item.type?.toLowerCase().includes('event')).length;
+	
+	$: blogsPct = totalItems > 0 ? Math.round((blogsCount / totalItems) * 100) : 0;
+	$: newsPct = totalItems > 0 ? Math.round((newsCount / totalItems) * 100) : 0;
+	$: faqsEventsPct = totalItems > 0 ? Math.round((faqsEventsCount / totalItems) * 100) : 0;
+	
+	$: newsOffset = -blogsPct;
+	$: faqsEventsOffset = -(blogsPct + newsPct);
+
+	$: monthlyCounts = (() => {
+		const counts = [0, 0, 0, 0, 0, 0];
+		const months = ['', '', '', '', '', ''];
+		const now = new Date();
+		for (let i = 5; i >= 0; i--) {
+			const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+			months[5 - i] = d.toLocaleString('en-US', { month: 'short' });
+		}
+		cmsList.forEach(item => {
+			if (!item.created_at && !item.date) return;
+			const itemDate = new Date(item.created_at || item.date);
+			const monthDiff = (now.getFullYear() - itemDate.getFullYear()) * 12 + now.getMonth() - itemDate.getMonth();
+			if (monthDiff >= 0 && monthDiff < 6) {
+				counts[5 - monthDiff]++;
+			}
+		});
+		return { counts, months };
+	})();
+
+	$: maxCount = Math.max(...monthlyCounts.counts, 5);
+	$: points = monthlyCounts.counts.map((val, i) => {
+		const x = (i / 5) * 500;
+		const y = 140 - (val / maxCount) * 110;
+		return { x, y };
+	});
+	
+	$: curvePath = `M${points[0].x},${points[0].y} ` +
+		`C${points[0].x + 30},${points[0].y} ${points[1].x - 30},${points[1].y} ${points[1].x},${points[1].y} ` +
+		`S${points[2].x - 30},${points[2].y} ${points[2].x},${points[2].y} ` +
+		`S${points[3].x - 30},${points[3].y} ${points[3].x},${points[3].y} ` +
+		`S${points[4].x - 30},${points[4].y} ${points[4].x},${points[4].y} ` +
+		`S${points[5].x - 30},${points[5].y} ${points[5].x},${points[5].y}`;
+
+	$: areaPath = `${curvePath} L500,160 L0,160 Z`;
+
 	$: filteredList = selectedTab === 'All' 
 		? cmsList 
-		: cmsList.filter(item => item.type === selectedTab || (selectedTab === 'Blogs' && item.type === 'Blog'));
+		: cmsList.filter(item => {
+			if (!item.type) return false;
+			const t = item.type.toLowerCase();
+			if (selectedTab === 'Blogs') return t.includes('blog');
+			if (selectedTab === 'News') return t.includes('news') || t.includes('campaign');
+			if (selectedTab === 'Events') return t.includes('event') || t.includes('webinar');
+			if (selectedTab === 'FAQs') return t.includes('faq');
+			return t === selectedTab.toLowerCase();
+		});
 
 	function getBadgeClass(cat: string) {
 		if (cat === 'Cancer Care' || cat === 'Webinars') return 'bg-purple-pill';
@@ -115,18 +172,20 @@
 						<stop offset="0%" stop-color="#2563EB" stop-opacity="0.2" />
 						<stop offset="100%" stop-color="#2563EB" stop-opacity="0.0" />
 					</linearGradient>
-					<path d="M0,130 Q80,70 160,95 T320,55 T500,75 L500,160 L0,160 Z" fill="url(#blueGradient)" />
+					<path d={areaPath} fill="url(#blueGradient)" />
 
 					<!-- Smooth Line -->
-					<path d="M0,130 Q80,70 160,95 T320,55 T500,75" stroke="#2563EB" stroke-width="3" stroke-linecap="round" fill="none" />
+					<path d={curvePath} stroke="#2563EB" stroke-width="3" stroke-linecap="round" fill="none" />
 
 					<!-- Points -->
-					<circle cx="160" cy="95" r="5" fill="#FFFFFF" stroke="#2563EB" stroke-width="3" />
-					<circle cx="320" cy="55" r="5" fill="#FFFFFF" stroke="#2563EB" stroke-width="3" />
-					<circle cx="500" cy="75" r="5" fill="#FFFFFF" stroke="#2563EB" stroke-width="3" />
+					{#each points as pt}
+						<circle cx={pt.x} cy={pt.y} r="5" fill="#FFFFFF" stroke="#2563EB" stroke-width="3" />
+					{/each}
 				</svg>
 				<div class="chart-x-axis">
-					<span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
+					{#each monthlyCounts.months as m}
+						<span>{m}</span>
+					{/each}
 				</div>
 			</div>
 		</div>
@@ -139,20 +198,26 @@
 			<div class="donut-wrap">
 				<svg class="donut-chart" viewBox="0 0 36 36">
 					<path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-					<!-- Blogs (45%) -->
-					<path class="circle-blue" stroke-dasharray="45, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-					<!-- News (30%) -->
-					<path class="circle-purple" stroke-dasharray="30, 100" stroke-dashoffset="-45" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-					<!-- FAQs & Events (25%) -->
-					<path class="circle-green" stroke-dasharray="25, 100" stroke-dashoffset="-75" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-					<text x="18" y="19" class="donut-text">84</text>
+					<!-- Blogs -->
+					{#if blogsPct > 0}
+						<path class="circle-blue" stroke-dasharray="{blogsPct}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+					{/if}
+					<!-- News -->
+					{#if newsPct > 0}
+						<path class="circle-purple" stroke-dasharray="{newsPct}, 100" stroke-dashoffset={newsOffset} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+					{/if}
+					<!-- FAQs & Events -->
+					{#if faqsEventsPct > 0}
+						<path class="circle-green" stroke-dasharray="{faqsEventsPct}, 100" stroke-dashoffset={faqsEventsOffset} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+					{/if}
+					<text x="18" y="19" class="donut-text">{totalItems}</text>
 					<text x="18" y="24" class="donut-sub">Total Items</text>
 				</svg>
 			</div>
 			<div class="category-legend">
-				<div class="legend-item"><span class="dot bg-blue"></span><span>Blogs</span><strong>45%</strong></div>
-				<div class="legend-item"><span class="dot bg-purple"></span><span>News & PR</span><strong>30%</strong></div>
-				<div class="legend-item"><span class="dot bg-green"></span><span>FAQs & Events</span><strong>25%</strong></div>
+				<div class="legend-item"><span class="dot bg-blue"></span><span>Blogs</span><strong>{blogsPct}%</strong></div>
+				<div class="legend-item"><span class="dot bg-purple"></span><span>News & PR</span><strong>{newsPct}%</strong></div>
+				<div class="legend-item"><span class="dot bg-green"></span><span>FAQs & Events</span><strong>{faqsEventsPct}%</strong></div>
 			</div>
 		</div>
 	</div>

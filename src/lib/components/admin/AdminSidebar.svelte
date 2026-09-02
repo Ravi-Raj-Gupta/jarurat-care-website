@@ -202,7 +202,7 @@
 	.sidebar-scroll {
 		flex: 1;
 		overflow-y: auto;
-		padding: 10px 12px;
+		padding: 16px 12px;
 	}
 
 	.sidebar-scroll::-webkit-scrollbar {
@@ -219,15 +219,17 @@
 		display: flex;
 		align-items: center;
 		gap: 12px;
-		padding: 8px 14px;
+		padding: 10px 14px;
 		border: none;
 		background: transparent;
 		color: #cbd5e1;
+		font-size: 14px;
+		font-weight: 500;
 		cursor: pointer;
 		text-align: left;
 		transition: all 0.2s;
 		border-radius: 8px;
-		margin-bottom: 0px;
+		margin-bottom: 4px;
 		text-decoration: none;
 		white-space: nowrap;
 	}
@@ -250,19 +252,19 @@
 	}
 
 	.nav-section {
-		margin-top: 8px;
+		margin-top: 24px;
 		display: flex;
 		flex-direction: column;
 	}
 
-	.nav-label {
-		font-size: 10px;
+	.nav-section-title {
+		font-size: 11px;
 		text-transform: uppercase;
 		font-weight: 700;
 		color: #64748b;
-		letter-spacing: 0.06em;
-		padding: 2px 14px;
-		margin-bottom: 2px;
+		letter-spacing: 0.08em;
+		padding: 4px 14px;
+		margin-bottom: 6px;
 	}
 
 	.flex-col-label {
