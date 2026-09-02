@@ -125,18 +125,32 @@ export const actions: Actions = {
 			return fail(400, { message: 'Feedback is required' });
 		}
 
-		const { error } = await supabaseAdmin
+		const { data: updatedArticle, error } = await supabaseAdmin
 			.from('articles')
 			.update({
 				status: 'under_review',
 				review_feedback: feedback.trim()
 			})
 			.eq('id', params.id)
-			.eq('status', 'under_review');
+			.eq('status', 'under_review')
+			.select('title, author_id')
+			.single();
 
-		if (error) {
+		if (error || !updatedArticle) {
 			console.error('Reject article error:', error);
 			return fail(500, { message: 'Could not request changes' });
+		}
+
+		try {
+			await createAdminNotification(
+				'Changes Requested',
+				`A reviewer has requested changes on your article "${updatedArticle.title}".`,
+				'warning',
+				updatedArticle.author_id,
+				'/cms/doctor-dashboard/articles'
+			);
+		} catch (err) {
+			console.error('Notification error:', err);
 		}
 
 		throw redirect(303, '/cms/doctor-dashboard/review-articles');

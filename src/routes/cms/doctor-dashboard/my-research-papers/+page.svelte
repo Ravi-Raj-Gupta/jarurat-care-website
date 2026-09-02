@@ -57,17 +57,39 @@
                         <tr>
                             <td>
                                 <span class="item-title">{paper.title || 'Untitled Paper'}</span>
+                                {#if paper.status === 'changes_requested' && paper.admin_feedback}
+                                    <div style="margin-top: 8px; padding: 10px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; color: #991b1b; font-size: 13px; font-weight: normal; line-height: 1.4;">
+                                        <strong style="display:block; margin-bottom:4px;">Reviewer Feedback:</strong>
+                                        {paper.admin_feedback}
+                                        <br>
+                                        <a href="/cms/research/edit/{paper.id}" style="color: #b91c1c; font-weight: 600; text-decoration: underline; margin-top: 6px; display: inline-block;">Click here to edit</a>
+                                    </div>
+                                {/if}
                             </td>
                             <td>
-                                <span class="status-badge status-{paper.status}">
-                                    {statusLabel(paper.status)}
+                                <span class="status-badge {
+                                    paper.status === 'approved' ? 'status-approved' : 
+                                    paper.status === 'changes_requested' ? 'status-changes_requested' : 
+                                    'status-' + (paper.status || 'published')
+                                }">
+                                    {
+                                        paper.status === 'approved' ? 'Approved' :
+                                        paper.status === 'changes_requested' ? 'Changes Requested' :
+                                        statusLabel(paper.status)
+                                    }
                                 </span>
                             </td>
                             <td class="date-cell">{formatDate(paper.created_at)}</td>
                             <td class="text-right">
-                                <a href={`/cms/research/view/${paper.id}`} class="btn-view">
-                                    View Details
-                                </a>
+                                {#if paper.status === 'draft' || paper.status === 'changes_requested'}
+                                    <a href={`/cms/research/edit/${paper.id}`} class="btn-view" style="background: #e0e7ff; color: #4338ca;">
+                                        Edit Paper
+                                    </a>
+                                {:else}
+                                    <a href={`/cms/research/view/${paper.id}`} class="btn-view">
+                                        View Details
+                                    </a>
+                                {/if}
                             </td>
                         </tr>
                     {/each}
@@ -150,6 +172,8 @@
     .status-draft { background: #f1f5f9; color: #475569; }
     .status-under_review { background: #fef3c7; color: #b45309; }
     .status-published { background: #dcfce7; color: #15803d; }
+    .status-approved { background: #dcfce7; color: #15803d; }
+    .status-changes_requested { background: #fee2e2; color: #991b1b; }
     .status-rejected { background: #fee2e2; color: #991b1b; }
 
     .date-cell {

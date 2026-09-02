@@ -42,12 +42,23 @@
                         <th>STATUS</th>
                         <th>VIEWS</th>
                         <th>DATE</th>
+                        <th class="text-right">ACTION</th>
                     </tr>
                 </thead>
                 <tbody>
                     {#each articles as article}
                         <tr>
-                            <td class="font-medium">{article.title || 'Untitled Article'}</td>
+                            <td class="font-medium">
+								{article.title || 'Untitled Article'}
+								{#if article.status === 'under_review' && article.review_feedback && article.review_feedback !== 'APPROVED_BY_REVIEWER'}
+									<div style="margin-top: 8px; padding: 10px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; color: #991b1b; font-size: 13px; font-weight: normal; line-height: 1.4;">
+										<strong style="display:block; margin-bottom:4px;">Reviewer Feedback:</strong>
+										{article.review_feedback}
+										<br>
+										<a href="/cms/articles/edit/{article.id}" style="color: #b91c1c; font-weight: 600; text-decoration: underline; margin-top: 6px; display: inline-block;">Click here to edit</a>
+									</div>
+								{/if}
+							</td>
                             <td>
                                 <span class="category-badge">{article.category || 'General Health'}</span>
                             </td>
@@ -66,6 +77,17 @@
                             </td>
                             <td class="text-muted">{article.views || 0}</td>
                             <td class="text-muted">{formatDate(article.created_at)}</td>
+                            <td class="text-right">
+                                {#if article.status === 'draft' || (article.status === 'under_review' && article.review_feedback && article.review_feedback !== 'APPROVED_BY_REVIEWER')}
+                                    <a href={`/cms/articles/edit/${article.id}`} class="btn-view" style="background: #e0e7ff; color: #4338ca;">
+                                        Edit Article
+                                    </a>
+                                {:else}
+                                    <a href={`/cms/articles/view/${article.id}`} class="btn-view">
+                                        View Details
+                                    </a>
+                                {/if}
+                            </td>
                         </tr>
                     {/each}
                 </tbody>
@@ -197,5 +219,25 @@
         color: #64748b;
         margin: 0;
         font-size: 14px;
+    }
+
+    .text-right {
+        text-align: right;
+    }
+
+    .btn-view {
+        background: #f1f5f9;
+        color: #0f172a;
+        padding: 6px 14px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 600;
+        transition: background 0.2s;
+        display: inline-block;
+    }
+
+    .btn-view:hover {
+        background: #e2e8f0;
     }
 </style>

@@ -37,7 +37,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 	return {
 		profile,
-		articleDrafts: articleDrafts ?? [],
-		researchDrafts: researchDrafts ?? []
+		draftArticles: articleDrafts ?? [],
+		draftResearch: researchDrafts ?? []
 	};
 };
