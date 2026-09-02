@@ -156,6 +156,7 @@
 	let isLoggedIn = false;
 	let userRole = '';
 	let userEmail = '';
+	let userId = '';
 	let isDropdownOpen = false;
 
 	let localLikes: Record<string, boolean> = {};
@@ -270,6 +271,7 @@
 		if (user) {
 			isLoggedIn = true;
 			userEmail = user.email || '';
+			userId = user.id;
 
 			const { data: profile } = await cmsSupabase
 				.from('profiles')
@@ -596,7 +598,7 @@
 								</div>
 								
 								<div class="dropdown-actions">
-									<a class="dropdown-item" href="/cms/view-profile">
+									<a class="dropdown-item" href={`/cms/community/doctors/${userId}`}>
 										<User size={16} />
 										<span>View Profile</span>
 									</a>

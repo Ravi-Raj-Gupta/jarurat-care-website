@@ -23,6 +23,7 @@
             {isReviewer} 
             email={profile?.email || $page.data.session?.user?.email || 'doctor@jarurat.care'}
             avatar={profile?.avatar_url || ''}
+            userId={profile?.id || $page.data.session?.user?.id || ''}
         />
         
         <main class="page">

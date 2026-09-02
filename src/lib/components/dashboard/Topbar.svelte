@@ -9,6 +9,7 @@
 	export let isReviewer: boolean = false;
 	export let email: string = 'doctor@jarurat.care';
 	export let avatar: string = '';
+	export let userId: string = '';
 
 	let showDropdown = false;
 	let dropdownRef: HTMLElement;
@@ -253,7 +254,7 @@
 						<span>{email || 'doctor@jarurat.care'}</span>
 					</div>
 					<hr />
-					<a href="/cms/complete-profile" on:click={() => showDropdown = false}>View Profile</a>
+					<a href={`/cms/community/doctors/${userId}`} on:click={() => showDropdown = false}>View Profile</a>
 					<a href="/cms/doctor-dashboard/settings" on:click={() => showDropdown = false}>Account Settings</a>
 					<hr />
 					<a href="/cms/login" class="text-red-600 font-medium">Logout</a>

@@ -256,7 +256,7 @@
 						<span>{user.email}</span>
 					</div>
 					<hr />
-					<a href="/cms/complete-profile" on:click={() => showDropdown = false}>View Profile</a>
+					<a href={`/cms/community/doctors/${user.id}`} on:click={() => showDropdown = false}>View Profile</a>
 					<a href="/cms/login" class="text-red-600 font-medium">Logout</a>
 				</div>
 			{/if}
