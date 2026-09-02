@@ -22,9 +22,20 @@
 	// --- Dynamic Chart Data ---
 	$: totalItems = cmsList.length;
 	
-	$: blogsCount = cmsList.filter(item => item.type?.toLowerCase().includes('blog')).length;
-	$: newsCount = cmsList.filter(item => item.type?.toLowerCase().includes('news') || item.type?.toLowerCase().includes('campaign')).length;
-	$: faqsEventsCount = cmsList.filter(item => item.type?.toLowerCase().includes('faq') || item.type?.toLowerCase().includes('event')).length;
+	$: blogsCount = cmsList.filter(item => {
+		const t = (item.content_type || 'blog').toLowerCase();
+		return t.includes('blog') || t.includes('article');
+	}).length;
+
+	$: newsCount = cmsList.filter(item => {
+		const t = (item.content_type || '').toLowerCase();
+		return t.includes('news') || t.includes('campaign');
+	}).length;
+
+	$: faqsEventsCount = cmsList.filter(item => {
+		const t = (item.content_type || '').toLowerCase();
+		return t.includes('faq') || t.includes('event') || t.includes('webinar');
+	}).length;
 	
 	$: blogsPct = totalItems > 0 ? Math.round((blogsCount / totalItems) * 100) : 0;
 	$: newsPct = totalItems > 0 ? Math.round((newsCount / totalItems) * 100) : 0;
@@ -71,9 +82,8 @@
 	$: filteredList = selectedTab === 'All' 
 		? cmsList 
 		: cmsList.filter(item => {
-			if (!item.type) return false;
-			const t = item.type.toLowerCase();
-			if (selectedTab === 'Blogs') return t.includes('blog');
+			const t = (item.content_type || 'blog').toLowerCase();
+			if (selectedTab === 'Blogs') return t.includes('blog') || t.includes('article');
 			if (selectedTab === 'News') return t.includes('news') || t.includes('campaign');
 			if (selectedTab === 'Events') return t.includes('event') || t.includes('webinar');
 			if (selectedTab === 'FAQs') return t.includes('faq');
