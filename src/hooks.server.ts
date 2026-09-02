@@ -1,8 +1,12 @@
 import { createServerClient } from '@supabase/ssr';
-import type { Handle } from '@sveltejs/kit';
+import { redirect, type Handle } from '@sveltejs/kit';
 import { PUBLIC_CMS_SUPABASE_URL, PUBLIC_CMS_SUPABASE_ANON_KEY } from '$env/static/public';
  
 export const handle: Handle = async ({ event, resolve }) => {
+	if (event.url.pathname.startsWith('/cms/author_dashboard') || event.url.pathname.startsWith('/cms/author-dashboard')) {
+		throw redirect(301, '/cms/doctor-dashboard');
+	}
+
 	event.locals.supabase = createServerClient(PUBLIC_CMS_SUPABASE_URL, PUBLIC_CMS_SUPABASE_ANON_KEY, {
 		cookies: {
 			get: (key) => event.cookies.get(key),

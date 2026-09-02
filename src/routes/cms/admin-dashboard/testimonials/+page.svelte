@@ -161,32 +161,34 @@
 	}
 
 	function handleActionResult() {
-		return async ({ result, update }: any) => {
-			if (result.type === 'success') {
-				const action = result.data?.action;
+		return () => {
+			return async ({ result, update }: any) => {
+				if (result.type === 'success') {
+					const action = result.data?.action;
 
-				if (action === 'published') {
-					toast.success('Testimonial published successfully.');
-				} else if (action === 'rejected') {
-					toast.success('Testimonial rejected.');
-				} else if (action === 'changes_requested') {
-					toast.success('Changes requested successfully.');
+					if (action === 'published') {
+						toast.success('Testimonial published successfully.');
+					} else if (action === 'rejected') {
+						toast.success('Testimonial rejected.');
+					} else if (action === 'changes_requested') {
+						toast.success('Changes requested successfully.');
+					} else {
+						toast.success('Action completed successfully.');
+					}
+
+					closeModal();
+
+					await update();
 				} else {
-					toast.success('Action completed successfully.');
+					const message =
+						result.data?.error ||
+						'Something went wrong. Please try again.';
+
+					toast.error(message);
+
+					await update();
 				}
-
-				closeModal();
-
-				await update();
-			} else {
-				const message =
-					result.data?.error ||
-					'Something went wrong. Please try again.';
-
-				toast.error(message);
-
-				await update();
-			}
+			};
 		};
 	}
 </script>
@@ -489,7 +491,11 @@
 ============================================================ -->
 
 {#if modalType && selectedTestimonial}
+	<!-- svelte-ignore a11y-click-events-have-key-events -->
+	<!-- svelte-ignore a11y-no-static-element-interactions -->
 	<div class="modal-backdrop" on:click={closeModal}>
+		<!-- svelte-ignore a11y-click-events-have-key-events -->
+		<!-- svelte-ignore a11y-no-static-element-interactions -->
 		<div class="modal" on:click|stopPropagation>
 			<!-- MODAL HEADER -->
 			<div class="modal-header">
@@ -586,10 +592,49 @@
 					{/if}
 				</div>
 
-				<div class="modal-footer">
+				<div class="modal-footer" style="justify-content: space-between;">
 					<button class="secondary-btn" on:click={closeModal}>
 						Close
 					</button>
+
+					{#if selectedTestimonial.status === 'submitted' || selectedTestimonial.status === 'changes_requested'}
+						<div class="modal-actions-bar" style="display: flex; gap: 8px;">
+							<form
+								method="POST"
+								action="?/publish"
+								use:enhance={handleActionResult()}
+								style="margin: 0;"
+							>
+								<input
+									type="hidden"
+									name="testimonialId"
+									value={selectedTestimonial.id}
+								/>
+								<button class="publish-btn" type="submit" style="padding: 8px 16px; border-radius: 8px; border: none; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; cursor: pointer;">
+									<CheckCircle size={16} />
+									Publish
+								</button>
+							</form>
+
+							<button
+								class="changes-btn"
+								on:click={() => { modalType = 'changes'; feedback = ''; }}
+								style="padding: 8px 16px; border-radius: 8px; border: none; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; cursor: pointer;"
+							>
+								<RefreshCw size={16} />
+								Request Changes
+							</button>
+
+							<button
+								class="reject-btn"
+								on:click={() => { modalType = 'reject'; feedback = ''; }}
+								style="padding: 8px 16px; border-radius: 8px; border: none; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; cursor: pointer;"
+							>
+								<XCircle size={16} />
+								Reject
+							</button>
+						</div>
+					{/if}
 				</div>
 			{:else}
 				<!-- ACTION MODAL -->
