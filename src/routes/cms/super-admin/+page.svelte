@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { enhance } from '$app/forms';
 	import toast from 'svelte-french-toast';
 	import {
@@ -22,11 +23,13 @@
 		UserCheck,
 		Stethoscope,
 		Star,
-		ArrowUpRight
+		ArrowUpRight,
+		Loader2
 	} from 'lucide-svelte';
 	import AdminTopbar from '$lib/components/admin/AdminTopbar.svelte';
 
 	export let data;
+	let actionLoading: string | null = null;
 
 	$: pendingDoctors = data?.pendingDoctors || [];
 	$: verifiedDoctors = data?.verifiedDoctors || [];
@@ -85,6 +88,22 @@
 		.slice(0, 5);
 
 	let activeSection = 'overview';
+	let isMounted = false;
+	
+	onMount(() => {
+		const stored = localStorage.getItem('superAdminActiveTab');
+		if (stored) {
+			activeSection = stored;
+		}
+		isMounted = true;
+	});
+
+	$: {
+		if (isMounted && typeof localStorage !== 'undefined') {
+			localStorage.setItem('superAdminActiveTab', activeSection);
+		}
+	}
+
 	let searchTerm = '';
 
 	$: filteredUsers = users.filter((user: any) => {
@@ -159,37 +178,38 @@
 	 */
 
 	function handleDoctorApproval(
-		role: 'author' | 'reviewer'
+		role: 'author' | 'reviewer',
+		doctorId: string
 	) {
-		return async ({
-			result,
-			update
-		}: any) => {
-			if (result.type === 'success') {
-				if (role === 'author') {
-					toast.success(
-						'Doctor approved as Author.'
-					);
+		return () => {
+			actionLoading = `${role}-${doctorId}`;
+			return async ({
+				result,
+				update
+			}: any) => {
+				actionLoading = null;
+				if (result.type === 'success') {
+					if (role === 'author') {
+						toast.success(
+							'Doctor approved as Author.'
+						);
+					} else {
+						toast.success(
+							'Doctor approved as Reviewer.'
+						);
+					}
+
+					await update({
+						reset: false
+					});
 				} else {
-					toast.success(
-						'Doctor approved as Reviewer.'
+					toast.error(
+						role === 'author'
+							? 'Failed to approve doctor as Author.'
+							: 'Failed to approve doctor as Reviewer.'
 					);
 				}
-
-				await update({
-					reset: false
-				});
-			} else {
-				toast.error(
-					role === 'author'
-						? 'Failed to approve doctor as Author.'
-						: 'Failed to approve doctor as Reviewer.'
-				);
-
-				await update({
-					reset: false
-				});
-			}
+			};
 		};
 	}
 
@@ -199,11 +219,9 @@
 	 * =========================================================
 	 */
 
-	function handleDoctorReject() {
-		return async ({
-			cancel,
-			result,
-			update
+	function handleDoctorReject(doctorId: string) {
+		return ({
+			cancel
 		}: any) => {
 			const confirmed = confirm(
 				'Are you sure you want to reject this doctor verification request?'
@@ -214,7 +232,10 @@
 				return;
 			}
 
-			return async () => {
+			actionLoading = `reject-${doctorId}`;
+
+			return async ({ result, update }: any) => {
+				actionLoading = null;
 				if (result.type === 'success') {
 					toast.success(
 						'Doctor verification request rejected.'
@@ -1045,7 +1066,8 @@
 															action="?/approve"
 															class="inline-form"
 															use:enhance={handleDoctorApproval(
-																'author'
+																'author',
+																doctor.id
 															)}
 														>
 
@@ -1064,13 +1086,18 @@
 															<button
 																type="submit"
 																class="action-button approve-button"
+																disabled={actionLoading !== null}
 															>
-																<CheckCircle
-																	size={14}
-																/>
-
-																Approve as
-																Author
+																{#if actionLoading === `author-${doctor.id}`}
+																	<Loader2 size={14} class="spin-icon" />
+																	Approving...
+																{:else}
+																	<CheckCircle
+																		size={14}
+																	/>
+																	Approve as
+																	Author
+																{/if}
 															</button>
 
 														</form>
@@ -1081,7 +1108,8 @@
 															action="?/approve"
 															class="inline-form"
 															use:enhance={handleDoctorApproval(
-																'reviewer'
+																'reviewer',
+																doctor.id
 															)}
 														>
 
@@ -1100,13 +1128,18 @@
 															<button
 																type="submit"
 																class="action-button reviewer-button"
+																disabled={actionLoading !== null}
 															>
-																<ShieldCheck
-																	size={14}
-																/>
-
-																Approve as
-																Reviewer
+																{#if actionLoading === `reviewer-${doctor.id}`}
+																	<Loader2 size={14} class="spin-icon" />
+																	Approving...
+																{:else}
+																	<ShieldCheck
+																		size={14}
+																	/>
+																	Approve as
+																	Reviewer
+																{/if}
 															</button>
 
 														</form>
@@ -1116,7 +1149,7 @@
 															method="POST"
 															action="?/reject"
 															class="inline-form"
-															use:enhance={handleDoctorReject()}
+															use:enhance={handleDoctorReject(doctor.id)}
 														>
 
 															<input
@@ -1128,12 +1161,17 @@
 															<button
 																type="submit"
 																class="action-button reject-button"
+																disabled={actionLoading !== null}
 															>
-																<AlertCircle
-																	size={14}
-																/>
-
-																Reject
+																{#if actionLoading === `reject-${doctor.id}`}
+																	<Loader2 size={14} class="spin-icon" />
+																	Rejecting...
+																{:else}
+																	<AlertCircle
+																		size={14}
+																	/>
+																	Reject
+																{/if}
 															</button>
 
 														</form>
@@ -3874,6 +3912,24 @@
 			0 6px 18px
 			rgba(15, 23, 42, 0.05);
 		transform: translateY(-1px);
+	}
+
+	.action-button:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+
+	:global(.spin-icon) {
+		animation: spin 1s linear infinite;
+	}
+
+	@keyframes spin {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
 	}
 
 	.analytics-card-top {

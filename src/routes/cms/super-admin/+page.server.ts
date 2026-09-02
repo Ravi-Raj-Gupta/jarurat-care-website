@@ -1214,7 +1214,7 @@ approve: async ({ request, locals }) => {
 			.update(updateData)
 			.eq('id', doctorId)
 			.eq('role', 'Doctor')
-			.eq('verification_status', 'pending')
+			.or('verification_status.eq.pending,verification_status.is.null')
 			.select('id, full_name, email')
 			.maybeSingle();
 
@@ -1279,7 +1279,7 @@ reject: async ({ request, locals }) => {
 			})
 			.eq('id', doctorId)
 			.eq('role', 'Doctor')
-			.eq('verification_status', 'pending')
+			.or('verification_status.eq.pending,verification_status.is.null')
 			.select('id, full_name, email')
 			.maybeSingle();
 
