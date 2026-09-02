@@ -1,6 +1,6 @@
 import { redirect } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { ORCID_CLIENT_ID, ORCID_CLIENT_SECRET, ORCID_REDIRECT_URI } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import { PUBLIC_CMS_SUPABASE_URL, PUBLIC_CMS_SUPABASE_ANON_KEY } from '$env/static/public';
 import { createClient } from '@supabase/supabase-js';
  
@@ -18,11 +18,11 @@ export const GET: RequestHandler = async ({ url }) => {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
 			body: new URLSearchParams({
-				client_id: ORCID_CLIENT_ID,
-				client_secret: ORCID_CLIENT_SECRET,
+				client_id: env.ORCID_CLIENT_ID || '',
+				client_secret: env.ORCID_CLIENT_SECRET || '',
 				grant_type: 'authorization_code',
 				code,
-				redirect_uri: ORCID_REDIRECT_URI
+				redirect_uri: env.ORCID_REDIRECT_URI || ''
 			})
 		});
  
