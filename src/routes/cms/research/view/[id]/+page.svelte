@@ -102,31 +102,6 @@
 	</div>
 
 	<!-- VIEW ONLY -->
-		{:else}
-			<div class="action-buttons">
-				<form method="POST" action="?/approveResearch" use:enhance={() => {
-					return async ({ result, update }) => {
-						if (result.type === 'redirect' || result.type === 'success') {
-							toast.success('Research Paper successfully approved!');
-						} else {
-							toast.error(result.data?.message || 'Could not approve research paper');
-						}
-						await update();
-					};
-				}}>
-					<button type="submit" class="btn-approve">
-						<CheckCircle size={18} />
-						Approve
-					</button>
-				</form>
-
-				<button type="button" class="btn-reject" on:click={() => showRejectForm = true}>
-					<XCircle size={18} />
-					Request Changes
-				</button>
-			</div>
-		{/if}
-	</div>
 </div>
 
 <style>

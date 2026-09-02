@@ -114,10 +114,6 @@
 			<h1 class="welcome-title">Welcome back, {userName} 👋</h1>
 			<p class="welcome-sub">Manage website content, blogs, FAQs and upcoming webinars from one central portal.</p>
 		</div>
-		<button class="date-range-btn">
-			<CalendarIcon size={16} class="text-slate-500" />
-			<span>01 Jan - 31 Dec, 2026</span>
-		</button>
 	</div>
 
 	<!-- Top Stats Grid -->

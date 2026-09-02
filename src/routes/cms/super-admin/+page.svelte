@@ -3849,6 +3849,27 @@
 		color: #0f172a;
 	}
 
+	.save-button {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		background: #4f46e5;
+		color: #ffffff;
+		border: none;
+		padding: 8px 12px;
+		border-radius: 6px;
+		font-size: 11px;
+		font-weight: 600;
+		cursor: pointer;
+		transition: all 0.2s ease;
+	}
+
+	.save-button:hover {
+		background: #4338ca;
+		transform: translateY(-1px);
+		box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25);
+	}
+
 	.cms-create-form {
 		display: grid;
 		grid-template-columns:

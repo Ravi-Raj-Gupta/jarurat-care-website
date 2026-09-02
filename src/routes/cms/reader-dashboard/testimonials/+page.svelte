@@ -1006,18 +1006,16 @@
 
 
 							{#if testimonial.status === 'rejected'}
-
 								<div class="rejected-box">
-
 									<XCircle size={15} />
-
 									<p>
 										This testimonial was not
 										approved for publication.
+										{#if testimonial.admin_feedback}
+											<br/><span style="opacity: 0.8; font-size: 0.9em; margin-top: 4px; display: inline-block;">Reason: {testimonial.admin_feedback}</span>
+										{/if}
 									</p>
-
 								</div>
-
 							{/if}
 
 
