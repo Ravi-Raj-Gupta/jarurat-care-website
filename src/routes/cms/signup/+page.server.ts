@@ -176,7 +176,7 @@ export const load = async () => {
 // ============================================================
 
 export const actions: Actions = {
-	register: async ({ request }) => {
+	register: async ({ request, url }) => {
 		const data = await request.formData();
 
 		// --------------------------------------------------------
@@ -328,7 +328,7 @@ export const actions: Actions = {
 					},
 
 					emailRedirectTo:
-						'http://localhost:5173/cms/login?verified=true'
+						`${url.origin}/cms/login?verified=true`
 				}
 			});
 
