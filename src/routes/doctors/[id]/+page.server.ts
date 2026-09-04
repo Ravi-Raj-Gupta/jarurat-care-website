@@ -10,7 +10,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		.from('profiles')
 		.select('*')
 		.eq('id', doctorId)
-		.eq('role', 'Doctor')
+		.in('role', ['Doctor', 'Admin', 'Super_Admin'])
 		.maybeSingle();
 
 	if (doctorError || !doctor) {

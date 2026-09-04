@@ -117,6 +117,25 @@
 									<form
 										method="POST"
 										action={isFollowed ? '?/unfollow' : '?/follow'}
+										use:enhance={() => {
+											// Optimistic UI Update
+											if (isFollowed) {
+												followedDoctorIds.delete(doctor.id);
+												doctor.followers_count = Math.max(0, (doctor.followers_count || 0) - 1);
+											} else {
+												followedDoctorIds.add(doctor.id);
+												doctor.followers_count = (doctor.followers_count || 0) + 1;
+											}
+											followedDoctorIds = followedDoctorIds; // Trigger reactivity
+											doctors = doctors;
+
+											return async ({ result, update }) => {
+												if (result.type !== 'success') {
+													// Revert on failure
+													await update();
+												}
+											};
+										}}
 									>
 										<input type="hidden" name="doctor_id" value={doctor.id} />
 
