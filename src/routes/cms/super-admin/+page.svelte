@@ -183,6 +183,13 @@
 	) {
 		return () => {
 			actionLoading = `${role}-${doctorId}`;
+			
+			// Optimistic UI Update: Immediately remove the doctor from pending list
+			if (data && data.pendingDoctors) {
+				data.pendingDoctors = data.pendingDoctors.filter((d: any) => d.id !== doctorId);
+				data = { ...data };
+			}
+
 			return async ({
 				result,
 				update

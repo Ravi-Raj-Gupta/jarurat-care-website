@@ -255,7 +255,6 @@
 					</div>
 					<hr />
 					<a href={`/cms/community/doctors/${userId}`} on:click={() => showDropdown = false}>View Profile</a>
-					<a href="/cms/doctor-dashboard/settings" on:click={() => showDropdown = false}>Account Settings</a>
 					<hr />
 					<a href="/cms/login" class="text-red-600 font-medium">Logout</a>
 				</div>

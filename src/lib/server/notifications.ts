@@ -5,7 +5,8 @@ export async function createAdminNotification(
 	message: string, 
 	type: 'info' | 'success' | 'warning' | 'error' = 'info',
 	userId?: string, 
-	link?: string
+	link?: string,
+	targetGroup: 'content' | 'testimonial' = 'content'
 ) {
 	if (userId) {
 		const { error } = await supabaseAdmin
@@ -23,11 +24,17 @@ export async function createAdminNotification(
 			console.error('Error creating direct notification:', error);
 		}
 	} else {
-		// It's a global admin/reviewer notification
+		// Determine which roles receive this notification
+		let roleFilter = 'role.eq.Super_Admin,is_reviewer.eq.true'; // Default for content/verification
+		
+		if (targetGroup === 'testimonial') {
+			roleFilter = 'role.eq.Super_Admin,role.eq.Admin';
+		}
+
 		const { data: adminsAndReviewers } = await supabaseAdmin
 			.from('profiles')
 			.select('id')
-			.or('role.eq.Admin,role.eq.Super_Admin,is_reviewer.eq.true');
+			.or(roleFilter);
 
 		if (adminsAndReviewers && adminsAndReviewers.length > 0) {
 			const notifications = adminsAndReviewers.map(user => ({

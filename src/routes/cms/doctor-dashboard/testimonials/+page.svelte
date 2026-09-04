@@ -514,7 +514,7 @@
 		<div class="top-header">
 
 			<a
-				href="/cms/reader-dashboard"
+				href="/cms/doctor-dashboard"
 				class="back-link"
 			>
 				<ArrowLeft size={16} />
