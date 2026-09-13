@@ -333,7 +333,7 @@
 							{#each followingDoctors as doctor}
 
 								<a
-									href={`/doctor/${doctor.id}`}
+									href={`/cms/community/doctors/${doctor.id}`}
 									class="doctor-row"
 								>
 
@@ -445,7 +445,7 @@
 							{#each followers as doctor}
 
 								<a
-									href={`/doctor/${doctor.id}`}
+									href={`/cms/community/doctors/${doctor.id}`}
 									class="doctor-row"
 								>
 
