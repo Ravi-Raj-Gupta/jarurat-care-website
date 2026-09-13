@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Sidebar from '$lib/components/dashboard/Sidebar.svelte';
 	import Topbar from '$lib/components/dashboard/Topbar.svelte';
+	import { enhance } from '$app/forms';
 
 	export let data;
 
@@ -8,9 +9,16 @@
 	$: doctor = data.doctor;
 	$: followers = data.followers ?? [];
 	$: following = data.following ?? [];
-	$: followersCount = data.followersCount ?? 0;
-	$: followingCount = data.followingCount ?? 0;
-	$: isFollowing = data.isFollowing ?? false;
+	let followersCount = data.followersCount ?? 0;
+	let followingCount = data.followingCount ?? 0;
+	let isFollowing = data.isFollowing ?? false;
+	let isFollowLoading = false;
+
+	$: if (data) {
+		followersCount = data.followersCount ?? 0;
+		followingCount = data.followingCount ?? 0;
+		isFollowing = data.isFollowing ?? false;
+	}
 
 	let activeList: 'followers' | 'following' | null = null;
 
@@ -110,13 +118,39 @@
 							class="profile-follow-form"
 							method="POST"
 							action={isFollowing ? '?/unfollow' : '?/follow'}
+							use:enhance={() => {
+								isFollowLoading = true;
+								let currentlyFollowing = isFollowing;
+								
+								// Optimistic UI Update
+								if (currentlyFollowing) {
+									isFollowing = false;
+									followersCount = Math.max(0, followersCount - 1);
+								} else {
+									isFollowing = true;
+									followersCount += 1;
+								}
+
+								return async ({ result, update }) => {
+									isFollowLoading = false;
+									if (result.type !== 'success') {
+										// Revert on failure
+										isFollowing = currentlyFollowing;
+										followersCount = currentlyFollowing ? followersCount + 1 : followersCount - 1;
+										await update();
+									} else {
+										await update({ reset: false });
+									}
+								};
+							}}
 						>
 							<button
 								class:following={isFollowing}
 								class="profile-follow-btn"
 								type="submit"
+								disabled={isFollowLoading}
 							>
-								{isFollowing ? 'Following' : 'Follow Doctor'}
+								{isFollowLoading ? 'Wait...' : (isFollowing ? 'Following' : 'Follow Doctor')}
 							</button>
 						</form>
 					{/if}
