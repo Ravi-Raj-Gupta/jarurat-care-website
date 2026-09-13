@@ -181,6 +181,8 @@
         border-radius: 6px;
         background: #f1f5f9;
         color: #475569;
+        display: inline-block;
+        white-space: nowrap;
     }
 
     .status-badge {
@@ -189,6 +191,7 @@
         padding: 4px 10px;
         border-radius: 20px;
         display: inline-block;
+        white-space: nowrap;
     }
 
     .status-draft { background: #f1f5f9; color: #475569; }

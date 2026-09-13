@@ -485,6 +485,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 				null,
 
 			organization:
+				doctor.affiliation ||
 				doctor.organization ||
 				null,
 
@@ -537,7 +538,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 					'General',
 
 				organization:
-					doctor.organization || '—',
+					doctor.affiliation || doctor.organization || '—',
 
 				articles:
 					(articleCounts[doctor.id] ?? 0) +

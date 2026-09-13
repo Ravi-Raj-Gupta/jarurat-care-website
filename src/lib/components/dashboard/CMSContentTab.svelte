@@ -154,12 +154,21 @@
 
 	async function togglePublish(content: any) {
 		const newStatus = content.status === 'published' ? 'draft' : 'published';
+		const originalStatus = content.status;
+		
+		// Optimistic Update
+		content.status = newStatus;
+		cmsContents = [...cmsContents];
+
 		const { error } = await cmsSupabase
 			.from('cms_content')
 			.update({ status: newStatus })
 			.eq('id', content.id);
 		
 		if (error) {
+			// Revert on error
+			content.status = originalStatus;
+			cmsContents = [...cmsContents];
 			toast.error(error.message);
 			return;
 		}
@@ -170,7 +179,7 @@
 			toast.success('Content moved to draft.');
 		}
 
-		await reloadCallback();
+		reloadCallback();
 	}
 
 	async function saveContent() {

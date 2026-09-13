@@ -28,7 +28,7 @@ export async function createAdminNotification(
 		let roleFilter = 'role.eq.Super_Admin,is_reviewer.eq.true'; // Default for content
 		
 		if (targetGroup === 'testimonial') {
-			roleFilter = 'role.eq.Super_Admin,role.eq.Admin';
+			roleFilter = 'role.eq.Admin';
 		} else if (targetGroup === 'super_admin_only') {
 			roleFilter = 'role.eq.Super_Admin';
 		}

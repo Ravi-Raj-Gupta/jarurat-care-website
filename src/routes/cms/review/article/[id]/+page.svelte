@@ -254,7 +254,7 @@
 
 	/* Navigation */
 	.nav-container {
-		max-width: 800px;
+		max-width: 1000px;
 		margin: 0 auto;
 		padding: 40px 20px 20px;
 	}
@@ -277,7 +277,7 @@
 
 	/* Publication Layout */
 	.publication-article {
-		max-width: 800px;
+		max-width: 1000px;
 		margin: 0 auto;
 		padding: 0 20px;
 		font-family: 'Lora', serif;
@@ -337,7 +337,7 @@
 		color: #57534e;
 		font-style: italic;
 		margin-bottom: 32px;
-		max-width: 700px;
+		max-width: 900px;
 		margin-left: auto;
 		margin-right: auto;
 	}
@@ -499,7 +499,7 @@
 		flex-direction: column;
 		align-items: center;
 		width: 100%;
-		max-width: 600px;
+		max-width: 800px;
 		padding: 0 20px;
 	}
 
@@ -543,6 +543,7 @@
 		font-size: 14px;
 		font-weight: 600;
 		color: #57534e;
+		white-space: nowrap;
 	}
 
 	.action-buttons {
@@ -564,6 +565,7 @@
 		border-radius: 50px;
 		cursor: pointer;
 		transition: background 0.2s;
+		white-space: nowrap;
 	}
 
 	.btn-reject:hover {
@@ -584,6 +586,7 @@
 		cursor: pointer;
 		transition: transform 0.2s, box-shadow 0.2s;
 		box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+		white-space: nowrap;
 	}
 
 	.btn-approve:hover {

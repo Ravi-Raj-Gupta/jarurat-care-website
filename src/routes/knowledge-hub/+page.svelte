@@ -11,7 +11,6 @@
 		ChevronRight,
 		X,
 		ArrowLeft,
-		Bell,
 		Bookmark,
 		Share2,
 		Heart,
@@ -565,12 +564,7 @@
 
 			<div class="top-actions">
 
-				<button
-					class="icon-button"
-					aria-label="Notifications"
-				>
-					<Bell size={18} />
-				</button>
+
 
 				{#if isLoggedIn}
 
