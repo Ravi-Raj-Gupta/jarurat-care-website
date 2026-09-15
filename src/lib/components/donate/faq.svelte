@@ -45,10 +45,10 @@
 						on:click={() => toggle(index)}
 						class="w-full px-6 py-4 text-left flex justify-between items-center text-sm sm:text-base font-semibold transition-colors cursor-pointer"
 					>
-						<!-- Direct text color on the question span -->
+						<!-- Text color on the question -->
 						<span class="text-[#22C55E] hover:text-[#22C55E]">{item.q}</span>
 						
-						<!-- Direct text color on the chevron icon -->
+						<!-- Text color on the chevron icon -->
 						<ChevronDown
 							class={`w-5 h-5 text-[#2D4A34] transition-transform duration-300 shrink-0 ml-3 ${
 								openIndex === index ? 'rotate-180' : ''

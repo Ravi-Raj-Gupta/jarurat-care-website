@@ -62,21 +62,17 @@
 				</a>
 			</div>
 
-			<!-- Right Timeline Section (Padded nicely inside the outer gray background) -->
 			<div class="lg:col-span-7 p-8 sm:p-12 flex items-center">
 				<div class="relative w-full">
-					<!-- Continuous Connecting Line -->
 					<div class="absolute left-5 top-5 bottom-6 w-[2px] bg-[#2563EB] -translate-x-1/2 z-0"></div>
 
 					<div class="space-y-8 relative z-10">
 						{#each steps as step}
 							<div class="flex items-start gap-5 sm:gap-6">
-								<!-- Number Badge -->
 								<div class="w-10 h-10 rounded-full bg-white border-2 border-[#2563EB] text-[#2563EB] text-sm font-bold flex items-center justify-center shrink-0 shadow-sm z-10">
 									{step.num}
 								</div>
 
-								<!-- Step Text -->
 								<div class="pt-0.5">
 									<h4 class="text-base sm:text-lg font-bold text-[#2563EB] mb-1">{step.title}</h4>
 									<p class="text-xs sm:text-sm text-[#64748B] font-semibold leading-relaxed">{step.desc}</p>
