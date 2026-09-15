@@ -42,7 +42,7 @@
 				</a>
 
 				<!-- Mobile & Tablet Version: Keeps mailto functionality -->
-				<a href="mailto:Priyanka.joshi@jarurat.care?subject=Seek Support" class="inline-block md:hidden">
+				<a href="mailto:connect@jarurat.care?subject=Seek Support" class="inline-block md:hidden">
 					<Button class="bg-white border border-[#1E40AF] text-[#1E40AF] hover:bg-[#1E40AF] hover:text-white px-3 py-1.5 text-sm">
 						Seek Support
 					</Button>
@@ -105,8 +105,8 @@
 				<div class="text-sm text-[#475569] space-y-1">
 					<div>
 						Email:
-						<a href="mailto:Priyanka.joshi@jarurat.care" class="hover:text-[#1E40AF]">
-							Priyanka.joshi@jarurat.care
+						<a href="mailto:connect@jarurat.care" class="hover:text-[#1E40AF]">
+							connect@jarurat.care
 						</a>
 					</div>
 
