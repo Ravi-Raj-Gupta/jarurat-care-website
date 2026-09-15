@@ -32,29 +32,32 @@
 </script>
 
 <div class="py-16 bg-[#F8FAFC]">
-	<div class="max-w-[36rem] mx-auto px-4 sm:px-6">
-		<h2 class="text-2xl sm:text-3xl font-extrabold text-center text-[#0D2561] mb-8 tracking-tight">
+	<div class="max-w-[44rem] mx-auto px-4 sm:px-6">
+		<h2 class="text-2xl sm:text-3xl font-extrabold text-center text-[#1E293B] mb-8 tracking-tight">
 			FAQ
 		</h2>
 
-		<div class="space-y-3">
+		<div class="space-y-3.5">
 			{#each faqs as item, index}
-				<div class="bg-[#F4F6F8] border border-slate-200 rounded-2xl overflow-hidden shadow-xs transition-all duration-200">
+				<div class="bg-[#EBF2F7] border border-[#BDD0E1] rounded-2xl overflow-hidden transition-all duration-200">
 					<button
 						type="button"
 						on:click={() => toggle(index)}
-						class="w-full px-5 py-4 text-left flex justify-between items-center text-sm sm:text-base font-bold text-[#78C520] hover:text-[#68B218] transition-colors cursor-pointer"
+						class="w-full px-6 py-4 text-left flex justify-between items-center text-sm sm:text-base font-semibold transition-colors cursor-pointer"
 					>
-						<span>{item.q}</span>
+						<!-- Direct text color on the question span -->
+						<span class="text-[#22C55E] hover:text-[#22C55E]">{item.q}</span>
+						
+						<!-- Direct text color on the chevron icon -->
 						<ChevronDown
-							class={`w-5 h-5 text-[#78C520] transition-transform duration-300 shrink-0 ml-3 ${
+							class={`w-5 h-5 text-[#2D4A34] transition-transform duration-300 shrink-0 ml-3 ${
 								openIndex === index ? 'rotate-180' : ''
 							}`}
 						/>
 					</button>
 
 					{#if openIndex === index}
-						<div class="px-5 pb-4 pt-2 text-xs sm:text-sm text-[#5A6578] font-medium leading-relaxed border-t border-slate-200/80">
+						<div class="px-6 pb-4 pt-1 text-xs sm:text-sm text-[#2D4A34]/80 font-medium leading-relaxed border-t border-[#BDD0E1]/60">
 							{item.a}
 						</div>
 					{/if}
