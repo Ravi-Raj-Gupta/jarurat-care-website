@@ -429,7 +429,7 @@
 
 					await update({ reset: false, invalidateAll: false });
 				} else {
-					toast.error('Failed to publish content.');
+					toast.error(result.data?.message || 'Failed to publish content.');
 					await update({ reset: false, invalidateAll: false });
 				}
 			};
@@ -1535,13 +1535,7 @@
 
 										<td>
 
-											{#if article.status === 'published'}
-
-												<span class="published-label">
-													Published
-												</span>
-
-											{:else if article.status === 'approved'}
+											{#if article.status !== 'published'}
 
 												<form
 													method="POST"
@@ -1576,8 +1570,8 @@
 
 											{:else}
 
-												<span class="pending-label" style="font-size: 13px; color: #64748b; padding: 4px 8px; background: #f1f5f9; border-radius: 6px;">
-													Pending Review
+												<span class="published-label">
+													Published
 												</span>
 
 											{/if}
@@ -1672,13 +1666,7 @@
 
 										<td>
 
-											{#if research.status === 'published'}
-
-												<span class="published-label">
-													Published
-												</span>
-
-											{:else if research.status === 'approved'}
+											{#if research.status !== 'published'}
 
 												<form
 													method="POST"
@@ -1713,8 +1701,8 @@
 
 											{:else}
 
-												<span class="pending-label" style="font-size: 13px; color: #64748b; padding: 4px 8px; background: #f1f5f9; border-radius: 6px;">
-													Pending Review
+												<span class="published-label">
+													Published
 												</span>
 
 											{/if}

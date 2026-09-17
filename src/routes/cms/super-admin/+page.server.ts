@@ -2299,6 +2299,22 @@ reject: async ({ request, locals }) => {
 		}
 		
 		const tableName = articleType === 'research' ? 'research_articles' : 'articles';
+		
+		// Check current status before publishing
+		const { data: itemToCheck, error: fetchError } = await supabaseAdmin
+			.from(tableName)
+			.select('status')
+			.eq('id', articleId)
+			.single();
+
+		if (fetchError || !itemToCheck) {
+			return fail(404, { message: 'Content not found' });
+		}
+
+		if (itemToCheck.status !== 'approved') {
+			return fail(400, { message: 'The article is under review and cannot be published yet.' });
+		}
+
 		const { error } = await supabaseAdmin
 			.from(tableName)
 			.update({ status: 'published', updated_at: new Date().toISOString() })
