@@ -1535,7 +1535,13 @@
 
 										<td>
 
-											{#if article.status !== 'published'}
+											{#if article.status === 'published'}
+
+												<span class="published-label">
+													Published
+												</span>
+
+											{:else if article.status === 'approved'}
 
 												<form
 													method="POST"
@@ -1570,8 +1576,8 @@
 
 											{:else}
 
-												<span class="published-label">
-													Published
+												<span class="pending-label" style="font-size: 13px; color: #64748b; padding: 4px 8px; background: #f1f5f9; border-radius: 6px;">
+													Pending Review
 												</span>
 
 											{/if}
@@ -1666,7 +1672,13 @@
 
 										<td>
 
-											{#if research.status !== 'published'}
+											{#if research.status === 'published'}
+
+												<span class="published-label">
+													Published
+												</span>
+
+											{:else if research.status === 'approved'}
 
 												<form
 													method="POST"
@@ -1701,8 +1713,8 @@
 
 											{:else}
 
-												<span class="published-label">
-													Published
+												<span class="pending-label" style="font-size: 13px; color: #64748b; padding: 4px 8px; background: #f1f5f9; border-radius: 6px;">
+													Pending Review
 												</span>
 
 											{/if}

@@ -76,7 +76,7 @@ export const actions: Actions = {
 		const { data: updatedArticle, error } = await supabaseAdmin
 			.from('articles')
 			.update({
-				status: 'under_review',
+				status: 'approved',
 				review_feedback: 'APPROVED_BY_REVIEWER'
 			})
 			.eq('id', params.id)

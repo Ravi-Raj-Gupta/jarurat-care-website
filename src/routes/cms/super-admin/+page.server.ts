@@ -2279,5 +2279,36 @@ reject: async ({ request, locals }) => {
 				action:
 					'publishing_power_updated'
 			};
+		},
+
+	/* =========================================================
+	   PUBLISH ARTICLE OR RESEARCH
+	========================================================= */
+
+	publishContent: async ({ request, locals }) => {
+		const auth = await requireAdmin(locals);
+		if (!auth.ok) {
+			return fail(auth.status, { message: auth.message });
 		}
+		const formData = await request.formData();
+		const articleId = String(formData.get('articleId') ?? '');
+		const articleType = String(formData.get('articleType') ?? '');
+		
+		if (!articleId || !articleType) {
+			return fail(400, { message: 'Missing content ID or type' });
+		}
+		
+		const tableName = articleType === 'research' ? 'research_articles' : 'articles';
+		const { error } = await supabaseAdmin
+			.from(tableName)
+			.update({ status: 'published', updated_at: new Date().toISOString() })
+			.eq('id', articleId);
+			
+		if (error) {
+			console.error('Publish content error:', error);
+			return fail(500, { message: 'Could not publish content' });
+		}
+		
+		return { success: true, action: 'content_published' };
+	}
 }
