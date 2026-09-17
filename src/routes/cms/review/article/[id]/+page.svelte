@@ -190,7 +190,18 @@
 							{/if}
 						</button>
 
-						<form method="POST" action="?/approveArticle" use:enhance={handleAction} class="inline-form">
+						<form method="POST" action="?/approveArticle" use:enhance={() => {
+							isSubmitting = true;
+							return async ({ result, update }) => {
+								isSubmitting = false;
+								if (result.type === 'redirect' || result.type === 'success') {
+									toast.success('Article successfully approved!');
+								} else {
+									toast.error(result.data?.message || 'Failed to approve article');
+								}
+								await update();
+							};
+						}} class="inline-form">
 							<input type="hidden" name="articleId" value={article.id} />
 							<input type="hidden" name="type" value={type} />
 							<button type="submit" class="btn-approve" disabled={isSubmitting || showRejectForm}>
@@ -203,7 +214,18 @@
 
 				{#if showRejectForm}
 					<div class="reject-popover" transition:slide={{ duration: 300, axis: 'y' }}>
-						<form method="POST" action="?/rejectArticle" use:enhance={handleAction}>
+						<form method="POST" action="?/rejectArticle" use:enhance={() => {
+							isSubmitting = true;
+							return async ({ result, update }) => {
+								isSubmitting = false;
+								if (result.type === 'redirect' || result.type === 'success') {
+									toast.success('Changes requested successfully');
+								} else {
+									toast.error(result.data?.message || 'Could not request changes');
+								}
+								await update();
+							};
+						}}>
 							<input type="hidden" name="articleId" value={article.id} />
 							<input type="hidden" name="type" value={type} />
 							

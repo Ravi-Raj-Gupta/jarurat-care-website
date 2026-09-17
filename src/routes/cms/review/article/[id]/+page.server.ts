@@ -85,7 +85,8 @@ export const actions: Actions = {
 			.single();
 
 		if (error || !updatedArticle) {
-			return fail(500, { message: 'Failed to approve article.' });
+			console.error('Approve article error:', error);
+			return fail(500, { message: error ? error.message : 'Article not found or not in under_review state.' });
 		}
 
 		try {
