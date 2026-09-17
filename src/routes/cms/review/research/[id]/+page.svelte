@@ -101,64 +101,83 @@
 		{/if}
 	</div>
 
-	<!-- REVIEWER ACTIONS -->
-	
-	{#if form?.message}
-		<div class="error-message">
-			{form.message}
+	<!-- Floating Action Bar -->
+	{#if research.status === 'under_review'}
+		<div class="glass-action-bar">
+			<div class="action-bar-inner">
+				<div class="action-info">
+					<span class="status-dot"></span>
+					<span class="status-text">Pending Review</span>
+				</div>
+				
+				<div class="action-buttons">
+					<button 
+						type="button"
+						class="btn-reject"
+						on:click={() => showRejectForm = !showRejectForm}
+					>
+						{#if showRejectForm}
+							<X size={18} /> Cancel
+						{:else}
+							<AlertCircle size={18} /> Request Changes
+						{/if}
+					</button>
+
+					<form method="POST" action="?/approveResearch" use:enhance={() => {
+						return async ({ result, update }) => {
+							if (result.type === 'redirect' || result.type === 'success') {
+								toast.success('Research Paper successfully approved!');
+							} else {
+								toast.error(Object(result).data?.message || 'Could not approve research paper');
+							}
+							await update();
+						};
+					}} class="inline-form">
+						<input type="hidden" name="researchId" value={research.id} />
+						<button type="submit" class="btn-approve" disabled={showRejectForm}>
+							<Check size={18} />
+							Approve Publication
+						</button>
+					</form>
+				</div>
+			</div>
+
+			{#if showRejectForm}
+				<div class="reject-popover" transition:slide={{ duration: 300, axis: 'y' }}>
+					<form method="POST" action="?/rejectResearch" use:enhance={() => {
+						return async ({ result, update }) => {
+							if (result.type === 'redirect' || result.type === 'success') {
+								toast.success('Feedback submitted successfully');
+							} else {
+								toast.error(Object(result).data?.message || 'Could not request changes');
+							}
+							await update();
+						};
+					}}>
+						<input type="hidden" name="researchId" value={research.id} />
+						
+						<div class="form-header">
+							<h4>Request Changes</h4>
+							<p>Provide specific feedback for the researcher to improve this paper.</p>
+						</div>
+
+						<textarea
+							name="feedback"
+							placeholder="E.g., The methodology section lacks detail on the sample size..."
+							required
+							rows="4"
+						></textarea>
+						
+						<div class="form-footer">
+							<button type="submit" class="btn-submit-reject">
+								Send Feedback
+							</button>
+						</div>
+					</form>
+				</div>
+			{/if}
 		</div>
 	{/if}
-
-	<div class="action-bar">
-		<h3>Reviewer Actions</h3>
-		
-		{#if showRejectForm}
-			<form method="POST" action="?/rejectResearch" class="reject-form" use:enhance={() => {
-				return async ({ result, update }) => {
-					if (result.type === 'redirect' || result.type === 'success') {
-						toast.success('Changes requested successfully!');
-					} else {
-						toast.error(Object(result).data?.message || 'Could not request changes');
-					}
-					await update();
-				};
-			}}>
-				<label for="feedback">Please provide feedback or changes requested:</label>
-				<textarea id="feedback" name="feedback" required rows="4" placeholder="Explain why this is being rejected or what changes are required..."></textarea>
-				
-				<div class="form-actions">
-					<button type="button" class="btn-cancel" on:click={() => showRejectForm = false}>Cancel</button>
-					<button type="submit" class="btn-submit-reject">
-						<AlertCircle size={16} />
-						Request Changes
-					</button>
-				</div>
-			</form>
-		{:else}
-			<div class="action-buttons">
-				<form method="POST" action="?/approveResearch" use:enhance={() => {
-					return async ({ result, update }) => {
-						if (result.type === 'redirect' || result.type === 'success') {
-							toast.success('Research Paper successfully approved!');
-						} else {
-							toast.error(Object(result).data?.message || 'Could not approve research paper');
-						}
-						await update();
-					};
-				}}>
-					<button type="submit" class="btn-approve">
-						<CheckCircle size={18} />
-						Approve
-					</button>
-				</form>
-
-				<button type="button" class="btn-reject" on:click={() => showRejectForm = true}>
-					<XCircle size={18} />
-					Request Changes
-				</button>
-			</div>
-		{/if}
-	</div>
 </div>
 
 <style>
@@ -302,111 +321,215 @@
 		font-weight: 500;
 	}
 
-	.action-bar {
-		background: #ffffff;
-		border-radius: 12px;
-		padding: 24px;
-		box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-		border: 1px solid #e2e8f0;
-		position: sticky;
-		bottom: 24px;
+	/* Glassmorphic Action Bar */
+	.glass-action-bar {
+		position: fixed;
+		bottom: 32px;
+		left: 50%;
+		transform: translateX(-50%);
+		z-index: 100;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		width: 100%;
+		max-width: 800px;
+		padding: 0 20px;
 	}
 
-	.action-bar h3 {
-		margin: 0 0 16px 0;
-		font-size: 16px;
-		color: #0f172a;
+	.action-bar-inner {
+		background: rgba(255, 255, 255, 0.85);
+		backdrop-filter: blur(20px);
+		-webkit-backdrop-filter: blur(20px);
+		border: 1px solid rgba(255, 255, 255, 0.5);
+		border-radius: 100px;
+		padding: 12px 24px;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		width: 100%;
+		box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0,0,0,0.05);
+		font-family: 'Inter', sans-serif;
+	}
+
+	.action-info {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+	}
+
+	.status-dot {
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		background: #f59e0b;
+		box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.2);
+		animation: pulse 2s infinite;
+	}
+
+	@keyframes pulse {
+		0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+		70% { box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); }
+		100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+	}
+
+	.status-text {
+		font-size: 14px;
+		font-weight: 600;
+		color: #57534e;
+		white-space: nowrap;
 	}
 
 	.action-buttons {
 		display: flex;
-		gap: 16px;
-	}
-
-	.btn-approve, .btn-reject {
-		display: inline-flex;
 		align-items: center;
-		gap: 8px;
-		padding: 12px 24px;
-		border-radius: 8px;
-		font-weight: 600;
-		font-size: 15px;
-		cursor: pointer;
-		border: none;
-		transition: all 0.2s;
-	}
-
-	.btn-approve {
-		background: #10b981;
-		color: white;
-	}
-
-	.btn-approve:hover {
-		background: #059669;
+		gap: 12px;
 	}
 
 	.btn-reject {
-		background: #fff1f2;
-		color: #e11d48;
-		border: 1px solid #fecdd3;
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		background: transparent;
+		color: #ef4444;
+		border: none;
+		font-size: 14px;
+		font-weight: 600;
+		padding: 10px 16px;
+		border-radius: 50px;
+		cursor: pointer;
+		transition: background 0.2s;
+		white-space: nowrap;
 	}
 
 	.btn-reject:hover {
-		background: #ffe4e6;
+		background: #fef2f2;
 	}
 
-	.reject-form {
+	.btn-approve {
 		display: flex;
-		flex-direction: column;
-		gap: 12px;
-	}
-
-	.reject-form label {
-		font-weight: 600;
+		align-items: center;
+		gap: 6px;
+		background: #10b981;
+		color: white;
+		border: none;
 		font-size: 14px;
-		color: #334155;
+		font-weight: 600;
+		padding: 10px 20px;
+		border-radius: 50px;
+		cursor: pointer;
+		transition: transform 0.2s, box-shadow 0.2s;
+		box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+		white-space: nowrap;
 	}
 
-	.reject-form textarea {
-		padding: 12px;
-		border-radius: 8px;
-		border: 1px solid #cbd5e1;
+	.btn-approve:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+	}
+
+	.btn-approve:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+		transform: none;
+	}
+
+	/* Reject Popover */
+	.reject-popover {
+		margin-top: 16px;
+		background: white;
+		border-radius: 20px;
+		padding: 24px;
+		width: 100%;
+		box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+		border: 1px solid #fee2e2;
+		font-family: 'Inter', sans-serif;
+	}
+
+	.form-header {
+		margin-bottom: 16px;
+	}
+
+	.form-header h4 {
+		font-size: 16px;
+		font-weight: 700;
+		color: #991b1b;
+		margin: 0 0 4px 0;
+	}
+
+	.form-header p {
+		font-size: 13px;
+		color: #7f1d1d;
+		margin: 0;
+	}
+
+	.reject-popover textarea {
+		width: 100%;
+		border: 1px solid #fecaca;
+		border-radius: 12px;
+		padding: 12px 16px;
 		font-family: inherit;
-		font-size: 15px;
+		font-size: 14px;
 		resize: vertical;
+		outline: none;
+		background: #fef2f2;
+		color: #7f1d1d;
+		transition: border-color 0.2s;
 	}
 
-	.form-actions {
+	.reject-popover textarea:focus {
+		border-color: #ef4444;
+		background: white;
+	}
+
+	.form-footer {
 		display: flex;
 		justify-content: flex-end;
-		gap: 12px;
-		margin-top: 8px;
-	}
-
-	.btn-cancel {
-		background: transparent;
-		border: none;
-		color: #64748b;
-		font-weight: 600;
-		cursor: pointer;
-		padding: 10px 16px;
+		margin-top: 16px;
 	}
 
 	.btn-submit-reject {
-		display: inline-flex;
-		align-items: center;
-		gap: 6px;
-		background: #e11d48;
+		background: #ef4444;
 		color: white;
 		border: none;
 		padding: 10px 20px;
-		border-radius: 6px;
+		border-radius: 12px;
+		font-size: 14px;
 		font-weight: 600;
 		cursor: pointer;
+		transition: background 0.2s;
 	}
 
-	.btn-submit-reject:hover {
-		background: #be123c;
+	.btn-submit-reject:hover:not(:disabled) {
+		background: #dc2626;
+	}
+
+	.btn-submit-reject:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	.inline-form {
+		margin: 0;
+		display: inline-block;
+	}
+
+	@media (max-width: 640px) {
+		.action-bar-inner {
+			flex-direction: column;
+			gap: 16px;
+			border-radius: 20px;
+			padding: 16px;
+		}
+
+		.action-buttons {
+			width: 100%;
+			justify-content: stretch;
+		}
+
+		.btn-reject, .btn-approve {
+			flex: 1;
+			justify-content: center;
+		}
 	}
 
 	.whitespace-pre-line {

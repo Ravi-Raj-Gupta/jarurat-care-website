@@ -224,6 +224,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 			category,
 			author_id,
 			status,
+			review_feedback,
 			views,
 			likes_count,
 			saves_count,
@@ -2301,9 +2302,10 @@ reject: async ({ request, locals }) => {
 		const tableName = articleType === 'research' ? 'research_articles' : 'articles';
 		
 		// Check current status before publishing
+		const selectColumns = articleType === 'article' ? 'status, review_feedback' : 'status, admin_feedback';
 		const { data: itemToCheck, error: fetchError } = await supabaseAdmin
 			.from(tableName)
-			.select('status')
+			.select(selectColumns)
 			.eq('id', articleId)
 			.single();
 
@@ -2311,7 +2313,11 @@ reject: async ({ request, locals }) => {
 			return fail(404, { message: 'Content not found' });
 		}
 
-		if (itemToCheck.status !== 'approved') {
+		const isApproved = 
+			(articleType === 'article' && itemToCheck.status === 'under_review' && itemToCheck.review_feedback === 'APPROVED_BY_REVIEWER') ||
+			(articleType === 'research' && itemToCheck.status === 'approved');
+
+		if (!isApproved) {
 			return fail(400, { message: 'The article is under review and cannot be published yet.' });
 		}
 

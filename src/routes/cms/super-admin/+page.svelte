@@ -1535,7 +1535,7 @@
 
 										<td>
 
-											{#if article.status !== 'published'}
+											{#if article.status === 'under_review' && article.review_feedback === 'APPROVED_BY_REVIEWER'}
 
 												<form
 													method="POST"
