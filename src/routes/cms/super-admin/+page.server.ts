@@ -310,14 +310,13 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 	const approvedArticles = allArticles.filter(
 		(article: any) =>
-			article.status === 'approved' ||
-			article.status === 'under_review'
+			(article.status === 'under_review' && article.review_feedback === 'APPROVED_BY_REVIEWER') ||
+			article.status === 'approved'
 	);
 
 	const approvedResearch = allResearch.filter(
 		(research: any) =>
-			research.status === 'approved' ||
-			research.status === 'under_review'
+			research.status === 'approved'
 	);
 
 	/* =======================================================

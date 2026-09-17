@@ -377,21 +377,30 @@
 	const handlePublishingPower = (doctorId) => {
 		return () => {
 			actionLoading = 'pub-' + doctorId;
+			
+			// Optimistic UI update
+			let oldStatus = null;
+			let docIndex = -1;
+			if (data?.publishingDoctors) {
+				docIndex = data.publishingDoctors.findIndex(d => d.id === doctorId);
+				if (docIndex !== -1) {
+					oldStatus = data.publishingDoctors[docIndex].status;
+					data.publishingDoctors[docIndex].status = oldStatus === 'granted' ? 'revoked' : 'granted';
+					data = { ...data };
+				}
+			}
+
 			return async ({ result, update }) => {
 				actionLoading = null;
 				if (result.type === 'success') {
 					toast.success('Publishing power updated.');
-					
-					if (data?.publishingDoctors) {
-						const docIndex = data.publishingDoctors.findIndex(d => d.id === doctorId);
-						if (docIndex !== -1) {
-							data.publishingDoctors[docIndex].status = data.publishingDoctors[docIndex].status === 'granted' ? 'revoked' : 'granted';
-							data = { ...data };
-						}
-					}
-
 					await update({ reset: false, invalidateAll: false });
 				} else {
+					// Revert optimistic update on failure
+					if (docIndex !== -1 && oldStatus) {
+						data.publishingDoctors[docIndex].status = oldStatus;
+						data = { ...data };
+					}
 					toast.error('Failed to update publishing power.');
 					await update({ reset: false, invalidateAll: false });
 				}
@@ -1463,7 +1472,10 @@
 													}
 												/>
 
-												<button class="action-button" disabled={actionLoading === 'pub-' + doctor.id}>
+												<button 
+													class="action-button {doctor.status === 'granted' ? 'btn-revoke' : 'btn-grant'}" 
+													disabled={actionLoading === 'pub-' + doctor.id}
+												>
 													{#if actionLoading === 'pub-' + doctor.id}
 														<Loader2 size={14} class="spin-icon" />
 														Saving...
@@ -3874,6 +3886,24 @@
 
 	.action-button:hover {
 		background: #f8fafc;
+	}
+
+	.btn-grant {
+		background: #1e4ed8;
+		border-color: #1e4ed8;
+		color: white;
+	}
+	.btn-grant:hover {
+		background: #1d4ed8;
+	}
+
+	.btn-revoke {
+		background: white;
+		border-color: #ef4444;
+		color: #ef4444;
+	}
+	.btn-revoke:hover {
+		background: #fef2f2;
 	}
 
 	.approve-button {
