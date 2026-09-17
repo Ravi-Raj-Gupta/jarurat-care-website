@@ -412,20 +412,21 @@
 		return () => {
 			actionLoading = `pub-${type}-${id}`;
 			
-			// Optimistic UI Update: immediately set to published
-			let oldStatus = null;
-			if (type === 'article' && data?.articles) {
-				const index = data.articles.findIndex((a: any) => a.id === id);
-				if (index !== -1) {
-					oldStatus = data.articles[index].status;
-					data.articles[index].status = 'published';
+			// Optimistic UI Update: immediately remove from pending list
+			let oldItem = null;
+			let oldIndex = -1;
+			if (type === 'article' && data?.approvedArticles) {
+				oldIndex = data.approvedArticles.findIndex((a: any) => a.id === id);
+				if (oldIndex !== -1) {
+					oldItem = data.approvedArticles[oldIndex];
+					data.approvedArticles.splice(oldIndex, 1);
 					data = { ...data };
 				}
-			} else if (type === 'research' && data?.researchPapers) {
-				const index = data.researchPapers.findIndex((r: any) => r.id === id);
-				if (index !== -1) {
-					oldStatus = data.researchPapers[index].status;
-					data.researchPapers[index].status = 'published';
+			} else if (type === 'research' && data?.approvedResearch) {
+				oldIndex = data.approvedResearch.findIndex((r: any) => r.id === id);
+				if (oldIndex !== -1) {
+					oldItem = data.approvedResearch[oldIndex];
+					data.approvedResearch.splice(oldIndex, 1);
 					data = { ...data };
 				}
 			}
@@ -447,19 +448,13 @@
 					await update({ reset: false, invalidateAll: false });
 				} else {
 					// Revert optimistic update on failure
-					if (oldStatus) {
-						if (type === 'article' && data?.articles) {
-							const index = data.articles.findIndex((a: any) => a.id === id);
-							if (index !== -1) {
-								data.articles[index].status = oldStatus;
-								data = { ...data };
-							}
-						} else if (type === 'research' && data?.researchPapers) {
-							const index = data.researchPapers.findIndex((r: any) => r.id === id);
-							if (index !== -1) {
-								data.researchPapers[index].status = oldStatus;
-								data = { ...data };
-							}
+					if (oldItem && oldIndex !== -1) {
+						if (type === 'article' && data?.approvedArticles) {
+							data.approvedArticles.splice(oldIndex, 0, oldItem);
+							data = { ...data };
+						} else if (type === 'research' && data?.approvedResearch) {
+							data.approvedResearch.splice(oldIndex, 0, oldItem);
+							data = { ...data };
 						}
 					}
 					toast.error(result.data?.message || 'Failed to publish content.');
