@@ -24,12 +24,13 @@
 	let unreadCount = 0;
 	let realtimeChannel: any;
 
-	$: user = $page.data.currentUser || $page.data.profile || {
-		id: '00000000-0000-0000-0000-000000000000',
-		name: 'Admin User',
-		email: 'admin@jarurat.care',
-		role: 'Admin',
-		avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'
+	$: user = $page.data.currentUser || {
+		...($page.data.profile || {}),
+		id: $page.data.profile?.id || $page.data.session?.user?.id || '00000000-0000-0000-0000-000000000000',
+		name: $page.data.profile?.full_name || 'Admin User',
+		email: $page.data.session?.user?.email || 'admin@jarurat.care',
+		role: $page.data.profile?.role || 'Admin',
+		avatar: $page.data.profile?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'
 	};
 
 	function closeDropdown(e: MouseEvent) {

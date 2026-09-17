@@ -402,24 +402,32 @@
 	const handlePublish = (id: string, type: 'article' | 'research' | 'cms') => {
 		return () => {
 			actionLoading = `pub-${type}-${id}`;
+			
+			// Optimistic UI Update: immediately set to published
+			let oldStatus = null;
+			if (type === 'article' && data?.articles) {
+				const index = data.articles.findIndex((a: any) => a.id === id);
+				if (index !== -1) {
+					oldStatus = data.articles[index].status;
+					data.articles[index].status = 'published';
+					data = { ...data };
+				}
+			} else if (type === 'research' && data?.researchPapers) {
+				const index = data.researchPapers.findIndex((r: any) => r.id === id);
+				if (index !== -1) {
+					oldStatus = data.researchPapers[index].status;
+					data.researchPapers[index].status = 'published';
+					data = { ...data };
+				}
+			}
+			
 			return async ({ result, update }: any) => {
 				actionLoading = null;
 				if (result.type === 'success') {
 					toast.success('Successfully published!');
 					
-					if (type === 'article' && data?.articles) {
-						const index = data.articles.findIndex((a: any) => a.id === id);
-						if (index !== -1) {
-							data.articles[index].status = 'published';
-							data = { ...data };
-						}
-					} else if (type === 'research' && data?.researchPapers) {
-						const index = data.researchPapers.findIndex((r: any) => r.id === id);
-						if (index !== -1) {
-							data.researchPapers[index].status = 'published';
-							data = { ...data };
-						}
-					} else if (type === 'cms' && data?.cmsContents) {
+					// Re-apply for CMS which might toggle
+					if (type === 'cms' && data?.cmsContents) {
 						const index = data.cmsContents.findIndex((c: any) => c.id === id);
 						if (index !== -1) {
 							data.cmsContents[index].status = result.data?.action === 'cms_published' ? 'published' : 'draft';
@@ -429,6 +437,22 @@
 
 					await update({ reset: false, invalidateAll: false });
 				} else {
+					// Revert optimistic update on failure
+					if (oldStatus) {
+						if (type === 'article' && data?.articles) {
+							const index = data.articles.findIndex((a: any) => a.id === id);
+							if (index !== -1) {
+								data.articles[index].status = oldStatus;
+								data = { ...data };
+							}
+						} else if (type === 'research' && data?.researchPapers) {
+							const index = data.researchPapers.findIndex((r: any) => r.id === id);
+							if (index !== -1) {
+								data.researchPapers[index].status = oldStatus;
+								data = { ...data };
+							}
+						}
+					}
 					toast.error(result.data?.message || 'Failed to publish content.');
 					await update({ reset: false, invalidateAll: false });
 				}
@@ -1568,6 +1592,12 @@
 
 												</form>
 
+											{:else if article.status === 'under_review'}
+												
+												<span class="pending-label" style="color: #f59e0b; font-weight: 600;">
+													Pending Review
+												</span>
+
 											{:else}
 
 												<span class="published-label">
@@ -1666,7 +1696,7 @@
 
 										<td>
 
-											{#if research.status !== 'published'}
+											{#if research.status === 'approved'}
 
 												<form
 													method="POST"
@@ -1698,6 +1728,12 @@
 													</button>
 
 												</form>
+
+											{:else if research.status === 'under_review'}
+												
+												<span class="pending-label" style="color: #f59e0b; font-weight: 600;">
+													Pending Review
+												</span>
 
 											{:else}
 
