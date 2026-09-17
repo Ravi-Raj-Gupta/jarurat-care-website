@@ -180,18 +180,24 @@
 			<form 
 				method="POST" 
 				action={following ? '?/unfollow' : '?/follow'} 
-				use:enhance={() => {
+				use:enhance={({ action }) => {
 					loadingFollow = true;
+					const wasFollowing = following;
+					
+					// Optimistic UI Update
+					following = action.search.includes('?/unfollow') ? false : true;
+
 					return async ({ result }) => {
 						loadingFollow = false;
 						if (result.type === 'success') {
-							following = !following;
 							if (following) {
 								toast.success(`Awesome! You are now following ${fullName}`, { duration: 3000 });
 							} else {
 								toast.success(`You unfollowed ${fullName}.`, { duration: 3000 });
 							}
 						} else {
+							// Revert optimistic update on failure
+							following = wasFollowing;
 							toast.error('Oops! Could not update follow status. Please try again.', { duration: 4000 });
 						}
 					};
@@ -207,10 +213,10 @@
 				>
 					{#if following}
 						<UserCheck size={16} />
-						<span>{loadingFollow ? 'Updating...' : 'Following'}</span>
+						<span>Following</span>
 					{:else}
 						<UserPlus size={16} />
-						<span>{loadingFollow ? 'Following...' : 'Follow'}</span>
+						<span>Follow</span>
 					{/if}
 				</button>
 			</form>

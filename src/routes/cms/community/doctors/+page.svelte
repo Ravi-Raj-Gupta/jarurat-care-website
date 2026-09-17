@@ -123,24 +123,37 @@
 										use:enhance={() => {
 											loadingId = doctor.id;
 											const currentlyFollowed = followedDoctorIds.has(doctor.id);
-											// Optimistic UI Update
+											
+											// Optimistic UI Update by modifying the source data
 											if (currentlyFollowed) {
-												followedDoctorIds.delete(doctor.id);
-												doctor.followers_count = Math.max(0, (doctor.followers_count || 0) - 1);
+												if (data.followedDoctorIds) {
+													data.followedDoctorIds = data.followedDoctorIds.filter((id: string) => id !== doctor.id);
+												}
+												const docIndex = data.doctors?.findIndex((d: any) => d.id === doctor.id);
+												if (docIndex !== undefined && docIndex !== -1 && data.doctors) {
+													data.doctors[docIndex].followers_count = Math.max(0, (data.doctors[docIndex].followers_count || 0) - 1);
+												}
 											} else {
-												followedDoctorIds.add(doctor.id);
-												doctor.followers_count = (doctor.followers_count || 0) + 1;
+												if (data.followedDoctorIds) {
+													data.followedDoctorIds = [...data.followedDoctorIds, doctor.id];
+												} else {
+													data.followedDoctorIds = [doctor.id];
+												}
+												const docIndex = data.doctors?.findIndex((d: any) => d.id === doctor.id);
+												if (docIndex !== undefined && docIndex !== -1 && data.doctors) {
+													data.doctors[docIndex].followers_count = (data.doctors[docIndex].followers_count || 0) + 1;
+												}
 											}
-											followedDoctorIds = followedDoctorIds; // Trigger reactivity
-											doctors = doctors;
+											data = { ...data }; // Trigger reactivity for all derived variables
 
 											return async ({ result, update }) => {
 												loadingId = null;
 												if (result.type !== 'success') {
-													// Revert on failure
+													// Let update restore server state on failure
 													await update();
 												} else {
-													await update({ reset: false });
+													// Don't invalidate all to keep it snappy, UI is already optimistic
+													await update({ reset: false, invalidateAll: false });
 												}
 											};
 										}}
