@@ -1,13 +1,15 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import { ArrowLeft, CheckCircle, XCircle, AlertCircle } from 'lucide-svelte';
+	import { ArrowLeft, CheckCircle, XCircle, AlertCircle, X, Check } from 'lucide-svelte';
 	import toast from 'svelte-french-toast';
+	import { slide } from 'svelte/transition';
 
 	export let data;
 	export let form;
 	const { research } = data;
 
 	let showRejectForm = false;
+	let rejectReason = '';
 
 	function formatDate(dateStr: string) {
 		if (!dateStr) return '';

@@ -24,7 +24,7 @@
 	let unreadCount = 0;
 	let realtimeChannel: any;
 
-	$: user = $page.data.currentUser || {
+	$: user = $page.data.currentUser || $page.data.profile || {
 		id: '00000000-0000-0000-0000-000000000000',
 		name: 'Admin User',
 		email: 'admin@jarurat.care',
@@ -254,13 +254,13 @@
 			<div class="profile-trigger" on:click={() => showDropdown = !showDropdown}>
 				<div class="admin-avatar">
 					{#if user.avatar && user.avatar !== 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'}
-						<img src={user.avatar} alt={user.name} />
+						<img src={user.avatar} alt={user.name || user.full_name} />
 					{:else}
-						{(user.name || 'A').charAt(0).toUpperCase()}
+						{((user.name || user.full_name) || 'A').charAt(0).toUpperCase()}
 					{/if}
 				</div>
 				<div class="admin-info">
-					<strong>{user.name}</strong>
+					<strong>{user.name || user.full_name}</strong>
 					<span>{user.role ? user.role.replace('_', ' ') : 'Admin'}</span>
 				</div>
 			</div>
@@ -268,7 +268,7 @@
 			{#if showDropdown}
 				<div class="profile-dropdown">
 					<div class="dd-head">
-						<strong>{user.name}</strong>
+						<strong>{user.name || user.full_name}</strong>
 						<span>{user.email}</span>
 					</div>
 					<hr />
