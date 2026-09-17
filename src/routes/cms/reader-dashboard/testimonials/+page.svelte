@@ -1801,128 +1801,94 @@
 
 	.person h3 {
 		margin: 0;
-
 		font-size: 13px;
-
 		font-weight: 750;
-
 		color: #0f172a;
 	}
 
 
 	.person p {
 		margin: 2px 0 0;
-
 		font-size: 11px;
-
 		color: #64748b;
 	}
 
 
 	.status {
 		display: inline-flex;
-
 		align-items: center;
-
 		gap: 5px;
-
 		padding: 5px 9px;
-
 		border-radius: 6px;
-
 		font-size: 10px;
-
-		font-weight: 700;
-
+		font-weight: 70;
 		white-space: nowrap;
 	}
 
 
 	.status-submitted {
 		background: #eff6ff;
-
 		color: #1d4ed8;
-
 		border: 1px solid #dbeafe;
 	}
 
 
 	.status-published {
 		background: #f0fdf4;
-
 		color: #166534;
-
 		border: 1px solid #dcfce7;
 	}
 
 
 	.status-rejected {
 		background: #fef2f2;
-
 		color: #991b1b;
-
 		border: 1px solid #fecaca;
 	}
 
 
 	.status-changes {
 		background: #fffbeb;
-
 		color: #92400e;
-
 		border: 1px solid #fde68a;
 	}
 
 
 	.quote {
 		margin: 17px 0;
-
 		padding-left: 14px;
-
-		border-left: 3px solid #dbeafe;
-
+		border-left: 3x solid #dbeafe;
 		font-size: 13px;
-
 		line-height: 1.7;
-
 		color: #475569;
 	}
 
 
 	.testimonial-footer {
 		display: flex;
-
 		align-items: center;
-
 		justify-content: space-between;
-
 		gap: 15px;
-
 		padding-top: 13px;
-
 		border-top: 1px solid #f1f5f9;
 	}
 
 
 	.date {
 		font-size: 10px;
-
 		color: #94a3b8;
 	}
 
 
 	.card-actions {
 		display: flex;
-
 		align-items: center;
-
 		gap: 6px;
 	}
 
 
 	.icon-button {
 		display: inline-flex;
-
 		align-items: center;
 
 		gap: 5px;
