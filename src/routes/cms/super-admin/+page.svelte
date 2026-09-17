@@ -429,6 +429,13 @@
 					data.approvedResearch.splice(oldIndex, 1);
 					data = { ...data };
 				}
+			} else if (type === 'cms' && data?.cmsContents) {
+				oldIndex = data.cmsContents.findIndex((c: any) => c.id === id);
+				if (oldIndex !== -1) {
+					oldItem = { ...data.cmsContents[oldIndex] };
+					data.cmsContents[oldIndex].status = data.cmsContents[oldIndex].status === 'published' ? 'draft' : 'published';
+					data = { ...data };
+				}
 			}
 			
 			return async ({ result, update }: any) => {
@@ -454,6 +461,9 @@
 							data = { ...data };
 						} else if (type === 'research' && data?.approvedResearch) {
 							data.approvedResearch.splice(oldIndex, 0, oldItem);
+							data = { ...data };
+						} else if (type === 'cms' && data?.cmsContents) {
+							data.cmsContents[oldIndex] = oldItem;
 							data = { ...data };
 						}
 					}
