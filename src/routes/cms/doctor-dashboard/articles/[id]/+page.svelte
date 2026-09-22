@@ -1,6 +1,4 @@
 <script lang="ts">
-	import Sidebar from '$lib/components/dashboard/Sidebar.svelte';
-	import Topbar from '$lib/components/dashboard/Topbar.svelte';
 	import { enhance } from '$app/forms';
 
 	export let data;
@@ -22,13 +20,7 @@
 	<title>Edit Article | Doctor Dashboard</title>
 </svelte:head>
 
-<div class="dashboard">
-	<Sidebar isReviewer={profile?.is_reviewer === true} />
-
-	<div class="content">
-		<Topbar doctorName={profile?.full_name || ''} unreadCount={0} />
-
-		<div class="page">
+<div class="page">
 			<div class="header">
 				<h1>Edit Article</h1>
 				<p>Update your medical article or research paper.</p>
@@ -171,12 +163,9 @@
 				</form>
 			</div>
 		</div>
-	</div>
-</div>
+		</div>
 
 <style>
-	.dashboard { display: flex; min-height: 100vh; background: #f5f7fb; }
-	.content { flex: 1; display: flex; flex-direction: column; min-width: 0; }
 	.page { padding: 30px; max-width: 1000px; margin: 0 auto; width: 100%; }
 	.header h1 { font-size: 26px; color: #0d2460; margin: 0 0 5px; }
 	.header p { color: #6b7280; margin: 0 0 25px; font-size: 15px; }
