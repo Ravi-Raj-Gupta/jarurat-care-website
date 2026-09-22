@@ -45,6 +45,10 @@
 		</div>
 
 		<div class="article-body prose prose-lg max-w-none text-gray-800">
+			{#if article.content}
+				{@html article.content}
+			{/if}
+
 			{#if article.abstract}
 				<section class="research-section abstract">
 					<h3>Abstract</h3>
