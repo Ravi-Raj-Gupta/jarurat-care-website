@@ -273,7 +273,6 @@
 						<span>{user.email}</span>
 					</div>
 					<hr />
-					<a href={`/cms/community/doctors/${user.id}`} on:click={() => showDropdown = false}>View Profile</a>
 					<button type="button" on:click={handleLogout} class="text-red-600 font-medium">Logout</button>
 				</div>
 			{/if}
