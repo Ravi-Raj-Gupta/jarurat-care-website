@@ -158,16 +158,18 @@
 				</p>
 			</section>
 
-			{#if doctor?.recent_publications && doctor.recent_publications.length > 0}
-				<section class="publications-section">
-					<div class="section-title-row">
-						<div class="title-left">
-							<div class="icon-wrap"><Zap size={18} /></div>
-							<h2>Recent Publications</h2>
-						</div>
-						<a href="#" class="view-all">View All</a>
+			<section class="publications-section">
+				<div class="section-title-row">
+					<div class="title-left">
+						<div class="icon-wrap"><Zap size={18} /></div>
+						<h2>Recent Publications</h2>
 					</div>
-					
+					{#if doctor?.recent_publications && doctor.recent_publications.length > 0}
+						<a href="#" class="view-all">View All</a>
+					{/if}
+				</div>
+				
+				{#if doctor?.recent_publications && doctor.recent_publications.length > 0}
 					<div class="pub-list">
 						{#each doctor.recent_publications as pub}
 							<div class="pub-card">
@@ -182,8 +184,10 @@
 							</div>
 						{/each}
 					</div>
-				</section>
-			{/if}
+				{:else}
+					<p class="empty-state-text">No publications added yet.</p>
+				{/if}
+			</section>
 		</div>
 
 		<!-- RIGHT COLUMN -->
@@ -207,13 +211,13 @@
 				</div>
 			</section>
 
-			{#if doctor?.experience_history && doctor.experience_history.length > 0}
-				<section class="experience-section">
-					<div class="section-title">
-						<div class="icon-wrap"><Briefcase size={18} /></div>
-						<h2>Experience</h2>
-					</div>
-					
+			<section class="experience-section">
+				<div class="section-title">
+					<div class="icon-wrap"><Briefcase size={18} /></div>
+					<h2>Experience</h2>
+				</div>
+				
+				{#if doctor?.experience_history && doctor.experience_history.length > 0}
 					<div class="timeline">
 						{#each doctor.experience_history as exp, i}
 							<div class="timeline-item">
@@ -228,8 +232,10 @@
 							</div>
 						{/each}
 					</div>
-				</section>
-			{/if}
+				{:else}
+					<p class="empty-state-text">No experience details added yet.</p>
+				{/if}
+			</section>
 		</div>
 	</div>
 </div>
@@ -241,6 +247,7 @@
 		flex-direction: column;
 		gap: 24px;
 		font-family: 'Manrope', sans-serif;
+		width: 100%;
 		max-width: 1139px;
 		margin: 0 auto;
 		background: #FAFAFA;
@@ -293,6 +300,13 @@
 		font-size: 64px;
 		font-weight: 700;
 		color: #9CA3AF;
+	}
+
+	.empty-state-text {
+		color: #9CA3AF;
+		font-size: 14px;
+		font-style: italic;
+		margin-top: 12px;
 	}
 
 	.camera-btn {
