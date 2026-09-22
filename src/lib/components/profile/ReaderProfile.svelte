@@ -30,9 +30,10 @@
 
 	export let savedArticles: any[] = [];
 	export let reactedArticles: any[] = [];
-	export let recommendedArticles: any[] = [];
-	export let popularArticles: any[] = [];
-	export let followedDoctors: any[] = [];
+	export let recommendedArticles: DashboardContent[] = [];
+	export let popularArticles: DashboardContent[] = [];
+	export let followedDoctors: FollowedDoctor[] = [];
+	export let commentedArticles: DashboardContent[] = [];
 
 	// Activity Tabs logic
 	let activeTab = 'liked'; // Default tab
@@ -63,7 +64,7 @@
 		});
 	}
 
-	function formatArticleDate(dateStr: string) {
+	function formatArticleDate(dateStr?: string | null) {
 		if (!dateStr) return '';
 		const date = new Date(dateStr);
 		return date.toLocaleDateString('en-US', {
@@ -81,7 +82,7 @@
 				: activeTab === 'popular'
 					? popularArticles
 					: activeTab === 'comments'
-						? [] // We don't have comments articles yet
+						? commentedArticles
 						: reactedArticles;
 </script>
 

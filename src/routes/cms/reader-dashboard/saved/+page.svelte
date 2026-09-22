@@ -7,7 +7,7 @@
 	$: profile = data.profile;
 	$: articles = data.savedArticles || [];
 
-	function formatArticleDate(dateStr: string) {
+	function formatArticleDate(dateStr?: string | null) {
 		if (!dateStr) return '';
 		const date = new Date(dateStr);
 		return date.toLocaleDateString('en-US', {
@@ -44,7 +44,7 @@
 					<p class="empty-state">You haven't saved any articles yet.</p>
 				{:else}
 					{#each articles as article}
-						<div class="article-item">
+						<a href={article.href} class="article-item" style="text-decoration: none; color: inherit;">
 							<img
 								src={article.thumbnail || '/placeholder.png'}
 								alt="Cover"
@@ -74,11 +74,9 @@
 									<span><Bookmark size={16} /></span>
 									<span><MoreVertical size={16} /></span>
 								</div>
-								<a href={article.href || `/cms/articles/${article.id}`} class="view-btn"
-									>View Full Article</a
-								>
+								<div class="view-btn">View Full Article</div>
 							</div>
-						</div>
+						</a>
 					{/each}
 				{/if}
 			</div>

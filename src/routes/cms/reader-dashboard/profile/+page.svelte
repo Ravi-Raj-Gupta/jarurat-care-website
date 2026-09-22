@@ -9,13 +9,14 @@
 	$: savedCount = data.savedCount ?? 0;
 	$: followingCount = (data.followedDoctors ?? []).length;
 	$: topicsCount = data.interestsCount ?? 0;
-	$: commentsCount = 0;
+	$: commentsCount = data.commentedArticles?.length ?? 0;
 
 	$: savedArticles = data.savedArticles;
 	$: reactedArticles = data.reactedArticles;
 	$: recommendedArticles = data.recommendedArticles;
 	$: popularArticles = data.popularArticles;
 	$: followedDoctors = data.followedDoctors;
+	$: commentedArticles = data.commentedArticles;
 </script>
 
 <div class="dashboard">
@@ -41,6 +42,7 @@
 				{recommendedArticles}
 				{popularArticles}
 				{followedDoctors}
+				{commentedArticles}
 			/>
 		</div>
 	</div>

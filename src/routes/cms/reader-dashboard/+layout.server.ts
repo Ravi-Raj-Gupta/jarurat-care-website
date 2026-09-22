@@ -1454,6 +1454,83 @@ if (
 	   separate research props.
 	===================================================== */
 
+	/* =====================================================
+	   COMMENTED CONTENT
+	===================================================== */
+	let commentedArticles: DashboardContent[] = [];
+
+	const { data: articleCommentRows } = await supabaseAdmin
+		.from('article_comments')
+		.select('article_id, created_at')
+		.eq('user_id', userId)
+		.order('created_at', { ascending: false });
+
+	const { data: researchCommentRows } = await cmsSupabase
+		.from('research_article_comments')
+		.select('research_article_id, created_at')
+		.eq('user_id', userId)
+		.order('created_at', { ascending: false });
+
+	const commentedIds = [
+		...(articleCommentRows ?? []).map((r) => r.article_id),
+		...(researchCommentRows ?? []).map((r) => r.research_article_id)
+	].filter(Boolean);
+
+	const distinctCommentedIds = [...new Set(commentedIds)];
+
+	if (distinctCommentedIds.length > 0) {
+		const { data: commentedArt } = await supabaseAdmin
+			.from('articles')
+			.select('id, title, category, author_id, created_at, cover_image_url, views, likes_count, saves_count')
+			.in('id', distinctCommentedIds);
+
+		const { data: commentedRes } = await cmsSupabase
+			.from('research_articles')
+			.select('id, title, user_id, created_at, featured_image, views_count, likes_count, saves_count')
+			.in('id', distinctCommentedIds);
+
+		const artMap = new Map((commentedArt ?? []).map((a) => [a.id, a]));
+		const resMap = new Map((commentedRes ?? []).map((r) => [r.id, r]));
+
+		commentedArticles = distinctCommentedIds
+			.map((id) => {
+				const article = artMap.get(id);
+				if (article) {
+					return {
+						id: article.id,
+						title: article.title,
+						category: article.category || 'General Health',
+						authorName: authorsById.get(article.author_id ?? '') || 'Unknown',
+						date: article.created_at,
+						thumbnail: article.cover_image_url || DEFAULT_THUMBNAIL,
+						type: 'article' as const,
+						href: `/content/article/${article.id}`,
+						views: Number(article.views ?? 0),
+						likes: Number(article.likes_count ?? 0),
+						saves: Number(article.saves_count ?? 0)
+					};
+				}
+				const res = resMap.get(id);
+				if (res) {
+					return {
+						id: res.id,
+						title: res.title,
+						category: 'Research',
+						authorName: authorsById.get(res.user_id ?? '') || 'Unknown',
+						date: res.created_at,
+						thumbnail: res.featured_image || DEFAULT_THUMBNAIL,
+						type: 'research' as const,
+						href: `/content/research/${res.id}`,
+						views: Number(res.views_count ?? 0),
+						likes: Number(res.likes_count ?? 0),
+						saves: Number(res.saves_count ?? 0)
+					};
+				}
+				return null;
+			})
+			.filter(Boolean) as DashboardContent[];
+	}
+
 	return {
 		profile,
 
@@ -1462,6 +1539,9 @@ if (
 
 		/* Liked */
 		reactedArticles,
+
+		/* Commented */
+		commentedArticles,
 
 		/* Recommendations */
 		recommendedArticles,

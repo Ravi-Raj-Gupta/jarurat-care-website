@@ -42,7 +42,7 @@
 			<p class="empty-state">No recent articles found.</p>
 		{:else}
 			{#each articles as article}
-				<div class="article-item">
+				<a href={article.href} class="article-item" style="text-decoration: none; color: inherit;">
 					<img
 						src={article.thumbnail || '/placeholder.png'}
 						alt="Cover"
@@ -72,11 +72,9 @@
 							<span><Bookmark size={16} /></span>
 							<span><MoreVertical size={16} /></span>
 						</div>
-						<a href={article.href || `/cms/articles/${article.id}`} class="view-btn"
-							>View Full Article</a
-						>
+						<div class="view-btn">View Full Article</div>
 					</div>
-				</div>
+				</a>
 			{/each}
 		{/if}
 	</div>
