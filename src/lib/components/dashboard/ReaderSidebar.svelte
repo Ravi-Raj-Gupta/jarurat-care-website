@@ -47,7 +47,7 @@
 			class="nav-item"
 			class:active={currentPath === '/cms/reader-dashboard'}
 		>
-			<Home size={18} />
+			<Home size={18} class="icon-dashboard" />
 			<span>Dashboard</span>
 		</a>
 
@@ -59,7 +59,7 @@
 				href="/cms/reader-dashboard#saved"
 				class="nav-item"
 			>
-				<Bookmark size={18} />
+				<Bookmark size={18} class="icon-saved" />
 				<span>Saved Articles</span>
 			</a>
 
@@ -67,7 +67,7 @@
 				href="/cms/reader-dashboard#doctors"
 				class="nav-item"
 			>
-				<Users size={18} />
+				<Users size={18} class="icon-doctors" />
 				<span>Followed Doctors</span>
 			</a>
 		</div>
@@ -81,7 +81,7 @@
 				class="nav-item"
 				class:active={currentPath === '/cms/complete-profile'}
 			>
-				<User size={18} />
+				<User size={18} class="icon-profile" />
 				<span>Edit Profile</span>
 			</a>
 		</div>
@@ -233,20 +233,39 @@
 		font-weight: 500;
 		cursor: pointer;
 		text-align: left;
-		transition: all 0.2s;
+		transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 		border-radius: 10px;
 		text-decoration: none;
+		position: relative;
+		overflow: hidden;
 	}
 
 	.nav-item:hover {
-		background: rgba(255, 255, 255, 0.06);
+		background: rgba(255, 255, 255, 0.08);
 		color: #ffffff;
+		transform: translateX(4px);
 	}
 
 	.nav-item.active {
-		background: #2563eb;
+		background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
 		color: #ffffff;
 		font-weight: 600;
+		box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+	}
+
+	/* Colorful Icon Accents */
+	.icon-dashboard { color: #60a5fa; transition: color 0.2s; } /* Blue */
+	.icon-saved { color: #f472b6; transition: color 0.2s; } /* Pink */
+	.icon-doctors { color: #34d399; transition: color 0.2s; } /* Emerald */
+	.icon-profile { color: #a78bfa; transition: color 0.2s; } /* Purple */
+
+	.nav-item:hover .icon-dashboard { color: #93c5fd; }
+	.nav-item:hover .icon-saved { color: #f9a8d4; }
+	.nav-item:hover .icon-doctors { color: #6ee7b7; }
+	.nav-item:hover .icon-profile { color: #c4b5fd; }
+
+	.nav-item.active [class^="icon-"] {
+		color: #ffffff;
 	}
 
 	/* =========================
