@@ -97,10 +97,10 @@
 						<span>{doctor.specialization}</span>
 					</div>
 				{/if}
-				{#if doctor?.organization}
+				{#if doctor?.affiliation || doctor?.hospital || doctor?.organization}
 					<div class="detail-item">
 						<MapPin size={14} />
-						<span>{doctor.organization}</span>
+						<span>{doctor.affiliation || doctor.hospital || doctor.organization}</span>
 					</div>
 				{/if}
 			</div>

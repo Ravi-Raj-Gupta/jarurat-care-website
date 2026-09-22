@@ -98,10 +98,10 @@
 						<span>{reviewer.specialization}</span>
 					</div>
 				{/if}
-				{#if reviewer?.organization}
+				{#if reviewer?.affiliation || reviewer?.hospital || reviewer?.organization}
 					<div class="detail-item">
 						<MapPin size={14} />
-						<span>{reviewer.organization}</span>
+						<span>{reviewer.affiliation || reviewer.hospital || reviewer.organization}</span>
 					</div>
 				{/if}
 			</div>
