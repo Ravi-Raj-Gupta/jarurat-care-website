@@ -163,7 +163,6 @@
 				</form>
 			</div>
 		</div>
-		</div>
 
 <style>
 	.page { padding: 30px; max-width: 1000px; margin: 0 auto; width: 100%; }
