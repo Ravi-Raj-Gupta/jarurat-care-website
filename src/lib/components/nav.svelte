@@ -9,7 +9,7 @@
 	import { cmsSupabase } from '$lib/cmsSupabase';
 	import PageLoader from '$lib/components/PageLoader.svelte';
 
-	let isMenuOpen = false;
+	export let isMenuOpen = false;
 	let isLoggedIn = false;
 	let loggingOut = false;
 
@@ -67,11 +67,7 @@
 		</ul>
 
 		<div class="flex items-center gap-4">
-			{#if isLoggedIn}
-				<button class="hidden sm:block text-[#0D2561] hover:text-red-600 font-medium text-xs lg:text-sm px-2 transition whitespace-nowrap" on:click={logout}>
-					Logout
-				</button>
-			{/if}
+
 			
 			<a href="/donate" class="hidden sm:block bg-[#1E4ED8] text-white px-5 lg:px-6 py-2 rounded-full text-xs lg:text-sm font-medium shadow-md hover:shadow-lg transition whitespace-nowrap">Donate Now</a>
 
@@ -90,9 +86,7 @@
 					<a href={item.href} class="text-base font-medium py-2 border-b" on:click={() => (isMenuOpen = false)}>{item.title}</a>
 				{/each}
 
-				{#if isLoggedIn}
-					<button class="w-full text-center text-red-600 font-medium py-2 border-b" on:click={() => { isMenuOpen = false; logout(); }}>Logout</button>
-				{/if}
+
 
 				<a href="/donate" class="w-full text-center bg-[#1E4ED8] text-white py-3 rounded-full font-medium block mt-2" on:click={() => (isMenuOpen = false)}>Donate Now</a>
 			</div>

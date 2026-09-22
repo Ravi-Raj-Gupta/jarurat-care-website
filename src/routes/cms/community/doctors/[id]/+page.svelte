@@ -1,6 +1,8 @@
 <script lang="ts">
 	import Sidebar from '$lib/components/dashboard/Sidebar.svelte';
 	import Topbar from '$lib/components/dashboard/Topbar.svelte';
+	import DoctorProfile from '$lib/components/profile/DoctorProfile.svelte';
+	import ReviewerProfile from '$lib/components/profile/ReviewerProfile.svelte';
 	import { enhance } from '$app/forms';
 
 	export let data;
@@ -61,244 +63,27 @@
 	<title>{doctor.full_name || 'Doctor Profile'} | Jarurat Care</title>
 </svelte:head>
 
-<div class="dashboard">
-	<Sidebar isReviewer={currentUser?.is_reviewer === true} />
+<div class="standalone-profile-layout">
+	<main class="page">
+		<div class="top-nav">
+			<a class="back-link" href="/cms/community/doctors"> ← Back to Community </a>
+		</div>
 
-	<div class="content">
-		<Topbar
-			doctorName={currentUser?.full_name || ''}
-			email={currentUser?.email || ''}
-			unreadCount={0}
-		/>
-
-		<main class="page">
-			<a class="back-link" href="/cms/community/doctors">
-				← Back to Community
-			</a>
-
-			<section class="profile-card">
-				<div class="cover"></div>
-
-				<div class="profile-body">
-					<div class="avatar-large">
-						{#if doctor.avatar}
-							<img
-								src={doctor.avatar}
-								alt={doctor.full_name || 'Doctor'}
-							/>
-						{:else}
-							<span>{getInitials(doctor.full_name)}</span>
-						{/if}
-					</div>
-
-					<div class="profile-info">
-						<div class="name-row">
-							<h1>{doctor.full_name || 'Doctor'}</h1>
-
-							<span class="doctor-badge">
-								✓ Doctor
-							</span>
-						</div>
-
-						{#if doctor.specialization}
-							<p class="specialization">
-								{doctor.specialization}
-							</p>
-						{/if}
-
-						{#if doctor.organization}
-							<p class="organization">
-								{doctor.organization}
-							</p>
-						{/if}
-					</div>
-
-					{#if doctor.id !== currentUser?.id}
-						<form
-							class="profile-follow-form"
-							method="POST"
-							action={isFollowing ? '?/unfollow' : '?/follow'}
-							use:enhance={() => {
-								isFollowLoading = true;
-								let currentlyFollowing = isFollowing;
-								
-								// Optimistic UI Update
-								if (currentlyFollowing) {
-									isFollowing = false;
-									followersCount = Math.max(0, followersCount - 1);
-								} else {
-									isFollowing = true;
-									followersCount += 1;
-								}
-
-								return async ({ result, update }) => {
-									isFollowLoading = false;
-									if (result.type !== 'success') {
-										// Revert on failure
-										isFollowing = currentlyFollowing;
-										followersCount = currentlyFollowing ? followersCount + 1 : followersCount - 1;
-										await update();
-									} else {
-										await update({ reset: false });
-									}
-								};
-							}}
-						>
-							<button
-								class:following={isFollowing}
-								class="profile-follow-btn"
-								type="submit"
-								disabled={isFollowLoading}
-							>
-								{isFollowLoading ? 'Wait...' : (isFollowing ? 'Following' : 'Follow Doctor')}
-							</button>
-						</form>
-					{/if}
-				</div>
-
-				<div class="stats-row">
-					<button
-						class="stat"
-						type="button"
-						on:click={openFollowers}
-					>
-						<strong>{followersCount}</strong>
-						<span>Followers</span>
-					</button>
-
-					<button
-						class="stat"
-						type="button"
-						on:click={openFollowing}
-					>
-						<strong>{followingCount}</strong>
-						<span>Following</span>
-					</button>
-				</div>
-			</section>
-
-			<div class="two-column">
-				<section class="info-card">
-					<div class="section-heading">
-						<span class="heading-icon">👨‍⚕️</span>
-						<h2>About the Doctor</h2>
-					</div>
-
-					{#if doctor.about}
-						<p>{doctor.about}</p>
-					{:else if doctor.bio}
-						<p>{doctor.bio}</p>
-					{:else if doctor.about_me}
-						<p>{doctor.about_me}</p>
-					{:else}
-						<p class="muted">
-							This doctor has not added an introduction yet.
-						</p>
-					{/if}
-				</section>
-
-				<section class="info-card">
-					<div class="section-heading">
-						<span class="heading-icon">📋</span>
-						<h2>Professional Information</h2>
-					</div>
-
-					<div class="details">
-						{#if doctor.specialization}
-							<div class="detail">
-								<span>Specialization</span>
-								<strong>{doctor.specialization}</strong>
-							</div>
-						{/if}
-
-						{#if doctor.organization}
-							<div class="detail">
-								<span>Organization</span>
-								<strong>{doctor.organization}</strong>
-							</div>
-						{/if}
-
-						{#if doctor.location}
-							<div class="detail">
-								<span>Location</span>
-								<strong>{doctor.location}</strong>
-							</div>
-						{/if}
-
-						{#if doctor.city}
-							<div class="detail">
-								<span>City</span>
-								<strong>{doctor.city}</strong>
-							</div>
-						{/if}
-
-						{#if doctor.experience}
-							<div class="detail">
-								<span>Experience</span>
-								<strong>{doctor.experience}</strong>
-							</div>
-						{/if}
-
-						{#if doctor.years_of_experience}
-							<div class="detail">
-								<span>Experience</span>
-								<strong>{doctor.years_of_experience} years</strong>
-							</div>
-						{/if}
-
-						{#if !doctor.specialization &&
-							!doctor.organization &&
-							!doctor.location &&
-							!doctor.city &&
-							!doctor.experience &&
-							!doctor.years_of_experience}
-							<p class="muted">
-								Professional information has not been added yet.
-							</p>
-						{/if}
-					</div>
-				</section>
-			</div>
-
-			<section class="community-card">
-				<div>
-					<div class="community-label">COMMUNITY</div>
-					<h2>Doctor's Community</h2>
-					<p>
-						See who follows this doctor and which doctors they follow.
-					</p>
-				</div>
-
-				<div class="community-actions">
-					<button type="button" on:click={openFollowers}>
-						<span>{followersCount}</span>
-						Followers
-					</button>
-
-					<button type="button" on:click={openFollowing}>
-						<span>{followingCount}</span>
-						Following
-					</button>
-				</div>
-			</section>
-		</main>
-	</div>
+		{#if doctor?.role === 'Reviewer' || doctor?.role === 'reviewer' || doctor?.role === 'REVIEWER'}
+			<ReviewerProfile reviewer={doctor} />
+		{:else}
+			<DoctorProfile {doctor} />
+		{/if}
+	</main>
 </div>
 
 {#if activeList}
 	<div class="modal-backdrop" role="presentation" on:click={closeList}>
-		<div
-			class="modal"
-			role="dialog"
-			aria-modal="true"
-			on:click|stopPropagation
-		>
+		<div class="modal" role="dialog" aria-modal="true" on:click|stopPropagation>
 			<div class="modal-header">
 				<div>
 					<h2>
-						{activeList === 'followers'
-							? 'Followers'
-							: 'Following'}
+						{activeList === 'followers' ? 'Followers' : 'Following'}
 					</h2>
 
 					<p>
@@ -308,14 +93,7 @@
 					</p>
 				</div>
 
-				<button
-					class="close-btn"
-					type="button"
-					on:click={closeList}
-					aria-label="Close"
-				>
-					×
-				</button>
+				<button class="close-btn" type="button" on:click={closeList} aria-label="Close"> × </button>
 			</div>
 
 			<div class="people-list">
@@ -330,17 +108,10 @@
 						{#each followers as person}
 							{@const avatar = getAvatar(person)}
 
-							<a
-								class="person"
-								href={`/cms/community/doctors/${person.id}`}
-								on:click={closeList}
-							>
+							<a class="person" href={`/cms/community/doctors/${person.id}`} on:click={closeList}>
 								<div class="person-avatar">
 									{#if avatar}
-										<img
-											src={avatar}
-											alt={person.full_name || 'User'}
-										/>
+										<img src={avatar} alt={person.full_name || 'User'} />
 									{:else}
 										<span>
 											{getInitials(person.full_name)}
@@ -354,57 +125,44 @@
 									</strong>
 
 									<span>
-										{person.specialization ||
-											person.organization ||
-											'Community Member'}
+										{person.specialization || person.organization || 'Community Member'}
 									</span>
 								</div>
 							</a>
 						{/each}
 					{/if}
+				{:else if following.length === 0}
+					<div class="empty-list">
+						<div>👨‍⚕️</div>
+						<strong>Not following anyone yet</strong>
+						<span>This doctor isn't following any doctors yet.</span>
+					</div>
 				{:else}
-					{#if following.length === 0}
-						<div class="empty-list">
-							<div>👨‍⚕️</div>
-							<strong>Not following anyone yet</strong>
-							<span>This doctor isn't following any doctors yet.</span>
-						</div>
-					{:else}
-						{#each following as person}
-							{@const avatar = getAvatar(person)}
+					{#each following as person}
+						{@const avatar = getAvatar(person)}
 
-							<a
-								class="person"
-								href={`/cms/community/doctors/${person.id}`}
-								on:click={closeList}
-							>
-								<div class="person-avatar">
-									{#if avatar}
-										<img
-											src={avatar}
-											alt={person.full_name || 'Doctor'}
-										/>
-									{:else}
-										<span>
-											{getInitials(person.full_name)}
-										</span>
-									{/if}
-								</div>
-
-								<div class="person-info">
-									<strong>
-										{person.full_name || 'Doctor'}
-									</strong>
-
+						<a class="person" href={`/cms/community/doctors/${person.id}`} on:click={closeList}>
+							<div class="person-avatar">
+								{#if avatar}
+									<img src={avatar} alt={person.full_name || 'Doctor'} />
+								{:else}
 									<span>
-										{person.specialization ||
-											person.organization ||
-											'Doctor'}
+										{getInitials(person.full_name)}
 									</span>
-								</div>
-							</a>
-						{/each}
-					{/if}
+								{/if}
+							</div>
+
+							<div class="person-info">
+								<strong>
+									{person.full_name || 'Doctor'}
+								</strong>
+
+								<span>
+									{person.specialization || person.organization || 'Doctor'}
+								</span>
+							</div>
+						</a>
+					{/each}
 				{/if}
 			</div>
 		</div>
@@ -412,35 +170,35 @@
 {/if}
 
 <style>
-	.dashboard {
+	.standalone-profile-layout {
 		min-height: 100vh;
+		background: #f4f6fa;
 		display: flex;
-		background: #f5f7fb;
+		justify-content: center;
+		padding: 40px 20px;
 	}
 
-	.content {
-		flex: 1;
-		min-width: 0;
+	.top-nav {
+		margin-bottom: 24px;
+		width: 100%;
+	}
+
+	.page {
+		width: 100%;
+		max-width: 1100px;
 		display: flex;
 		flex-direction: column;
 	}
 
-	.page {
-		padding: 30px;
-		max-width: 1250px;
-		width: 100%;
-		margin: 0 auto;
-		box-sizing: border-box;
-	}
-
 	.back-link {
+		color: #4b5563;
+		text-decoration: none;
+		font-weight: 500;
+		font-size: 14px;
 		display: inline-flex;
 		align-items: center;
-		margin-bottom: 18px;
-		color: #315bdc;
-		font-size: 14px;
-		font-weight: 600;
-		text-decoration: none;
+		gap: 8px;
+		transition: color 0.2s;
 	}
 
 	.back-link:hover {
@@ -457,8 +215,7 @@
 
 	.cover {
 		height: 155px;
-		background:
-			radial-gradient(circle at 15% 35%, rgba(255, 255, 255, 0.5), transparent 18%),
+		background: radial-gradient(circle at 15% 35%, rgba(255, 255, 255, 0.5), transparent 18%),
 			radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.4), transparent 20%),
 			linear-gradient(120deg, #dce9ff, #eef5ff, #d9e8ff);
 	}
@@ -851,6 +608,70 @@
 	.empty-list div {
 		font-size: 34px;
 		margin-bottom: 5px;
+	}
+
+	.empty-list strong {
+		color: #263553;
+		font-size: 15px;
+	}
+
+	.empty-list span {
+		color: #8a96a8;
+		font-size: 12px;
+	}
+
+	@media (max-width: 800px) {
+		.page {
+			padding: 20px;
+		}
+
+		.profile-body {
+			align-items: center;
+			flex-direction: column;
+			text-align: center;
+			margin-top: -60px;
+		}
+
+		.name-row {
+			justify-content: center;
+		}
+
+		.profile-follow-form {
+			margin-bottom: 0;
+		}
+
+		.two-column {
+			grid-template-columns: 1fr;
+		}
+
+		.community-card {
+			align-items: flex-start;
+			flex-direction: column;
+		}
+	}
+
+	@media (max-width: 500px) {
+		.cover {
+			height: 120px;
+		}
+
+		.profile-body {
+			padding-left: 18px;
+			padding-right: 18px;
+		}
+
+		.stats-row {
+			padding: 0 10px;
+		}
+
+		.community-actions {
+			width: 100%;
+		}
+
+		.community-actions button {
+			flex: 1;
+			min-width: 0;
+		}
 	}
 
 	.empty-list strong {

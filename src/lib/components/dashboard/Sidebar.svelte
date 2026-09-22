@@ -28,7 +28,7 @@
 				src="/logo.png"
 				alt="JCF Logo"
 				class="logo-img"
-				onerror="this.src='https://cdn-icons-png.flaticon.com/512/3062/3062634.png'"
+				on:error={(e) => e.currentTarget.src='https://cdn-icons-png.flaticon.com/512/3062/3062634.png'}
 			/>
 		</div>
 
