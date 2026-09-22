@@ -185,7 +185,7 @@
 
 	.page {
 		width: 100%;
-		max-width: 1100px;
+		max-width: 1400px;
 		display: flex;
 		flex-direction: column;
 	}

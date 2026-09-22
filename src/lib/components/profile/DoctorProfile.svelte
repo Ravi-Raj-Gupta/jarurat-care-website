@@ -248,7 +248,7 @@
 		gap: 24px;
 		font-family: 'Manrope', sans-serif;
 		width: 100%;
-		max-width: 1139px;
+		max-width: 1400px;
 		margin: 0 auto;
 		background: #FAFAFA;
 		padding: 24px;
