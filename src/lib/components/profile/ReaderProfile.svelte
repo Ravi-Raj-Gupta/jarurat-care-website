@@ -248,7 +248,8 @@
 		flex-direction: column;
 		gap: 24px;
 		font-family: 'Manrope', sans-serif;
-		max-width: 1139px;
+		max-width: 1400px;
+		width: 100%;
 		margin: 0 auto;
 		background: #FAFAFA;
 		padding: 24px;
@@ -498,9 +499,9 @@
 	.about-section p {
 		color: #4B5563;
 		font-size: 15px;
-		line-height: 26px;
+		line-height: 1.6;
 		margin: 0;
-		word-wrap: break-word;
+		word-break: break-word;
 		overflow-wrap: break-word;
 	}
 
