@@ -63,12 +63,12 @@
 		<div class="nav-section-title">USER/EVENTS</div>
 
 		<a
-			href="/cms/reader-dashboard/profile"
+			href="/cms/complete-profile"
 			class="nav-btn"
-			class:active={currentPath.startsWith('/cms/reader-dashboard/profile')}
+			class:active={currentPath === '/cms/complete-profile'}
 		>
 			<User size={20} class="icon" />
-			<span>Manage Profile</span>
+			<span>Edit Profile</span>
 		</a>
 
 		<div class="nav-section-title">ACCOUNT</div>
