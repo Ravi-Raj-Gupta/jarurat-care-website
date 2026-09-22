@@ -213,59 +213,61 @@
 	<div class="actions">
 		<!-- svelte-ignore a11y-click-events-have-key-events -->
 		<!-- svelte-ignore a11y-no-static-element-interactions -->
-		<div class="notif-wrap" bind:this={notifDropdownRef}>
-			<button class="icon-notification" aria-label="Notifications" on:click={() => showNotifDropdown = !showNotifDropdown}>
-				<Bell size={20} />
-				{#if unreadCount > 0}
-					<span class="dot-badge">{unreadCount}</span>
-				{/if}
-			</button>
-			{#if showNotifDropdown}
-				<div class="notif-dropdown">
-					<div class="notif-header">
-						<span>Notifications</span>
-					</div>
-					<div class="notif-list">
-						{#if notifications.length === 0}
-							<div class="empty-notif">
-								<div class="empty-icon">
-									<Bell size={24} class="text-slate-300" />
-								</div>
-								<p>No notifications yet.</p>
-								<span>When you get notifications, they'll show up here.</span>
-							</div>
-						{:else}
-							{#each notificationGroups as group}
-								<div class="notif-group-label">{group.label}</div>
-								{#each group.items as notif}
-									<!-- svelte-ignore a11y-click-events-have-key-events -->
-									<!-- svelte-ignore a11y-no-static-element-interactions -->
-									<div class="notif-item {notif.is_read ? 'read' : 'unread'}" on:click={() => handleNotificationClick(notif)}>
-										<div class="notif-icon-wrap">
-											<div class="notif-icon">
-												<Bell size={16} />
-											</div>
-											{#if !notif.is_read}
-												<div class="unread-dot"></div>
-											{/if}
-										</div>
-										<div class="notif-content-wrap">
-											<div class="notif-title">{notif.title}</div>
-											<div class="notif-msg">{notif.message}</div>
-										</div>
+		{#if role !== 'Reader'}
+			<div class="notif-wrap" bind:this={notifDropdownRef}>
+				<button class="icon-notification" aria-label="Notifications" on:click={() => showNotifDropdown = !showNotifDropdown}>
+					<Bell size={20} />
+					{#if unreadCount > 0}
+						<span class="dot-badge">{unreadCount}</span>
+					{/if}
+				</button>
+				{#if showNotifDropdown}
+					<div class="notif-dropdown">
+						<div class="notif-header">
+							<span>Notifications</span>
+						</div>
+						<div class="notif-list">
+							{#if notifications.length === 0}
+								<div class="empty-notif">
+									<div class="empty-icon">
+										<Bell size={24} class="text-slate-300" />
 									</div>
+									<p>No notifications yet.</p>
+									<span>When you get notifications, they'll show up here.</span>
+								</div>
+							{:else}
+								{#each notificationGroups as group}
+									<div class="notif-group-label">{group.label}</div>
+									{#each group.items as notif}
+										<!-- svelte-ignore a11y-click-events-have-key-events -->
+										<!-- svelte-ignore a11y-no-static-element-interactions -->
+										<div class="notif-item {notif.is_read ? 'read' : 'unread'}" on:click={() => handleNotificationClick(notif)}>
+											<div class="notif-icon-wrap">
+												<div class="notif-icon">
+													<Bell size={16} />
+												</div>
+												{#if !notif.is_read}
+													<div class="unread-dot"></div>
+												{/if}
+											</div>
+											<div class="notif-content-wrap">
+												<div class="notif-title">{notif.title}</div>
+												<div class="notif-msg">{notif.message}</div>
+											</div>
+										</div>
+									{/each}
 								{/each}
-							{/each}
+							{/if}
+						</div>
+						{#if unreadCount > 0}
+							<div class="notif-footer">
+								<a href="#" on:click|preventDefault={markAllAsRead}>Mark all as read</a>
+							</div>
 						{/if}
 					</div>
-					{#if unreadCount > 0}
-						<div class="notif-footer">
-							<a href="#" on:click|preventDefault={markAllAsRead}>Mark all as read</a>
-						</div>
-					{/if}
-				</div>
-			{/if}
-		</div>
+				{/if}
+			</div>
+		{/if}
 
 		<!-- svelte-ignore a11y-click-events-have-key-events -->
 		<!-- svelte-ignore a11y-no-static-element-interactions -->

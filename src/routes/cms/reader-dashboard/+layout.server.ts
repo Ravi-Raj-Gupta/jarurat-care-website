@@ -22,6 +22,7 @@ type DashboardContent = {
 	savedAt?: string;
 	likedAt?: string;
 	score?: number;
+	commentContent?: string;
 };
 
 type FollowedDoctor = {
@@ -1461,13 +1462,13 @@ if (
 
 	const { data: articleCommentRows } = await supabaseAdmin
 		.from('article_comments')
-		.select('article_id, created_at')
+		.select('article_id, created_at, content')
 		.eq('user_id', userId)
 		.order('created_at', { ascending: false });
 
 	const { data: researchCommentRows } = await cmsSupabase
 		.from('research_article_comments')
-		.select('research_article_id, created_at')
+		.select('research_article_id, created_at, content')
 		.eq('user_id', userId)
 		.order('created_at', { ascending: false });
 
@@ -1492,39 +1493,49 @@ if (
 		const artMap = new Map((commentedArt ?? []).map((a) => [a.id, a]));
 		const resMap = new Map((commentedRes ?? []).map((r) => [r.id, r]));
 
-		commentedArticles = distinctCommentedIds
-			.map((id) => {
-				const article = artMap.get(id);
-				if (article) {
-					return {
-						id: article.id,
-						title: article.title,
-						category: article.category || 'General Health',
-						authorName: authorsById.get(article.author_id ?? '') || 'Unknown',
-						date: article.created_at,
-						thumbnail: article.cover_image_url || DEFAULT_THUMBNAIL,
-						type: 'article' as const,
-						href: `/content/article/${article.id}`,
-						views: Number(article.views ?? 0),
-						likes: Number(article.likes_count ?? 0),
-						saves: Number(article.saves_count ?? 0)
-					};
-				}
-				const res = resMap.get(id);
-				if (res) {
-					return {
-						id: res.id,
-						title: res.title,
-						category: 'Research',
-						authorName: authorsById.get(res.user_id ?? '') || 'Unknown',
-						date: res.created_at,
-						thumbnail: res.featured_image || DEFAULT_THUMBNAIL,
-						type: 'research' as const,
-						href: `/content/research/${res.id}`,
-						views: Number(res.views_count ?? 0),
-						likes: Number(res.likes_count ?? 0),
-						saves: Number(res.saves_count ?? 0)
-					};
+		const allComments = [
+			...(articleCommentRows ?? []).map((r) => ({ ...r, type: 'article' as const })),
+			...(researchCommentRows ?? []).map((r) => ({ ...r, type: 'research' as const }))
+		];
+
+		commentedArticles = allComments
+			.map((comment) => {
+				if (comment.type === 'article' && comment.article_id) {
+					const article = artMap.get(comment.article_id);
+					if (article) {
+						return {
+							id: article.id,
+							title: article.title,
+							category: article.category || 'General Health',
+							authorName: authorsById.get(article.author_id ?? '') || 'Unknown',
+							date: article.created_at,
+							thumbnail: article.cover_image_url || DEFAULT_THUMBNAIL,
+							type: 'article' as const,
+							href: `/content/article/${article.id}`,
+							views: Number(article.views ?? 0),
+							likes: Number(article.likes_count ?? 0),
+							saves: Number(article.saves_count ?? 0),
+							commentContent: comment.content
+						};
+					}
+				} else if (comment.type === 'research' && comment.research_article_id) {
+					const res = resMap.get(comment.research_article_id);
+					if (res) {
+						return {
+							id: res.id,
+							title: res.title,
+							category: 'Research',
+							authorName: authorsById.get(res.user_id ?? '') || 'Unknown',
+							date: res.created_at,
+							thumbnail: res.featured_image || DEFAULT_THUMBNAIL,
+							type: 'research' as const,
+							href: `/content/research/${res.id}`,
+							views: Number(res.views_count ?? 0),
+							likes: Number(res.likes_count ?? 0),
+							saves: Number(res.saves_count ?? 0),
+							commentContent: comment.content
+						};
+					}
 				}
 				return null;
 			})

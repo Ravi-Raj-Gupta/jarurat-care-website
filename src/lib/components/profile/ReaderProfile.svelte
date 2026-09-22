@@ -221,7 +221,7 @@
 				<p class="empty-state">No articles found for this tab.</p>
 			{:else}
 				{#each currentArticles as article}
-					<div class="article-item">
+					<a href={article.href || (article.type === 'research' ? `/cms/research/${article.id}` : `/cms/articles/view/${article.id}`)} class="article-item" style="text-decoration: none; color: inherit;">
 						<img
 							src={article.thumbnail || article.cover_image_url || '/placeholder.png'}
 							alt="Cover"
@@ -244,6 +244,12 @@
 								>
 								<span><FileText size={12} /> {article.views || 0} Views</span>
 							</div>
+							
+							{#if activeTab === 'comments' && article.commentContent}
+								<div class="user-comment-box" style="margin-top: 12px; padding: 12px; background-color: #f3f4f6; border-left: 3px solid #2563eb; border-radius: 4px; font-size: 0.9rem; color: #4b5563; font-style: italic;">
+									"{article.commentContent}"
+								</div>
+							{/if}
 						</div>
 						<div class="article-actions">
 							<div class="metrics">
@@ -251,11 +257,9 @@
 								<span><Bookmark size={16} /></span>
 								<span><MoreVertical size={16} /></span>
 							</div>
-							<a href={article.href || `/cms/articles/${article.id}`} class="view-btn"
-								>View Full Article</a
-							>
+							<div class="view-btn">View Full Article</div>
 						</div>
-					</div>
+					</a>
 				{/each}
 			{/if}
 		</div>
