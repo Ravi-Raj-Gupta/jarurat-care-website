@@ -1,0 +1,245 @@
+<script lang="ts">
+	import ReaderSidebar from '$lib/components/dashboard/ReaderSidebar.svelte';
+	import Topbar from '$lib/components/dashboard/Topbar.svelte';
+	import { Clock, FileText, ThumbsUp, Bookmark, MoreVertical } from 'lucide-svelte';
+
+	export let data;
+	$: profile = data.profile;
+	$: articles = data.recommendedArticles || [];
+
+	function formatArticleDate(dateStr: string) {
+		if (!dateStr) return '';
+		const date = new Date(dateStr);
+		return date.toLocaleDateString('en-US', {
+			month: 'short',
+			day: 'numeric',
+			year: 'numeric'
+		});
+	}
+
+	function handleImageError(e: Event) {
+		(e.currentTarget as HTMLImageElement).src = 'https://via.placeholder.com/300x200?text=Article';
+	}
+</script>
+
+<div class="dashboard">
+	<ReaderSidebar />
+
+	<div class="content">
+		<Topbar
+			role="Reader"
+			doctorName={profile?.full_name || 'Reader'}
+			email={profile?.email || ''}
+			unreadCount={0}
+		/>
+
+		<div class="dashboard-body">
+			<div class="header-bar">
+				<h2>Recommended Articles</h2>
+				<p>Based on your areas of interest.</p>
+			</div>
+
+			<div class="articles-list">
+				{#if articles.length === 0}
+					<p class="empty-state">We'll suggest articles when they match your interests.</p>
+				{:else}
+					{#each articles as article}
+						<div class="article-item">
+							<img
+								src={article.thumbnail || '/placeholder.png'}
+								alt="Cover"
+								class="article-img"
+								on:error={handleImageError}
+							/>
+							<div class="article-content">
+								<div class="badge-row">
+									<span class="type-badge"
+										>{article.type === 'research' ? 'RESEARCH ARTICLE' : 'CLINICAL TRIAL'}</span
+									>
+								</div>
+								<h3 class="line-clamp-2">{article.title || 'Untitled Article'}</h3>
+								<p class="author">Dr. {article.authorName || 'Unknown'} et al.</p>
+								<div class="meta">
+									<span
+										><Clock size={12} /> Published {formatArticleDate(
+											article.date
+										)}</span
+									>
+									<span><FileText size={12} /> {article.views || 0} Views</span>
+								</div>
+							</div>
+							<div class="article-actions">
+								<div class="metrics">
+									<span><ThumbsUp size={16} /> {article.likes || 0}</span>
+									<span><Bookmark size={16} /></span>
+									<span><MoreVertical size={16} /></span>
+								</div>
+								<a href={article.href || `/cms/articles/${article.id}`} class="view-btn"
+									>View Full Article</a
+								>
+							</div>
+						</div>
+					{/each}
+				{/if}
+			</div>
+		</div>
+	</div>
+</div>
+
+<style>
+	.dashboard {
+		display: flex;
+		height: 100vh;
+		background: #f8fafc;
+	}
+
+	.content {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		height: 100vh;
+		overflow-y: auto;
+	}
+
+	.dashboard-body {
+		padding: 32px 40px;
+		max-width: 1200px;
+		margin: 0 auto;
+		width: 100%;
+	}
+
+	.header-bar {
+		margin-bottom: 24px;
+	}
+
+	.header-bar h2 {
+		font-size: 24px;
+		font-weight: 700;
+		color: #1e293b;
+		margin: 0 0 4px;
+	}
+
+	.header-bar p {
+		color: #64748b;
+		margin: 0;
+	}
+
+	/* ARTICLE ITEM STYLES */
+	.articles-list {
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
+	}
+
+	.empty-state {
+		text-align: center;
+		color: #64748b;
+		padding: 40px;
+		background: white;
+		border-radius: 12px;
+		border: 1px dashed #cbd5e1;
+	}
+
+	.article-item {
+		display: flex;
+		background: white;
+		border-radius: 12px;
+		padding: 20px;
+		gap: 24px;
+		border: 1px solid #e2e8f0;
+		align-items: flex-start;
+	}
+
+	.article-img {
+		width: 200px;
+		height: 140px;
+		object-fit: cover;
+		border-radius: 8px;
+		background: #f1f5f9;
+	}
+
+	.article-content {
+		flex: 1;
+	}
+
+	.badge-row {
+		margin-bottom: 8px;
+	}
+
+	.type-badge {
+		background: #e0f2fe;
+		color: #0284c7;
+		padding: 4px 10px;
+		border-radius: 4px;
+		font-size: 11px;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.5px;
+	}
+
+	h3 {
+		font-size: 18px;
+		font-weight: 600;
+		margin: 0 0 8px;
+		color: #0f172a;
+		line-height: 1.4;
+	}
+
+	.author {
+		color: #64748b;
+		font-size: 14px;
+		margin: 0 0 16px;
+	}
+
+	.meta {
+		display: flex;
+		align-items: center;
+		gap: 16px;
+		color: #94a3b8;
+		font-size: 13px;
+	}
+
+	.meta span {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+	}
+
+	.article-actions {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+		justify-content: space-between;
+		height: 140px;
+	}
+
+	.metrics {
+		display: flex;
+		align-items: center;
+		gap: 16px;
+		color: #64748b;
+	}
+
+	.metrics span {
+		display: flex;
+		align-items: center;
+		gap: 4px;
+		font-size: 13px;
+	}
+
+	.view-btn {
+		padding: 10px 24px;
+		background: transparent;
+		color: #3b82f6;
+		border: 1px solid #3b82f6;
+		border-radius: 80px;
+		text-decoration: none;
+		font-size: 14px;
+		font-weight: 500;
+		transition: all 0.2s;
+	}
+
+	.view-btn:hover {
+		background: #eff6ff;
+	}
+</style>

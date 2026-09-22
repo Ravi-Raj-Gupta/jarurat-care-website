@@ -15,6 +15,7 @@
 	}
 
 	export let doctorName: string = '';
+	export let role: string = 'Doctor';
 	export let unreadCount: number = 0;
 	export let isReviewer: boolean = false;
 	export let email: string = 'doctor@jarurat.care';
@@ -273,11 +274,13 @@
 				{#if avatar}
 					<img src={avatar} alt={isReviewer ? "Reviewer Avatar" : "Doctor Avatar"} class="profile-avatar" on:error={(e) => e.currentTarget.style.display='none'} />
 				{:else}
-					<div class="avatar-circle">{doctorName ? doctorName.charAt(0).toUpperCase() : (isReviewer ? 'R' : 'D')}</div>
+					<div class="avatar-circle">{doctorName ? doctorName.charAt(0).toUpperCase() : (isReviewer ? 'R' : (role === 'Reader' ? 'R' : 'D'))}</div>
 				{/if}
 				<div class="user-info">
-					<span class="name">{doctorName || (isReviewer ? 'Reviewer' : 'Doctor')}</span>
-					<span class="role" class:role-reviewer={isReviewer}>{isReviewer ? 'Medical Reviewer' : 'Verified Specialist'}</span>
+					<span class="name">{doctorName || (isReviewer ? 'Reviewer' : (role === 'Reader' ? 'Reader' : 'Doctor'))}</span>
+					{#if role !== 'Reader'}
+						<span class="role" class:role-reviewer={isReviewer}>{isReviewer ? 'Medical Reviewer' : 'Verified Specialist'}</span>
+					{/if}
 				</div>
 				<ChevronDown size={14} class="text-slate-500" />
 			</div>

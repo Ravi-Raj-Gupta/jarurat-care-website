@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import type { PageData, ActionData } from './$types';
+	import Sidebar from '$lib/components/dashboard/Sidebar.svelte';
+	import ReaderSidebar from '$lib/components/dashboard/ReaderSidebar.svelte';
+	import Topbar from '$lib/components/dashboard/Topbar.svelte';
 
 	export let data: PageData;
 	export let form: ActionData;
@@ -178,10 +181,25 @@
 		| null = null;
 </script>
 
-<div class="page-container">
-	<div class="card">
+<div class="dashboard">
+	{#if roleToggle === 'Reader'}
+		<ReaderSidebar />
+	{:else}
+		<Sidebar currentPath="/cms/complete-profile" isReviewer={roleToggle === 'Reviewer'} />
+	{/if}
 
-		<form
+	<div class="content">
+		<Topbar
+			role={roleToggle}
+			doctorName={fullName || 'User'}
+			email={email || ''}
+			unreadCount={0}
+			isReviewer={roleToggle === 'Reviewer'}
+		/>
+
+		<div class="page-container">
+			<div class="card">
+				<form
 			method="POST"
 			action={activeAction === 'submit' ? '?/submit' : '?/save'}
 			use:enhance={() => {
@@ -1126,8 +1144,25 @@
 
 	</div>
 </div>
+</div>
+</div>
 
 <style>
+	.dashboard {
+		display: flex;
+		height: 100vh;
+		background: #f8fafc;
+		font-family: 'DM Sans', sans-serif;
+	}
+
+	.content {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		height: 100vh;
+		overflow-y: auto;
+	}
+
 	.page-container {
 		min-height: 100vh;
 		background: #f5f7fb;

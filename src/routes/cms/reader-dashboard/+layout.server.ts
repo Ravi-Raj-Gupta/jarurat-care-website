@@ -1,7 +1,7 @@
 import { redirect } from '@sveltejs/kit';
 import { supabaseAdmin } from '$lib/supabaseAdmin';
 import { cmsSupabase } from '$lib/cmsSupabase';
-import type { PageServerLoad } from './$types';
+import type { LayoutServerLoad } from './$types';
 
 /* =========================================================
    TYPES
@@ -10,10 +10,10 @@ import type { PageServerLoad } from './$types';
 type DashboardContent = {
 	id: string;
 	title: string;
-	category: string;
+	category: string | null;
 	authorName: string;
-	date: string;
-	thumbnail: string;
+	date: string | null;
+	thumbnail: string | null;
 	type: 'article' | 'research';
 	href: string;
 	views: number;
@@ -323,7 +323,7 @@ function calculateResearchScore(
    LOAD
 ========================================================= */
 
-export const load: PageServerLoad = async ({
+export const load: LayoutServerLoad = async ({
 	locals
 }) => {
 	/* =====================================================

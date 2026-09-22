@@ -19,20 +19,40 @@
 		ArrowRight
 	} from 'lucide-svelte';
 
+	import { onMount } from 'svelte';
+	import { browser } from '$app/environment';
+
 	export let profile: any;
 	export let savedCount: number = 0;
 	export let followingCount: number = 0;
 	export let topicsCount: number = 0;
 	export let commentsCount: number = 0;
-	
+
 	export let savedArticles: any[] = [];
 	export let reactedArticles: any[] = [];
 	export let recommendedArticles: any[] = [];
 	export let popularArticles: any[] = [];
 	export let followedDoctors: any[] = [];
-	
+
 	// Activity Tabs logic
 	let activeTab = 'liked'; // Default tab
+
+	onMount(() => {
+		if (browser) {
+			const hash = window.location.hash.replace('#', '');
+			if (hash && ['liked', 'saved', 'comments', 'recommended', 'popular', 'doctors'].includes(hash)) {
+				activeTab = hash;
+			}
+
+			// Listen for hash changes if user clicks sidebar links
+			window.addEventListener('hashchange', () => {
+				const newHash = window.location.hash.replace('#', '');
+				if (newHash && ['liked', 'saved', 'comments', 'recommended', 'popular', 'doctors'].includes(newHash)) {
+					activeTab = newHash;
+				}
+			});
+		}
+	});
 
 	function formatDate(dateStr: string) {
 		if (!dateStr) return 'N/A';
@@ -53,37 +73,42 @@
 		});
 	}
 
-	$: currentArticles = 
-		activeTab === 'saved' ? savedArticles :
-		activeTab === 'recommended' ? recommendedArticles :
-		activeTab === 'popular' ? popularArticles :
-		reactedArticles;
-
+	$: currentArticles =
+		activeTab === 'saved'
+			? savedArticles
+			: activeTab === 'recommended'
+				? recommendedArticles
+				: activeTab === 'popular'
+					? popularArticles
+					: activeTab === 'comments'
+						? [] // We don't have comments articles yet
+						: reactedArticles;
 </script>
 
 <div class="profile-container">
 	<!-- HEADER CARD -->
 	<section class="header-card">
-
-
 		<div class="info-section">
 			<div class="name-row">
 				<h1>{profile?.full_name || 'Reader'}</h1>
 				<span class="role-badge">
-					<User size={14} /> {profile?.role || 'Reader'}
+					<User size={14} />
+					{profile?.role || 'Reader'}
 				</span>
 			</div>
-			
+
 			<div class="sub-badges">
 				{#if profile?.designation}
 					<span class="level">
-						<GraduationCap size={14} /> {profile.designation}
+						<GraduationCap size={14} />
+						{profile.designation}
 					</span>
 				{/if}
 				<!-- Placeholder for Silver Reader badge until added to DB -->
 				{#if profile?.tier}
 					<span class="tier-badge">
-						<Medal size={14} /> {profile.tier}
+						<Medal size={14} />
+						{profile.tier}
 					</span>
 				{/if}
 			</div>
@@ -179,45 +204,43 @@
 		</div>
 
 		<div class="tabs">
-			<button class:active={activeTab === 'liked'} on:click={() => activeTab = 'liked'}>Liked Articles</button>
-			<button class:active={activeTab === 'saved'} on:click={() => activeTab = 'saved'}>Saved Articles</button>
-			<button class:active={activeTab === 'comments'} on:click={() => activeTab = 'comments'}>Comments Made</button>
-			<button class:active={activeTab === 'recommended'} on:click={() => activeTab = 'recommended'}>Recommended</button>
-			<button class:active={activeTab === 'popular'} on:click={() => activeTab = 'popular'}>Trending</button>
-			<button class:active={activeTab === 'doctors'} on:click={() => activeTab = 'doctors'}>Doctors You Follow</button>
+			<button class:active={activeTab === 'liked'} on:click={() => (activeTab = 'liked')}
+				>Liked Articles</button
+			>
+			<button class:active={activeTab === 'saved'} on:click={() => (activeTab = 'saved')}
+				>Saved Articles</button
+			>
+			<button class:active={activeTab === 'comments'} on:click={() => (activeTab = 'comments')}
+				>Comments Made</button
+			>
 		</div>
 
 		<div class="articles-list">
-			{#if activeTab === 'doctors'}
-				{#if followedDoctors.length === 0}
-					<p class="empty-state">You are not following any doctors yet.</p>
-				{:else}
-					<div class="doctors-grid">
-						{#each followedDoctors as doctor}
-							<div class="doctor-card">
-								<img src={doctor.avatar || 'https://via.placeholder.com/150'} alt={doctor.name} class="doc-avatar" />
-								<h4>{doctor.name}</h4>
-								<span class="doc-spec">{doctor.specialization || 'Doctor'}</span>
-								<a href={`/cms/community/doctors/${doctor.id}`} class="view-doc-btn">View Profile</a>
-							</div>
-						{/each}
-					</div>
-				{/if}
+			{#if currentArticles.length === 0}
+				<p class="empty-state">No articles found for this tab.</p>
 			{:else}
-				{#if currentArticles.length === 0}
-					<p class="empty-state">No articles found for this tab.</p>
-				{:else}
-					{#each currentArticles as article}
+				{#each currentArticles as article}
 					<div class="article-item">
-						<img src={article.thumbnail || article.cover_image_url} alt="Cover" class="article-img" />
+						<img
+							src={article.thumbnail || article.cover_image_url || '/placeholder.png'}
+							alt="Cover"
+							class="article-img"
+							on:error={(e) => e.currentTarget.src='https://via.placeholder.com/300x200?text=Article'}
+						/>
 						<div class="article-content">
 							<div class="badge-row">
-								<span class="type-badge">{article.type === 'research' ? 'RESEARCH ARTICLE' : 'CLINICAL TRIAL'}</span>
+								<span class="type-badge"
+									>{article.type === 'research' ? 'RESEARCH ARTICLE' : 'CLINICAL TRIAL'}</span
+								>
 							</div>
-							<h3>{article.title}</h3>
-							<p class="author">Dr. {article.authorName} et al.</p>
+							<h3 class="line-clamp-2">{article.title || 'Untitled Article'}</h3>
+							<p class="author">Dr. {article.authorName || 'Unknown'} et al.</p>
 							<div class="meta">
-								<span><Clock size={12} /> Published {formatArticleDate(article.date || article.created_at)}</span>
+								<span
+									><Clock size={12} /> Published {formatArticleDate(
+										article.date || article.created_at
+									)}</span
+								>
 								<span><FileText size={12} /> {article.views || 0} Views</span>
 							</div>
 						</div>
@@ -227,11 +250,12 @@
 								<span><Bookmark size={16} /></span>
 								<span><MoreVertical size={16} /></span>
 							</div>
-							<a href={article.href || `/cms/articles/${article.id}`} class="view-btn">View Full Article</a>
+							<a href={article.href || `/cms/articles/${article.id}`} class="view-btn"
+								>View Full Article</a
+							>
 						</div>
 					</div>
-					{/each}
-				{/if}
+				{/each}
 			{/if}
 		</div>
 
@@ -251,15 +275,15 @@
 		max-width: 1400px;
 		width: 100%;
 		margin: 0 auto;
-		background: #FAFAFA;
+		background: #fafafa;
 		padding: 24px;
 		border-radius: 24px;
-		border: 1px solid #D1D5DB;
+		border: 1px solid #d1d5db;
 	}
 
 	/* Common Card Style */
 	section {
-		background: #FFFFFF;
+		background: #ffffff;
 		border: none;
 		border-radius: 16px;
 		padding: 24px 32px;
@@ -280,7 +304,7 @@
 		border-radius: 50%;
 		background: #f0f2f5;
 		border: 4px solid white;
-		box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 	}
 
 	.avatar-wrapper img {
@@ -297,7 +321,7 @@
 		align-items: center;
 		justify-content: center;
 		font-size: 56px;
-		color: #9CA3AF;
+		color: #9ca3af;
 		border-radius: 50%;
 	}
 
@@ -306,8 +330,8 @@
 		bottom: 8px;
 		right: 8px;
 		background: white;
-		border: 1px solid #E5E7EB;
-		color: #315BDC;
+		border: 1px solid #e5e7eb;
+		color: #315bdc;
 		width: 36px;
 		height: 36px;
 		border-radius: 50%;
@@ -315,7 +339,7 @@
 		align-items: center;
 		justify-content: center;
 		cursor: pointer;
-		box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 	}
 
 	.info-section {
@@ -343,9 +367,9 @@
 		align-items: center;
 		gap: 6px;
 		padding: 4px 12px;
-		background: #EFF6FF;
-		color: #2563EB;
-		border: 1px solid #BFDBFE;
+		background: #eff6ff;
+		color: #2563eb;
+		border: 1px solid #bfdbfe;
 		border-radius: 100px;
 		font-size: 14px;
 		font-weight: 600;
@@ -367,13 +391,13 @@
 	}
 
 	.blue-outline {
-		color: #2563EB;
-		border: 1px solid #2563EB;
+		color: #2563eb;
+		border: 1px solid #2563eb;
 	}
 
 	.gray-outline {
-		color: #4B5563;
-		border: 1px solid #9CA3AF;
+		color: #4b5563;
+		border: 1px solid #9ca3af;
 	}
 
 	.details-list {
@@ -387,13 +411,13 @@
 		display: flex;
 		align-items: center;
 		gap: 10px;
-		color: #6B7280;
+		color: #6b7280;
 		font-size: 14px;
 		font-weight: 500;
 	}
 
 	.action-btn {
-		background: #2563EB;
+		background: #2563eb;
 		color: white;
 		border: none;
 		border-radius: 8px;
@@ -414,9 +438,9 @@
 		display: flex;
 		justify-content: space-around;
 		padding: 16px;
-		background: #FFFFFF;
+		background: #ffffff;
 		border-radius: 16px;
-		border: 1px solid #D1D5DB;
+		border: 1px solid #d1d5db;
 		box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.16);
 	}
 
@@ -427,8 +451,8 @@
 	}
 
 	.stat-icon {
-		background: #EFF6FF;
-		color: #2563EB;
+		background: #eff6ff;
+		color: #2563eb;
 		width: 56px;
 		height: 56px;
 		border-radius: 50%;
@@ -450,13 +474,13 @@
 
 	.stat-info span {
 		font-size: 14px;
-		color: #6B7280;
+		color: #6b7280;
 		font-weight: 500;
 	}
 
 	.stat-divider {
 		width: 1px;
-		background: #E5E7EB;
+		background: #e5e7eb;
 		margin: 0 16px;
 	}
 
@@ -485,7 +509,7 @@
 	}
 
 	.section-title .icon-wrap {
-		border: 1px dashed #BFDBFE;
+		border: 1px dashed #bfdbfe;
 		background: transparent;
 		border-radius: 50%;
 		width: 32px;
@@ -493,11 +517,11 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		color: #2563EB;
+		color: #2563eb;
 	}
 
 	.about-section p {
-		color: #4B5563;
+		color: #4b5563;
 		font-size: 15px;
 		line-height: 1.6;
 		margin: 0;
@@ -512,8 +536,8 @@
 	}
 
 	.interest-tag {
-		background: #EFF6FF;
-		color: #2563EB;
+		background: #eff6ff;
+		color: #2563eb;
 		padding: 6px 16px;
 		border-radius: 24px;
 		font-size: 13px;
@@ -521,7 +545,7 @@
 	}
 
 	.no-data {
-		color: #9CA3AF;
+		color: #9ca3af;
 		font-size: 14px;
 	}
 
@@ -534,7 +558,7 @@
 	.tabs {
 		display: flex;
 		gap: 32px;
-		border-bottom: 1px solid #E5E7EB;
+		border-bottom: 1px solid #e5e7eb;
 		margin-bottom: 32px;
 	}
 
@@ -544,7 +568,7 @@
 		padding: 14px 0;
 		font-size: 15px;
 		font-weight: 600;
-		color: #6B7280;
+		color: #6b7280;
 		cursor: pointer;
 		border-bottom: 2px solid transparent;
 		transition: all 0.2s;
@@ -552,7 +576,7 @@
 
 	.tabs button.active {
 		color: #111827;
-		border-bottom-color: #2563EB;
+		border-bottom-color: #2563eb;
 	}
 
 	.articles-list {
@@ -565,7 +589,7 @@
 		display: flex;
 		gap: 24px;
 		align-items: flex-start;
-		border-bottom: 1px solid #F3F4F6;
+		border-bottom: 1px solid #f3f4f6;
 		padding-bottom: 28px;
 	}
 
@@ -579,7 +603,7 @@
 		height: 110px;
 		border-radius: 12px;
 		object-fit: cover;
-		box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 	}
 
 	.article-content {
@@ -590,7 +614,7 @@
 	}
 
 	.type-badge {
-		background: #ECFDF5;
+		background: #ecfdf5;
 		color: #059669;
 		padding: 4px 10px;
 		border-radius: 4px;
@@ -610,7 +634,7 @@
 	}
 
 	.author {
-		color: #4B5563;
+		color: #4b5563;
 		font-size: 14px;
 		font-weight: 500;
 		margin: 0;
@@ -619,7 +643,7 @@
 	.meta {
 		display: flex;
 		gap: 20px;
-		color: #9CA3AF;
+		color: #9ca3af;
 		font-size: 13px;
 		font-weight: 500;
 	}
@@ -641,7 +665,7 @@
 	.metrics {
 		display: flex;
 		gap: 20px;
-		color: #9CA3AF;
+		color: #9ca3af;
 	}
 
 	.metrics span {
@@ -654,8 +678,8 @@
 
 	.view-btn {
 		background: white;
-		border: 1px solid #2563EB;
-		color: #2563EB;
+		border: 1px solid #2563eb;
+		color: #2563eb;
 		padding: 10px 20px;
 		border-radius: 100px;
 		font-size: 14px;
@@ -665,13 +689,13 @@
 	}
 
 	.view-btn:hover {
-		background: #EFF6FF;
+		background: #eff6ff;
 	}
 
 	.view-all {
 		background: none;
 		border: none;
-		color: #2563EB;
+		color: #2563eb;
 		font-weight: 600;
 		font-size: 15px;
 		display: flex;
@@ -681,10 +705,10 @@
 		margin-top: 24px;
 		cursor: pointer;
 	}
-	
+
 	.empty-state {
 		text-align: center;
-		color: #9CA3AF;
+		color: #9ca3af;
 		padding: 40px;
 		font-size: 15px;
 	}
@@ -696,8 +720,8 @@
 	}
 
 	.doctor-card {
-		background: #FFFFFF;
-		border: 1px solid #E5E7EB;
+		background: #ffffff;
+		border: 1px solid #e5e7eb;
 		border-radius: 12px;
 		padding: 24px 16px;
 		display: flex;
@@ -705,7 +729,7 @@
 		align-items: center;
 		text-align: center;
 		gap: 8px;
-		box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 	}
 
 	.doc-avatar {
@@ -720,19 +744,19 @@
 		margin: 0;
 		font-size: 16px;
 		font-weight: 700;
-		color: #1F2937;
+		color: #1f2937;
 	}
 
 	.doc-spec {
 		font-size: 13px;
-		color: #6B7280;
+		color: #6b7280;
 		margin-bottom: 12px;
 	}
 
 	.view-doc-btn {
-		background: #EFF6FF;
-		color: #2563EB;
-		border: 1px solid #BFDBFE;
+		background: #eff6ff;
+		color: #2563eb;
+		border: 1px solid #bfdbfe;
 		padding: 6px 16px;
 		border-radius: 100px;
 		font-size: 13px;
@@ -742,7 +766,7 @@
 	}
 
 	.view-doc-btn:hover {
-		background: #2563EB;
+		background: #2563eb;
 		color: white;
 	}
 </style>

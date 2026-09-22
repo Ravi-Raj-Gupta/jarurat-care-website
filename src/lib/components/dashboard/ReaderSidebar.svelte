@@ -8,7 +8,9 @@
 		LogOut,
 		Users,
 		Globe,
-		ExternalLink
+		ExternalLink,
+		Star,
+		TrendingUp
 	} from 'lucide-svelte';
 	import { cmsSupabase } from '$lib/cmsSupabase';
 	import { goto } from '$app/navigation';
@@ -56,16 +58,36 @@
 			<span class="nav-section-title">CONTENT</span>
 
 			<a
-				href="/cms/reader-dashboard#saved"
+				href="/cms/reader-dashboard/saved"
 				class="nav-item"
+				class:active={currentPath === '/cms/reader-dashboard/saved'}
 			>
 				<Bookmark size={18} class="icon-saved" />
 				<span>Saved Articles</span>
 			</a>
 
 			<a
-				href="/cms/reader-dashboard#doctors"
+				href="/cms/reader-dashboard/recommended"
 				class="nav-item"
+				class:active={currentPath === '/cms/reader-dashboard/recommended'}
+			>
+				<Star size={18} class="icon-saved" style="color: #F59E0B;" />
+				<span>Recommended Articles</span>
+			</a>
+
+			<a
+				href="/cms/reader-dashboard/trending"
+				class="nav-item"
+				class:active={currentPath === '/cms/reader-dashboard/trending'}
+			>
+				<TrendingUp size={18} class="icon-saved" style="color: #EF4444;" />
+				<span>Trending Articles</span>
+			</a>
+
+			<a
+				href="/cms/reader-dashboard/doctors"
+				class="nav-item"
+				class:active={currentPath === '/cms/reader-dashboard/doctors'}
 			>
 				<Users size={18} class="icon-doctors" />
 				<span>Followed Doctors</span>
@@ -77,11 +99,20 @@
 			<span class="nav-section-title">USER</span>
 
 			<a
+				href="/cms/reader-dashboard/profile"
+				class="nav-item"
+				class:active={currentPath === '/cms/reader-dashboard/profile'}
+			>
+				<User size={18} class="icon-profile" style="color: #3B82F6;" />
+				<span>View Profile</span>
+			</a>
+
+			<a
 				href="/cms/complete-profile"
 				class="nav-item"
 				class:active={currentPath === '/cms/complete-profile'}
 			>
-				<User size={18} class="icon-profile" />
+				<Settings size={18} class="icon-profile" />
 				<span>Edit Profile</span>
 			</a>
 		</div>
