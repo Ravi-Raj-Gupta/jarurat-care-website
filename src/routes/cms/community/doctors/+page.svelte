@@ -1,6 +1,9 @@
 <script lang="ts">
 	import Sidebar from '$lib/components/dashboard/Sidebar.svelte';
+	import ReaderSidebar from '$lib/components/dashboard/ReaderSidebar.svelte';
+	import AdminSidebar from '$lib/components/admin/AdminSidebar.svelte';
 	import Topbar from '$lib/components/dashboard/Topbar.svelte';
+	import AdminTopbar from '$lib/components/admin/AdminTopbar.svelte';
 	import { enhance } from '$app/forms';
 
 	export let data;
@@ -39,14 +42,24 @@
 </svelte:head>
 
 <div class="dashboard">
-	<Sidebar isReviewer={profile?.is_reviewer === true} />
+	{#if profile?.role === 'Super_Admin' || profile?.role === 'Admin'}
+		<AdminSidebar />
+	{:else if profile?.role === 'Doctor' || profile?.role === 'Reviewer'}
+		<Sidebar isReviewer={profile?.is_reviewer === true} />
+	{:else}
+		<ReaderSidebar />
+	{/if}
 
 	<div class="content">
-		<Topbar
-			doctorName={profile?.full_name || ''}
-			email={profile?.email || ''}
-			unreadCount={0}
-		/>
+		{#if profile?.role === 'Super_Admin' || profile?.role === 'Admin'}
+			<AdminTopbar />
+		{:else}
+			<Topbar
+				doctorName={profile?.full_name || ''}
+				email={profile?.email || ''}
+				unreadCount={0}
+			/>
+		{/if}
 
 		<main class="page">
 			<div class="page-header">
