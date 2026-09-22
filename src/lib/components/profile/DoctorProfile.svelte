@@ -85,18 +85,24 @@
 			</div>
 
 			<div class="details-list">
-				<div class="detail-item">
-					<Clock size={14} />
-					<span>{doctor?.experience || '18+ Years of experience'}</span>
-				</div>
-				<div class="detail-item">
-					<Activity size={14} />
-					<span>{doctor?.specialty_detail || 'GI Oncology Specialist'}</span>
-				</div>
-				<div class="detail-item">
-					<MapPin size={14} />
-					<span>{doctor?.hospital || doctor?.organization || 'Fortis Hospital, New Delhi'}</span>
-				</div>
+				{#if doctor?.experience || doctor?.years_of_experience}
+					<div class="detail-item">
+						<Clock size={14} />
+						<span>{doctor?.experience || doctor?.years_of_experience || ''} Years of experience</span>
+					</div>
+				{/if}
+				{#if doctor?.specialization}
+					<div class="detail-item">
+						<Activity size={14} />
+						<span>{doctor.specialization}</span>
+					</div>
+				{/if}
+				{#if doctor?.organization}
+					<div class="detail-item">
+						<MapPin size={14} />
+						<span>{doctor.organization}</span>
+					</div>
+				{/if}
 			</div>
 
 			<button class="action-btn">More Action</button>

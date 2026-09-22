@@ -86,18 +86,24 @@
 			</div>
 
 			<div class="details-list">
-				<div class="detail-item">
-					<Clock size={14} />
-					<span>{reviewer?.experience || '18+ Years of experience'}</span>
-				</div>
-				<div class="detail-item">
-					<Activity size={14} />
-					<span>{reviewer?.specialty_detail || 'GI Oncology Specialist'}</span>
-				</div>
-				<div class="detail-item">
-					<MapPin size={14} />
-					<span>{reviewer?.hospital || reviewer?.organization || 'Fortis Hospital, New Delhi'}</span>
-				</div>
+				{#if reviewer?.experience || reviewer?.years_of_experience}
+					<div class="detail-item">
+						<Clock size={14} />
+						<span>{reviewer?.experience || reviewer?.years_of_experience || ''} Years of experience</span>
+					</div>
+				{/if}
+				{#if reviewer?.specialization}
+					<div class="detail-item">
+						<Activity size={14} />
+						<span>{reviewer.specialization}</span>
+					</div>
+				{/if}
+				{#if reviewer?.organization}
+					<div class="detail-item">
+						<MapPin size={14} />
+						<span>{reviewer.organization}</span>
+					</div>
+				{/if}
 			</div>
 
 			<button class="action-btn">More Action</button>
