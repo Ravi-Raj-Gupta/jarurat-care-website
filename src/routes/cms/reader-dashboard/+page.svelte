@@ -54,8 +54,8 @@
 	}
 
 	.main-content {
-		margin-left: 213px; /* Width of the sidebar */
-		width: calc(100% - 213px);
+		margin-left: 265px; /* Width of the sidebar */
+		width: calc(100% - 265px);
 		padding: 44px 0px 32px;
 		display: flex;
 		flex-direction: column;

@@ -6,7 +6,9 @@
 		Bookmark,
 		Settings,
 		LogOut,
-		Users
+		Users,
+		Globe,
+		ExternalLink
 	} from 'lucide-svelte';
 	import { cmsSupabase } from '$lib/cmsSupabase';
 	import { goto } from '$app/navigation';
@@ -20,202 +22,266 @@
 </script>
 
 <aside class="sidebar">
-	<!-- LOGO -->
+	<!-- ==================== LOGO ==================== -->
 	<div class="sidebar-logo">
-		<img
-			src="/logo.png"
-			alt="JCF Logo"
-			class="logo-img"
-			on:error={(e) => e.currentTarget.src='https://cdn-icons-png.flaticon.com/512/3062/3062634.png'}
-		/>
-	</div>
+		<div class="logo-icon-wrap">
+			<img
+				src="/logo.png"
+				alt="JCF Logo"
+				class="logo-img"
+				on:error={(e) => e.currentTarget.src='https://cdn-icons-png.flaticon.com/512/3062/3062634.png'}
+			/>
+		</div>
 
-	<!-- NAVIGATION -->
-	<div class="nav-container">
-		
-		<a
-			href="/cms/reader-dashboard"
-			class="nav-btn"
-			class:active={currentPath === '/cms/reader-dashboard'}
-		>
-			<Home size={20} class="icon" />
-			<span>Dashboard</span>
-		</a>
-
-		<div class="nav-section-title">CONTENT</div>
-
-		<a
-			href="/cms/reader-dashboard#saved"
-			class="nav-btn"
-		>
-			<Bookmark size={20} class="icon" />
-			<span>Saved Articles</span>
-		</a>
-
-		<a
-			href="/cms/reader-dashboard#doctors"
-			class="nav-btn"
-		>
-			<Users size={20} class="icon" />
-			<span>Followed Doctors</span>
-		</a>
-
-		<div class="nav-section-title">USER/EVENTS</div>
-
-		<a
-			href="/cms/complete-profile"
-			class="nav-btn"
-			class:active={currentPath === '/cms/complete-profile'}
-		>
-			<User size={20} class="icon" />
-			<span>Edit Profile</span>
-		</a>
-
-		<div class="nav-section-title">ACCOUNT</div>
-
-		<div class="account-profile">
-			<div class="avatar">
-				<!-- Reader initial or default avatar -->
-				R
-			</div>
-			<span>Reader</span>
+		<div class="logo-text">
+			<span class="main-title">Jarurat Care</span>
+			<span class="sub-title">Reader Portal</span>
 		</div>
 	</div>
 
-	<!-- LOGOUT -->
-	<div class="logout-container">
-		<button on:click={logout} class="nav-btn">
-			<LogOut size={20} class="icon" />
-			<span>Sign out</span>
-		</button>
+	<!-- ==================== NAVIGATION ==================== -->
+	<div class="sidebar-scroll">
+		<!-- DASHBOARD -->
+		<a
+			href="/cms/reader-dashboard"
+			class="nav-item"
+			class:active={currentPath === '/cms/reader-dashboard'}
+		>
+			<Home size={18} />
+			<span>Dashboard</span>
+		</a>
+
+		<!-- ==================== CONTENT ==================== -->
+		<div class="nav-section">
+			<span class="nav-section-title">CONTENT</span>
+
+			<a
+				href="/cms/reader-dashboard#saved"
+				class="nav-item"
+			>
+				<Bookmark size={18} />
+				<span>Saved Articles</span>
+			</a>
+
+			<a
+				href="/cms/reader-dashboard#doctors"
+				class="nav-item"
+			>
+				<Users size={18} />
+				<span>Followed Doctors</span>
+			</a>
+		</div>
+
+		<!-- ==================== USER ==================== -->
+		<div class="nav-section">
+			<span class="nav-section-title">USER</span>
+
+			<a
+				href="/cms/complete-profile"
+				class="nav-item"
+				class:active={currentPath === '/cms/complete-profile'}
+			>
+				<User size={18} />
+				<span>Edit Profile</span>
+			</a>
+		</div>
+	</div>
+
+	<!-- ==================== SIDEBAR BOTTOM ==================== -->
+	<div class="sidebar-bottom">
+		<a href="/" target="_blank" class="nav-item bottom-link">
+			<Globe size={18} />
+			<span>View Website</span>
+			<ExternalLink size={16} class="ml-auto opacity-60" />
+		</a>
+
+		<a href="#" on:click|preventDefault={logout} class="nav-item logout-btn">
+			<LogOut size={18} />
+			<span>Logout</span>
+		</a>
 	</div>
 </aside>
 
 <style>
-	.sidebar {
-		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
-		padding: 0;
-		width: 213px;
-		height: 100vh;
-		background: #FAFAFA;
-		position: fixed;
-		left: 0;
-		top: 0;
-		font-family: 'Manrope', sans-serif;
+	@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
+
+	* {
+		box-sizing: border-box;
+		font-family:
+			'DM Sans',
+			-apple-system,
+			BlinkMacSystemFont,
+			sans-serif;
 	}
 
-	.sidebar-logo {
-		width: 100%;
-		padding: 24px;
+	/* =========================
+	   SIDEBAR
+	========================= */
+
+	.sidebar {
+		width: 265px;
+		background: #0f172a;
+		color: #94a3b8;
 		display: flex;
-		justify-content: center;
+		flex-direction: column;
+		flex-shrink: 0;
+		border-right: 1px solid #1e293b;
+		height: 100vh;
+		position: sticky;
+		top: 0;
+	}
+
+	/* =========================
+	   LOGO
+	========================= */
+
+	.sidebar-logo {
+		padding: 18px 20px;
+		display: flex;
 		align-items: center;
+		gap: 12px;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+	}
+
+	.logo-icon-wrap {
+		width: 36px;
+		height: 36px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
 	}
 
 	.logo-img {
-		height: 50px;
+		max-width: 100%;
+		max-height: 100%;
 		object-fit: contain;
 	}
 
-	.nav-container {
+	.logo-text {
 		display: flex;
 		flex-direction: column;
-		align-items: flex-start;
-		padding: 8px;
-		gap: 8px;
-		width: 100%;
-		background: #FFFFFF;
-		box-shadow: 0px 2px 4px 8px rgba(0, 0, 0, 0.05);
-		border-radius: 8px;
-		flex-grow: 1;
-		margin: 0 16px;
-		width: calc(100% - 32px);
+		line-height: 1.2;
+	}
+
+	.main-title {
+		font-size: 20px;
+		font-weight: 800;
+		color: #ffffff;
+		letter-spacing: -0.02em;
+	}
+
+	.sub-title {
+		font-size: 11px;
+		color: #94a3b8;
+	}
+
+	/* =========================
+	   SCROLL AREA
+	========================= */
+
+	.sidebar-scroll {
+		flex: 1;
+		overflow-y: auto;
+		padding: 24px 16px;
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+	}
+
+	.sidebar-scroll::-webkit-scrollbar {
+		width: 4px;
+	}
+	.sidebar-scroll::-webkit-scrollbar-thumb {
+		background: rgba(255, 255, 255, 0.15);
+		border-radius: 4px;
+	}
+
+	/* =========================
+	   SECTIONS
+	========================= */
+
+	.nav-section {
+		margin-top: 18px;
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
 	}
 
 	.nav-section-title {
-		font-family: 'Manrope';
-		font-weight: 600;
-		font-size: 12px;
-		line-height: 16px;
-		letter-spacing: 0.5px;
-		color: #1A1A1A;
-		padding: 16px 10px 8px 10px;
-		text-transform: uppercase;
+		font-size: 11px;
+		font-weight: 700;
+		color: #64748b;
+		margin: 8px 0 4px 14px;
+		letter-spacing: 0.05em;
 	}
 
-	.nav-btn {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		padding: 10px;
-		gap: 10px;
+	/* =========================
+	   NAV ITEMS
+	========================= */
+
+	.nav-item {
 		width: 100%;
-		min-height: 40px;
-		background: #FFFFFF;
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		padding: 12px 14px;
 		border: none;
-		border-left: 3px solid transparent;
+		background: transparent;
+		color: #cbd5e1;
+		font-size: 14px;
+		font-weight: 500;
 		cursor: pointer;
-		text-decoration: none;
+		text-align: left;
 		transition: all 0.2s;
+		border-radius: 10px;
+		text-decoration: none;
 	}
 
-	.nav-btn span {
-		font-family: 'Manrope';
+	.nav-item:hover {
+		background: rgba(255, 255, 255, 0.06);
+		color: #ffffff;
+	}
+
+	.nav-item.active {
+		background: #2563eb;
+		color: #ffffff;
 		font-weight: 600;
-		font-size: 14px;
-		color: #1A1A1A;
-		white-space: nowrap;
 	}
 
-	.nav-btn .icon {
-		color: #1E4ED8;
-	}
+	/* =========================
+	   BOTTOM ACTIONS
+	========================= */
 
-	.nav-btn:hover {
-		background: #f8fafc;
-	}
-
-	.nav-btn.active {
-		background: #F3F6FD;
-		border-left: 3px solid #1E4ED8;
-	}
-
-	.account-profile {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		padding: 10px;
-		gap: 10px;
-		width: 100%;
-	}
-
-	.avatar {
-		width: 28px;
-		height: 28px;
-		background: linear-gradient(0deg, rgba(30, 78, 216, 0.05), rgba(30, 78, 216, 0.05));
-		border-radius: 9999px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		font-weight: bold;
-		color: #1E4ED8;
-		font-size: 14px;
-	}
-
-	.account-profile span {
-		font-family: 'Manrope';
-		font-weight: 600;
-		font-size: 16px;
-		color: #1A1A1A;
-	}
-
-	.logout-container {
+	.sidebar-bottom {
 		padding: 16px;
-		width: 100%;
-		background: #FFFFFF;
-		margin-top: auto;
-		border-top: 1px solid #E5E7EB;
+		border-top: 1px solid rgba(255, 255, 255, 0.08);
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+	}
+
+	.bottom-link {
+		color: #94a3b8;
+	}
+
+	.bottom-link:hover {
+		color: #ffffff;
+	}
+
+	.logout-btn {
+		color: #f87171;
+	}
+
+	.logout-btn:hover {
+		background: rgba(248, 113, 113, 0.1);
+		color: #ef4444;
+	}
+
+	.ml-auto {
+		margin-left: auto;
+	}
+	.opacity-60 {
+		opacity: 0.6;
 	}
 </style>
