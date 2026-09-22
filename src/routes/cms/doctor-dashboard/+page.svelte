@@ -56,7 +56,7 @@
 		[];
 
 	$: followers =
-		(data as any).followers ??
+		(data as any).followerDoctors ??
 		[];
 
 	$: recentArticles = articles.slice(0, 5);

@@ -595,7 +595,7 @@
 								</div>
 								
 								<div class="dropdown-actions">
-									<a class="dropdown-item" href={`/cms/community/doctors/${userId}`}>
+									<a class="dropdown-item" href={userRole === 'Reader' ? '/cms/reader-dashboard/profile' : `/cms/community/doctors/${userId}`}>
 										<User size={16} />
 										<span>View Profile</span>
 									</a>
