@@ -127,9 +127,9 @@
 											// Optimistic UI Update by modifying the source data
 											if (currentlyFollowed) {
 												if (data.followedDoctorIds) {
-													data.followedDoctorIds = data.followedDoctorIds.filter((id: string) => id !== doctor.id);
+													data.followedDoctorIds = data.followedDoctorIds.filter((id) => id !== doctor.id);
 												}
-												const docIndex = data.doctors?.findIndex((d: any) => d.id === doctor.id);
+												const docIndex = data.doctors?.findIndex((d) => d.id === doctor.id);
 												if (docIndex !== undefined && docIndex !== -1 && data.doctors) {
 													data.doctors[docIndex].followers_count = Math.max(0, (data.doctors[docIndex].followers_count || 0) - 1);
 												}
@@ -139,7 +139,7 @@
 												} else {
 													data.followedDoctorIds = [doctor.id];
 												}
-												const docIndex = data.doctors?.findIndex((d: any) => d.id === doctor.id);
+												const docIndex = data.doctors?.findIndex((d) => d.id === doctor.id);
 												if (docIndex !== undefined && docIndex !== -1 && data.doctors) {
 													data.doctors[docIndex].followers_count = (data.doctors[docIndex].followers_count || 0) + 1;
 												}
