@@ -23,10 +23,10 @@
 	export let reviewer: any;
 	
 	// Default mock stats if not provided
-	export let publicationsCount: number | string = '80+';
-	export let citationsCount: number = 216;
-	export let awardsCount: string = '6+';
-	export let articleViews: string = '12k+';
+	export let publicationsCount: number | string = 0;
+	export let citationsCount: number = 0;
+	export let awardsCount: string | number = 0;
+	export let articleViews: string | number = 0;
 
 	function getInitials(name: string) {
 		if (!name) return 'DR';
@@ -159,33 +159,32 @@
 				</p>
 			</section>
 
-			<section class="publications-section">
-				<div class="section-title-row">
-					<div class="title-left">
-						<div class="icon-wrap"><Zap size={18} /></div>
-						<h2>Recent Publications</h2>
+			{#if reviewer?.recent_publications && reviewer.recent_publications.length > 0}
+				<section class="publications-section">
+					<div class="section-title-row">
+						<div class="title-left">
+							<div class="icon-wrap"><Zap size={18} /></div>
+							<h2>Recent Publications</h2>
+						</div>
+						<a href="#" class="view-all">View All</a>
 					</div>
-					<a href="#" class="view-all">View All</a>
-				</div>
-				<div class="pub-list">
-					<div class="pub-item">
-						<div class="pub-icon"><BookOpen size={16} /></div>
-						<span>"Machine Learning for pathological Subtyping of Glioblastoma"</span>
+					
+					<div class="pub-list">
+						{#each reviewer.recent_publications as pub}
+							<div class="pub-card">
+								<div class="pub-badge">{pub.type || 'Publication'}</div>
+								<h3>{pub.title}</h3>
+								<p>{pub.journal}</p>
+								<div class="pub-meta">
+									<span>{pub.date}</span>
+									<span>•</span>
+									<span class="pub-citations">{pub.citations || 0} Citations</span>
+								</div>
+							</div>
+						{/each}
 					</div>
-					<div class="pub-item">
-						<div class="pub-icon"><BookOpen size={16} /></div>
-						<span>"Checkpoint Inhibitor Resistance in NSCLC: A Multi-Omic Analysis"</span>
-					</div>
-					<div class="pub-item">
-						<div class="pub-icon"><BookOpen size={16} /></div>
-						<span>"A Novel HER2-Positive Breast Cancer Subtype with Concurrent..."</span>
-					</div>
-					<div class="pub-item">
-						<div class="pub-icon"><BookOpen size={16} /></div>
-						<span>"Primary Hepatic Angiosarcoma: A Rare Clinical Case and Review"</span>
-					</div>
-				</div>
-			</section>
+				</section>
+			{/if}
 		</div>
 
 		<!-- RIGHT COLUMN -->
@@ -209,38 +208,29 @@
 				</div>
 			</section>
 
-			<section class="experience-section">
-				<div class="section-title">
-					<div class="icon-wrap"><Briefcase size={18} /></div>
-					<h2>Experience</h2>
-				</div>
-				
-				<div class="timeline">
-					<div class="timeline-item">
-						<div class="dot active"></div>
-						<div class="line"></div>
-						<div class="content">
-							<h4>Senior Consultant-Medical Oncology</h4>
-							<p>Jarurat Care Foundation</p>
-						</div>
+			{#if reviewer?.experience_history && reviewer.experience_history.length > 0}
+				<section class="experience-section">
+					<div class="section-title">
+						<div class="icon-wrap"><Briefcase size={18} /></div>
+						<h2>Experience</h2>
 					</div>
-					<div class="timeline-item">
-						<div class="dot"></div>
-						<div class="line"></div>
-						<div class="content">
-							<h4>Consultant-Medical Oncology</h4>
-							<p>Apollo Hospital, Indore</p>
-						</div>
+					
+					<div class="timeline">
+						{#each reviewer.experience_history as exp, i}
+							<div class="timeline-item">
+								<div class="dot {i === 0 ? 'active' : ''}"></div>
+								{#if i < reviewer.experience_history.length - 1}
+									<div class="line"></div>
+								{/if}
+								<div class="content">
+									<h4>{exp.title}</h4>
+									<p>{exp.organization}</p>
+								</div>
+							</div>
+						{/each}
 					</div>
-					<div class="timeline-item">
-						<div class="dot"></div>
-						<div class="content">
-							<h4>Fellow Consultant-Medical Oncology</h4>
-							<p>Tata Memorial Hospital, Mumbai</p>
-						</div>
-					</div>
-				</div>
-			</section>
+				</section>
+			{/if}
 		</div>
 	</div>
 

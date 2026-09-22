@@ -45,7 +45,121 @@
 		</div>
 
 		<div class="article-body prose prose-lg max-w-none text-gray-800">
-			{@html article.content || '<p>No content provided.</p>'}
+			{#if article.abstract}
+				<section class="research-section abstract">
+					<h3>Abstract</h3>
+					<div class="whitespace-pre-line">{article.abstract}</div>
+				</section>
+			{/if}
+
+			{#if article.introduction}
+				<section class="research-section">
+					<h3>Introduction</h3>
+					<div class="whitespace-pre-line">{article.introduction}</div>
+				</section>
+			{/if}
+
+			{#if article.background}
+				<section class="research-section">
+					<h3>Background</h3>
+					<div class="whitespace-pre-line">{article.background}</div>
+				</section>
+			{/if}
+
+			{#if article.purpose}
+				<section class="research-section">
+					<h3>Purpose</h3>
+					<div class="whitespace-pre-line">{article.purpose}</div>
+				</section>
+			{/if}
+
+			{#if article.scope}
+				<section class="research-section">
+					<h3>Scope</h3>
+					<div class="whitespace-pre-line">{article.scope}</div>
+				</section>
+			{/if}
+
+			{#if article.explanation}
+				<section class="research-section">
+					<h3>Explanation</h3>
+					<div class="whitespace-pre-line">{article.explanation}</div>
+				</section>
+			{/if}
+
+			{#if article.evidence}
+				<section class="research-section">
+					<h3>Evidence</h3>
+					<div class="whitespace-pre-line">{article.evidence}</div>
+				</section>
+			{/if}
+
+			{#if article.examples}
+				<section class="research-section">
+					<h3>Examples</h3>
+					<div class="whitespace-pre-line">{article.examples}</div>
+				</section>
+			{/if}
+
+			{#if article.interpretation}
+				<section class="research-section">
+					<h3>Interpretation</h3>
+					<div class="whitespace-pre-line">{article.interpretation}</div>
+				</section>
+			{/if}
+
+			{#if article.implications}
+				<section class="research-section">
+					<h3>Implications</h3>
+					<div class="whitespace-pre-line">{article.implications}</div>
+				</section>
+			{/if}
+
+			{#if article.recommendations}
+				<section class="research-section">
+					<h3>Recommendations</h3>
+					<div class="whitespace-pre-line">{article.recommendations}</div>
+				</section>
+			{/if}
+
+			{#if article.conclusion_summary}
+				<section class="research-section">
+					<h3>Conclusion & Summary</h3>
+					<div class="whitespace-pre-line">{article.conclusion_summary}</div>
+				</section>
+			{/if}
+
+			{#if article.takeaways}
+				<section class="research-section">
+					<h3>Key Takeaways</h3>
+					<div class="whitespace-pre-line">{article.takeaways}</div>
+				</section>
+			{/if}
+
+			{#if article.references_text}
+				<section class="research-section">
+					<h3>References</h3>
+					<div class="whitespace-pre-line">{article.references_text}</div>
+				</section>
+			{/if}
+
+			{#if article.acknowledgements}
+				<section class="research-section">
+					<h3>Acknowledgements</h3>
+					<div class="whitespace-pre-line">{article.acknowledgements}</div>
+				</section>
+			{/if}
+
+			{#if article.appendix}
+				<section class="research-section">
+					<h3>Appendix</h3>
+					<div class="whitespace-pre-line">{article.appendix}</div>
+				</section>
+			{/if}
+
+			{#if !article.abstract && !article.introduction && !article.background && !article.explanation && !article.evidence && !article.conclusion_summary}
+				<p>No content provided.</p>
+			{/if}
 		</div>
 	</div>
 
@@ -54,7 +168,7 @@
 
 <style>
 	.review-container {
-		max-width: 900px;
+		max-width: 1100px;
 		margin: 40px auto;
 		padding: 0 20px;
 		font-family: 'DM Sans', sans-serif;
@@ -116,6 +230,30 @@
 	.meta .author {
 		font-weight: 600;
 		color: #334155;
+	}
+
+	.research-section {
+		margin-bottom: 36px;
+	}
+
+	.research-section h3 {
+		font-size: 20px;
+		font-weight: 700;
+		color: #1e293b;
+		margin: 0 0 16px 0;
+	}
+
+	.research-section div {
+		font-size: 16px;
+		line-height: 1.8;
+		color: #334155;
+	}
+
+	.abstract {
+		background: #f8fafc;
+		padding: 24px;
+		border-radius: 8px;
+		border-left: 4px solid #3b82f6;
 	}
 
 	.article-body {
