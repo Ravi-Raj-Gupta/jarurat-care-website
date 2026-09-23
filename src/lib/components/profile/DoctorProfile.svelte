@@ -16,7 +16,9 @@
 		Smile,
 		Briefcase,
 		User,
-		BookOpen
+		BookOpen,
+		ThumbsUp,
+		Bookmark
 	} from 'lucide-svelte';
 
 	export let doctor: any;
@@ -181,18 +183,37 @@
 							<h3 style="font-size: 16px; font-weight: 600; color: #111827; margin: 0;">Articles on Platform</h3>
 						</div>
 					{/if}
-					<div class="pub-list">
-						{#each doctor.recent_publications as pub}
-							<div class="pub-card">
-								<div class="pub-badge">{pub.type || 'Publication'}</div>
-								<a href={pub.link} target="_blank" class="pub-title-link"><h3>{pub.title}</h3></a>
-								<p>{pub.journal}</p>
-								<div class="pub-meta">
-									<span>{pub.date}</span>
-									<span>•</span>
-									<span class="pub-citations">{pub.citations || 0} Citations</span>
+					<div class="articles-list" style="margin-top: 16px;">
+						{#each doctor.recent_publications as article}
+							<a href={article.link} class="article-item" style="text-decoration: none; color: inherit;" target="_blank">
+								<img
+									src={article.thumbnail || 'https://via.placeholder.com/300x200?text=Article'}
+									alt="Cover"
+									class="article-img"
+									on:error={(e) => (e.currentTarget.src = 'https://via.placeholder.com/300x200?text=Article')}
+								/>
+								<div class="article-content">
+									<div class="badge-row">
+										<span class="type-badge">
+											{article.type === 'research' ? 'RESEARCH ARTICLE' : 'ARTICLE'}
+										</span>
+									</div>
+									<h3 class="article-title">{article.title || 'Untitled Article'}</h3>
+									<p class="author">Dr. {doctor.full_name || 'Unknown'} et al.</p>
+									<div class="meta">
+										<span><Clock size={12} /> Published {article.date}</span>
+										<span><FileText size={12} /> {article.views || 0} Views</span>
+									</div>
 								</div>
-							</div>
+								<div class="article-actions">
+									<div class="metrics">
+										<span><ThumbsUp size={16} /> {article.likes || 0}</span>
+										<span><Bookmark size={16} /></span>
+										<span><MoreVertical size={16} /></span>
+									</div>
+									<div class="view-btn">View Full Article</div>
+								</div>
+							</a>
 						{/each}
 					</div>
 				{/if}
@@ -686,5 +707,114 @@
 		font-weight: 700;
 		color: #111827;
 		margin: 0;
+	}
+	/* ARTICLE ITEM STYLES */
+	.articles-list {
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
+	}
+
+	.article-item {
+		display: flex;
+		background: white;
+		border-radius: 12px;
+		padding: 20px;
+		gap: 24px;
+		border: 1px solid #e2e8f0;
+		align-items: flex-start;
+	}
+
+	.article-img {
+		width: 200px;
+		height: 140px;
+		object-fit: cover;
+		border-radius: 8px;
+		background: #f1f5f9;
+	}
+
+	.article-content {
+		flex: 1;
+	}
+
+	.badge-row {
+		margin-bottom: 8px;
+	}
+
+	.type-badge {
+		background: #e0f2fe;
+		color: #0284c7;
+		padding: 4px 10px;
+		border-radius: 4px;
+		font-size: 11px;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.5px;
+	}
+
+	.article-title {
+		font-size: 18px;
+		font-weight: 600;
+		margin: 0 0 8px;
+		color: #0f172a;
+		line-height: 1.4;
+	}
+
+	.author {
+		color: #64748b;
+		font-size: 14px;
+		margin: 0 0 16px;
+	}
+
+	.meta {
+		display: flex;
+		align-items: center;
+		gap: 16px;
+		color: #94a3b8;
+		font-size: 13px;
+	}
+
+	.meta span {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+	}
+
+	.article-actions {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+		justify-content: space-between;
+		height: 140px;
+	}
+
+	.metrics {
+		display: flex;
+		align-items: center;
+		gap: 16px;
+		color: #64748b;
+	}
+
+	.metrics span {
+		display: flex;
+		align-items: center;
+		gap: 4px;
+		font-size: 13px;
+	}
+
+	.view-btn {
+		padding: 10px 24px;
+		background: transparent;
+		color: #3b82f6;
+		border: 1px solid #3b82f6;
+		border-radius: 80px;
+		text-decoration: none;
+		font-size: 14px;
+		font-weight: 500;
+		transition: all 0.2s;
+	}
+
+	.view-btn:hover {
+		background: #eff6ff;
 	}
 </style>

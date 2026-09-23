@@ -197,7 +197,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
 	const { data: articles, error: articlesErr } = await supabaseAdmin
 		.from('articles')
-		.select('id, title, excerpt, created_at, category')
+		.select('id, title, excerpt, created_at, category, cover_image_url, views, likes_count, saves_count')
 		.eq('author_id', doctorId)
 		.in('status', ['published', 'approved'])
 		.order('created_at', { ascending: false })
@@ -207,11 +207,14 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		articles.forEach(a => {
 			recent_publications.push({
 				id: a.id,
-				type: 'Article',
+				type: 'article',
 				title: a.title,
 				journal: a.category || 'Jarurat Care Article',
 				date: new Date(a.created_at).toLocaleDateString(),
-				citations: 0,
+				thumbnail: a.cover_image_url || null,
+				views: a.views || 0,
+				likes: a.likes_count || 0,
+				saves: a.saves_count || 0,
 				link: `/cms/articles/view/${a.id}`
 			});
 		});
@@ -219,7 +222,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
 	const { data: research, error: researchErr } = await supabaseAdmin
 		.from('research_articles')
-		.select('id, title, abstract, created_at')
+		.select('id, title, abstract, created_at, featured_image, views_count, likes_count, saves_count')
 		.eq('user_id', doctorId)
 		.in('status', ['published', 'approved'])
 		.order('created_at', { ascending: false })
@@ -229,11 +232,14 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		research.forEach(r => {
 			recent_publications.push({
 				id: r.id,
-				type: 'Research Paper',
+				type: 'research',
 				title: r.title,
 				journal: 'Jarurat Care Research',
 				date: new Date(r.created_at).toLocaleDateString(),
-				citations: 0,
+				thumbnail: r.featured_image || null,
+				views: r.views_count || 0,
+				likes: r.likes_count || 0,
+				saves: r.saves_count || 0,
 				link: `/cms/review/research/${r.id}`
 			});
 		});
