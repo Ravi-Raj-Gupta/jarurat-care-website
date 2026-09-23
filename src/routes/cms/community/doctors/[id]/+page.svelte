@@ -69,7 +69,7 @@
 			<a class="back-link" href="/cms/community/doctors"> ← Back to Community </a>
 		</div>
 
-		{#if doctor?.role === 'Reviewer' || doctor?.role === 'reviewer' || doctor?.role === 'REVIEWER'}
+		{#if doctor?.is_reviewer || doctor?.role === 'Reviewer' || doctor?.role === 'reviewer' || doctor?.role === 'REVIEWER'}
 			<ReviewerProfile reviewer={doctor} />
 		{:else}
 			<DoctorProfile {doctor} />
