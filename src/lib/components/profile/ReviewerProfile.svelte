@@ -115,7 +115,7 @@
 		<div class="stat-item">
 			<div class="stat-icon"><Users size={20} color="#1E4ED8" /></div>
 			<div class="stat-info">
-				<strong>{publicationsCount}</strong>
+				<strong>{reviewer?.publications || 0}</strong>
 				<span>Publications</span>
 			</div>
 		</div>
@@ -123,7 +123,7 @@
 		<div class="stat-item">
 			<div class="stat-icon"><FileText size={20} color="#1E4ED8" /></div>
 			<div class="stat-info">
-				<strong>{citationsCount}</strong>
+				<strong>{reviewer?.citations || 0}</strong>
 				<span>Citations</span>
 			</div>
 		</div>
@@ -131,7 +131,7 @@
 		<div class="stat-item">
 			<div class="stat-icon"><Trophy size={20} color="#2563EB" /></div>
 			<div class="stat-info">
-				<strong>{awardsCount}</strong>
+				<strong>{reviewer?.awards || 0}</strong>
 				<span>Awards</span>
 			</div>
 		</div>
@@ -170,7 +170,11 @@
 					{/if}
 				</div>
 				
-				{#if reviewer?.recent_publications && reviewer.recent_publications.length > 0}
+				{#if reviewer?.publications}
+					<div class="simple-text-content">
+						<p>{reviewer.publications}</p>
+					</div>
+				{:else if reviewer?.recent_publications && reviewer.recent_publications.length > 0}
 					<div class="pub-list">
 						{#each reviewer.recent_publications as pub}
 							<div class="pub-card">
@@ -218,7 +222,11 @@
 					<h2>Experience</h2>
 				</div>
 				
-				{#if reviewer?.experience_history && reviewer.experience_history.length > 0}
+				{#if reviewer?.experience}
+					<div class="simple-text-content">
+						<p>{reviewer.experience}</p>
+					</div>
+				{:else if reviewer?.experience_history && reviewer.experience_history.length > 0}
 					<div class="timeline">
 						{#each reviewer.experience_history as exp, i}
 							<div class="timeline-item">
@@ -560,7 +568,7 @@
 		color: #2563EB;
 	}
 
-	.about-section p {
+	.about-section p, .simple-text-content p {
 		color: #4B5563;
 		font-size: 15px;
 		line-height: 26px;

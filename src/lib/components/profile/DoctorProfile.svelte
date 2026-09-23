@@ -114,7 +114,7 @@
 		<div class="stat-item">
 			<div class="stat-icon"><Users size={20} color="#1E4ED8" /></div>
 			<div class="stat-info">
-				<strong>{publicationsCount}</strong>
+				<strong>{doctor?.publications || 0}</strong>
 				<span>Publications</span>
 			</div>
 		</div>
@@ -122,7 +122,7 @@
 		<div class="stat-item">
 			<div class="stat-icon"><FileText size={20} color="#1E4ED8" /></div>
 			<div class="stat-info">
-				<strong>{citationsCount}</strong>
+				<strong>{doctor?.citations || 0}</strong>
 				<span>Citations</span>
 			</div>
 		</div>
@@ -130,7 +130,7 @@
 		<div class="stat-item">
 			<div class="stat-icon"><Trophy size={20} color="#2563EB" /></div>
 			<div class="stat-info">
-				<strong>{awardsCount}</strong>
+				<strong>{doctor?.awards || 0}</strong>
 				<span>Awards</span>
 			</div>
 		</div>
@@ -169,7 +169,11 @@
 					{/if}
 				</div>
 				
-				{#if doctor?.recent_publications && doctor.recent_publications.length > 0}
+				{#if doctor?.publications}
+					<div class="simple-text-content">
+						<p>{doctor.publications}</p>
+					</div>
+				{:else if doctor?.recent_publications && doctor.recent_publications.length > 0}
 					<div class="pub-list">
 						{#each doctor.recent_publications as pub}
 							<div class="pub-card">
@@ -217,7 +221,11 @@
 					<h2>Experience</h2>
 				</div>
 				
-				{#if doctor?.experience_history && doctor.experience_history.length > 0}
+				{#if doctor?.experience}
+					<div class="simple-text-content">
+						<p>{doctor.experience}</p>
+					</div>
+				{:else if doctor?.experience_history && doctor.experience_history.length > 0}
 					<div class="timeline">
 						{#each doctor.experience_history as exp, i}
 							<div class="timeline-item">
@@ -506,7 +514,7 @@
 		color: #2563EB;
 	}
 
-	.about-section p {
+	.about-section p, .simple-text-content p {
 		color: #4B5563;
 		font-size: 15px;
 		line-height: 26px;
