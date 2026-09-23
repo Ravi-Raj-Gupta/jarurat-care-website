@@ -174,12 +174,19 @@
 					<div class="simple-text-content">
 						<p>{reviewer.publications}</p>
 					</div>
-				{:else if reviewer?.recent_publications && reviewer.recent_publications.length > 0}
+				{/if}
+
+				{#if reviewer?.recent_publications && reviewer.recent_publications.length > 0}
+					{#if reviewer?.publications}
+						<div class="section-title-row" style="margin-top: 24px; margin-bottom: 12px;">
+							<h3 style="font-size: 16px; font-weight: 600; color: #111827; margin: 0;">Articles on Platform</h3>
+						</div>
+					{/if}
 					<div class="pub-list">
 						{#each reviewer.recent_publications as pub}
 							<div class="pub-card">
 								<div class="pub-badge">{pub.type || 'Publication'}</div>
-								<h3>{pub.title}</h3>
+								<a href={pub.link} target="_blank" class="pub-title-link"><h3>{pub.title}</h3></a>
 								<p>{pub.journal}</p>
 								<div class="pub-meta">
 									<span>{pub.date}</span>
@@ -189,7 +196,9 @@
 							</div>
 						{/each}
 					</div>
-				{:else}
+				{/if}
+
+				{#if !reviewer?.publications && (!reviewer?.recent_publications || reviewer.recent_publications.length === 0)}
 					<p class="empty-state-text">No publications added yet.</p>
 				{/if}
 			</section>
@@ -827,4 +836,20 @@
 		font-weight: 500;
 	}
 	.review-link:hover { color: #4B5563; }
+	.pub-title-link {
+		text-decoration: none;
+		color: inherit;
+	}
+
+	.pub-title-link:hover h3 {
+		color: #1E4ED8;
+		text-decoration: underline;
+	}
+
+	.pub-card h3 {
+		font-size: 16px;
+		font-weight: 700;
+		color: #111827;
+		margin: 0;
+	}
 </style>

@@ -190,11 +190,64 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		doctor.avatar ||
 		null;
 
+	// ---------------------------------------------------------
+	// RECENT PUBLICATIONS
+	// ---------------------------------------------------------
+	let recent_publications: any[] = [];
+
+	const { data: articles, error: articlesErr } = await supabaseAdmin
+		.from('articles')
+		.select('id, title, excerpt, created_at, category, citations')
+		.eq('author_id', doctorId)
+		.in('status', ['published', 'approved'])
+		.order('created_at', { ascending: false })
+		.limit(5);
+
+	if (!articlesErr && articles) {
+		articles.forEach(a => {
+			recent_publications.push({
+				id: a.id,
+				type: 'Article',
+				title: a.title,
+				journal: a.category || 'Jarurat Care Article',
+				date: new Date(a.created_at).toLocaleDateString(),
+				citations: a.citations || 0,
+				link: `/cms/articles/view/${a.id}`
+			});
+		});
+	}
+
+	const { data: research, error: researchErr } = await supabaseAdmin
+		.from('research_articles')
+		.select('id, title, abstract, created_at, citations')
+		.eq('user_id', doctorId)
+		.in('status', ['published', 'approved'])
+		.order('created_at', { ascending: false })
+		.limit(5);
+
+	if (!researchErr && research) {
+		research.forEach(r => {
+			recent_publications.push({
+				id: r.id,
+				type: 'Research Paper',
+				title: r.title,
+				journal: 'Jarurat Care Research',
+				date: new Date(r.created_at).toLocaleDateString(),
+				citations: r.citations || 0,
+				link: `/cms/review/research/${r.id}`
+			});
+		});
+	}
+
+	// Sort mixed by date descending
+	recent_publications.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
 	return {
 		currentUser,
 		doctor: {
 			...doctor,
-			avatar
+			avatar,
+			recent_publications
 		},
 		followers,
 		following,
