@@ -197,7 +197,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
 	const { data: articles, error: articlesErr } = await supabaseAdmin
 		.from('articles')
-		.select('id, title, excerpt, created_at, category, citations')
+		.select('id, title, excerpt, created_at, category')
 		.eq('author_id', doctorId)
 		.in('status', ['published', 'approved'])
 		.order('created_at', { ascending: false })
@@ -211,7 +211,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 				title: a.title,
 				journal: a.category || 'Jarurat Care Article',
 				date: new Date(a.created_at).toLocaleDateString(),
-				citations: a.citations || 0,
+				citations: 0,
 				link: `/cms/articles/view/${a.id}`
 			});
 		});
@@ -219,7 +219,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
 	const { data: research, error: researchErr } = await supabaseAdmin
 		.from('research_articles')
-		.select('id, title, abstract, created_at, citations')
+		.select('id, title, abstract, created_at')
 		.eq('user_id', doctorId)
 		.in('status', ['published', 'approved'])
 		.order('created_at', { ascending: false })
@@ -233,7 +233,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 				title: r.title,
 				journal: 'Jarurat Care Research',
 				date: new Date(r.created_at).toLocaleDateString(),
-				citations: r.citations || 0,
+				citations: 0,
 				link: `/cms/review/research/${r.id}`
 			});
 		});
