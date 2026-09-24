@@ -49,7 +49,7 @@
 	 *
 	 * The fallback keeps the page from crashing if the server
 	 * hasn't returned these fields yet.
-	 */
+	*/
 	$: followingDoctors =
 		(data as any).followingDoctors ??
 		(data as any).followedDoctors ??
