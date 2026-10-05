@@ -5,6 +5,7 @@ import {
 	PUBLIC_CMS_SUPABASE_URL,
 	PUBLIC_CMS_SUPABASE_ANON_KEY
 } from '$env/static/public';
+import { supabaseAdmin } from '$lib/supabaseAdmin';
 import { createClient } from '@supabase/supabase-js';
 
 // ============================================================
@@ -346,23 +347,22 @@ export const actions: Actions = {
 		// --------------------------------------------------------
 
 		if (user) {
-			const { error: profileError } = await supabase
+			const { error: profileError } = await supabaseAdmin
 				.from('profiles')
-				.insert([
+				.upsert(
 					{
 						id: user.id,
 						email,
 						full_name: fullName,
-						role: 'user',
-
-						// IMPORTANT:
-						// Do NOT put orcid_id here.
-						// That column does not exist in profiles.
-
-						// Save selected cancer interests
-						interests
-					}
-				]);
+						role: 'Reader',
+						profile_completed: false,
+						verification_status: 'approved',
+						interests,
+						is_reviewer: false,
+						is_author: false
+					},
+					{ onConflict: 'id' }
+				);
 
 			if (profileError) {
 				console.error(

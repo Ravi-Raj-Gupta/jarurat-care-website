@@ -4,6 +4,7 @@
 	import Sidebar from '$lib/components/dashboard/Sidebar.svelte';
 	import ReaderSidebar from '$lib/components/dashboard/ReaderSidebar.svelte';
 	import Topbar from '$lib/components/dashboard/Topbar.svelte';
+	import { cmsSupabase } from '$lib/cmsSupabase';
 
 	export let data: PageData;
 	export let form: ActionData;
@@ -202,8 +203,30 @@
 				<form
 			method="POST"
 			action={activeAction === 'submit' ? '?/submit' : '?/save'}
-			use:enhance={() => {
+			use:enhance={async ({ formData }) => {
 				submitting = true;
+
+				if (photoFile) {
+					const fileName = `profile_${Date.now()}_${photoFile.name}`;
+					const { data, error } = await cmsSupabase.storage
+						.from('avatars')
+						.upload(fileName, photoFile, {
+							upsert: true,
+							contentType: photoFile.type || 'image/jpeg'
+						});
+
+					if (!error && data) {
+						const { data: publicData } = cmsSupabase.storage
+							.from('avatars')
+							.getPublicUrl(data.path || fileName);
+
+						if (publicData?.publicUrl) {
+							formData.append('avatar_url', publicData.publicUrl);
+						}
+					} else {
+						console.error('Photo upload error:', error);
+					}
+				}
 
 				return async ({ update }) => {
 					submitting = false;
@@ -399,7 +422,7 @@
 							class="photo-hint"
 							style="display:block; margin-top:6px;"
 						>
-							Photo upload coming soon
+							{photoFile ? 'Photo selected and will be saved on submit' : 'Upload a profile photo'}
 						</span>
 
 					</div>

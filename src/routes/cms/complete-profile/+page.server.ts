@@ -62,7 +62,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 function extractFormData(formData: FormData) {
 	const role = (formData.get('role') as string) ?? '';
 
-	const common = {
+	const common: any = {
 		full_name: (formData.get('fullName') as string) ?? '',
 		email: (formData.get('email') as string) ?? '',
 		bio: (formData.get('bio') as string) ?? '',
@@ -77,6 +77,11 @@ function extractFormData(formData: FormData) {
 		event_updates:
 			formData.get('eventUpdates') === 'on'
 	};
+
+	const avatarUrl = formData.get('avatar_url');
+	if (avatarUrl) {
+		common.avatar_url = avatarUrl as string;
+	}
 
 	/*
 	 * ============================
@@ -355,7 +360,7 @@ export const actions: Actions = {
 		 *     /cms/pending
 		 *
 		 * Reader:
-		 *     /
+		 *     /cms/reader-dashboard/profile
 		 *
 		 * Doctor cannot enter the dashboard
 		 * until Super Admin approves them.
@@ -367,6 +372,6 @@ export const actions: Actions = {
 			);
 		}
 
-		throw redirect(303, '/');
+		throw redirect(303, '/cms/reader-dashboard/profile');
 	}
 };

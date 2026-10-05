@@ -19,8 +19,13 @@ export const load: PageServerLoad = async ({ locals }) => {
 		throw redirect(303, '/cms/login');
 	}
 
+	if (profile.is_author === false) {
+		throw redirect(303, '/cms/doctor-dashboard?error=publishing_revoked');
+	}
+
 	return {
-		profile
+		profile,
+		is_author: profile.is_author !== false
 	};
 };
 
@@ -28,6 +33,11 @@ export const actions: Actions = {
 	submitArticle: async ({ request, locals }) => {
 		const session = await locals.getSession();
 		if (!session) return fail(401, { message: 'Unauthorized' });
+
+		const { data: profile } = await locals.supabase.from('profiles').select('is_author').eq('id', session.user.id).single();
+		if (profile?.is_author === false) {
+			return fail(403, { message: 'Your publishing rights have been revoked by the admin.' });
+		}
 
 		const formData = await request.formData();
 		const actionType = formData.get('actionType') as string; // 'draft' or 'under_review'
