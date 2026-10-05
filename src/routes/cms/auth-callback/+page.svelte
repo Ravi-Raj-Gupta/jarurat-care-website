@@ -13,29 +13,33 @@
 
     const { data: profile } = await cmsSupabase
       .from('profiles')
-      .select('role, profile_completed, verification_status')
+      .select('role, profile_completed, verification_status, is_reviewer')
       .eq('id', user.id)
       .maybeSingle();
 
     if (!profile) {
-      await cmsSupabase.from('profiles').insert([{
+      const fallbackName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
+      const { error: insertError } = await cmsSupabase.from('profiles').upsert([{
         id: user.id,
         email: user.email,
-        full_name: user.user_metadata?.full_name || user.email?.split('@')[0],
+        full_name: fallbackName,
         role: 'Reader',
-        profile_completed: false
-      }]);
+        profile_completed: false,
+        verification_status: 'approved'
+      }], { onConflict: 'id' });
+      if (insertError) console.error('Google profile bootstrap error:', insertError);
       goto('/cms/complete-profile');
       return;
     }
 
-    const { role, verification_status, profile_completed } = profile;
+    const { role, verification_status, profile_completed, is_reviewer } = profile;
+    const normalizedRole = role === 'Reviewer' ? 'Doctor' : role;
     
     // Super Admins and Admins bypass profile completion
-    if (role === 'Super_Admin') {
+    if (normalizedRole === 'Super_Admin') {
       goto('/cms/super-admin');
       return;
-    } else if (role === 'Admin') {
+    } else if (normalizedRole === 'Admin') {
       goto('/cms/admin-dashboard');
       return;
     }
@@ -45,14 +49,16 @@
       return;
     }
 
-    if (role === 'Doctor') {
+    if (normalizedRole === 'Doctor') {
       if (verification_status === 'approved') {
         goto('/cms/doctor-dashboard');
       } else {
         goto('/cms/pending');
       }
-    } else if (role === 'Reader') {
+    } else if (normalizedRole === 'Reader') {
       goto('/cms/reader-dashboard');
+    } else if (is_reviewer) {
+      goto('/cms/doctor-dashboard');
     } else {
       goto('/');
     }
