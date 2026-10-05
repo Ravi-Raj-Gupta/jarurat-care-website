@@ -4,6 +4,7 @@
 	import Sidebar from '$lib/components/dashboard/Sidebar.svelte';
 	import ReaderSidebar from '$lib/components/dashboard/ReaderSidebar.svelte';
 	import Topbar from '$lib/components/dashboard/Topbar.svelte';
+	import { cmsSupabase } from '$lib/cmsSupabase';
 
 	export let data: PageData;
 	export let form: ActionData;
