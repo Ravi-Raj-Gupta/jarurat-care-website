@@ -2,12 +2,33 @@ import { fail, redirect } from '@sveltejs/kit';
 import { supabaseAdmin } from '$lib/supabaseAdmin';
 import { createAdminNotification } from '$lib/server/notifications';
 import type { PageServerLoad, Actions } from './$types';
+export const load: PageServerLoad = async ({ locals }) => {
+	const session = await locals.getSession();
+	if (!session) {
+		throw redirect(303, '/cms/login');
+	}
+
+	const { data: profile } = await locals.supabase.from('profiles').select('is_author').eq('id', session.user.id).single();
+	if (profile?.is_author === false) {
+		throw redirect(303, '/cms/doctor-dashboard?error=publishing_revoked');
+	}
+
+	return {
+		is_author: profile?.is_author !== false
+	};
+};
+
 export const actions: Actions = {
 	submitResearchPaper: async ({ request, locals }) => {
 		const session = await locals.getSession();
 
 		if (!session) {
 			return fail(401, { message: 'Unauthorized' });
+		}
+
+		const { data: profile } = await locals.supabase.from('profiles').select('is_author').eq('id', session.user.id).single();
+		if (profile?.is_author === false) {
+			return fail(403, { message: 'Your publishing rights have been revoked by the admin.' });
 		}
 
 		const formData = await request.formData();
