@@ -1,8 +1,6 @@
 <script lang="ts">
 	import { cmsSupabase } from '$lib/cmsSupabase';
 	import Nav from '$lib/components/nav.svelte';
-	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
 	import PageLoader from '$lib/components/PageLoader.svelte';
 
 	export let data;
@@ -43,24 +41,25 @@
 
 			const { data: profile, error: profileError } = await cmsSupabase
 	.from('profiles')
-	.select('role, profile_completed, verification_status')
+	.select('role, profile_completed, verification_status, is_reviewer')
 	.eq('id', user.id)
 	.limit(1)
 	.maybeSingle();
 
 			if (profileError) throw profileError;
 
-			const { profile_completed, role, verification_status } = profile || {};
+			const { profile_completed, role, verification_status, is_reviewer } = profile || {};
+			const normalizedRole = role === 'Reviewer' ? 'Doctor' : role;
 
 			redirecting = true;
 			// Keep loader visible during redirect
 			clearTimeout(timer);
 			showLoader = true;
 
-			if (role === 'Super_Admin') {
+			if (normalizedRole === 'Super_Admin') {
 				window.location.href = '/cms/super-admin';
 				return;
-			} else if (role === 'Admin') {
+			} else if (normalizedRole === 'Admin') {
 				window.location.href = '/cms/admin-dashboard';
 				return;
 			}
@@ -70,19 +69,21 @@
 				return;
 			}
 
-			if (role === 'Doctor') {
+			if (normalizedRole === 'Doctor') {
 				if (verification_status === 'approved') {
 					window.location.href = '/cms/doctor-dashboard';
 				} else {
 					window.location.href = '/cms/pending';
 				}
-			} else if (role === 'Reader') {
+			} else if (normalizedRole === 'Reader') {
 				window.location.href = '/cms/reader-dashboard';
+			} else if (is_reviewer) {
+				window.location.href = '/cms/doctor-dashboard';
 			} else {
 				window.location.href = '/';
 			}
-		} catch (err: any) {
-			error = err.message || 'Login failed';
+		} catch (err: unknown) {
+			error = err instanceof Error ? err.message : 'Login failed';
 		} finally {
 			clearTimeout(timer);
 			loading = false;
