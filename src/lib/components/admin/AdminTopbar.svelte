@@ -273,6 +273,8 @@
 						<span>{user.email}</span>
 					</div>
 					<hr />
+					<a href="/cms/complete-profile" on:click={() => showDropdown = false}>Edit Profile</a>
+					<hr />
 					<button type="button" on:click={handleLogout} class="text-red-600 font-medium">Logout</button>
 				</div>
 			{/if}
