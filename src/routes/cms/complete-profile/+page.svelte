@@ -133,13 +133,32 @@
 
 	let photoFile: File | null = null;
 	let photoPreviewUrl: string | null = null;
+	let photoUploadError = '';
 	let fileInputRef: HTMLInputElement;
 
 	function handlePhotoSelect(event: Event) {
 		const target = event.target as HTMLInputElement;
 
 		if (target.files && target.files.length > 0) {
-			photoFile = target.files[0];
+			const selectedFile = target.files[0];
+			const allowedTypes = ['image/png', 'image/jpeg'];
+
+			if (!allowedTypes.includes(selectedFile.type)) {
+				photoFile = null;
+				photoUploadError = 'Please choose a JPG or PNG image.';
+				target.value = '';
+				return;
+			}
+
+			if (selectedFile.size > 2 * 1024 * 1024) {
+				photoFile = null;
+				photoUploadError = 'The profile photo must be 2 MB or smaller.';
+				target.value = '';
+				return;
+			}
+
+			photoUploadError = '';
+			photoFile = selectedFile;
 			photoPreviewUrl = URL.createObjectURL(photoFile);
 		}
 	}
@@ -176,10 +195,7 @@
 
 	let submitting = false;
 
-	let activeAction:
-		| 'save'
-		| 'submit'
-		| null = null;
+	let activeAction: 'save' | 'submit' = 'submit';
 </script>
 
 <div class="dashboard">
@@ -192,8 +208,8 @@
 	<div class="content">
 		<Topbar
 			role={roleToggle}
-			doctorName={fullName || 'User'}
-			email={email || ''}
+			doctorName={profile?.full_name || 'User'}
+			email={profile?.email || data.userEmail || ''}
 			unreadCount={0}
 			isReviewer={roleToggle === 'Reviewer'}
 		/>
@@ -201,39 +217,53 @@
 		<div class="page-container">
 			<div class="card">
 				<form
-			method="POST"
-			action={activeAction === 'submit' ? '?/submit' : '?/save'}
-			use:enhance={async ({ formData }) => {
-				submitting = true;
+					method="POST"
+					action={activeAction === 'submit' ? '?/submit' : '?/save'}
+					use:enhance={async ({ formData, cancel }) => {
+						submitting = true;
+						photoUploadError = '';
 
-				if (photoFile) {
-					const fileName = `profile_${Date.now()}_${photoFile.name}`;
-					const { data, error } = await cmsSupabase.storage
-						.from('avatars')
-						.upload(fileName, photoFile, {
-							upsert: true,
-							contentType: photoFile.type || 'image/jpeg'
-						});
+						if (photoFile) {
+							try {
+								const extension = photoFile.type === 'image/png' ? 'png' : 'jpg';
+								const filePath = `${data.userId}/${Date.now()}-${crypto.randomUUID()}.${extension}`;
+								const { data: uploadedPhoto, error } = await cmsSupabase.storage
+									.from('avatars')
+									.upload(filePath, photoFile, {
+										upsert: true,
+										contentType: photoFile.type
+									});
 
-					if (!error && data) {
-						const { data: publicData } = cmsSupabase.storage
-							.from('avatars')
-							.getPublicUrl(data.path || fileName);
+								if (error) {
+									throw error;
+								}
 
-						if (publicData?.publicUrl) {
-							formData.append('avatar_url', publicData.publicUrl);
+								const { data: publicData } = cmsSupabase.storage
+									.from('avatars')
+									.getPublicUrl(uploadedPhoto.path);
+
+								if (publicData?.publicUrl) {
+									formData.append('avatar_url', publicData.publicUrl);
+								} else {
+									throw new Error('Could not get a URL for the uploaded photo.');
+								}
+							} catch (error) {
+								cancel();
+								submitting = false;
+								photoUploadError =
+									error instanceof Error
+										? `Photo upload failed: ${error.message}`
+										: 'Photo upload failed. Please try again.';
+								return;
+							}
 						}
-					} else {
-						console.error('Photo upload error:', error);
-					}
-				}
 
-				return async ({ update }) => {
-					submitting = false;
-					await update();
-				};
-			}}
-		>
+						return async ({ update }) => {
+							submitting = false;
+							await update();
+						};
+					}}
+				>
 
 			<!-- Role -->
 			<input
@@ -298,6 +328,12 @@
 					{form.draft
 						? 'Draft saved!'
 						: 'Profile submitted!'}
+				</div>
+			{/if}
+
+			{#if photoUploadError}
+				<div class="form-message" role="alert">
+					{photoUploadError}
 				</div>
 			{/if}
 
@@ -1136,16 +1172,18 @@
 
 			<div class="actions">
 
-				<button
-					type="submit"
-					class="btn-save"
-					disabled={submitting}
-					on:click={() => (activeAction = 'save')}
-				>
-					{submitting && activeAction === 'save'
-						? 'Saving...'
-						: 'Save Draft'}
-				</button>
+				{#if roleToggle !== 'Reader'}
+					<button
+						type="submit"
+						class="btn-save"
+						disabled={submitting}
+						on:click={() => (activeAction = 'save')}
+					>
+						{submitting && activeAction === 'save'
+							? 'Saving...'
+							: 'Save Draft'}
+					</button>
+				{/if}
 
 				<button
 					type="submit"

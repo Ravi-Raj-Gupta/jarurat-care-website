@@ -28,6 +28,7 @@
 			role="Reader"
 			doctorName={profile?.full_name || 'Reader'}
 			email={profile?.email || ''}
+			avatar={profile?.avatar_url || ''}
 			unreadCount={0}
 		/>
 
