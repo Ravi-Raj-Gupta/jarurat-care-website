@@ -89,6 +89,16 @@
 <div class="profile-container">
 	<!-- HEADER CARD -->
 	<section class="header-card">
+		<div class="avatar-wrapper">
+			{#if profile?.avatar_url}
+				<img src={profile.avatar_url} alt={`${profile?.full_name || 'Reader'} profile`} />
+			{:else}
+				<div class="avatar-placeholder">
+					{profile?.full_name?.charAt(0).toUpperCase() || 'R'}
+				</div>
+			{/if}
+		</div>
+
 		<div class="info-section">
 			<div class="name-row">
 				<h1>{profile?.full_name || 'Reader'}</h1>

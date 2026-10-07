@@ -186,6 +186,12 @@ export const actions: Actions = {
 
 		const profileData = extractFormData(formData);
 
+		if (profileData.role === 'Reader') {
+			return fail(400, {
+				message: 'Reader profiles are saved when you submit.'
+			});
+		}
+
 		const { error } = await locals.supabase
 			.from('profiles')
 			.upsert(
