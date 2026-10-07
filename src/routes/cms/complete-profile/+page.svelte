@@ -11,8 +11,13 @@
 
 	const profile = data.profile;
 
-	let roleToggle: 'Doctor' | 'Reader' =
-		(profile?.role as 'Doctor' | 'Reader') || 'Doctor';
+	let roleToggle: 'Doctor' | 'Reader' = profile?.role === 'Reader' ? 'Reader' : 'Doctor';
+	$: isEditingCompletedProfile = profile?.profile_completed === true;
+	$: isEditingGenericProfile =
+		isEditingCompletedProfile &&
+		profile?.role !== 'Doctor' &&
+		profile?.role !== 'Reviewer' &&
+		profile?.role !== 'Reader';
 
 	// ============================================================
 	// BASIC INFO
@@ -269,7 +274,7 @@
 			<input
 				type="hidden"
 				name="role"
-				value={roleToggle}
+				value={isEditingCompletedProfile ? profile?.role || roleToggle : roleToggle}
 			/>
 
 			<!-- ================================================== -->
@@ -278,9 +283,7 @@
 
 			<div class="header">
 
-				<h1>
-					Complete Your Profile
-				</h1>
+				<h1>{isEditingCompletedProfile ? 'Edit Your Profile' : 'Complete Your Profile'}</h1>
 
 				<p>
 					Please fill out all the necessary details below
@@ -288,25 +291,27 @@
 					to the JCF platform.
 				</p>
 
-				<div class="role-toggle">
+				{#if !isEditingCompletedProfile}
+					<div class="role-toggle">
 
-					<button
-						type="button"
-						class:active={roleToggle === 'Doctor'}
-						on:click={() => (roleToggle = 'Doctor')}
-					>
-						Doctor
-					</button>
+						<button
+							type="button"
+							class:active={roleToggle === 'Doctor'}
+							on:click={() => (roleToggle = 'Doctor')}
+						>
+							Doctor
+						</button>
 
-					<button
-						type="button"
-						class:active={roleToggle === 'Reader'}
-						on:click={() => (roleToggle = 'Reader')}
-					>
-						Reader
-					</button>
+						<button
+							type="button"
+							class:active={roleToggle === 'Reader'}
+							on:click={() => (roleToggle = 'Reader')}
+						>
+							Reader
+						</button>
 
-				</div>
+					</div>
+				{/if}
 
 			</div>
 
@@ -338,7 +343,7 @@
 			{/if}
 
 			<h2 class="card-title">
-				Complete Your Profile
+				{isEditingCompletedProfile ? 'Edit Your Profile' : 'Complete Your Profile'}
 			</h2>
 
 			<!-- ================================================== -->
@@ -413,7 +418,7 @@
 									class="photo-preview"
 								/>
 
-							{:else}
+							{:else if !isEditingGenericProfile}
 
 								<svg
 									width="24"
@@ -633,7 +638,7 @@
 			<!-- DOCTOR CREDENTIALS -->
 			<!-- ================================================== -->
 
-			{#if roleToggle === 'Doctor'}
+			{#if roleToggle === 'Doctor' && !isEditingGenericProfile}
 
 				<div class="section">
 
@@ -734,9 +739,11 @@
 			<div class="section">
 
 				<h3 class="section-title">
-					{roleToggle === 'Doctor'
-						? '3. About The Doctor'
-						: '2. About The Reader'}
+					{isEditingGenericProfile
+						? 'About Me'
+						: roleToggle === 'Doctor'
+							? '3. About The Doctor'
+							: '2. About The Reader'}
 				</h3>
 
 				<h4 class="sub-title">
@@ -775,6 +782,7 @@
 				<!-- ================================================== -->
 
 				<div class="section">
+					{#if !isEditingGenericProfile}
 
 					<h3 class="section-title">
 						{roleToggle === 'Doctor'
@@ -988,7 +996,6 @@
 							</div>
 
 						{/if}
-
 					</div>
 
 					<!-- SELECTED COUNT -->
@@ -1031,6 +1038,7 @@
 
 					{/if}
 
+					{/if}
 				</div>
 
 				<!-- ================================================== -->
@@ -1143,7 +1151,7 @@
 			<!-- DOCTOR CONFIRMATION -->
 			<!-- ================================================== -->
 
-			{#if roleToggle === 'Doctor'}
+			{#if roleToggle === 'Doctor' && !isEditingGenericProfile}
 
 				<div class="confirmation-box">
 
@@ -1172,7 +1180,7 @@
 
 			<div class="actions">
 
-				{#if roleToggle !== 'Reader'}
+				{#if roleToggle !== 'Reader' && !isEditingCompletedProfile}
 					<button
 						type="submit"
 						class="btn-save"
@@ -1196,7 +1204,7 @@
 				>
 					{submitting && activeAction === 'submit'
 						? 'Submitting...'
-						: 'Submit'}
+						: isEditingCompletedProfile ? 'Save Changes' : 'Submit'}
 				</button>
 
 			</div>

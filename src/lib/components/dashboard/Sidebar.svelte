@@ -55,7 +55,6 @@
 			<span>Dashboard</span>
 		</a>
 
-
 		<!-- COMMUNITY -->
 		<div class="group-title">COMMUNITY</div>
 

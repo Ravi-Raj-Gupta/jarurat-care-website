@@ -109,6 +109,10 @@ function extractFormData(formData: FormData) {
 		};
 	}
 
+	if (role !== 'Doctor' && role !== 'Reviewer') {
+		return common;
+	}
+
 	/*
 	 * ============================
 	 * DOCTOR PROFILE
@@ -192,6 +196,25 @@ export const actions: Actions = {
 			});
 		}
 
+		const { data: existingProfile, error: existingProfileError } = await locals.supabase
+			.from('profiles')
+			.select('profile_completed')
+			.eq('id', session.user.id)
+			.maybeSingle();
+
+		if (existingProfileError) {
+			console.error('Load profile before saving draft error:', existingProfileError);
+			return fail(500, {
+				message: 'Could not save draft. Please try again.'
+			});
+		}
+
+		if (existingProfile?.profile_completed) {
+			return fail(400, {
+				message: 'Use Save Changes to update your profile.'
+			});
+		}
+
 		const { error } = await locals.supabase
 			.from('profiles')
 			.upsert(
@@ -238,11 +261,33 @@ export const actions: Actions = {
 
 		const profileData = extractFormData(formData);
 
+		const {
+			data: existingProfile,
+			error: existingProfileError
+		} = await locals.supabase
+			.from('profiles')
+			.select('role, profile_completed, verification_status, is_reviewer')
+			.eq('id', session.user.id)
+			.maybeSingle();
+
+		if (existingProfileError) {
+			console.error('Load profile before submit error:', existingProfileError);
+			return fail(500, {
+				message: 'Could not submit profile. Please try again.'
+			});
+		}
+
+		const isEditingCompletedProfile = existingProfile?.profile_completed === true;
+		if (isEditingCompletedProfile && existingProfile.role) {
+			profileData.role = existingProfile.role;
+		}
+
 		/*
 		 * Doctors must confirm their information.
 		 */
 		if (
-			profileData.role === 'Doctor' &&
+			(profileData.role === 'Doctor' || profileData.role === 'Reviewer') &&
+			!isEditingCompletedProfile &&
 			!('is_confirmed' in profileData
 				? profileData.is_confirmed
 				: false)
@@ -264,8 +309,9 @@ export const actions: Actions = {
 		 * Readers:
 		 *     approved immediately
 		 */
-		const verification_status =
-			profileData.role === 'Doctor'
+		const verification_status = isEditingCompletedProfile
+			? existingProfile.verification_status
+			: profileData.role === 'Doctor' || profileData.role === 'Reviewer'
 				? 'pending'
 				: 'approved';
 
@@ -282,10 +328,9 @@ export const actions: Actions = {
 		 * this to true when approving
 		 * the doctor as a Reviewer.
 		 */
-		const is_reviewer =
-			profileData.role === 'Doctor'
-				? false
-				: false;
+		const is_reviewer = isEditingCompletedProfile
+			? existingProfile.is_reviewer
+			: false;
 
 		const { error } = await locals.supabase
 			.from('profiles')
@@ -333,7 +378,10 @@ export const actions: Actions = {
 		 * Notify Super Admin that a
 		 * doctor is waiting for approval.
 		 */
-		if (profileData.role === 'Doctor') {
+		if (
+			(profileData.role === 'Doctor' || profileData.role === 'Reviewer') &&
+			!isEditingCompletedProfile
+		) {
 			try {
 				await createAdminNotification(
 					'New Verification Request',
@@ -371,13 +419,21 @@ export const actions: Actions = {
 		 * Doctor cannot enter the dashboard
 		 * until Super Admin approves them.
 		 */
-		if (profileData.role === 'Doctor') {
+		if (
+			(profileData.role === 'Doctor' || profileData.role === 'Reviewer') &&
+			!isEditingCompletedProfile
+		) {
 			throw redirect(
 				303,
 				'/cms/pending'
 			);
 		}
 
-		throw redirect(303, '/cms/reader-dashboard/profile');
+		throw redirect(
+			303,
+			profileData.role === 'Doctor'
+				? '/cms/doctor-dashboard'
+				: '/cms/reader-dashboard/profile'
+		);
 	}
 };
